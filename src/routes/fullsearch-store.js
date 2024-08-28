@@ -20,16 +20,16 @@ export const searchResultsStore = writable(initialState);
 
 const endpoint = 'http://localhost/mdb/api/search/';
 
-export async function initializeSearch(query) {
-    await fetchResults(null, query);
+export async function initializeSearch(query, filter) {
+    await fetchResults(null, query, filter);
 }
 
-export async function fetchResults(pageUrl = null, searchQuery) {
+export async function fetchResults(pageUrl = null, searchQuery, filter = 'all') {
     searchResultsStore.update(store => ({ ...store, isLoading: true, error: null }));
     try {
         const url = pageUrl 
-            ? `${endpoint}${pageUrl}&q=${encodeURIComponent(searchQuery)}`
-            : `${endpoint}?q=${encodeURIComponent(searchQuery)}`;
+            ? `${endpoint}${pageUrl}&q=${encodeURIComponent(searchQuery)}&filter=${filter}`
+            : `${endpoint}?q=${encodeURIComponent(searchQuery)}&filter=${filter}`;
 
         const response = await fetch(url);
         if (!response.ok) {

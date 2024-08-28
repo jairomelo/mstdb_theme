@@ -7,19 +7,21 @@
     let { searchQuery } = data;
     let query = searchQuery;
     let desiredPage = '';
+    let currentFilter = 'all';
 
     onMount(() => {
-        console.log("onMount: query =", query);
         if (query) {
-            initializeSearch(query);
+            initializeSearch(query, currentFilter);
         }
     });
 
-    const endpoint = 'http://localhost/mdb/api/search/';
-
-
     function handleSearch() {
-        fetchResults(null);
+        fetchResults(null, query, currentFilter);
+    }
+
+    function setFilter(filter) {
+        currentFilter = filter;
+        fetchResults(null, query, currentFilter);
     }
 
     function loadNextPage() {
@@ -57,6 +59,16 @@
         </div>
         <div class="col-auto">
             <button on:click={handleSearch} class="btn btn-primary">Search</button>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <button class="btn btn-outline-secondary" class:active={currentFilter === 'all'} on:click={() => setFilter('all')}>All</button>
+            <button class="btn btn-outline-secondary" class:active={currentFilter === 'documentos'} on:click={() => setFilter('documentos')}>Documentos</button>
+            <button class="btn btn-outline-secondary" class:active={currentFilter === 'personas_esclavizadas'} on:click={() => setFilter('personas_esclavizadas')}>Personas Esclavizadas</button>
+            <button class="btn btn-outline-secondary" class:active={currentFilter === 'personas_no_esclavizadas'} on:click={() => setFilter('personas_no_esclavizadas')}>Personas No Esclavizadas</button>
+            <button class="btn btn-outline-secondary" class:active={currentFilter === 'corporaciones'} on:click={() => setFilter('corporaciones')}>Corporaciones</button>
         </div>
     </div>
 
