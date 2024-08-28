@@ -9,8 +9,7 @@
 </script>
 
 
-<h1>Welcome to SvelteKit!</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to <span class="testing">read</span> the documentation</p>
+
 <section class="hero-section d-flex align-items-center justify-content-center bg-primary text-white" style="height: 100vh;">
     <div class="text-center">
         <h1 class="display-4">Welcome to Our Archive</h1>
