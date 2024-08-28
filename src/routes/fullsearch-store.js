@@ -27,9 +27,15 @@ export async function initializeSearch(query, filter) {
 export async function fetchResults(pageUrl = null, searchQuery, filter = 'all') {
     searchResultsStore.update(store => ({ ...store, isLoading: true, error: null }));
     try {
-        const url = pageUrl 
-            ? `${endpoint}${pageUrl}&q=${encodeURIComponent(searchQuery)}&filter=${filter}`
-            : `${endpoint}?q=${encodeURIComponent(searchQuery)}&filter=${filter}`;
+        let url;
+        if (pageUrl) {
+            const urlObj = new URL(pageUrl, endpoint);
+            urlObj.searchParams.set('q', searchQuery);
+            urlObj.searchParams.set('filter', filter);
+            url = urlObj.toString();
+        } else {
+            url = `${endpoint}?q=${encodeURIComponent(searchQuery)}&filter=${filter}`;
+        }
 
         const response = await fetch(url);
         if (!response.ok) {
@@ -63,8 +69,8 @@ export async function fetchResults(pageUrl = null, searchQuery, filter = 'all') 
             totalResults: data.count,
             currentPage,
             totalPages: Math.ceil(data.count / 20), 
-            nextPage: data.next,
-            previousPage: data.previous,
+            nextPage: data.next ? new URL(data.next, endpoint).pathname + new URL(data.next, endpoint).search : null,
+            previousPage: data.previous ? new URL(data.previous, endpoint).pathname + new URL(data.previous, endpoint).search : null,
             isLoading: false,
             error: null
         });

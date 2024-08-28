@@ -27,21 +27,21 @@
     function loadNextPage() {
         const store = get(searchResultsStore);
         if (store.nextPage) {
-            fetchResults(store.nextPage);
+            fetchResults(store.nextPage, query, currentFilter);
         }
     }
 
     function loadPreviousPage() {
         const store = get(searchResultsStore);
         if (store.previousPage) {
-            fetchResults(store.previousPage);
+            fetchResults(store.previousPage, query, currentFilter);
         }
     }
 
     function goToPage() {
         const store = get(searchResultsStore);
         if (desiredPage && !isNaN(desiredPage) && desiredPage >= 1 && desiredPage <= store.totalPages) {
-            fetchResults(`?page=${desiredPage}`);
+            fetchResults(`?page=${desiredPage}`, query, currentFilter);
         } else {
             alert(`Please enter a valid page number between 1 and ${store.totalPages}`);
         }
