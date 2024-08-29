@@ -14,18 +14,19 @@ const initialState = {
     nextPage: null,
     previousPage: null,
     isLoading: false,
-    error: null
+    error: null,
+    currentSort: '' // Add this line
 };
 
 export const searchResultsStore = writable(initialState);
 
 const endpoint = 'http://localhost/mdb/api/search/';
 
-export async function initializeSearch(query, filter) {
-    await fetchResults(null, query, filter);
+export async function initializeSearch(query, filter, sort = '') {
+    await fetchResults(null, query, filter, sort);
 }
 
-export async function fetchResults(pageUrl = null, searchQuery, filter = 'all') {
+export async function fetchResults(pageUrl = null, searchQuery, filter = 'all', sort = '') {
     searchResultsStore.update(store => ({ ...store, isLoading: true, error: null }));
     try {
         let url;
@@ -33,9 +34,10 @@ export async function fetchResults(pageUrl = null, searchQuery, filter = 'all') 
             const urlObj = new URL(pageUrl, endpoint);
             urlObj.searchParams.set('q', searchQuery);
             urlObj.searchParams.set('filter', filter);
+            urlObj.searchParams.set('sort', sort);
             url = urlObj.toString();
         } else {
-            url = `${endpoint}?q=${encodeURIComponent(searchQuery)}&filter=${filter}`;
+            url = `${endpoint}?q=${encodeURIComponent(searchQuery)}&filter=${filter}&sort=${sort}`;
         }
 
         const response = await fetch(url);
@@ -76,7 +78,8 @@ export async function fetchResults(pageUrl = null, searchQuery, filter = 'all') 
             nextPage: data.next ? new URL(data.next, endpoint).pathname + new URL(data.next, endpoint).search : null,
             previousPage: data.previous ? new URL(data.previous, endpoint).pathname + new URL(data.previous, endpoint).search : null,
             isLoading: false,
-            error: null
+            error: null,
+            currentSort: sort // Add this line
         });
     } catch (err) {
         searchResultsStore.update(store => ({ ...store, error: err.message, isLoading: false }));

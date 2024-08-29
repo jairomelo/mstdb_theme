@@ -8,40 +8,46 @@
     let query = searchQuery;
     let desiredPage = '';
     let currentFilter = filter || 'all';
+    let currentSort = '';
 
     onMount(() => {
         if (query) {
-            initializeSearch(query, currentFilter);
+            initializeSearch(query, currentFilter, currentSort);
         }
     });
 
     function handleSearch() {
-        fetchResults(null, query, currentFilter);
+        fetchResults(null, query, currentFilter, currentSort);
     }
 
     function setFilter(filter) {
         currentFilter = filter;
-        fetchResults(null, query, currentFilter);
+        fetchResults(null, query, currentFilter, currentSort);
+    }
+
+    function setSort(sort) {
+        currentSort = sort;
+        fetchResults(null, query, currentFilter, currentSort);
     }
 
     function loadNextPage() {
         const store = get(searchResultsStore);
         if (store.nextPage) {
-            fetchResults(store.nextPage, query, currentFilter);
+            fetchResults(store.nextPage, query, currentFilter, currentSort);
         }
     }
 
     function loadPreviousPage() {
         const store = get(searchResultsStore);
         if (store.previousPage) {
-            fetchResults(store.previousPage, query, currentFilter);
+            fetchResults(store.previousPage, query, currentFilter, currentSort);
         }
     }
 
     function goToPage() {
         const store = get(searchResultsStore);
         if (desiredPage && !isNaN(desiredPage) && desiredPage >= 1 && desiredPage <= store.totalPages) {
-            fetchResults(`?page=${desiredPage}`, query, currentFilter);
+            fetchResults(`?page=${desiredPage}`, query, currentFilter, currentSort);
         } else {
             alert(`Please enter a valid page number between 1 and ${store.totalPages}`);
         }
@@ -82,6 +88,25 @@
                 </button>
                 <button class="btn btn-outline-primary" class:active={currentFilter === 'personas_lugar_rel'} on:click={() => setFilter('personas_lugar_rel')}>
                     <i class="bi bi-geo-alt me-1"></i> Lugares
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <div class="btn-group" role="group" aria-label="Opciones de ordenamiento">
+                <button class="btn btn-outline-secondary" class:active={currentSort === 'fecha_inicial'} on:click={() => setSort('fecha_inicial')}>
+                    <i class="bi bi-sort-numeric-down me-1"></i> Fecha Inicial (Asc)
+                </button>
+                <button class="btn btn-outline-secondary" class:active={currentSort === '-fecha_inicial'} on:click={() => setSort('-fecha_inicial')}>
+                    <i class="bi bi-sort-numeric-up me-1"></i> Fecha Inicial (Desc)
+                </button>
+                <button class="btn btn-outline-secondary" class:active={currentSort === 'fecha_final'} on:click={() => setSort('fecha_final')}>
+                    <i class="bi bi-sort-numeric-down me-1"></i> Fecha Final (Asc)
+                </button>
+                <button class="btn btn-outline-secondary" class:active={currentSort === '-fecha_final'} on:click={() => setSort('-fecha_final')}>
+                    <i class="bi bi-sort-numeric-up me-1"></i> Fecha Final (Desc)
                 </button>
             </div>
         </div>
@@ -145,10 +170,10 @@
                         <div class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{doc.titulo}</h5>
-                                <small>{doc.fecha_documento || 'N/A'}</small>
+                                <small>{doc.fecha_inicial_raw || 'N/A'}{doc.fecha_final_raw && doc.fecha_final_raw !== doc.fecha_inicial_raw ? ` - ${doc.fecha_final_raw}` : ''}</small>
                             </div>
                             <p class="mb-1">{doc.descripcion || 'Sin descripción disponible'}</p>
-                            <small>Tipo: {doc.tipo_documento || 'N/A'}</small>
+                            <small>Identificador: {doc.documento_idno || 'N/A'}</small>
                         </div>
                     {/each}
                 </div>
