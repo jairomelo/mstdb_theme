@@ -32,6 +32,7 @@
               <button type="button" class="btn btn-outline-light" on:click={() => setFilter('personas_esclavizadas')}>Personas Esclavizadas</button>
               <button type="button" class="btn btn-outline-light" on:click={() => setFilter('personas_no_esclavizadas')}>Personas No Esclavizadas</button>
               <button type="button" class="btn btn-outline-light" on:click={() => setFilter('corporaciones')}>Corporaciones</button>
+              <button type="button" class="btn btn-outline-light" on:click={() => setFilter('personas_lugar_rel')}>Lugares</button>
             </div>
         </form>
     </div>
