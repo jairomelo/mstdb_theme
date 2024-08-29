@@ -5,7 +5,8 @@ const initialState = {
         Documentos: [],
         PersonasEsclavizadas: [],
         PersonasNoEsclavizadas: [],
-        Corporaciones: []
+        Corporaciones: [],
+        Lugares: [],
     },
     totalResults: 0,
     currentPage: 1,
@@ -47,7 +48,8 @@ export async function fetchResults(pageUrl = null, searchQuery, filter = 'all') 
             Documentos: [],
             PersonasEsclavizadas: [],
             PersonasNoEsclavizadas: [],
-            Corporaciones: []
+            Corporaciones: [],
+            Lugares: [],
         };
 
         data.results.forEach(result => {
@@ -59,6 +61,8 @@ export async function fetchResults(pageUrl = null, searchQuery, filter = 'all') 
                 groupedResults.PersonasNoEsclavizadas.push(result);
             } else if (result.corporacion_id) {
                 groupedResults.Corporaciones.push(result);
+            } else if (result.persona_x_lugares) {
+                groupedResults.Lugares.push(result);
             }
         });
 

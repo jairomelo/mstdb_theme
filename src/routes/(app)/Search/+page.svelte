@@ -53,38 +53,63 @@
 <div class="container mt-4">
     <div class="row mb-3">
         <div class="col">
-            <input bind:value={query} class="form-control" placeholder="Search..." />
-        </div>
-        <div class="col-auto">
-            <button on:click={handleSearch} class="btn btn-primary">Search</button>
+            <div class="input-group">
+                <input bind:value={query} class="form-control" placeholder="Search..." aria-label="Search" />
+                <button on:click={handleSearch} class="btn btn-primary">
+                    <i class="bi bi-search me-1"></i> Search
+                </button>
+            </div>
         </div>
     </div>
 
     <div class="row mb-3">
         <div class="col">
-            <button class="btn btn-outline-secondary" class:active={currentFilter === 'all'} on:click={() => setFilter('all')}>All</button>
-            <button class="btn btn-outline-secondary" class:active={currentFilter === 'documentos'} on:click={() => setFilter('documentos')}>Documentos</button>
-            <button class="btn btn-outline-secondary" class:active={currentFilter === 'personas_esclavizadas'} on:click={() => setFilter('personas_esclavizadas')}>Personas Esclavizadas</button>
-            <button class="btn btn-outline-secondary" class:active={currentFilter === 'personas_no_esclavizadas'} on:click={() => setFilter('personas_no_esclavizadas')}>Personas No Esclavizadas</button>
-            <button class="btn btn-outline-secondary" class:active={currentFilter === 'corporaciones'} on:click={() => setFilter('corporaciones')}>Corporaciones</button>
+            <div class="btn-group" role="group" aria-label="Filter options">
+                <button class="btn btn-outline-primary" class:active={currentFilter === 'all'} on:click={() => setFilter('all')}>
+                    <i class="bi bi-grid-3x3-gap me-1"></i> All
+                </button>
+                <button class="btn btn-outline-primary" class:active={currentFilter === 'documentos'} on:click={() => setFilter('documentos')}>
+                    <i class="bi bi-file-text me-1"></i> Documentos
+                </button>
+                <button class="btn btn-outline-primary" class:active={currentFilter === 'personas_esclavizadas'} on:click={() => setFilter('personas_esclavizadas')}>
+                    <i class="bi bi-person me-1"></i> Personas Esclavizadas
+                </button>
+                <button class="btn btn-outline-primary" class:active={currentFilter === 'personas_no_esclavizadas'} on:click={() => setFilter('personas_no_esclavizadas')}>
+                    <i class="bi bi-person-check me-1"></i> Personas No Esclavizadas
+                </button>
+                <button class="btn btn-outline-primary" class:active={currentFilter === 'corporaciones'} on:click={() => setFilter('corporaciones')}>
+                    <i class="bi bi-building me-1"></i> Corporaciones
+                </button>
+                <button class="btn btn-outline-primary" class:active={currentFilter === 'personas_lugar_rel'} on:click={() => setFilter('personas_lugar_rel')}>
+                    <i class="bi bi-geo-alt me-1"></i> Lugares
+                </button>
+            </div>
         </div>
     </div>
 
     {#if $searchResultsStore.isLoading}
-        <div class="alert alert-info">Loading...</div>
+        <div class="alert alert-info">
+            <i class="bi bi-hourglass-split me-2"></i> Loading...
+        </div>
     {:else if $searchResultsStore.error}
-        <div class="alert alert-danger">{ $searchResultsStore.error }</div>
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i> { $searchResultsStore.error }
+        </div>
     {/if}
 
     {#if $searchResultsStore.totalResults > 0}
-        <p>Total results found: { $searchResultsStore.totalResults }</p>
+        <p class="text-muted">
+            <i class="bi bi-info-circle me-2"></i> Total results found: { $searchResultsStore.totalResults }
+        </p>
 
         <!-- Pagination Controls -->
-        <nav aria-label="Page navigation">
+        <nav aria-label="Page navigation" class="my-4">
             <ul class="pagination justify-content-center">
                 {#if $searchResultsStore.previousPage}
                     <li class="page-item">
-                        <button class="page-link" on:click={loadPreviousPage}>Previous</button>
+                        <button class="page-link" on:click={loadPreviousPage}>
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </button>
                     </li>
                 {/if}
                 <li class="page-item disabled">
@@ -92,7 +117,9 @@
                 </li>
                 {#if $searchResultsStore.nextPage}
                     <li class="page-item">
-                        <button class="page-link" on:click={loadNextPage}>Next</button>
+                        <button class="page-link" on:click={loadNextPage}>
+                            Next <i class="bi bi-chevron-right"></i>
+                        </button>
                     </li>
                 {/if}
             </ul>
@@ -100,49 +127,95 @@
 
         <div class="row justify-content-center mb-3">
             <div class="col-auto">
-                <input type="number" bind:value={desiredPage} min="1" max={$searchResultsStore.totalPages} class="form-control" placeholder="Go to page" />
-            </div>
-            <div class="col-auto">
-                <button on:click={goToPage} class="btn btn-secondary">Go</button>
+                <div class="input-group">
+                    <input type="number" bind:value={desiredPage} min="1" max={$searchResultsStore.totalPages} class="form-control" placeholder="Go to page" aria-label="Go to page" />
+                    <button on:click={goToPage} class="btn btn-secondary">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Go
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Display Grouped Results -->
         <div class="results-section">
             {#if $searchResultsStore.groupedResults.Documentos.length > 0}
-                <h3>Documentos</h3>
-                <ul class="list-group mb-4">
+                <h3 class="mt-4 mb-3"><i class="bi bi-file-text me-2"></i>Documentos</h3>
+                <div class="list-group mb-4">
                     {#each $searchResultsStore.groupedResults.Documentos as doc}
-                        <li class="list-group-item">{doc.titulo}</li>
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{doc.titulo}</h5>
+                                <small>{doc.fecha_documento || 'N/A'}</small>
+                            </div>
+                            <p class="mb-1">{doc.descripcion || 'No description available'}</p>
+                            <small>Type: {doc.tipo_documento || 'N/A'}</small>
+                        </div>
                     {/each}
-                </ul>
+                </div>
             {/if}
 
             {#if $searchResultsStore.groupedResults.PersonasEsclavizadas.length > 0}
-                <h3>Personas Esclavizadas</h3>
-                <ul class="list-group mb-4">
+                <h3 class="mt-4 mb-3"><i class="bi bi-person me-2"></i>Personas Esclavizadas</h3>
+                <div class="list-group mb-4">
                     {#each $searchResultsStore.groupedResults.PersonasEsclavizadas as peresc}
-                        <li class="list-group-item">{peresc.nombre_normalizado}</li>
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{peresc.nombre_normalizado}</h5>
+                                <small>{peresc.fecha_nacimiento || 'N/A'}</small>
+                            </div>
+                            <p class="mb-1">Origin: {peresc.origen || 'Unknown'}</p>
+                            <small>Gender: {peresc.genero || 'N/A'} | Age: {peresc.edad || 'N/A'}</small>
+                        </div>
                     {/each}
-                </ul>
+                </div>
             {/if}
 
             {#if $searchResultsStore.groupedResults.PersonasNoEsclavizadas.length > 0}
-                <h3>Personas No Esclavizadas</h3>
-                <ul class="list-group mb-4">
+                <h3 class="mt-4 mb-3"><i class="bi bi-person-check me-2"></i>Personas No Esclavizadas</h3>
+                <div class="list-group mb-4">
                     {#each $searchResultsStore.groupedResults.PersonasNoEsclavizadas as pernoesc}
-                        <li class="list-group-item">{pernoesc.nombre_normalizado}</li>
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{pernoesc.nombre_normalizado}</h5>
+                                <small>{pernoesc.fecha_nacimiento || 'N/A'}</small>
+                            </div>
+                            <p class="mb-1">Occupation: {pernoesc.ocupacion || 'Unknown'}</p>
+                            <small>Gender: {pernoesc.genero || 'N/A'} | Age: {pernoesc.edad || 'N/A'}</small>
+                        </div>
                     {/each}
-                </ul>
+                </div>
             {/if}
 
             {#if $searchResultsStore.groupedResults.Corporaciones.length > 0}
-                <h3>Corporaciones</h3>
-                <ul class="list-group mb-4">
+                <h3 class="mt-4 mb-3"><i class="bi bi-building me-2"></i>Corporaciones</h3>
+                <div class="list-group mb-4">
                     {#each $searchResultsStore.groupedResults.Corporaciones as corp}
-                        <li class="list-group-item">{corp.nombre_institucion}</li>
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{corp.nombre_institucion}</h5>
+                                <small>{corp.fecha_fundacion || 'N/A'}</small>
+                            </div>
+                            <p class="mb-1">Type: {corp.tipo_institucion || 'Unknown'}</p>
+                            <small>Location: {corp.ubicacion || 'N/A'}</small>
+                        </div>
                     {/each}
-                </ul>
+                </div>
+            {/if}
+
+            {#if $searchResultsStore.groupedResults.Lugares.length > 0}
+                <h3 class="mt-4 mb-3"><i class="bi bi-geo-alt me-2"></i>Lugares</h3>
+                <div class="list-group mb-4">
+                    {#each $searchResultsStore.groupedResults.Lugares as lugar}
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{lugar.lugar}</h5>
+                                <small>{lugar.tipo_lugar || 'N/A'}</small>
+                            </div>
+                            <p class="mb-1">Region: {lugar.region || 'Unknown'}</p>
+                            <small>Coordinates: {lugar.coordenadas || 'N/A'}</small>
+                        </div>
+                    {/each}
+                </div>
             {/if}
         </div>
     {/if}
