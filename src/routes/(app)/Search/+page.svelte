@@ -53,20 +53,20 @@
 <div class="container mt-4">
     <div class="row mb-3">
         <div class="col">
-            <div class="input-group">
-                <input bind:value={query} class="form-control" placeholder="Search..." aria-label="Search" />
-                <button on:click={handleSearch} class="btn btn-primary">
-                    <i class="bi bi-search me-1"></i> Search
+            <form on:submit|preventDefault={handleSearch} class="input-group">
+                <input bind:value={query} class="form-control" placeholder="Buscar..." aria-label="Buscar" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search me-1"></i> Buscar
                 </button>
-            </div>
+            </form>
         </div>
     </div>
 
     <div class="row mb-3">
         <div class="col">
-            <div class="btn-group" role="group" aria-label="Filter options">
+            <div class="btn-group" role="group" aria-label="Opciones de filtro">
                 <button class="btn btn-outline-primary" class:active={currentFilter === 'all'} on:click={() => setFilter('all')}>
-                    <i class="bi bi-grid-3x3-gap me-1"></i> All
+                    <i class="bi bi-grid-3x3-gap me-1"></i> Todo
                 </button>
                 <button class="btn btn-outline-primary" class:active={currentFilter === 'documentos'} on:click={() => setFilter('documentos')}>
                     <i class="bi bi-file-text me-1"></i> Documentos
@@ -89,7 +89,7 @@
 
     {#if $searchResultsStore.isLoading}
         <div class="alert alert-info">
-            <i class="bi bi-hourglass-split me-2"></i> Loading...
+            <i class="bi bi-hourglass-split me-2"></i> Cargando...
         </div>
     {:else if $searchResultsStore.error}
         <div class="alert alert-danger">
@@ -99,26 +99,26 @@
 
     {#if $searchResultsStore.totalResults > 0}
         <p class="text-muted">
-            <i class="bi bi-info-circle me-2"></i> Total results found: { $searchResultsStore.totalResults }
+            <i class="bi bi-info-circle me-2"></i> Número de resultados: { $searchResultsStore.totalResults }
         </p>
 
-        <!-- Pagination Controls -->
-        <nav aria-label="Page navigation" class="my-4">
+        <!-- Controles de Paginación -->
+        <nav aria-label="Navegación de página" class="my-4">
             <ul class="pagination justify-content-center">
                 {#if $searchResultsStore.previousPage}
                     <li class="page-item">
                         <button class="page-link" on:click={loadPreviousPage}>
-                            <i class="bi bi-chevron-left"></i> Previous
+                            <i class="bi bi-chevron-left"></i> Anterior
                         </button>
                     </li>
                 {/if}
                 <li class="page-item disabled">
-                    <span class="page-link">Page { $searchResultsStore.currentPage } of { $searchResultsStore.totalPages }</span>
+                    <span class="page-link">Página { $searchResultsStore.currentPage } de { $searchResultsStore.totalPages }</span>
                 </li>
                 {#if $searchResultsStore.nextPage}
                     <li class="page-item">
                         <button class="page-link" on:click={loadNextPage}>
-                            Next <i class="bi bi-chevron-right"></i>
+                            Siguiente <i class="bi bi-chevron-right"></i>
                         </button>
                     </li>
                 {/if}
@@ -128,15 +128,15 @@
         <div class="row justify-content-center mb-3">
             <div class="col-auto">
                 <div class="input-group">
-                    <input type="number" bind:value={desiredPage} min="1" max={$searchResultsStore.totalPages} class="form-control" placeholder="Go to page" aria-label="Go to page" />
+                    <input type="number" bind:value={desiredPage} min="1" max={$searchResultsStore.totalPages} class="form-control" placeholder="Ir a página" aria-label="Ir a página" />
                     <button on:click={goToPage} class="btn btn-secondary">
-                        <i class="bi bi-arrow-right-circle me-1"></i> Go
+                        <i class="bi bi-arrow-right-circle me-1"></i> Ir
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Display Grouped Results -->
+        <!-- Mostrar Resultados Agrupados -->
         <div class="results-section">
             {#if $searchResultsStore.groupedResults.Documentos.length > 0}
                 <h3 class="mt-4 mb-3"><i class="bi bi-file-text me-2"></i>Documentos</h3>
@@ -147,8 +147,8 @@
                                 <h5 class="mb-1">{doc.titulo}</h5>
                                 <small>{doc.fecha_documento || 'N/A'}</small>
                             </div>
-                            <p class="mb-1">{doc.descripcion || 'No description available'}</p>
-                            <small>Type: {doc.tipo_documento || 'N/A'}</small>
+                            <p class="mb-1">{doc.descripcion || 'Sin descripción disponible'}</p>
+                            <small>Tipo: {doc.tipo_documento || 'N/A'}</small>
                         </div>
                     {/each}
                 </div>
@@ -163,8 +163,8 @@
                                 <h5 class="mb-1">{peresc.nombre_normalizado}</h5>
                                 <small>{peresc.fecha_nacimiento || 'N/A'}</small>
                             </div>
-                            <p class="mb-1">Origin: {peresc.origen || 'Unknown'}</p>
-                            <small>Gender: {peresc.genero || 'N/A'} | Age: {peresc.edad || 'N/A'}</small>
+                            <p class="mb-1">Origen: {peresc.origen || 'Desconocido'}</p>
+                            <small>Género: {peresc.genero || 'N/A'} | Edad: {peresc.edad || 'N/A'}</small>
                         </div>
                     {/each}
                 </div>
@@ -179,8 +179,8 @@
                                 <h5 class="mb-1">{pernoesc.nombre_normalizado}</h5>
                                 <small>{pernoesc.fecha_nacimiento || 'N/A'}</small>
                             </div>
-                            <p class="mb-1">Occupation: {pernoesc.ocupacion || 'Unknown'}</p>
-                            <small>Gender: {pernoesc.genero || 'N/A'} | Age: {pernoesc.edad || 'N/A'}</small>
+                            <p class="mb-1">Ocupación: {pernoesc.ocupacion || 'Desconocida'}</p>
+                            <small>Género: {pernoesc.genero || 'N/A'} | Edad: {pernoesc.edad || 'N/A'}</small>
                         </div>
                     {/each}
                 </div>
@@ -195,8 +195,8 @@
                                 <h5 class="mb-1">{corp.nombre_institucion}</h5>
                                 <small>{corp.fecha_fundacion || 'N/A'}</small>
                             </div>
-                            <p class="mb-1">Type: {corp.tipo_institucion || 'Unknown'}</p>
-                            <small>Location: {corp.ubicacion || 'N/A'}</small>
+                            <p class="mb-1">Tipo: {corp.tipo_institucion || 'Desconocido'}</p>
+                            <small>Ubicación: {corp.ubicacion || 'N/A'}</small>
                         </div>
                     {/each}
                 </div>
@@ -211,8 +211,8 @@
                                 <h5 class="mb-1">{lugar.lugar}</h5>
                                 <small>{lugar.tipo_lugar || 'N/A'}</small>
                             </div>
-                            <p class="mb-1">Region: {lugar.region || 'Unknown'}</p>
-                            <small>Coordinates: {lugar.coordenadas || 'N/A'}</small>
+                            <p class="mb-1">Región: {lugar.region || 'Desconocida'}</p>
+                            <small>Coordenadas: {lugar.coordenadas || 'N/A'}</small>
                         </div>
                     {/each}
                 </div>
