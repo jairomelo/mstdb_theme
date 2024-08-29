@@ -1,13 +1,13 @@
 <script>
     import { onMount } from 'svelte';
-    import { searchResultsStore, initializeSearch, fetchResults } from '../fullsearch-store';
+    import { searchResultsStore, initializeSearch, fetchResults } from '../../fullsearch-store';
     import { get } from 'svelte/store';
 
     export let data;
-    let { searchQuery } = data;
+    let { searchQuery, filter } = data;
     let query = searchQuery;
     let desiredPage = '';
-    let currentFilter = 'all';
+    let currentFilter = filter || 'all';
 
     onMount(() => {
         if (query) {

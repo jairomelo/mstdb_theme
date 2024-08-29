@@ -1,11 +1,13 @@
-<script>
-  import { page } from '$app/stores';
-</script>
+<style>
+  .navbar {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    z-index: 10;
+  }
+</style>
 
-{#if $page.url.pathname === '/'}
-  <slot />
-{:else}
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-dark bg-transparent navbar-collapse">
     <div class="container-fluid">
       <a class="navbar-brand" href="/">Navbar</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,8 +39,7 @@
       </div>
     </div>
   </nav>
+  
 
-  <div class="container">
-    <slot />
-  </div>
-{/if}
+<slot />
+
