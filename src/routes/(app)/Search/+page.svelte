@@ -220,11 +220,14 @@
                         <div class="list-group-item list-group-item-action">
                             <div class="row">
                                 <div class="col-md-6">
+                                    <a href="/Detail/personaEsclavizada/{peresc.persona_id}">
                                     <h5 class="mb-2">{peresc.nombre_normalizado} 
+                                    
                                         {#if peresc.fecha_nacimiento || peresc.fecha_defuncion}    
                                         (<small>{peresc.fecha_nacimiento || ''}</small>)
                                         {/if}
                                     </h5>
+                                </a>
                                     <small class="identifier">{peresc.persona_idno || ''}</small>
                                     <p class="mb-1">Procedencia: {peresc.procedencia || 'Desconocida'}</p>
                                     {#if peresc.genero || peresc.edad}
@@ -277,7 +280,12 @@
                                             {#each relacion.personas as personas}
                                                 {#if personas.persona_idno != peresc.persona_idno}
                                                     <li class="list-inline-item">
+                                                        {#if personas.polymorphic_ctype == 29 }<a href="/Detail/personaEsclavizada/{personas.persona_id}"> 
                                                         {personas.nombre_normalizado} 
+                                                        </a>
+                                                        {:else}
+                                                        {personas.nombre_normalizado} 
+                                                        {/if}
                                                         <span use:tooltip={{ title: relacion.descripcion_relacion }}><i class="bi bi-info-circle"></i></span>
                                                     </li>
                                                 {/if}
