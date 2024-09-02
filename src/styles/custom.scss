@@ -1,0 +1,20 @@
+// Override default variables
+$theme-colors: (
+  "light":      #dee3e7,
+  "dark":       #030303,
+  "primary":    #1d8dbc,
+  "secondary":  #0477ad,
+  "info":       #03abd5,
+  "accent1":    #1c8dbc,
+  "accent2":    #047ca0,
+  "accent3":    #98b0b7,
+  "success":    #01b560,
+  "warning":    #ebce01,
+  "danger":     #fd0013,
+);
+
+// Import Bootstrap
+@import "bootstrap/scss/bootstrap";
+
+// curtom CSS
+@import "../../static/css/app.css";

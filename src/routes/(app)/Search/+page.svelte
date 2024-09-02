@@ -25,6 +25,19 @@
         }
     });
 
+    function initializeTooltips() {
+        setTimeout(() => {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(tooltipTriggerEl => {
+                new tooltip(tooltipTriggerEl);
+            });
+        }, 0);
+    }
+
+    $: if ($searchResultsStore.totalResults > 0) {
+        initializeTooltips();
+    }
+
     function handleSearch() {
         searchPerformed = true;
         currentFilter = preSelectedFilter;
@@ -241,7 +254,7 @@
                                         <ul class="list-unstyled">
                                             {#each peresc.documentos.slice(0, 3) as doc}
                                                 <li>
-                                                    <a href="/Detail/documentos/{doc.documento_id}" class="tooltip-url" data-tooltip={doc.notas || ''}>
+                                                    <a href="/Detail/documentos/{doc.documento_id}" class="tooltip-url" data-bs-toggle="tooltip" data-bs-title={doc.notas || ''}>
                                                         <small>{doc.titulo.length > 50 ? doc.titulo.substring(0, 50) + '...' : doc.titulo}</small>
                                                     </a>
                                                 </li>

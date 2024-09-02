@@ -1,5 +1,6 @@
 <script>
   import { page } from '$app/stores';
+  import '../lib/bootstrap.js';
 </script>
 
 {#if $page.url.pathname === '/'}

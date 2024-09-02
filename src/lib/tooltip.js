@@ -1,11 +1,14 @@
-export function tooltip(node, options = {}) {
-    if (typeof bootstrap !== 'undefined') {
-        const tooltip = new bootstrap.Tooltip(node, options);
+import { browser } from '$app/environment';
 
-        return {
-            destroy() {
-                tooltip.dispose();
-            }
-        };
+export function tooltip(node, options = {}) {
+    if (browser) {
+        import('bootstrap').then((bootstrap) => {
+            const tooltip = new bootstrap.Tooltip(node, options);
+            return {
+                destroy() {
+                    tooltip.dispose();
+                }
+            };
+        });
     }
 }
