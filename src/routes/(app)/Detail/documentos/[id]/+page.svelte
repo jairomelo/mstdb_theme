@@ -26,6 +26,17 @@
             console.error("Failed to fetch document:", e);
         }
     });
+
+    let treeExpanded = false;
+
+    function toggleFullTree() {
+        treeExpanded = !treeExpanded;
+        // Update the class of the archive-tree div
+        const archiveTreeElement = document.querySelector('.archive-tree');
+        if (archiveTreeElement) {
+            archiveTreeElement.classList.toggle('expanded', treeExpanded);
+        }
+    }
 </script>
 
 <div class="container mt-4">
@@ -46,7 +57,13 @@
                         <p><strong><i class="bi bi-calendar-range me-2"></i>Fecha:</strong> {documento.fecha_inicial_raw || 'N/A'}{documento.fecha_final_raw && documento.fecha_final_raw !== documento.fecha_inicial_raw ? ` - ${documento.fecha_final_raw}` : ''}</p>
 
                         <div class="archive-tree">
-                            <h5><i class="bi bi-align-start"></i> Ubicación del documento: </h5>
+                            <button type="button" class="btn btn-link p-0 text-start" on:click={toggleFullTree}>
+                                <h5>
+                                    <i class="bi" class:bi-chevron-right={!treeExpanded} class:bi-chevron-down={treeExpanded}></i>
+                                    Ubicación del documento:
+                                </h5>
+                            </button>
+                            {#if treeExpanded}
                             <ul class="tree">
                                 <li>
                                     <span><i class="bi bi-archive me-2"></i>{documento.archivo?.nombre || 'Archivo'}</span>
@@ -86,6 +103,7 @@
                                     </ul>
                                 </li>
                             </ul>
+                            {/if}
                         </div>
                     </div>
                     <div class="col-md-6">
