@@ -17,7 +17,7 @@
     <div class="overlay"></div>
     <div class="hero-content text-center">
         <h1 class="display-4">Rutas de la Esclavitud en Nueva España</h1>
-        <p class="lead">Base de datos de personas esclavizadas en Nueva España</p>
+        <p class="lead">La circulación de afrodescendientes esclavizados y libres en la Nueva España</p>
 
         <form on:submit|preventDefault={handleHeroSearch} class="form-inline justify-content-center mt-4">
             <div class="input-group">
