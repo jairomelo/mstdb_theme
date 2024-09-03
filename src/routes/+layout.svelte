@@ -1,5 +1,7 @@
 <script>
   import { page } from '$app/stores';
+  import '@fontsource/aleo';
+  import '@fontsource/eb-garamond';
   import '../lib/bootstrap.js';
 </script>
 

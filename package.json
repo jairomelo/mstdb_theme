@@ -28,6 +28,9 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@fontsource/aleo": "^5.0.22",
+		"@fontsource/eb-garamond": "^5.0.19",
+		"@fontsource/noto-sans-display": "^5.0.20",
 		"@sveltestrap/sveltestrap": "^6.2.7",
 		"bootstrap": "^5.3.3",
 		"bootstrap-icons": "^1.11.3"

@@ -45,10 +45,10 @@
                         <p><strong><i class="bi bi-person me-2"></i>Nombres:</strong> {peresc.nombres || 'No disponible'}</p>
                         <p><strong><i class="bi bi-person-badge me-2"></i>Apellidos:</strong> {peresc.apellidos || 'No disponible'}</p>
                         <p><strong><i class="bi bi-gender-ambiguous me-2"></i>Sexo:</strong> {peresc.sexo || 'No disponible'}</p>
-                        <p><strong><i class="bi bi-calendar-event me-2"></i>Edad:</strong> {peresc.edad} {peresc.unidad_temporal_edad}</p>
+                        <p><strong><i class="bi bi-calendar-event me-2"></i>Edad:</strong> {peresc.edad} {peresc.unidad_temporal_edad || 'años'}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong><i class="bi bi-globe me-2"></i>Etnonimos:</strong> {peresc.etnonimos.join(', ') || 'No disponible'}</p>
+                        <p><strong><i class="bi bi-globe me-2"></i>Etnónimos:</strong> {peresc.etnonimos.join(', ') || 'No disponible'}</p>
                         <p><strong><i class="bi bi-body-text me-2"></i>Marcas corporales:</strong> {peresc.marcas_corporales || 'No disponible'}</p>
                         <p><strong><i class="bi bi-heart-pulse me-2"></i>Salud:</strong> {peresc.salud || 'No disponible'}</p>
                         <p><strong><i class="bi bi-person-lines-fill me-2"></i>Conducta:</strong> {peresc.conducta || 'No disponible'}</p>
