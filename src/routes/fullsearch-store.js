@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import log from '$lib/logger';
 
 const initialState = {
     groupedResults: {
@@ -27,6 +28,7 @@ export async function initializeSearch(query, filter, sort = '') {
 }
 
 export async function fetchResults(pageUrl = null, searchQuery, filter = 'all', sort = '') {
+    log.info(`Fetching results: query=${searchQuery}, filter=${filter}, sort=${sort}`);
     searchResultsStore.update(store => ({ ...store, isLoading: true, error: null }));
     try {
         let url;
@@ -70,6 +72,8 @@ export async function fetchResults(pageUrl = null, searchQuery, filter = 'all', 
 
         const currentPage = parseInt(new URLSearchParams(pageUrl ? pageUrl.split('?')[1] : '').get('page') || 1);
 
+        log.debug(`Fetched ${data.results.length} results`);
+
         searchResultsStore.set({
             groupedResults,
             totalResults: data.count,
@@ -81,7 +85,10 @@ export async function fetchResults(pageUrl = null, searchQuery, filter = 'all', 
             error: null,
             currentSort: sort // Add this line
         });
+
+        log.info(`Search completed: ${data.count} total results`);
     } catch (err) {
+        log.error(`Error fetching results: ${err.message}`);
         searchResultsStore.update(store => ({ ...store, error: err.message, isLoading: false }));
     }
 }
