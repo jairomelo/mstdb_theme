@@ -34,7 +34,7 @@
     }
 
     function handleSearch() {
-        fetchData('http://localhost/mdb/api/peresclavizadas/?page=1', searchQuery);
+        fetchData('http://localhost:81/mdb/api/peresclavizadas/?page=1', searchQuery);
     }
 
     function loadNextPage() {
@@ -51,14 +51,14 @@
 
     function goToPage() {
         if (desiredPage && !isNaN(desiredPage) && desiredPage >= 1 && desiredPage <= totalPages) {
-            fetchData(`http://localhost/mdb/api/peresclavizadas/?page=${desiredPage}`, searchQuery);
+            fetchData(`http://localhost:81/mdb/api/peresclavizadas/?page=${desiredPage}`, searchQuery);
         } else {
             alert(`Please enter a valid page number between 1 and ${totalPages}`);
         }
     }
 
     onMount(() => {
-        fetchData('http://localhost/mdb/api/peresclavizadas/?page=1'); 
+        fetchData('http://localhost:81/mdb/api/peresclavizadas/?page=1'); 
     });
 </script>
 

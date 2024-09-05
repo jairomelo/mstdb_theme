@@ -8,7 +8,7 @@
 
 	onMount(async () => {
 		try {
-			const endpoint = `http://localhost/mdb/api/peresclavizadas/${data.id}/`;
+			const endpoint = `http://localhost:81/mdb/api/peresclavizadas/${data.id}/`;
 			const response = await fetch(endpoint);
 
 			if (response.ok) {

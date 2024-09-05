@@ -20,7 +20,7 @@ const initialState = {
 
 export const searchResultsStore = writable(initialState);
 
-const endpoint = 'http://localhost/mdb/api/search/';
+const endpoint = 'http://localhost:81/mdb/api/search/';
 
 export async function initializeSearch(query, filter, sort = '') {
     await fetchResults(null, query, filter, sort);

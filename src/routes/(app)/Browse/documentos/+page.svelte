@@ -4,7 +4,7 @@
 
     onMount(async function () {
         if (!$DocumentStore.length) {
-            const endpoint = 'http://localhost/mdb/api/documentos/'
+            const endpoint = 'http://localhost:81/mdb/api/documentos/'
             const response = await fetch(endpoint)
             const data =  await response.json()
             console.log(data)
