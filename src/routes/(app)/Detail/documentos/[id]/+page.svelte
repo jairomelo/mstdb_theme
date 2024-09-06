@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { tooltip } from '$lib/tooltip.js';
+	import { documentos } from '$lib/api';
 
 	export let data;
 	let documento = null;
@@ -8,21 +9,7 @@
 
 	onMount(async () => {
 		try {
-			const endpoint = `http://localhost:81/mdb/api/documentos/${data.id}/`;
-			const response = await fetch(endpoint);
-
-			if (response.ok) {
-				documento = await response.json();
-				// Initialize tooltips after the DOM has updated
-				setTimeout(() => {
-					const tooltipTriggerList = [].slice.call(
-						document.querySelectorAll('[data-bs-toggle="tooltip"]')
-					);
-					tooltipTriggerList.map((tooltipTriggerEl) => new tooltip(tooltipTriggerEl));
-				}, 0);
-			} else {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
+			documento = await documentos(data.id);
 		} catch (e) {
 			error = e.message;
 			console.error('Failed to fetch document:', e);

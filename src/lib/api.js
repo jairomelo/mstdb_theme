@@ -9,4 +9,9 @@ const fetchWithBaseUrl = async (endpoint, options = {}) => {
     return await response.json();
 };
 
+// Search endpoints
 export const searchAll = (params) => fetchWithBaseUrl(`search/?${params}`);
+
+// Detail endpoints
+export const documentos = (params) => fetchWithBaseUrl(`documentos/${params}/`);
+export const peresclavizadas = (params) => fetchWithBaseUrl(`peresclavizadas/${params}/`);
