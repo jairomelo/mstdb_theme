@@ -181,7 +181,7 @@ p, ol, ul, li {
 
 .archive-tree button {
   text-decoration: none;
-  color: #01b560;
+  color: #C24F3C;
 }
 
 .archive-tree ul {
@@ -191,7 +191,7 @@ p, ol, ul, li {
 }
 
 .archive-tree.expanded ul {
-  max-height: fit-content; /* Adjust this value based on your content */
+  max-height: fit-content; 
   transition: max-height 0.5s ease-in;
 }
 

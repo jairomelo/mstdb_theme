@@ -2,29 +2,43 @@
 	import { onMount } from 'svelte';
 	import { tooltip } from '$lib/tooltip.js';
 	import { documentos } from '$lib/api';
+	import { generateDocumentTree } from '$lib/documentTree.js';
 
 	export let data;
 	let documento = null;
 	let error = null;
+	let treeExpanded = false;
+	let documentTree = [];
 
 	onMount(async () => {
 		try {
 			documento = await documentos(data.id);
+			documentTree = generateDocumentTree(documento);
 		} catch (e) {
 			error = e.message;
 			console.error('Failed to fetch document:', e);
 		}
 	});
 
-	let treeExpanded = false;
-
 	function toggleFullTree() {
 		treeExpanded = !treeExpanded;
-		// Update the class of the archive-tree div
 		const archiveTreeElement = document.querySelector('.archive-tree');
-		if (archiveTreeElement) {
-			archiveTreeElement.classList.toggle('expanded', treeExpanded);
-		}
+			if (archiveTreeElement) {
+				archiveTreeElement.classList.toggle('expanded', treeExpanded);
+			}
+	}
+
+	function renderTree(nodes) {
+		return `
+			<ul class="tree">
+				${nodes.map(node => `
+					<li>
+						<span><i class="bi ${node.icon} me-2"></i>${node.name}</span>
+						${node.children && node.children.length ? renderTree(node.children) : ''}
+					</li>
+				`).join('')}
+			</ul>
+		`;
 	}
 </script>
 
@@ -35,7 +49,7 @@
 		</div>
 	{:else if documento}
 		<div class="card">
-			<div class="card-header bg-dark bg-gradient text-white">
+			<div class="card-header bg-primary text-white">
 				<h1 class="card-title mb-0">{documento.titulo}</h1>
 			</div>
 			<div class="card-body">
@@ -69,66 +83,7 @@
 								</h5>
 							</button>
 							{#if treeExpanded}
-								<ul class="tree">
-									<li>
-										<span
-											><i class="bi bi-archive me-2"></i>{documento.archivo?.nombre ||
-												'Archivo'}</span
-										>
-										<ul>
-											<li>
-												<span><i class="bi bi-folder me-2"></i>{documento.fondo || 'Fondo'}</span>
-												<ul>
-													<li>
-														{#if documento.subfondo}<span
-																><i class="bi bi-folder2 me-2"></i>{documento.subfondo}</span
-															>{/if}
-														<ul>
-															<li>
-																{#if documento.serie}<span
-																		><i class="bi bi-folder2 me-2"></i>{documento.serie}</span
-																	>{/if}
-																<ul>
-																	<li>
-																		{#if documento.subserie}<span
-																				><i class="bi bi-folder2 me-2"
-																				></i>{documento.subserie}</span
-																			>{/if}
-																		<ul>
-																			{#if documento.tipo_udc || documento.unidad_documental_compuesta}
-																				<li>
-																					<span
-																						><i class="bi bi-folder2 me-2"
-																						></i>{documento.tipo_udc ||
-																							'Unidad Documental'}{documento.unidad_documental_compuesta
-																							? `. ${documento.unidad_documental_compuesta}`
-																							: ''}</span
-																					>
-																					{#if documento.folio_inicial}
-																						<ul>
-																							<li>
-																								<span
-																									><i class="bi bi-file-earmark-richtext me-2"
-																									></i>Folio: {documento.folio_inicial}{documento.folio_final
-																										? ` - ${documento.folio_final}`
-																										: ''}</span
-																								>
-																							</li>
-																						</ul>
-																					{/if}
-																				</li>
-																			{/if}
-																		</ul>
-																	</li>
-																</ul>
-															</li>
-														</ul>
-													</li>
-												</ul>
-											</li>
-										</ul>
-									</li>
-								</ul>
+								{@html renderTree(documentTree)}
 							{/if}
 						</div>
 					</div>
