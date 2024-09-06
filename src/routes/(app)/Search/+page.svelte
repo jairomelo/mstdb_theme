@@ -30,11 +30,12 @@
 
 	function initializeTooltips() {
 		setTimeout(() => {
-			const tooltipTriggerList = [].slice.call(
-				document.querySelectorAll('[data-bs-toggle="tooltip"]')
-			);
+			const tooltipTriggerList = [].slice
+				.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+				.filter((el) => el.getAttribute('title') || el.getAttribute('data-bs-title'));
+
 			tooltipTriggerList.forEach((tooltipTriggerEl) => {
-				new tooltip(tooltipTriggerEl);
+				tooltip(tooltipTriggerEl);
 			});
 		}, 0);
 	}
@@ -404,7 +405,9 @@
 															{:else}
 																{personas.nombre_normalizado}
 															{/if}
-															<span use:tooltip={{ title: relacion.descripcion_relacion }}
+															<span
+																data-bs-toggle="tooltip"
+																data-bs-title={relacion.descripcion_relacion || ''}
 																><i class="bi bi-info-circle"></i></span
 															>
 														</li>
