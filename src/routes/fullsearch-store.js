@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { searchAll } from '$lib/api';
 import log from '$lib/logger';
 
 const initialState = {
@@ -21,32 +22,22 @@ const initialState = {
 
 export const searchResultsStore = writable(initialState);
 
-const endpoint = 'http://localhost:81/mdb/api/search/';
-
 export async function initializeSearch(query, filter, sort = '') {
     await fetchResults(null, query, filter, sort);
 }
 
-export async function fetchResults(pageUrl = null, searchQuery, filter = 'all', sort = '') {
-    log.info(`Fetching results: query=${searchQuery}, filter=${filter}, sort=${sort}`);
+export async function fetchResults(page = null, searchQuery, filter = 'all', sort = '') {
+    log.info(`Fetching results: query=${searchQuery}, filter=${filter}, sort=${sort}, page=${page}`);
     searchResultsStore.update(store => ({ ...store, isLoading: true, error: null }));
     try {
-        let url;
-        if (pageUrl) {
-            const urlObj = new URL(pageUrl, endpoint);
-            urlObj.searchParams.set('q', searchQuery);
-            urlObj.searchParams.set('filter', filter);
-            urlObj.searchParams.set('sort', sort);
-            url = urlObj.toString();
-        } else {
-            url = `${endpoint}?q=${encodeURIComponent(searchQuery)}&filter=${filter}&sort=${sort}`;
-        }
+        const params = new URLSearchParams({
+            q: searchQuery,
+            filter,
+            sort,
+            page: page || '1'
+        });
 
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('Failed to fetch search results');
-        }
-        const data = await response.json();
+        const data = await searchAll(params.toString());
 
         const groupedResults = {
             Documentos: [],
@@ -70,7 +61,7 @@ export async function fetchResults(pageUrl = null, searchQuery, filter = 'all', 
             }
         });
 
-        const currentPage = parseInt(new URLSearchParams(pageUrl ? pageUrl.split('?')[1] : '').get('page') || 1);
+        const currentPage = parseInt(params.get('page'));
 
         log.debug(`Fetched ${data.results.length} results`);
 
@@ -79,12 +70,13 @@ export async function fetchResults(pageUrl = null, searchQuery, filter = 'all', 
             totalResults: data.count,
             currentPage,
             totalPages: Math.ceil(data.count / 20), 
-            nextPage: data.next ? new URL(data.next, endpoint).pathname + new URL(data.next, endpoint).search : null,
-            previousPage: data.previous ? new URL(data.previous, endpoint).pathname + new URL(data.previous, endpoint).search : null,
+            nextPage: data.next,
+            previousPage: data.previous,
             isLoading: false,
             error: null,
-            currentSort: sort // Add this line
+            currentSort: sort
         });
+
 
         log.info(`Search completed: ${data.count} total results`);
     } catch (err) {

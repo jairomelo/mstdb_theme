@@ -66,23 +66,27 @@
 	function loadNextPage() {
 		const store = get(searchResultsStore);
 		if (store.nextPage) {
-			fetchResults(store.nextPage, query, currentFilter, currentSort);
+			const nextPageParams = new URLSearchParams(store.nextPage.split('?')[1]);
+			const nextPage = nextPageParams.get('page');
+			fetchResults(nextPage, query, currentFilter, currentSort);
 		}
 	}
 
 	function loadPreviousPage() {
 		const store = get(searchResultsStore);
 		if (store.previousPage) {
-			fetchResults(store.previousPage, query, currentFilter, currentSort);
+			const previousPageParams = new URLSearchParams(store.previousPage.split('?')[1]);
+			const previousPage = previousPageParams.get('page');
+			fetchResults(previousPage, query, currentFilter, currentSort);
 		}
 	}
 
 	function goToPage() {
 		const store = get(searchResultsStore);
 		if (desiredPage && !isNaN(desiredPage) && desiredPage >= 1 && desiredPage <= store.totalPages) {
-			fetchResults(`?page=${desiredPage}`, query, currentFilter, currentSort);
+			fetchResults(desiredPage.toString(), query, currentFilter, currentSort);
 		} else {
-			alert(`Please enter a valid page number between 1 and ${store.totalPages}`);
+			alert(`Por favor, ingrese un número de página válido entre 1 y ${store.totalPages}`);
 		}
 	}
 </script>
