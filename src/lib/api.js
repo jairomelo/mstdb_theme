@@ -18,3 +18,5 @@ export const peresclavizadas = (params) => fetchWithBaseUrl(`peresclavizadas/${p
 export const pernoesclavizadas =  (params) => fetchWithBaseUrl(`pernoesclavizadas/${params}/`);
 export const corporaciones = (params) => fetchWithBaseUrl(`corporaciones/${params}`);
 export const lugares = (params) => fetchWithBaseUrl(`lugares/${params}`);
+export const lugarPersonasRelacionadas = (lugarId, page = 1) => 
+    fetchWithBaseUrl(`lugares/${lugarId}/personas_relacionadas/?page=${page}`);
