@@ -28,21 +28,6 @@
 		}
 	});
 
-	function initializeTooltips() {
-		setTimeout(() => {
-			const tooltipTriggerList = [].slice
-				.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-				.filter((el) => el.getAttribute('title') || el.getAttribute('data-bs-title'));
-
-			tooltipTriggerList.forEach((tooltipTriggerEl) => {
-				tooltip(tooltipTriggerEl);
-			});
-		}, 0);
-	}
-
-	$: if ($searchResultsStore.totalResults > 0) {
-		initializeTooltips();
-	}
 
 	function handleSearch() {
 		searchPerformed = true;
@@ -158,9 +143,9 @@
 				<button
 					class="btn btn-outline-primary"
 					class:active={searchPerformed
-						? currentFilter === 'personas_lugar_rel'
-						: preSelectedFilter === 'personas_lugar_rel'}
-					on:click={() => setFilter('personas_lugar_rel')}
+						? currentFilter === 'lugares'
+						: preSelectedFilter === 'lugares'}
+					on:click={() => setFilter('lugares')}
 				>
 					<i class="bi bi-geo-alt me-1"></i> Lugares
 				</button>
@@ -232,8 +217,12 @@
 			<ul class="pagination justify-content-center">
 				{#if $searchResultsStore.previousPage}
 					<li class="page-item">
-						<button class="page-link" on:click={loadPreviousPage}>
-							<i class="bi bi-chevron-left"></i> Anterior
+						<button
+							class="page-link"
+							on:click={loadPreviousPage}
+							use:tooltip={{ title: 'Anterior', trigger: 'hover' }}
+						>
+							<i class="bi bi-chevron-left"></i>
 						</button>
 					</li>
 				{/if}
@@ -244,8 +233,12 @@
 				</li>
 				{#if $searchResultsStore.nextPage}
 					<li class="page-item">
-						<button class="page-link" on:click={loadNextPage}>
-							Siguiente <i class="bi bi-chevron-right"></i>
+						<button
+							class="page-link"
+							on:click={loadNextPage}
+							use:tooltip={{ title: 'Siguiente', trigger: 'hover' }}
+						>
+							<i class="bi bi-chevron-right"></i>
 						</button>
 					</li>
 				{/if}
@@ -351,8 +344,7 @@
 													<a
 														href="/Detail/documentos/{doc.documento_id}"
 														class="tooltip-url text-dark"
-														data-bs-toggle="tooltip"
-														data-bs-title={doc.notas || ''}
+														use:tooltip={{ title: doc.notas, trigger: 'hover' }}
 													>
 														<small
 															>{doc.titulo.length > 50
@@ -413,8 +405,7 @@
 															</a>
 															{/if}
 															<span
-																data-bs-toggle="tooltip"
-																data-bs-title={relacion.descripcion_relacion || ''}
+																use:tooltip={{ title: relacion.descripcion_relacion, trigger: 'hover' }}
 																><i class="bi bi-info-circle"></i></span
 															>
 														</li>
@@ -464,8 +455,7 @@
 													<a
 														href="/Detail/documentos/{doc.documento_id}"
 														class="tooltip-url text-dark"
-														data-bs-toggle="tooltip"
-														data-bs-title={doc.notas || ''}
+														use:tooltip={{ title: doc.notas, trigger: 'hover' }}
 													>
 														<small>
 															{doc.titulo.length > 50
@@ -522,8 +512,7 @@
 																</a>
 															{/if}
 															<span
-																data-bs-toggle="tooltip"
-																data-bs-title={relacion.descripcion_relacion || ''}
+																use:tooltip={{ title: relacion.descripcion_relacion, trigger: 'hover' }}
 															><i class="bi bi-info-circle"></i></span>
 														</li>
 													{/if}

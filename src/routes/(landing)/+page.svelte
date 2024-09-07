@@ -95,8 +95,8 @@
 				<button
 					type="button"
 					class="btn btn-outline-light"
-					class:active={currentFilter === 'personas_lugar_rel'}
-					on:click={() => setFilter('personas_lugar_rel')}>Lugares</button
+					class:active={currentFilter === 'lugares'}
+					on:click={() => setFilter('lugares')}>Lugares</button
 				>
 			</div>
 		</form>

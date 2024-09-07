@@ -1,24 +1,45 @@
 import { browser } from '$app/environment';
 
 export function tooltip(node, options = {}) {
-    if (browser) {
+    if (!browser) return;
+
+    let tooltipInstance;
+
+    function initializeTooltip() {
         import('bootstrap').then((bootstrap) => {
-            const title = node.getAttribute('title') || node.getAttribute('data-bs-title');
+            const title = options.title || node.getAttribute('title') || node.getAttribute('data-bs-title');
             
             if (title) {
-                const tooltip = new bootstrap.Tooltip(node, {
+                tooltipInstance = new bootstrap.Tooltip(node, {
                     ...options,
-                    title: title
+                    title: title,
+                    trigger: options.trigger || 'hover focus'
                 });
-                
-                return {
-                    destroy() {
-                        tooltip.dispose();
-                    }
-                };
+
+                // Hide tooltip on click
+                node.addEventListener('click', () => {
+                    tooltipInstance.hide();
+                });
             } else {
                 console.warn('Tooltip initialization skipped: No valid title found for', node);
             }
         });
     }
+
+    initializeTooltip();
+
+    return {
+        update(newOptions) {
+            options = newOptions;
+            if (tooltipInstance) {
+                tooltipInstance.dispose();
+            }
+            initializeTooltip();
+        },
+        destroy() {
+            if (tooltipInstance) {
+                tooltipInstance.dispose();
+            }
+        }
+    };
 }

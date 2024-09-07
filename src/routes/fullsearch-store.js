@@ -56,7 +56,7 @@ export async function fetchResults(page = null, searchQuery, filter = 'all', sor
                 groupedResults.PersonasNoEsclavizadas.push(result);
             } else if (result.corporacion_id) {
                 groupedResults.Corporaciones.push(result);
-            } else if (result.persona_x_lugares) {
+            } else if (result.lugar_id) {
                 groupedResults.Lugares.push(result);
             }
         });
