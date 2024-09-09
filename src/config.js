@@ -1,12 +1,5 @@
 const config = {
-    development: {
-        apiBaseUrl: 'http://localhost:81/mdb/api/'
-    },
-    production: {
-        apiBaseUrl: 'https://msdb.abcng.org/api/'
-    }
+    apiBaseUrl: import.meta.env.VITE_API_BASE_URL
 };
 
-const environment = import.meta.env.MODE || 'development';
-
-export default config[environment];
+export default config;

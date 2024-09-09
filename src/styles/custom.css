@@ -40,7 +40,7 @@ p, ol, ul, li {
 }
 
 .hero-section {
-  background: url('../media/Mapa_de_Nueva_España.webp') no-repeat center center/cover;
+  background: url('/media/Mapa_de_Nueva_España.webp') no-repeat center center/cover;
   height: 100vh;
   position: relative;
   z-index: 1;
