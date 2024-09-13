@@ -23,6 +23,11 @@
 			<i class="bi bi-exclamation-triangle-fill me-2"></i>Error: {error}
 		</div>
 	{:else if pernoesc}
+
+	<div class="entity-banner">
+		<h1><img src="/icons/i_peresc.png" alt="Persona Esclavizada"> Persona No Esclavizada</h1>
+	</div>
+
 		<div class="card mb-4">
 			<div class="card-header bg-primary text-white">
 				<h1 class="card-title mb-0">{pernoesc.nombre_normalizado || 'Persona Esclavizada'}</h1>

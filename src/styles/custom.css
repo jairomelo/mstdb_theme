@@ -1,3 +1,9 @@
+:root {
+  --peresc-icon: url(/icons/i_peresc.png);
+  --text-primary: #c24f3c;
+  --underline-primary: 1px solid #C24F3C;
+}
+
 body {
   font-family: 'noto-sans-display', sans-serif;
 }
@@ -5,7 +11,7 @@ body {
 a {
   text-decoration: none !important;
   font-family: 'aleo';
-  color: #C24F3C;
+  color: var(--text-primary);
 }
 
 a:hover {
@@ -17,7 +23,7 @@ a:active {
 }
 
 a h5 {
-  color: #C24F3C;
+  color: var(--text-primary);
 }
 
 a h5:hover {
@@ -47,15 +53,6 @@ p, ol, ul, li {
   animation: zoomIn 20s infinite ease-in-out;
 }
 
-/*   @keyframes zoomIn {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-  } */
-
 .form-control-lg {
   font-size: 1rem;
   font-family: 'aleo';
@@ -70,7 +67,6 @@ p, ol, ul, li {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  /* Adjust opacity as needed */
   z-index: 2;
 }
 
@@ -90,7 +86,7 @@ p, ol, ul, li {
   padding: 0.5rem 1rem;
   font-size: 0.95rem;
   border: none;
-  border-bottom: 1px solid #C24F3C;
+  border-bottom: var(--underline-primary);
   transition: all 0.3s ease;
   position: relative;
 }
@@ -102,7 +98,7 @@ p, ol, ul, li {
   height: 1px;
   bottom: 0;
   left: 0;
-  background-color: #C24F3C;
+  background-color: var(--text-primary);
   transform: scaleX(1);
   transform-origin: bottom right;
   transition: transform 0.3s ease;
@@ -181,7 +177,7 @@ p, ol, ul, li {
 
 .archive-tree button {
   text-decoration: none;
-  color: #C24F3C;
+  color: var(--text-primary);
 }
 
 .archive-tree ul {
@@ -209,4 +205,22 @@ p, ol, ul, li {
 
 .archive-tree.expanded h5 i {
   transform: rotate(90deg);
+}
+
+/* Detail view styles */
+
+.entity-banner {
+  min-height: 3em;
+  margin-bottom: 1em;
+  border-radius: 5px;
+  border-bottom: var(--underline-primary);
+}
+
+.entity-banner h1 {
+  color: var(--text-primary);
+}
+
+.entity-banner img {
+  height: 4rem;
+  width: auto;
 }
