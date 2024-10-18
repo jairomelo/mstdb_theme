@@ -9,6 +9,19 @@ const fetchWithBaseUrl = async (endpoint, options = {}) => {
     return await response.json();
 };
 
+const postWithBaseUrl = async (endpoint, options = {}) => {
+    const url = `${config.apiBaseUrl}${endpoint}`;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(options)
+    });
+    return await response.json();
+};
+
+// Log endpoint
+export const log = (level, message) => postWithBaseUrl('log/', { level, message });
+
 // Search endpoints
 export const searchAll = (params) => fetchWithBaseUrl(`search/?${params}`);
 

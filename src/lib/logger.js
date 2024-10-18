@@ -1,5 +1,7 @@
 import log from 'loglevel';
 
+import { log as logApi } from '$lib/api';
+
 // Set the default logging level
 log.setLevel("debug");
 
@@ -22,15 +24,7 @@ log.setLevel(log.getLevel());
 
 async function sendLogToServer(level, message) {
   try {
-    const response = await fetch('http://localhost:81/mdb/api/log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ level, message })
-    });
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-    }
+    await logApi(level, message);
   } catch (error) {
     console.error('Failed to send log to server:', error);
   }
