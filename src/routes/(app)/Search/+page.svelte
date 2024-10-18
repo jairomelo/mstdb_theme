@@ -4,8 +4,13 @@
 	import { get } from 'svelte/store';
 	import { derived } from 'svelte/store';
 
+	// import custom libs
 	import { tooltip } from '$lib/tooltip.js';
 
+	// import config files
+	import { filtersConfig } from '$conf/filters.js';
+
+	// define variables
 	export let data;
 	let { searchQuery, filter } = data;
 	let query = searchQuery;
@@ -96,60 +101,17 @@
 
 	<div class="row mb-3">
 		<div class="col">
-			<div class="btn-group" role="group" aria-label="Opciones de filtro">
-				<button
-					class="btn btn-outline-primary"
-					class:active={searchPerformed ? currentFilter === 'all' : preSelectedFilter === 'all'}
-					on:click={() => setFilter('all')}
-				>
-					<i class="bi bi-grid-3x3-gap me-1"></i> Todo
-				</button>
-				<button
-					class="btn btn-outline-primary"
-					class:active={searchPerformed
-						? currentFilter === 'documentos'
-						: preSelectedFilter === 'documentos'}
-					on:click={() => setFilter('documentos')}
-				>
-					<i class="bi bi-file-text me-1"></i> Documentos
-				</button>
-				<button
-					class="btn btn-outline-primary"
-					class:active={searchPerformed
-						? currentFilter === 'personas_esclavizadas'
-						: preSelectedFilter === 'personas_esclavizadas'}
-					on:click={() => setFilter('personas_esclavizadas')}
-				>
-					<i class="bi bi-person me-1"></i> Personas Esclavizadas
-				</button>
-				<button
-					class="btn btn-outline-primary"
-					class:active={searchPerformed
-						? currentFilter === 'personas_no_esclavizadas'
-						: preSelectedFilter === 'personas_no_esclavizadas'}
-					on:click={() => setFilter('personas_no_esclavizadas')}
-				>
-					<i class="bi bi-person-check me-1"></i> Personas No Esclavizadas
-				</button>
-				<button
-					class="btn btn-outline-primary"
-					class:active={searchPerformed
-						? currentFilter === 'corporaciones'
-						: preSelectedFilter === 'corporaciones'}
-					on:click={() => setFilter('corporaciones')}
-				>
-					<i class="bi bi-building me-1"></i> Corporaciones
-				</button>
-				<button
-					class="btn btn-outline-primary"
-					class:active={searchPerformed
-						? currentFilter === 'lugares'
-						: preSelectedFilter === 'lugares'}
-					on:click={() => setFilter('lugares')}
-				>
-					<i class="bi bi-geo-alt me-1"></i> Lugares
-				</button>
-			</div>
+			{#each filtersConfig as filter}
+				{#if filter.active}
+					<button
+						class="btn btn-outline-primary"
+						class:active={searchPerformed ? currentFilter === filter.value : preSelectedFilter === filter.value}
+						on:click={() => setFilter(filter.value)}
+					>
+						<i class="bi {filter.icon} me-1"></i> {filter.name}
+					</button>
+				{/if}
+			{/each}
 		</div>
 	</div>
 
@@ -351,6 +313,7 @@
 																? doc.titulo.substring(0, 50) + '...'
 																: doc.titulo}</small
 														>
+														<i class="bi bi-box-arrow-up-right me-1"></i>
 													</a>
 												</li>
 											{/each}
@@ -462,6 +425,7 @@
 																? doc.titulo.substring(0, 50) + '...'
 																: doc.titulo}
 														</small>
+														<i class="bi bi-box-arrow-up-right me-1"></i>
 													</a>
 												</li>
 											{/each}
