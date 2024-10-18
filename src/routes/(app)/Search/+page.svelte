@@ -12,7 +12,11 @@
 
 
 	// import components
-	import DocumentCard from './DocumentCard.svelte';
+	import DocumentCard from './cards/DocumentCard.svelte';
+	import PersonasEsclavizadas from './cards/PersonasEsclavizadasCard.svelte';
+	import PersonasNoEsclavizadas from './cards/PersonasNoEsclavizadasCard.svelte';
+	import CorporacionesCard from './cards/CorporacionesCard.svelte';
+	import LugaresCard from './cards/LugaresCard.svelte';
 
 	// define variables
 	export let data;
@@ -245,112 +249,7 @@
 				<h3 class="mt-4 mb-3"><i class="bi bi-person me-2"></i>Personas Esclavizadas</h3>
 				<div class="list-group mb-4">
 					{#each $searchResultsStore.groupedResults.PersonasEsclavizadas as peresc}
-						<div class="list-group-item list-group-item-action">
-							<div class="row">
-								<div class="col-md-6">
-									<a href="/Detail/personaEsclavizada/{peresc.persona_id}">
-										<h5 class="mb-2">
-											{peresc.nombre_normalizado}
-
-											{#if peresc.fecha_nacimiento || peresc.fecha_defuncion}
-												(<small>{peresc.fecha_nacimiento || ''}</small>)
-											{/if}
-										</h5>
-									</a>
-									<small class="identifier">{peresc.persona_idno || ''}</small>
-									<p class="mb-1">Procedencia: {peresc.procedencia || 'Desconocida'}</p>
-									{#if peresc.sexo || peresc.edad}
-										<small
-											>{#if peresc.sexo}Género: {peresc.sexo}
-											{/if}{#if peresc.edad} | Edad: {peresc.edad}{/if}</small
-										><br />
-									{/if}
-								</div>
-								<div class="col-md-6">
-									{#if peresc.documentos && peresc.documentos.length > 0}
-										<p class="mb-1">
-											<i class="bi bi-file-earmark-text me-2"></i>Documentos asociados:
-										</p>
-										<ul class="list-unstyled">
-											{#each peresc.documentos.slice(0, 3) as doc}
-												<li>
-													<a
-														href="/Detail/documentos/{doc.documento_id}"
-														class="tooltip-url text-dark"
-														use:tooltip={{ title: doc.notas, trigger: 'hover' }}
-													>
-														<small
-															>{doc.titulo.length > 50
-																? doc.titulo.substring(0, 50) + '...'
-																: doc.titulo}</small
-														>
-														<i class="bi bi-box-arrow-up-right me-1"></i>
-													</a>
-												</li>
-											{/each}
-											{#if peresc.documentos.length > 3}
-												<li><small>y {peresc.documentos.length - 3} más...</small></li>
-											{/if}
-										</ul>
-									{:else}
-										<p><small>No hay documentos asociados a esta persona.</small></p>
-									{/if}
-								</div>
-							</div>
-
-							{#if peresc.lugares.length > 0}
-								<div class="row mt-2">
-									<div class="col-md-12">
-										<p class="mb-1"><i class="bi bi-geo-alt me-2"></i>Lugares transitados:</p>
-										<ul class="list-inline">
-											{#each peresc.lugares as lugar, index}
-												<li class="list-inline-item">
-													<small
-														>{lugar.lugar.nombre_lugar} ({lugar.lugar.tipo}) [{lugar.documento
-															.fecha_inicial}]</small
-													>
-													{#if index < peresc.lugares.length - 1}
-															<li class="list-inline-item">|</li>
-													{/if}
-												</li>
-											{/each}
-										</ul>
-									</div>
-								</div>
-							{/if}
-
-							{#if peresc.relaciones.length > 0}
-								<div class="row mt-2">
-									<div class="col-md-12">
-										<p class="mb-1"><i class="bi bi-people me-2"></i>Personas relacionadas:</p>
-										<ul class="list-inline">
-											{#each peresc.relaciones as relacion}
-												{#each relacion.personas as personas}
-													{#if personas.persona_idno != peresc.persona_idno}
-														<li class="list-inline-item">
-															{#if personas.polymorphic_ctype == 29}<a class="text-primary"
-																	href="/Detail/personaEsclavizada/{personas.persona_id}"
-																>
-																	{personas.nombre_normalizado}
-																</a>
-															{:else}
-																<a class="text-secondary" href="/Detail/personaNoEsclavizada/{personas.persona_id}">
-																{personas.nombre_normalizado}
-															</a>
-															{/if}
-															<span
-																use:tooltip={{ title: relacion.descripcion_relacion, trigger: 'hover' }}
-																><i class="bi bi-info-circle"></i></span
-															>
-														</li>
-													{/if}
-												{/each}
-											{/each}
-										</ul>
-									</div>
-								</div>
-							{/if}
-						</div>
+						<PersonasEsclavizadas {peresc} />
 					{/each}
 				</div>
 			{/if}
@@ -359,105 +258,7 @@
 				<h3 class="mt-4 mb-3"><i class="bi bi-person-check me-2"></i>Personas No Esclavizadas</h3>
 				<div class="list-group mb-4">
 					{#each $searchResultsStore.groupedResults.PersonasNoEsclavizadas as pernoesc}
-						<div class="list-group-item list-group-item-action">
-							<div class="row">
-								<div class="col-md-6">
-									<a href="/Detail/personaNoEsclavizada/{pernoesc.persona_id}">
-										<h5 class="mb-2">
-											{pernoesc.nombre_normalizado}
-											{#if pernoesc.fecha_nacimiento || pernoesc.fecha_defuncion}
-												(<small>{pernoesc.fecha_nacimiento || ''}</small>)
-											{/if}
-										</h5>
-									</a>
-									<small class="identifier">{pernoesc.persona_idno || ''}</small><br />
-									{#if pernoesc.sexo || pernoesc.edad}
-										<small>
-											{#if pernoesc.sexo}Género: {pernoesc.sexo}{/if}
-											{#if pernoesc.edad} | Edad: {pernoesc.edad}{/if}
-										</small><br />
-									{/if}
-								</div>
-								<div class="col-md-6">
-									{#if pernoesc.documentos && pernoesc.documentos.length > 0}
-										<p class="mb-1">
-											<i class="bi bi-file-earmark-text me-2"></i>Documentos asociados:
-										</p>
-										<ul class="list-unstyled">
-											{#each pernoesc.documentos.slice(0, 3) as doc}
-												<li>
-													<a
-														href="/Detail/documentos/{doc.documento_id}"
-														class="tooltip-url text-dark"
-														use:tooltip={{ title: doc.notas, trigger: 'hover' }}
-													>
-														<small>
-															{doc.titulo.length > 50
-																? doc.titulo.substring(0, 50) + '...'
-																: doc.titulo}
-														</small>
-														<i class="bi bi-box-arrow-up-right me-1"></i>
-													</a>
-												</li>
-											{/each}
-											{#if pernoesc.documentos.length > 3}
-												<li><small>y {pernoesc.documentos.length - 3} más...</small></li>
-											{/if}
-										</ul>
-									{:else}
-										<p><small>No hay documentos asociados a esta persona.</small></p>
-									{/if}
-								</div>
-							</div>
-
-							{#if pernoesc.lugares && pernoesc.lugares.length > 0}
-								<div class="row mt-2">
-									<div class="col-md-12">
-										<p class="mb-1"><i class="bi bi-geo-alt me-2"></i>Lugares relacionados:</p>
-										<ul class="list-inline">
-											{#each pernoesc.lugares as lugar, index}
-												<li class="list-inline-item">
-													<small>{lugar.lugar.nombre_lugar} ({lugar.lugar.tipo}) [{lugar.documento.fecha_inicial}]{#if lugar.situacion_lugar} - {lugar.situacion_lugar}{/if}</small>
-												</li>
-												{#if index < pernoesc.lugares.length - 1}
-													<li class="list-inline-item">|</li>
-												{/if}
-											{/each}
-										</ul>
-									</div>
-								</div>
-							{/if}
-
-							{#if pernoesc.relaciones && pernoesc.relaciones.length > 0}
-								<div class="row mt-2">
-									<div class="col-md-12">
-										<p class="mb-1"><i class="bi bi-people me-2"></i>Personas relacionadas:</p>
-										<ul class="list-inline">
-											{#each pernoesc.relaciones as relacion}
-												{#each relacion.personas as personas}
-													{#if personas.persona_idno != pernoesc.persona_idno}
-														<li class="list-inline-item">
-															{#if personas.polymorphic_ctype == 29}
-																<a class="text-primary" href="/Detail/personaEsclavizada/{personas.persona_id}">
-																	{personas.nombre_normalizado}
-																</a>
-															{:else}
-																<a class="text-secondary" href="/Detail/personaNoEsclavizada/{personas.persona_id}">
-																	{personas.nombre_normalizado}
-																</a>
-															{/if}
-															<span
-																use:tooltip={{ title: relacion.descripcion_relacion, trigger: 'hover' }}
-															><i class="bi bi-info-circle"></i></span>
-														</li>
-													{/if}
-												{/each}
-											{/each}
-										</ul>
-									</div>
-								</div>
-							{/if}
-						</div>
+						<PersonasNoEsclavizadas {pernoesc} />
 					{/each}
 				</div>
 			{/if}
@@ -466,16 +267,7 @@
 				<h3 class="mt-4 mb-3"><i class="bi bi-building me-2"></i>Corporaciones</h3>
 				<div class="list-group mb-4">
 					{#each $searchResultsStore.groupedResults.Corporaciones as corp}
-						<div class="list-group-item list-group-item-action">
-							<div class="d-flex w-100 justify-content-between">
-								<a href="/Detail/corporaciones/{corp.corporacion_id}"> <!-- TODO: Corporación detail view -->
-								<h5 class="mb-1">{corp.nombre_institucion}</h5>
-							</a>
-								<small>{corp.fecha_fundacion || 'N/A'}</small>
-							</div>
-							<p class="mb-1">Tipo: {corp.tipo_institucion || 'Desconocido'}</p>
-							<small>Ubicación: {corp.ubicacion || 'N/A'}</small>
-						</div>
+						<CorporacionesCard {corp} />
 					{/each}
 				</div>
 			{/if}
@@ -484,32 +276,7 @@
 				<h3 class="mt-4 mb-3"><i class="bi bi-geo-alt me-2"></i>Lugares</h3>
 				<div class="list-group mb-4">
 					{#each $searchResultsStore.groupedResults.Lugares as lugar}
-						<div class="list-group-item list-group-item-action">
-							<div class="d-flex w-100 justify-content-between">
-								<a href="/Detail/lugares/{lugar.lugar_id}">
-								<h5 class="mb-1">{lugar.nombre_lugar} {#if lugar.tipo_lugar}({lugar.tipo_lugar}){/if}</h5>
-							</a>
-							</div>
-							<p class="mb-1">Personas relacionadas:</p>
-							{#if lugar.personas_relacionadas.length > 0}
-								{#each lugar.personas_relacionadas.slice(0, 5) as relaciones, index}
-									{#each relaciones.personas as per}
-									<a class="{per.polymorphic_ctype?.includes('persona esclavizada') ? 'text-primary' : 'text-secondary'}" 
-									href="/Detail/{per.polymorphic_ctype?.includes('persona esclavizada') ? 'personaEsclavizada' : 'personaNoEsclavizada'}/{per.persona_id}">
-											{per.nombre_normalizado}
-										</a>
-										{#if index < 4 && index < lugar.personas_relacionadas.length - 1} | {/if}
-									{/each}
-								{/each}
-								{#if lugar.personas_relacionadas.length > 5}
-									<a href="/Detail/lugares/{lugar.lugar_id}" class="ms-2" use:tooltip={{ title: 'Ver todas las personas relacionadas', trigger: 'hover' }}>
-										<i class="bi bi-plus-circle"></i>
-									</a>
-								{/if}
-							{:else}
-								<span>No hay personas relacionadas</span>
-							{/if}
-						</div>
+						<LugaresCard {lugar} />
 					{/each}
 				</div>
 			{/if}
