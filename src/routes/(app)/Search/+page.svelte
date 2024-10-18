@@ -17,6 +17,7 @@
 	import PersonasNoEsclavizadas from './cards/PersonasNoEsclavizadasCard.svelte';
 	import CorporacionesCard from './cards/CorporacionesCard.svelte';
 	import LugaresCard from './cards/LugaresCard.svelte';
+	import Pagination from './Components/Pagination.svelte';
 
 	// define variables
 	export let data;
@@ -33,6 +34,11 @@
 		searchResultsStore,
 		($store) => $store.totalResults > 0 || $store.isLoading
 	);
+
+	$: previousPage = $searchResultsStore.previousPage;
+	$: nextPage = $searchResultsStore.nextPage;
+	$: currentPage = $searchResultsStore.currentPage;
+	$: totalPages = $searchResultsStore.totalPages;
 
 	onMount(() => {
 		if (query) {
@@ -183,37 +189,14 @@
 		</p>
 
 		<!-- Controles de Paginación -->
-		<nav aria-label="Navegación de página" class="my-4">
-			<ul class="pagination justify-content-center">
-				{#if $searchResultsStore.previousPage}
-					<li class="page-item">
-						<button
-							class="page-link"
-							on:click={loadPreviousPage}
-							use:tooltip={{ title: 'Anterior', trigger: 'hover' }}
-						>
-							<i class="bi bi-chevron-left"></i>
-						</button>
-					</li>
-				{/if}
-				<li class="page-item disabled">
-					<span class="page-link"
-						>Página {$searchResultsStore.currentPage} de {$searchResultsStore.totalPages}</span
-					>
-				</li>
-				{#if $searchResultsStore.nextPage}
-					<li class="page-item">
-						<button
-							class="page-link"
-							on:click={loadNextPage}
-							use:tooltip={{ title: 'Siguiente', trigger: 'hover' }}
-						>
-							<i class="bi bi-chevron-right"></i>
-						</button>
-					</li>
-				{/if}
-			</ul>
-		</nav>
+		<Pagination 
+			currentPage={currentPage}
+			totalPages={totalPages}
+			loadNextPage={loadNextPage}
+			loadPreviousPage={loadPreviousPage}
+			previousPage={previousPage}
+			nextPage={nextPage}
+		/>
 
 		<div class="row justify-content-center mb-3">
 			<div class="col-auto">
