@@ -17,7 +17,7 @@
 	import PersonasNoEsclavizadas from './cards/PersonasNoEsclavizadasCard.svelte';
 	import CorporacionesCard from './cards/CorporacionesCard.svelte';
 	import LugaresCard from './cards/LugaresCard.svelte';
-	import Pagination from './Components/Pagination.svelte';
+	import Pagination from '../Components/Pagination.svelte';
 
 	// define variables
 	export let data;
