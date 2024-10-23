@@ -264,7 +264,7 @@
 				</div>
 			{/if}
 		</div>
-	{:else if query}
+	{:else if query && !$searchResultsStore.isLoading}
 		<div class="alert alert-info mt-4">
 			<i class="bi bi-info-circle me-2"></i> No se encontraron resultados para <em>{query}</em> en {currentFilter}.
 			Por favor, intente con otros términos o filtros.
