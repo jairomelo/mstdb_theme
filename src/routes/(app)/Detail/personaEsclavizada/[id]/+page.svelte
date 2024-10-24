@@ -25,7 +25,7 @@
 	{:else if peresc}
 
 	<div class="entity-banner">
-		<h1 class="text-primary"><img src="/icons/i_peresc.png" alt="Persona Esclavizada"> Persona Esclavizada</h1>
+		<h1 class="text-primary"><img src="/icons/i_peresc.webp" alt="Persona Esclavizada"> Persona Esclavizada</h1>
 	</div>
 
 		<div class="card mb-4">
@@ -44,32 +44,38 @@
 							<strong><i class="bi bi-person-badge me-2"></i>Apellidos:</strong>
 							{peresc.apellidos || 'No disponible'}
 						</p>
-						<p>
+						<p>{#if peresc.sexo}
 							<strong><i class="bi bi-gender-ambiguous me-2"></i>Sexo:</strong>
-							{peresc.sexo || 'No disponible'}
+								{peresc.sexo || 'No disponible'}
+							{/if}
 						</p>
-						<p>
+						<p>{#if peresc.edad}
 							<strong><i class="bi bi-calendar-event me-2"></i>Edad:</strong>
-							{peresc.edad}
-							{peresc.unidad_temporal_edad || 'años'}
+								{peresc.edad}
+								{peresc.unidad_temporal_edad || 'años'}
+							{/if}
 						</p>
 					</div>
 					<div class="col-md-6">
-						<p>
+						<p>{#if peresc.etnonimos}
 							<strong><i class="bi bi-globe me-2"></i>Etnónimos:</strong>
-							{peresc.etnonimos.join(', ') || 'No disponible'}
+								{peresc.etnonimos.join(', ') || 'No disponible'}
+							{/if}
 						</p>
-						<p>
+						<p>{#if peresc.marcas_corporales}
 							<strong><i class="bi bi-body-text me-2"></i>Marcas corporales:</strong>
-							{peresc.marcas_corporales || 'No disponible'}
+								{peresc.marcas_corporales || 'No disponible'}
+							{/if}
 						</p>
-						<p>
+						<p>{#if peresc.salud}
 							<strong><i class="bi bi-heart-pulse me-2"></i>Salud:</strong>
-							{peresc.salud || 'No disponible'}
+								{peresc.salud || 'No disponible'}
+							{/if}
 						</p>
-						<p>
+						<p>{#if peresc.conducta}
 							<strong><i class="bi bi-person-lines-fill me-2"></i>Conducta:</strong>
-							{peresc.conducta || 'No disponible'}
+								{peresc.conducta || 'No disponible'}
+							{/if}
 						</p>
 					</div>
 				</div>

@@ -88,9 +88,10 @@
 						</div>
 					</div>
 					<div class="col-md-6">
-						<p>
+						<p>{#if documento.lugar_de_produccion}
 							<strong><i class="bi bi-geo-alt me-2"></i>Lugar de producción:</strong>
-							{documento.lugar_de_produccion || 'No disponible'}
+								{documento.lugar_de_produccion || 'No disponible'}
+							{/if}
 						</p>
 						<p>
 							<strong><i class="bi bi-exclamation-circle me-2"></i>Deteriorado:</strong>
@@ -99,8 +100,10 @@
 					</div>
 				</div>
 				<div class="mt-3">
-					<h5><i class="bi bi-card-text me-2"></i>Descripción:</h5>
-					<p>{documento.descripcion || 'No disponible'}</p>
+					{#if documento.descripcion}
+						<h5><i class="bi bi-card-text me-2"></i>Descripción:</h5>
+						<p>{documento.descripcion}</p>
+					{/if}
 				</div>
 				<div class="mt-3">
 					<h5><i class="bi bi-pencil-square me-2"></i>Notas:</h5>

@@ -25,7 +25,7 @@
 	{:else if pernoesc}
 
 	<div class="entity-banner">
-		<h1><img src="/icons/i_peresc.png" alt="Persona Esclavizada"> Persona No Esclavizada</h1>
+		<h1><img src="/icons/i_pernoesc.webp" alt="Persona Esclavizada"> Persona No Esclavizada</h1>
 	</div>
 
 		<div class="card mb-4">
