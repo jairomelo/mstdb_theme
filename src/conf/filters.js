@@ -2,8 +2,6 @@
 
 /**
  * This file defines the configuration for filters used in the application.
- * It exports an array of filter configurations, each containing a value, name, icon, and an active status.
- * The filters are used to categorize and display different types of data in the application.
  */
 
 export const filtersConfig = [
