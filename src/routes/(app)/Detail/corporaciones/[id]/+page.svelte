@@ -25,6 +25,10 @@
 			<i class="bi bi-exclamation-triangle-fill me-2"></i>Error: {error}
 		</div>
 	{:else if corp}
+
+	<div class="entity-banner">
+		<h1 class="text-primary"><img src="/icons/i_institucion.webp" alt="Persona Esclavizada"> Corporación</h1>
+	</div>
 		<div class="card mb-4">
 			<div class="card-header bg-primary text-white">
 				<h1 class="card-title mb-0">{corp.nombre_institucion}</h1>
