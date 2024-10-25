@@ -5,7 +5,7 @@ import { searchAll } from '$lib/api';
 import log from '$lib/logger';
 
 const initialState = {
-  groupedResults: {},
+  results: [],
   totalResults: 0,
   currentPage: 1,
   totalPages: 0,
@@ -43,29 +43,14 @@ export async function fetchResults(page = null, searchQuery, type = '', sort = '
 
     const data = await searchAll(params);
 
-    let results = data.results;
-    let groupedResults = {};
-
-    if (!type || type === '' || type === 'all') {
-      // Group results by their type
-      results.forEach(result => {
-        const resultType = result.type;
-        if (!groupedResults[resultType]) {
-          groupedResults[resultType] = [];
-        }
-        groupedResults[resultType].push(result);
-      });
-    } else {
-      // All results are of the same type
-      groupedResults[type] = results;
-    }
+    const results = data.results;
 
     const currentPage = parseInt(params.page);
 
     log.debug(`Fetched ${data.results.length} results`);
 
     searchResultsStore.set({
-      groupedResults,
+      results,
       totalResults: data.count,
       currentPage,
       totalPages: Math.ceil(data.count / 20),
@@ -79,6 +64,7 @@ export async function fetchResults(page = null, searchQuery, type = '', sort = '
     log.info(`Search completed: ${data.count} total results`);
   } catch (err) {
     log.error(`Error fetching results: ${err.message}`);
+    console.error('Fetch error:', err);
     searchResultsStore.update(store => ({ ...store, error: err.message, isLoading: false }));
   }
 }

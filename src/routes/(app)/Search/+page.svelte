@@ -2,15 +2,13 @@
 	import { onMount } from 'svelte';
 	import { searchResultsStore, initializeSearch, fetchResults } from '../../fullsearch-store';
 	import { get } from 'svelte/store';
-	import { derived } from 'svelte/store';
-
+  
 	// import custom libs
 	import { tooltip } from '$lib/tooltip.js';
-
+  
 	// import config files
 	import { filtersConfig } from '$conf/filters.js';
-
-
+  
 	// import components
 	import DocumentCard from './cards/DocumentCard.svelte';
 	import PersonasEsclavizadas from './cards/PersonasEsclavizadasCard.svelte';
@@ -18,7 +16,7 @@
 	import CorporacionesCard from './cards/CorporacionesCard.svelte';
 	import LugaresCard from './cards/LugaresCard.svelte';
 	import Pagination from '../Components/Pagination.svelte';
-
+  
 	// define variables
 	export let data;
 	let { searchQuery, filter } = data;
@@ -29,94 +27,78 @@
 	let searchInProgress = false;
 	let preSelectedFilter = 'all';
 	let searchPerformed = false;
-
-	$: searchActive = derived(
-		searchResultsStore,
-		($store) => $store.totalResults > 0 || $store.isLoading
-	);
-
+  
 	$: previousPage = $searchResultsStore.previousPage;
 	$: nextPage = $searchResultsStore.nextPage;
 	$: currentPage = $searchResultsStore.currentPage;
 	$: totalPages = $searchResultsStore.totalPages;
-
+  
 	onMount(() => {
-		if (query) {
-			initializeSearch(query, currentFilter, currentSort);
-			searchPerformed = true;
-		}
-	});
-
-
-	function handleSearch() {
+	  if (query) {
+		initializeSearch(query, currentFilter, currentSort);
 		searchPerformed = true;
-		currentFilter = preSelectedFilter;
-		fetchResults(null, query, currentFilter, currentSort);
+	  }
+	});
+  
+	function handleSearch() {
+	  searchPerformed = true;
+	  currentFilter = preSelectedFilter;
+	  fetchResults(null, query, currentFilter, currentSort);
 	}
-
+  
 	function setFilter(filter) {
-		if (searchPerformed) {
+	  if (searchPerformed) {
 		currentFilter = filter;
 		fetchResults(null, query, currentFilter, currentSort);
-		} else {
+	  } else {
 		preSelectedFilter = filter;
-		}
+	  }
 	}
-
+  
 	function setSort(sort) {
-		currentSort = sort;
-		fetchResults(null, query, currentFilter, currentSort);
+	  currentSort = sort;
+	  fetchResults(null, query, currentFilter, currentSort);
 	}
-
+  
 	function loadNextPage() {
-		const store = get(searchResultsStore);
-		if (store.nextPage) {
-			const nextPageParams = new URLSearchParams(store.nextPage.split('?')[1]);
-			const nextPage = nextPageParams.get('page');
-			fetchResults(nextPage, query, currentFilter, currentSort);
-		}
+	  const store = get(searchResultsStore);
+	  if (store.nextPage) {
+		const nextPageParams = new URLSearchParams(store.nextPage.split('?')[1]);
+		const nextPage = nextPageParams.get('page');
+		fetchResults(nextPage, query, currentFilter, currentSort);
+	  }
 	}
-
+  
 	function loadPreviousPage() {
-		const store = get(searchResultsStore);
-		if (store.previousPage) {
-			const previousPageParams = new URLSearchParams(store.previousPage.split('?')[1]);
-			const previousPage = previousPageParams.get('page');
-			fetchResults(previousPage, query, currentFilter, currentSort);
-		}
+	  const store = get(searchResultsStore);
+	  if (store.previousPage) {
+		const previousPageParams = new URLSearchParams(store.previousPage.split('?')[1]);
+		const previousPage = previousPageParams.get('page');
+		fetchResults(previousPage, query, currentFilter, currentSort);
+	  }
 	}
-
+  
 	function goToPage() {
-		const store = get(searchResultsStore);
-		if (desiredPage && !isNaN(desiredPage) && desiredPage >= 1 && desiredPage <= store.totalPages) {
-			fetchResults(desiredPage.toString(), query, currentFilter, currentSort);
-		} else {
-			alert(`Por favor, ingrese un número de página válido entre 1 y ${store.totalPages}`);
-		}
+	  const store = get(searchResultsStore);
+	  if (desiredPage && !isNaN(desiredPage) && desiredPage >= 1 && desiredPage <= store.totalPages) {
+		fetchResults(desiredPage.toString(), query, currentFilter, currentSort);
+	  } else {
+		alert(`Por favor, ingrese un número de página válido entre 1 y ${store.totalPages}`);
+	  }
 	}
-
+  
 	function getFilterConfigByValue(value) {
-    return filtersConfig.find(filter => filter.value === value);
-  }
-
-  function getDisplayName(groupKey) {
-    const filter = getFilterConfigByValue(groupKey);
-    return filter ? filter.name : groupKey;
-  }
-
-  function getIconClass(groupKey) {
-    const filter = getFilterConfigByValue(groupKey);
-    return filter ? filter.icon : 'bi-folder';
-  }
-
-  const componentMap = {
-    'documento': DocumentCard,
-    'personaesclavizada': PersonasEsclavizadas,
-    'personanoesclavizada': PersonasNoEsclavizadas,
-    'corporacion': CorporacionesCard,
-    'lugar': LugaresCard
-  };
-</script>
+	  return filtersConfig.find(filter => filter.value === value);
+	}
+  
+	const componentMap = {
+	  'documento': DocumentCard,
+	  'personaesclavizada': PersonasEsclavizadas,
+	  'personanoesclavizada': PersonasNoEsclavizadas,
+	  'corporacion': CorporacionesCard,
+	  'lugar': LugaresCard
+	};
+  </script>
 
 <div class="container mt-4">
 	<div class="row mb-3">
@@ -239,25 +221,20 @@
 			</div>
 		</div>
 
-		<!-- Mostrar Resultados Agrupados -->
-		<div class="results-section">
-			{#each Object.keys($searchResultsStore.groupedResults) as groupKey}
-			  {#if $searchResultsStore.groupedResults[groupKey]?.length > 0}
-				<h3 class="mt-4 mb-3">
-				  <i class="bi {getIconClass(groupKey)} me-2"></i>{getDisplayName(groupKey)}
-				</h3>
-				<div class="list-group mb-4">
-				  {#each $searchResultsStore.groupedResults[groupKey] as item}
-					{#if componentMap[groupKey]}
-					  <svelte:component this={componentMap[groupKey]} {item} />
-					{/if}
-				  {/each}
-				</div>
+		<!-- Display Results in a Single List -->
+		<div class="list-group mb-4">
+			{#each $searchResultsStore.results as item}
+			  {#if componentMap[item.type]}
+				<svelte:component
+				  this={componentMap[item.type]}
+				  {item}
+				  iconClass={getFilterConfigByValue(item.type)?.icon}
+				/>
 			  {/if}
 			{/each}
 		  </div>
-	{:else if query && !$searchResultsStore.isLoading}
-		<div class="alert alert-info mt-4">
+		{:else if query && !$searchResultsStore.isLoading}
+		  <div class="alert alert-info mt-4">
 			<i class="bi bi-info-circle me-2"></i> No se encontraron resultados para <em>{query}</em> en {currentFilter}.
 			Por favor, intente con otros términos o filtros.
 		</div>
