@@ -4,7 +4,10 @@ export const filtersConfig = [
 	{ value: 'documento', name: 'Documentos', icon: 'bi-file-text', active: true },
 	{ value: 'personaesclavizada', name: 'Personas Esclavizadas', icon: 'bi-person', active: true },
 	{ value: 'personanoesclavizada', name: 'Personas No Esclavizadas', icon: 'bi-person-check', active: true },
-	{ value: 'corporacion', name: 'Corporaciones', icon: 'bi-building', active: false },
+	{ value: 'corporacion', name: 'Corporaciones', icon: 'bi-building', active: true },
 	{ value: 'lugar', name: 'Lugares', icon: 'bi-geo-alt', active: true },
   ];
-  
+
+export function getFilterConfigByValue(value) {
+		return filtersConfig.find(filter => filter.value === value);
+	}

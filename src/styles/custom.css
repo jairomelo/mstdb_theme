@@ -121,11 +121,30 @@ p, ol, ul, li {
   color: #dee3e7;
 }
 
+/* Search view styles */
+
 .search-btn i {
   color: black;
 }
 
+.icon-section {
+  width: 80px !important;
+  background-color: #f8f9fa;
+}
 
+.highlights .highlight-text {
+  background-color: #fff3cd;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.highlights .highlight-text em {
+  color: #856404;
+}
+
+
+/* Detail view styles */
 .archive-tree {
   font-family: 'aleo', 'serif';
 }

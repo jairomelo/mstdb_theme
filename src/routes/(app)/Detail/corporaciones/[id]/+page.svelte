@@ -62,7 +62,7 @@
 							<p class="mb-1">
 								<strong>{evento.documento.fecha_inicial_raw}:</strong> 
 								{evento.rol_evento}. 
-								<a href="/Detail/documentos/{evento.documento.documento_id}">
+								<a href="/Detail/documento/{evento.documento.documento_id}">
 									{evento.documento.titulo}
 								</a>
 							</p>
@@ -85,7 +85,7 @@
 				<ul class="list-group list-group-flush">
 					{#each corp.personas_asociadas as persona}
 						<li class="list-group-item">
-							<a href="/Detail/{persona.polymorphic_ctype == 29 ? 'personaEsclavizada' : 'personaNoEsclavizada'}/{persona.persona_id}" 
+							<a href="/Detail/{persona.polymorphic_ctype == 29 ? 'personaesclavizada' : 'personanoesclavizada'}/{persona.persona_id}" 
 							   class="{persona.polymorphic_ctype == 29 ? 'text-primary' : 'text-secondary'}">
 								<h3 class="h6 mb-2">{persona.nombre_normalizado}</h3>
 							</a>

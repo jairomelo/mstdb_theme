@@ -7,7 +7,7 @@
 	import { tooltip } from '$lib/tooltip.js';
   
 	// import config files
-	import { filtersConfig } from '$conf/filters.js';
+	import { filtersConfig, getFilterConfigByValue } from '$conf/filters.js';
   
 	// import components
 	import DocumentCard from './cards/DocumentCard.svelte';
@@ -85,10 +85,6 @@
 	  } else {
 		alert(`Por favor, ingrese un número de página válido entre 1 y ${store.totalPages}`);
 	  }
-	}
-  
-	function getFilterConfigByValue(value) {
-	  return filtersConfig.find(filter => filter.value === value);
 	}
   
 	const componentMap = {

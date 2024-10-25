@@ -1,91 +1,99 @@
 <script>
-
+    import Card from './Card.svelte';
+    import { getFilterConfigByValue } from '$conf/filters.js';
+    import { personaLugarRel } from '$lib/api';
     import { tooltip } from '$lib/tooltip.js';
 
-    import { personaLugarRel } from '$lib/api';
-
     export let item;
+
+    // Get the icon class for this type
+    const iconClass = getFilterConfigByValue(item.type)?.icon || 'bi-geo-alt';
+
+    function getHighlights(highlight) {
+        if (!highlight) return [];
+        return Object.values(highlight).flat();
+    }
 
     async function fetchPersonaLugarRels(relationIds) {
         return Promise.all(relationIds.map(id => personaLugarRel(id)));
     }
 
-    let personaLugarRelsPromise = fetchPersonaLugarRels(item.source.persona_lugar_rel);
-
-    function getHighlights(highlight) {
-		if (!highlight) return [];
-		return Object.values(highlight).flat();
-	}
-	
+    let personaLugarRelsPromise = fetchPersonaLugarRels(item.source.persona_lugar_rel || []);
 </script>
 
-<div class="list-group-item list-group-item-action">
-    <div class="d-flex w-100 justify-content-between">
-        <a href="/Detail/lugares/{item.source.lugar_id}">
-        <h5 class="mb-1">{item.source.nombre_lugar} {#if item.source.tipo}({item.source.tipo}){/if}</h5>
-    </a>
-    </div>
+<Card {item}>
+    <!-- Icon Slot -->
+    <span slot="icon">
+        <i class="bi {iconClass} fs-1 text-primary"></i>
+    </span>
 
-    <div class="matches">
-		{#each getHighlights(item.highlight) as highlightText}
-			<small>{@html highlightText}</small>
-		{/each}
-	</div>
-    
+    <!-- Custom Title -->
+    <span slot="title">
+        {item.source.nombre_lugar}
+    </span>
 
+    <!-- Custom Header Info -->
+    <span slot="header-info">
+        {#if item.source.tipo}({item.source.tipo}){/if}
+    </span>
 
-    {#if item.source.persona_lugar_rel && item.source.persona_lugar_rel.length > 0}
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <p class="mb-1"><i class="bi bi-geo-alt me-2"></i>Personas relacionadas ({item.source.persona_lugar_rel.length}):</p>
-            {#await personaLugarRelsPromise}
-                <p>Cargando personas...</p>
-            {:then personasInfo}
-            
-            <ul class="list-inline">
-                {#if personasInfo.length < 4 }
-                {#each personasInfo as personaRel, index }
-                    {#each personaRel.personas as personas }
+    <!-- Custom Content -->
+    <div class="place-info mt-2">
+        <!-- Identifier -->
+        <p class="mb-1">
+            <small class="text-muted">ID: {item.source.lugar_id || 'N/A'}</small>
+        </p>
+
+        <!-- Highlights -->
+        {#if getHighlights(item.highlight).length > 0}
+            <div class="highlights mt-2">
+                <p class="mb-1 fw-bold">
+                    <i class="bi bi-search me-2"></i>Coincidencias:
+                </p>
+                <ul class="list-unstyled mb-0">
+                    {#each getHighlights(item.highlight).slice(0, 3) as highlightText}
                         <li>
-                            {personas.nombre_normalizado}
+                            <small>{@html highlightText}</small>
                         </li>
                     {/each}
-                {/each}
-
-                {:else}
-                {#each personasInfo.slice(0, 3) as personaRel, index }
-                    {#each personaRel.personas as personas }
-                        <li>
-                            {personas.nombre_normalizado}
-                            {#if index == 2 }
-                                    <li class="list-inline-item"><a href="/Detail/lugares/{item.source.lugar_id}">[+]</a></li>
-                            {/if}
-                        </li>
-                    {/each}        
-                {/each}
-                {/if}
-            </ul>
-
-            
-            {/await}
+                    {#if getHighlights(item.highlight).length > 3}
+                        <li><small>y {getHighlights(item.highlight).length - 3} más...</small></li>
+                    {/if}
+                </ul>
             </div>
-            </div>
-    {/if}
-
-    
-
-    <!-- {#if item.source.persona_lugar_rel.length > 0}
-        {#each item.source.persona_lugar_rel.slice(0, 5) as relaciones, index}
-            {#each relaciones.personas as per}
-             <p>{ relaciones }</p>
-            {/each}
-        {/each}
-        {#if item.personas_relacionadas.length > 5}
-            <a href="/Detail/lugares/{item.lugar_id}" class="ms-2" use:tooltip={{ title: 'Ver todas las personas relacionadas', trigger: 'hover' }}>
-                <i class="bi bi-plus-circle"></i>
-            </a>
         {/if}
-    {:else}
-        <span>No hay personas relacionadas</span>
-    {/if} -->
-</div>
+
+        <!-- Related Persons -->
+        {#if item.source.persona_lugar_rel && item.source.persona_lugar_rel.length > 0}
+            <div class="related-persons mt-3">
+                <p class="mb-1 fw-bold">
+                    <i class="bi bi-people me-2"></i>Personas relacionadas ({item.source.persona_lugar_rel.length}):
+                </p>
+                {#await personaLugarRelsPromise}
+                    <p><small>Cargando personas...</small></p>
+                {:then personasInfo}
+                    <ul class="list-unstyled mb-0">
+                        {#each personasInfo.slice(0, 3) as personaRel}
+                            {#each personaRel.personas as persona}
+                                <li>
+                                    <a href="/Detail/{persona.polymorphic_ctype == 29 ? 'personaesclavizada' : 'personanoesclavizada'}/{persona.persona_id}" class="text-decoration-none">
+                                        {persona.nombre_normalizado}
+                                    </a>
+                                </li>
+                            {/each}
+                        {/each}
+                        {#if personasInfo.length > 3}
+                            <li>
+                                <a href="/Detail/lugares/{item.source.lugar_id}" class="text-decoration-none">
+                                    <small>y {personasInfo.length - 3} más...</small>
+                                </a>
+                            </li>
+                        {/if}
+                    </ul>
+                {:catch error}
+                    <p><small>Error al cargar las personas: {error.message}</small></p>
+                {/await}
+            </div>
+        {/if}
+    </div>
+</Card>

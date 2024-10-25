@@ -92,7 +92,7 @@
                                 <div class="col-md-6">
                                     {#each per.personas as persona}
                                         <a class="{persona.polymorphic_ctype?.includes('persona esclavizada') ? 'text-primary' : 'text-secondary'}" 
-                                           href="/Detail/{persona.polymorphic_ctype?.includes('persona esclavizada') ? 'personaEsclavizada' : 'personaNoEsclavizada'}/{persona.persona_id}">
+                                           href="/Detail/{persona.polymorphic_ctype?.includes('persona esclavizada') ? 'personaesclavizada' : 'personanoesclavizada'}/{persona.persona_id}">
                                             <h3 class="h6 mb-2">{persona.nombre_normalizado}</h3>
                                         </a>
                                     {/each}
@@ -107,7 +107,7 @@
                                     {#if per.documento}
                                         <p class="mb-1">
                                             <small>Registro: 
-                                                <a href="/Detail/documentos/{per.documento.documento_id}">
+                                                <a href="/Detail/documento/{per.documento.documento_id}">
                                                     {per.documento.titulo?.length > 50 
                                                         ? per.documento.titulo.substring(0, 50) + '...'
                                                         : per.documento.titulo}
@@ -151,14 +151,14 @@
 				{#each lugar.personas_esclavizadas_procedencia as proc}
 					<li class="list-group-item">
 						<a class="{proc.polymorphic_ctype == 29 ? 'text-primary' : 'text-secondary'}" 
-                                           href="/Detail/{proc.polymorphic_ctype == 29 ? 'personaEsclavizada' : 'personaNoEsclavizada'}/{proc.persona_id}">
+                                           href="/Detail/{proc.polymorphic_ctype == 29 ? 'personaesclavizada' : 'personanoesclavizada'}/{proc.persona_id}">
                                             <h3 class="h6 mb-2">{proc.nombre_normalizado}</h3>
                                         </a>
 										{#if proc.documentos}
                                         <p class="mb-1">
                                             <small>Registro: 
 												{#each proc.documentos as docu }
-                                                <a href="/Detail/documentos/{docu.documento_id}">
+                                                <a href="/Detail/documento/{docu.documento_id}">
                                                     {docu.titulo?.length > 50 
                                                         ? docu.titulo.substring(0, 50) + '...'
                                                         : docu.titulo}
