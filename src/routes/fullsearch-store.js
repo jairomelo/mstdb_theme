@@ -26,18 +26,29 @@ export async function initializeSearch(query, filter, sort = '') {
     await fetchResults(null, query, filter, sort);
 }
 
-export async function fetchResults(page = null, searchQuery, filter = 'all', sort = '') {
+export async function fetchResults(page = null, searchQuery, filter = '', sort = '', type = '') {
     log.info(`Fetching results: query=${searchQuery}, filter=${filter}, sort=${sort}, page=${page}`);
     searchResultsStore.update(store => ({ ...store, isLoading: true, error: null }));
     try {
-        const params = new URLSearchParams({
+        const params = {
             q: searchQuery,
-            filter,
-            sort,
             page: page || '1'
-        });
+        };
 
-        const data = await searchAll(params.toString());
+        if (type && type !== '') {
+            params.type = type;
+        }
+
+        if (filter && filter !== '') {
+            params.filter = filter;
+        }
+
+        // Include 'sort' only if it's not empty
+        if (sort && sort !== '') {
+            params.sort = sort;
+        }
+
+        const data = await searchAll(params);
 
         const groupedResults = {
             Documentos: [],
@@ -47,21 +58,23 @@ export async function fetchResults(page = null, searchQuery, filter = 'all', sor
             Lugares: [],
         };
 
+        console.log(data);
+
         data.results.forEach(result => {
-            if (result.documento_id) {
+            if (result.type === 'documento') {
                 groupedResults.Documentos.push(result);
-            } else if (result.persona_id && result.polymorphic_ctype === 29) {
+            } else if (result.type === 'personas_esclavizadas') {
                 groupedResults.PersonasEsclavizadas.push(result);
-            } else if (result.persona_id && result.polymorphic_ctype === 30) {
+            } else if (result.type === 'personanoesclavizada') {
                 groupedResults.PersonasNoEsclavizadas.push(result);
-            } else if (result.corporacion_id) {
+            } else if (result.type === 'corporacion') {
                 groupedResults.Corporaciones.push(result);
-            } else if (result.lugar_id) {
+            } else if (result.type === 'lugar') {
                 groupedResults.Lugares.push(result);
             }
         });
 
-        const currentPage = parseInt(params.get('page'));
+        const currentPage = parseInt(params.page);
 
         log.debug(`Fetched ${data.results.length} results`);
 

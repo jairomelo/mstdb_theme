@@ -219,9 +219,10 @@
 
 		<!-- Mostrar Resultados Agrupados -->
 		<div class="results-section">
-			{#if $searchResultsStore.groupedResults.Documentos.length > 0}
+			{#if $searchResultsStore.groupedResults.Documentos && $searchResultsStore.groupedResults.Documentos.length > 0}
 				<h3 class="mt-4 mb-3"><i class="bi bi-file-text me-2"></i>Documentos</h3>
 				<div class="list-group mb-4">
+					
 					{#each $searchResultsStore.groupedResults.Documentos as doc}
 						<DocumentCard {doc} />
 					{/each}

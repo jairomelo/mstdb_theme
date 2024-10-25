@@ -206,6 +206,14 @@ p, ol, ul, li {
   transform: rotate(90deg);
 }
 
+.matches {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.matches em {
+  color:#C24F3C;
+}
+
 /* Detail view styles */
 
 .entity-banner {

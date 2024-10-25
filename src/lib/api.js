@@ -1,3 +1,5 @@
+import queryString from 'query-string';
+
 import config from '../config';
 
 const fetchWithBaseUrl = async (endpoint, options = {}) => {
@@ -23,7 +25,19 @@ const postWithBaseUrl = async (endpoint, options = {}) => {
 export const log = (level, message) => postWithBaseUrl('log/', { level, message });
 
 // Search endpoints
-export const searchAll = (params) => fetchWithBaseUrl(`search/?${params}`);
+export const searchAll = (params) => {
+    // Filter out empty or null parameters
+    const filteredParams = {};
+    for (const key in params) {
+        if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
+            filteredParams[key] = params[key];
+        }
+    }
+
+    const querystring = queryString.stringify(filteredParams);
+    console.log('Final Query String:', querystring);
+    return fetchWithBaseUrl(`search/?${querystring}`);
+};
 
 // Detail endpoints
 export const documentos = (params) => fetchWithBaseUrl(`documentos/${params}/`);
@@ -33,3 +47,5 @@ export const corporaciones = (params) => fetchWithBaseUrl(`corporaciones/${param
 export const lugares = (params) => fetchWithBaseUrl(`lugares/${params}/`);
 export const lugarPersonasRelacionadas = (lugarId, page = 1) => 
     fetchWithBaseUrl(`lugares/${lugarId}/personas_relacionadas/?page=${page}/`);
+export const personaLugarRel = (personaxlugarId) => fetchWithBaseUrl(`personas_lugares/${personaxlugarId}/`);
+export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`personas_relaciones/${personaxpersonaId}/`);
