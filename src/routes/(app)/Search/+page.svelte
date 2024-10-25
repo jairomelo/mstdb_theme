@@ -56,10 +56,10 @@
 
 	function setFilter(filter) {
 		if (searchPerformed) {
-			currentFilter = filter;
-			fetchResults(null, query, currentFilter, currentSort);
+		currentFilter = filter;
+		fetchResults(null, query, currentFilter, currentSort);
 		} else {
-			preSelectedFilter = filter;
+		preSelectedFilter = filter;
 		}
 	}
 
@@ -94,6 +94,28 @@
 			alert(`Por favor, ingrese un número de página válido entre 1 y ${store.totalPages}`);
 		}
 	}
+
+	function getFilterConfigByValue(value) {
+    return filtersConfig.find(filter => filter.value === value);
+  }
+
+  function getDisplayName(groupKey) {
+    const filter = getFilterConfigByValue(groupKey);
+    return filter ? filter.name : groupKey;
+  }
+
+  function getIconClass(groupKey) {
+    const filter = getFilterConfigByValue(groupKey);
+    return filter ? filter.icon : 'bi-folder';
+  }
+
+  const componentMap = {
+    'documento': DocumentCard,
+    'personaesclavizada': PersonasEsclavizadas,
+    'personanoesclavizada': PersonasNoEsclavizadas,
+    'corporacion': CorporacionesCard,
+    'lugar': LugaresCard
+  };
 </script>
 
 <div class="container mt-4">
@@ -219,52 +241,21 @@
 
 		<!-- Mostrar Resultados Agrupados -->
 		<div class="results-section">
-			{#if $searchResultsStore.groupedResults.Documentos && $searchResultsStore.groupedResults.Documentos.length > 0}
-				<h3 class="mt-4 mb-3"><i class="bi bi-file-text me-2"></i>Documentos</h3>
+			{#each Object.keys($searchResultsStore.groupedResults) as groupKey}
+			  {#if $searchResultsStore.groupedResults[groupKey]?.length > 0}
+				<h3 class="mt-4 mb-3">
+				  <i class="bi {getIconClass(groupKey)} me-2"></i>{getDisplayName(groupKey)}
+				</h3>
 				<div class="list-group mb-4">
-					
-					{#each $searchResultsStore.groupedResults.Documentos as doc}
-						<DocumentCard {doc} />
-					{/each}
+				  {#each $searchResultsStore.groupedResults[groupKey] as item}
+					{#if componentMap[groupKey]}
+					  <svelte:component this={componentMap[groupKey]} {item} />
+					{/if}
+				  {/each}
 				</div>
-			{/if}
-
-			{#if $searchResultsStore.groupedResults.PersonasEsclavizadas.length > 0}
-				<h3 class="mt-4 mb-3"><i class="bi bi-person me-2"></i>Personas Esclavizadas</h3>
-				<div class="list-group mb-4">
-					{#each $searchResultsStore.groupedResults.PersonasEsclavizadas as peresc}
-						<PersonasEsclavizadas {peresc} />
-					{/each}
-				</div>
-			{/if}
-
-			{#if $searchResultsStore.groupedResults.PersonasNoEsclavizadas.length > 0}
-				<h3 class="mt-4 mb-3"><i class="bi bi-person-check me-2"></i>Personas No Esclavizadas</h3>
-				<div class="list-group mb-4">
-					{#each $searchResultsStore.groupedResults.PersonasNoEsclavizadas as pernoesc}
-						<PersonasNoEsclavizadas {pernoesc} />
-					{/each}
-				</div>
-			{/if}
-
-			{#if $searchResultsStore.groupedResults.Corporaciones.length > 0}
-				<h3 class="mt-4 mb-3"><i class="bi bi-building me-2"></i>Corporaciones</h3>
-				<div class="list-group mb-4">
-					{#each $searchResultsStore.groupedResults.Corporaciones as corp}
-						<CorporacionesCard {corp} />
-					{/each}
-				</div>
-			{/if}
-
-			{#if $searchResultsStore.groupedResults.Lugares.length > 0}
-				<h3 class="mt-4 mb-3"><i class="bi bi-geo-alt me-2"></i>Lugares</h3>
-				<div class="list-group mb-4">
-					{#each $searchResultsStore.groupedResults.Lugares as lugar}
-						<LugaresCard {lugar} />
-					{/each}
-				</div>
-			{/if}
-		</div>
+			  {/if}
+			{/each}
+		  </div>
 	{:else if query && !$searchResultsStore.isLoading}
 		<div class="alert alert-info mt-4">
 			<i class="bi bi-info-circle me-2"></i> No se encontraron resultados para <em>{query}</em> en {currentFilter}.

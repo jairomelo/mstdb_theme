@@ -4,13 +4,13 @@
 
     import { personaLugarRel } from '$lib/api';
 
-    export let lugar;
+    export let item;
 
     async function fetchPersonaLugarRels(relationIds) {
         return Promise.all(relationIds.map(id => personaLugarRel(id)));
     }
 
-    let personaLugarRelsPromise = fetchPersonaLugarRels(lugar.source.persona_lugar_rel);
+    let personaLugarRelsPromise = fetchPersonaLugarRels(item.source.persona_lugar_rel);
 
     function getHighlights(highlight) {
 		if (!highlight) return [];
@@ -21,23 +21,23 @@
 
 <div class="list-group-item list-group-item-action">
     <div class="d-flex w-100 justify-content-between">
-        <a href="/Detail/lugares/{lugar.source.lugar_id}">
-        <h5 class="mb-1">{lugar.source.nombre_lugar} {#if lugar.source.tipo}({lugar.source.tipo}){/if}</h5>
+        <a href="/Detail/lugares/{item.source.lugar_id}">
+        <h5 class="mb-1">{item.source.nombre_lugar} {#if item.source.tipo}({item.source.tipo}){/if}</h5>
     </a>
     </div>
 
     <div class="matches">
-		{#each getHighlights(lugar.highlight) as highlightText}
+		{#each getHighlights(item.highlight) as highlightText}
 			<small>{@html highlightText}</small>
 		{/each}
 	</div>
     
 
 
-    {#if lugar.source.persona_lugar_rel && lugar.source.persona_lugar_rel.length > 0}
+    {#if item.source.persona_lugar_rel && item.source.persona_lugar_rel.length > 0}
     <div class="row mt-2">
         <div class="col-md-12">
-            <p class="mb-1"><i class="bi bi-geo-alt me-2"></i>Personas relacionadas ({lugar.source.persona_lugar_rel.length}):</p>
+            <p class="mb-1"><i class="bi bi-geo-alt me-2"></i>Personas relacionadas ({item.source.persona_lugar_rel.length}):</p>
             {#await personaLugarRelsPromise}
                 <p>Cargando personas...</p>
             {:then personasInfo}
@@ -58,7 +58,7 @@
                         <li>
                             {personas.nombre_normalizado}
                             {#if index == 2 }
-                                    <li class="list-inline-item"><a href="/Detail/lugares/{lugar.source.lugar_id}">[+]</a></li>
+                                    <li class="list-inline-item"><a href="/Detail/lugares/{item.source.lugar_id}">[+]</a></li>
                             {/if}
                         </li>
                     {/each}        
@@ -74,14 +74,14 @@
 
     
 
-    <!-- {#if lugar.source.persona_lugar_rel.length > 0}
-        {#each lugar.source.persona_lugar_rel.slice(0, 5) as relaciones, index}
+    <!-- {#if item.source.persona_lugar_rel.length > 0}
+        {#each item.source.persona_lugar_rel.slice(0, 5) as relaciones, index}
             {#each relaciones.personas as per}
              <p>{ relaciones }</p>
             {/each}
         {/each}
-        {#if lugar.personas_relacionadas.length > 5}
-            <a href="/Detail/lugares/{lugar.lugar_id}" class="ms-2" use:tooltip={{ title: 'Ver todas las personas relacionadas', trigger: 'hover' }}>
+        {#if item.personas_relacionadas.length > 5}
+            <a href="/Detail/lugares/{item.lugar_id}" class="ms-2" use:tooltip={{ title: 'Ver todas las personas relacionadas', trigger: 'hover' }}>
                 <i class="bi bi-plus-circle"></i>
             </a>
         {/if}
