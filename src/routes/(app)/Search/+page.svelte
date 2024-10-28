@@ -196,9 +196,6 @@
 	{/if}
 
 	{#if $searchResultsStore.totalResults > 0}
-		<p class="text-muted">
-			<i class="bi bi-info-circle me-2"></i> Número de resultados: {$searchResultsStore.totalResults}
-		</p>
 
 		<!-- Controles de Paginación -->
 		<Pagination 
