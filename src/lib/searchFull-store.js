@@ -11,7 +11,9 @@ const initialState = {
     previousPage: null,
     isLoading: false,
     error: null,
-    currentSort: ''
+    currentSort: '',
+    availableTypes: new Set(),
+    typesCounts: {}
 };
 
 export const searchResultsStore = writable(initialState);
@@ -47,6 +49,11 @@ export async function fetchResults(page = null, searchQuery, type = '', sort = '
 
         log.debug(`Fetched ${data.results.length} results`);
 
+        const availableTypes = new Set(Object.keys(data.typeCounts));
+
+        console.log('results:', results);
+        console.log('availableTypes:', availableTypes);
+
         searchResultsStore.set({
             results,
             totalResults: data.count,
@@ -56,7 +63,9 @@ export async function fetchResults(page = null, searchQuery, type = '', sort = '
             previousPage: data.previous,
             isLoading: false,
             error: null,
-            currentSort: sort
+            currentSort: sort,
+            availableTypes,
+            typesCounts: data.typeCounts
         });
 
         log.info(`Search completed: ${data.count} total results`);

@@ -111,14 +111,30 @@
 
 	<div class="row mb-3">
 		<div class="col search-chip-filters">
+			<!-- Always show "All" filter -->
+			<button
+				class="btn btn-outline-primary chip-filter"
+				class:active={searchPerformed ? currentFilter === 'all' : preSelectedFilter === 'all'}
+				on:click={() => setFilter('all')}
+			>
+				<i class="bi {filtersConfig[0].icon} me-1"></i> {filtersConfig[0].name}
+				{#if searchPerformed && $searchResultsStore.totalResults > 0}
+					<span class="badge bg-secondary ms-1">{$searchResultsStore.totalResults}</span>
+				{/if}
+			</button>
+	
+			<!-- Show other filters only if they have results -->
 			{#each filtersConfig as filter}
-				{#if filter.active}
+				{#if filter.value !== 'all' && $searchResultsStore.availableTypes.has(filter.value)}
 					<button
-						class="btn btn-outline-primary"
+						class="btn btn-outline-primary chip-filter"
 						class:active={searchPerformed ? currentFilter === filter.value : preSelectedFilter === filter.value}
 						on:click={() => setFilter(filter.value)}
 					>
 						<i class="bi {filter.icon} me-1"></i> {filter.name}
+						<span class="badge bg-secondary ms-1">
+							{$searchResultsStore.typesCounts[filter.value] || 0}
+						</span>
 					</button>
 				{/if}
 			{/each}
