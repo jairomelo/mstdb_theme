@@ -20,9 +20,9 @@
     }
   }
 
-  function setFilter(filter) {
+/*   function setFilter(filter) {
     currentFilter = filter;
-  }
+  } */
 
   function handleClickOutside(event) {
 		if (formElement && !formElement.contains(event.target)) {
@@ -40,12 +40,10 @@
 		updateSuffix();
 		document.addEventListener('click', handleClickOutside);
 		document.addEventListener('keydown', handleKeydown);
-		sectionElement.addEventListener('click', handleClickOutside);
 
 		return () => {
 			document.removeEventListener('click', handleClickOutside);
 			document.removeEventListener('keydown', handleKeydown);
-			sectionElement?.removeEventListener('click', handleClickOutside);
 		};
 	});
 </script>
