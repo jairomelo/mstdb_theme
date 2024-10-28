@@ -13,13 +13,19 @@ const initialState = {
     error: null,
     currentSort: '',
     availableTypes: new Set(),
-    typesCounts: {}
+    typesCounts: {},
+    initialTypeCounts: {}
 };
 
 export const searchResultsStore = writable(initialState);
 
 export async function initializeSearch(query, type, sort = '') {
-    await fetchResults(null, query, type, sort);
+    const results = await fetchResults(null, query, type, sort);
+    searchResultsStore.update(store => ({
+        ...store,
+        initialTypeCounts: store.typesCounts
+    }));
+    return results;
 }
 
 export async function fetchResults(page = null, searchQuery, type = '', sort = '') {
@@ -54,7 +60,7 @@ export async function fetchResults(page = null, searchQuery, type = '', sort = '
         console.log('results:', results);
         console.log('availableTypes:', availableTypes);
 
-        searchResultsStore.set({
+        searchResultsStore.update(store => ({
             results,
             totalResults: data.count,
             currentPage,
@@ -65,8 +71,9 @@ export async function fetchResults(page = null, searchQuery, type = '', sort = '
             error: null,
             currentSort: sort,
             availableTypes,
-            typesCounts: data.typeCounts
-        });
+            typesCounts: data.typeCounts,
+            initialTypeCounts: store.initialTypeCounts || data.typeCounts
+        }));
 
         log.info(`Search completed: ${data.count} total results`);
     } catch (err) {

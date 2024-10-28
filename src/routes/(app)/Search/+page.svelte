@@ -23,6 +23,8 @@
 	let currentSort = '';
 	let preSelectedFilter = 'all';
 	let searchPerformed = false;
+
+	let initialTotalResults = 0;
   
 	$: previousPage = $searchResultsStore.previousPage;
 	$: nextPage = $searchResultsStore.nextPage;
@@ -37,10 +39,18 @@
 	});
   
 	function handleSearch() {
-	  searchPerformed = true;
-	  currentFilter = preSelectedFilter;
-	  fetchResults(null, query, currentFilter, currentSort);
-	}
+        searchPerformed = true;
+        currentFilter = preSelectedFilter;
+        fetchResults(null, query, currentFilter, currentSort)
+            .then(() => {
+                if ($searchResultsStore.typeCounts) {
+                    initialTotalResults = Object.values($searchResultsStore.typeCounts)
+                        .reduce((a, b) => a + b, 0);
+                } else {
+                    initialTotalResults = $searchResultsStore.totalResults;
+                }
+            });
+    }
   
 	function setFilter(filter) {
 	  if (searchPerformed) {
@@ -90,6 +100,7 @@
 	  'corporacion': CorporacionesCard,
 	  'lugar': LugaresCard
 	};
+
   </script>
 
 <div class="container mt-4">
@@ -111,33 +122,35 @@
 
 	<div class="row mb-3">
 		<div class="col search-chip-filters">
-			<!-- Always show "All" filter -->
-			<button
-				class="btn btn-outline-primary chip-filter"
-				class:active={searchPerformed ? currentFilter === 'all' : preSelectedFilter === 'all'}
-				on:click={() => setFilter('all')}
-			>
-				<i class="bi {filtersConfig[0].icon} me-1"></i> {filtersConfig[0].name}
-				{#if searchPerformed && $searchResultsStore.totalResults > 0}
-					<span class="badge bg-secondary ms-1">{$searchResultsStore.totalResults}</span>
-				{/if}
-			</button>
+			{#if searchPerformed}
+				<!-- All filter with initial total -->
+				<button
+					class="btn btn-outline-primary chip-filter"
+					class:active={currentFilter === 'all'}
+					on:click={() => setFilter('all')}
+				>
+					<i class="bi {filtersConfig[0].icon} me-1"></i> {filtersConfig[0].name}
+					<span class="badge bg-secondary ms-1">
+						{Object.values($searchResultsStore.initialTypeCounts).reduce((a, b) => a + b, 0)}
+					</span>
+				</button>
 	
-			<!-- Show other filters only if they have results -->
-			{#each filtersConfig as filter}
-				{#if filter.value !== 'all' && $searchResultsStore.availableTypes.has(filter.value)}
-					<button
-						class="btn btn-outline-primary chip-filter"
-						class:active={searchPerformed ? currentFilter === filter.value : preSelectedFilter === filter.value}
-						on:click={() => setFilter(filter.value)}
-					>
-						<i class="bi {filter.icon} me-1"></i> {filter.name}
-						<span class="badge bg-secondary ms-1">
-							{$searchResultsStore.typesCounts[filter.value] || 0}
-						</span>
-					</button>
-				{/if}
-			{/each}
+				<!-- Other filters -->
+				{#each filtersConfig as filter}
+					{#if filter.value !== 'all' && $searchResultsStore.availableTypes.has(filter.value)}
+						<button
+							class="btn btn-outline-primary chip-filter"
+							class:active={currentFilter === filter.value}
+							on:click={() => setFilter(filter.value)}
+						>
+							<i class="bi {filter.icon} me-1"></i> {filter.name}
+							<span class="badge bg-secondary ms-1">
+								{$searchResultsStore.typesCounts[filter.value] || 0}
+							</span>
+						</button>
+					{/if}
+				{/each}
+			{/if}
 		</div>
 	</div>
 
