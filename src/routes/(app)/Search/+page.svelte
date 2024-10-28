@@ -3,9 +3,6 @@
 	import { searchResultsStore, initializeSearch, fetchResults } from '../../fullsearch-store';
 	import { get } from 'svelte/store';
   
-	// import custom libs
-	import { tooltip } from '$lib/tooltip.js';
-  
 	// import config files
 	import { filtersConfig, getFilterConfigByValue } from '$conf/filters.js';
   
@@ -24,7 +21,6 @@
 	let desiredPage = '';
 	let currentFilter = filter || 'all';
 	let currentSort = '';
-	let searchInProgress = false;
 	let preSelectedFilter = 'all';
 	let searchPerformed = false;
   
