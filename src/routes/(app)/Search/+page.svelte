@@ -12,7 +12,6 @@
 	import PersonasNoEsclavizadas from './cards/PersonasNoEsclavizadasCard.svelte';
 	import CorporacionesCard from './cards/CorporacionesCard.svelte';
 	import LugaresCard from './cards/LugaresCard.svelte';
-	import Pagination from '../Components/Pagination.svelte';
   
 	// define variables
 	export let data;
@@ -211,31 +210,39 @@
 	{#if $searchResultsStore.totalResults > 0}
 
 		<!-- Controles de Paginación -->
-		<Pagination 
-			currentPage={currentPage}
-			totalPages={totalPages}
-			loadNextPage={loadNextPage}
-			loadPreviousPage={loadPreviousPage}
-			previousPage={previousPage}
-			nextPage={nextPage}
-		/>
-
-		<div class="row justify-content-center mb-3">
-			<div class="col-auto">
-				<div class="input-group">
+		<div class="pagination-controls">
+			<div class="navigation-group">
+				<button 
+					class="nav-button" 
+					disabled={!previousPage}
+					on:click={loadPreviousPage}
+				>
+					<i class="bi bi-chevron-left"></i>
+				</button>
+		
+				<div class="page-input-wrapper">
 					<input
 						type="number"
 						bind:value={desiredPage}
 						min="1"
 						max={$searchResultsStore.totalPages}
-						class="form-control"
-						placeholder="Ir a página"
+						class="page-input"
+						placeholder={currentPage.toString()}
 						aria-label="Ir a página"
 					/>
-					<button on:click={goToPage} class="btn btn-secondary">
-						<i class="bi bi-arrow-right-circle me-1"></i> Ir
+					<span class="page-total">de {totalPages}</span>
+					<button on:click={goToPage} class="jump-button">
+						<i class="bi bi-arrow-right"></i>
 					</button>
 				</div>
+		
+				<button 
+					class="nav-button"
+					disabled={!nextPage}
+					on:click={loadNextPage}
+				>
+					<i class="bi bi-chevron-right"></i>
+				</button>
 			</div>
 		</div>
 
