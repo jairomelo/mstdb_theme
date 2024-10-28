@@ -1,5 +1,13 @@
 <script>
   import { onMount } from 'svelte';
+  import { currentSuffix, currentColor, updateSuffix, titleStem } from '$lib/maintitle';
+  import { animateSuffix } from '$lib/textanimation';
+
+  let suffixElement;
+
+  $: if ($currentSuffix) {
+    animateSuffix(suffixElement, updateSuffix);
+  }
 
   let query = '';
   let currentFilter = ''; 
@@ -29,6 +37,7 @@
 	}
 
 	onMount(() => {
+		updateSuffix();
 		document.addEventListener('click', handleClickOutside);
 		document.addEventListener('keydown', handleKeydown);
 		sectionElement.addEventListener('click', handleClickOutside);
@@ -46,7 +55,21 @@
 >
   <div class="overlay"></div>
   <div class="hero-content text-center">
-    <h1 class="display-4">Rutas de la Esclavitud en Nueva España</h1>
+    <h1 class="display-4 dynamic-title">
+		<span class="title-stem">{titleStem}</span>
+		<span
+		  class="title-suffix"
+		  style="color: {$currentColor};"
+		  bind:this={suffixElement}
+		>
+		  <span class="letters">
+			{#each $currentSuffix.split('') as letter, i (letter + i)}
+			  <span class="letter">{letter}</span>
+			{/each}
+		  </span>
+		  <span class="line"></span>
+		</span>
+	  </h1>
     <p class="lead">La circulación de afrodescendientes esclavizados y libres en la Nueva España</p>
 
     <form

@@ -52,6 +52,45 @@ p, ol, ul, li {
   animation: zoomIn 20s infinite ease-in-out;
 }
 
+.dynamic-title {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.title-stem {
+  flex-shrink: 0;
+}
+
+.title-suffix {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  min-width: 350px;
+  text-align: left;
+}
+
+.title-suffix .letters {
+  display: inline-block;
+  opacity: 0;
+}
+
+.title-suffix .letter {
+  opacity: 0;
+}
+
+.title-suffix .line {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px; 
+  width: 100%;
+  background-color: currentColor; 
+  transform-origin: 0 50%;
+  opacity: 0;
+}
+
 .form-control-lg {
   font-size: 1rem;
   font-family: 'aleo';
