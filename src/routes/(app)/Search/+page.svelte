@@ -129,7 +129,7 @@
 		</div>
 	</div>
 
-	<div class="row mb-3">
+	<!-- <div class="row mb-3">
 		<div class="col">
 			<div class="btn-group" role="group" aria-label="Opciones de ordenamiento">
 				<button
@@ -162,7 +162,7 @@
 				</button>
 			</div>
 		</div>
-	</div>
+	</div> -->
 
 	{#if $searchResultsStore.isLoading}
 		<div class="alert alert-info">
