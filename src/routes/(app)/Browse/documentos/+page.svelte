@@ -1,5 +1,5 @@
 <script>
-    import { DocumentStore } from '../../../browse-store'
+    import { DocumentStore } from '$lib/browse-store'
     import { onMount } from 'svelte';
 
     onMount(async function () {

@@ -1,5 +1,5 @@
 <script>
-    import { PerEscStore } from '../../../browse-store';
+    import { PerEscStore } from '$lib/browse-store';
     import { onMount } from 'svelte';
 
     let searchQuery = ''; 

@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { searchResultsStore, initializeSearch, fetchResults } from '../../fullsearch-store';
+	import { searchResultsStore, initializeSearch, fetchResults } from '$lib/searchFull-store';
 	import { get } from 'svelte/store';
   
 	// import config files

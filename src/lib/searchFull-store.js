@@ -1,5 +1,3 @@
-// src/routes/fullsearch-store.js
-
 import { writable } from 'svelte/store';
 import { searchAll } from '$lib/api';
 import log from '$lib/logger';
