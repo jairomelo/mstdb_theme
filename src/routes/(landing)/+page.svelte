@@ -89,7 +89,8 @@
         </button>
       </div>
 
-      <div class="hero-filter-options mt-2">
+	  <!-- TODO: Leave this as a reference for the future -->
+      <!-- <div class="hero-filter-options mt-2">
         <button
           type="button"
           class="btn btn-outline-light"
@@ -130,7 +131,7 @@
         >
           Lugares
         </button>
-      </div>
+      </div> -->
     </form>
   </div>
 </section>
