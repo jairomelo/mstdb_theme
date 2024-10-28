@@ -110,7 +110,7 @@
 	</div>
 
 	<div class="row mb-3">
-		<div class="col">
+		<div class="col search-chip-filters">
 			{#each filtersConfig as filter}
 				{#if filter.active}
 					<button

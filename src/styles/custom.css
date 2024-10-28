@@ -166,6 +166,21 @@ p, ol, ul, li {
   color: black;
 }
 
+.search-chip-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.search-chip-filters button {
+  font-family: 'aleo';
+  font-size: 0.9rem;
+  border: none;
+  border-bottom: var(--underline-primary);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
 .icon-section {
   width: 80px !important;
   background-color: #f8f9fa;
