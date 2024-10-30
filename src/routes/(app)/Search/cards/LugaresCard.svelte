@@ -84,7 +84,7 @@
                         {/each}
                         {#if personasInfo.length > 3}
                             <li>
-                                <a href="/Detail/lugares/{item.source.lugar_id}" class="text-decoration-none">
+                                <a href="/Detail/lugar/{item.source.lugar_id}" class="text-decoration-none">
                                     <small>y {personasInfo.length - 3} más...</small>
                                 </a>
                             </li>

@@ -107,7 +107,7 @@
               {#each lugaresInfo.slice(0, 3) as lugarRel, index}
                 <li>
                   <a
-                    href="/Detail/lugares/{lugarRel.lugar.lugar_id}"
+                    href="/Detail/lugar/{lugarRel.lugar.lugar_id}"
                     class="text-decoration-none"
                   >
                     {lugarRel.lugar.nombre_lugar} ({lugarRel.lugar.tipo})
