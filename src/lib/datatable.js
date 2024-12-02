@@ -174,6 +174,7 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
             ordering: true,
             order: [[0, 'asc']],
             info: true,
+            stateSave: true,
             layout: {
                 topStart: 'buttons',
                 topEnd: 'pageLength',
