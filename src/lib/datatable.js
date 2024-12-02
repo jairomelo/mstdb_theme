@@ -175,6 +175,27 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
             order: [[0, 'asc']],
             info: true,
             stateSave: true,
+            language: {
+                processing: "Procesando...",
+                search: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                infoFiltered: "(filtrado de _MAX_ registros totales)",
+                infoPostFix: "",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron registros",
+                emptyTable: "No hay datos disponibles",
+                paginate: {
+                    first: "Primero",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    last: "Último"
+                },
+                buttons: {
+                    colvis: "Mostrar/Ocultar columnas"
+                }
+            },
             layout: {
                 topStart: 'buttons',
                 topEnd: 'pageLength',
@@ -184,10 +205,12 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
             buttons: [
                 {
                     extend: 'colvis',
-                    text: 'Toggle Columns', 
-                    columns: ':not(:first-child)', 
-                },
+                    text: 'Mostrar/Ocultar columnas',
+                    className: 'btn btn-secondary me-2',
+                    columns: ':not(:first-child)'
+                }
             ],
+            
         });
     });
 };
