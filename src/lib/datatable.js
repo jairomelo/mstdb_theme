@@ -3,6 +3,8 @@ import 'datatables.net-buttons/js/buttons.html5.min';
 import 'datatables.net-buttons/js/buttons.colVis.min';
 import 'datatables.net-buttons-bs5';
 
+import { tooltip } from '$lib/tooltip.js';
+
 // Configure columns here
 
 export const columns = [
@@ -55,6 +57,44 @@ export const columns = [
                 : '-',
         title: 'Documentos',
     },
+    {
+        data: 'relaciones',
+        render: (data, type, row) => {
+            if (!data || data.length === 0) return '-';
+            
+            return data.map(relacion => {
+                // Filter out the current person from the personas array
+                const otherPersonas = relacion.personas.filter(persona => 
+                    persona.persona_id !== row.persona_id
+                );
+                
+                if (otherPersonas.length === 0) return null;
+                
+                return otherPersonas.map(persona => {
+                    const baseUrl = persona.polymorphic_ctype === 29 ? 
+                        '/Detail/personaesclavizada/' : 
+                        '/Detail/personanoesclavizada/';
+
+                    const classColor = persona.polymorphic_ctype === 29 ? 'text-danger' : 'text-success';
+
+                    return `<a href="${baseUrl}${persona.persona_id}" 
+                        class="${classColor} text-decoration-none" 
+                        data-bs-toggle="tooltip"
+                        data-bs-title="${relacion.descripcion_relacion || ''}">${
+                        persona.nombre_normalizado} (${relacion.naturaleza_relacion})</a>`;
+                }).join(', ');
+            })
+            .filter(Boolean)
+            .join('<br>');
+        },
+        title: 'Relaciones',
+        createdCell: function(td, cellData, rowData, row, col) {
+            const links = td.getElementsByTagName('a');
+            Array.from(links).forEach(link => {
+                tooltip(link);
+            });
+        }
+    }
 ];
 
 export const initDataTable = (tableId, columns, endpointresponse) => {
