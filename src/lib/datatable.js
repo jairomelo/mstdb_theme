@@ -1,4 +1,3 @@
-import { personasescfull } from '$lib/api';
 import 'datatables.net-buttons/js/dataTables.buttons.min';
 import 'datatables.net-buttons/js/buttons.html5.min';
 import 'datatables.net-buttons/js/buttons.colVis.min';
@@ -58,7 +57,7 @@ export const columns = [
     },
 ];
 
-export const initDataTable = (tableId, columns) => {
+export const initDataTable = (tableId, columns, endpointresponse) => {
     jQuery(document).ready(() => {
         jQuery(`#${tableId}`).DataTable({
             processing: true,
@@ -73,7 +72,7 @@ export const initDataTable = (tableId, columns) => {
                     params.search = data.search.value;
                 }
 
-                personasescfull(params)
+                endpointresponse(params)
                     .then((response) => {
                         callback({
                             draw: data.draw,
@@ -97,6 +96,7 @@ export const initDataTable = (tableId, columns) => {
             pageLength: 25,
             searching: false,
             ordering: true,
+            order: [[0, 'asc']],
             info: true,
             layout: {
                 topStart: 'buttons',

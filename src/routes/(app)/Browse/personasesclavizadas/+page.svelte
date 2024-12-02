@@ -1,5 +1,7 @@
 <script>
     import { onMount } from 'svelte';
+
+    import { personasescfull } from '$lib/api';
     
     let isClient = false;
 
@@ -14,7 +16,7 @@
         
             const { initDataTable, columns } = await import('$lib/datatable'); // if you want to add or replace columns, do it here
 
-            initDataTable('dataTable', columns);
+            initDataTable('dataTable', columns, personasescfull);
         }
     });
 </script>
