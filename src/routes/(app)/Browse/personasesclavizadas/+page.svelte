@@ -62,22 +62,7 @@
 
 <div>
     
-        <table id="dataTable" class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Persona ID</th>
-                    <th>Nombre</th>
-                    <th>Sexo</th>
-                    <th>Edad</th>
-                    <th>Hispanizaciones</th>
-                    <th>Etnónimos</th>
-                    <th>Ocupaciones</th>
-                    <th>Marcas Corporales</th>
-                    <th>Documentos</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <table id="dataTable" class="table table-striped"></table>
 
 </div>
 
