@@ -1,13 +1,9 @@
 <script>
     import { onMount } from 'svelte';
     import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
-    import jQuery from 'jquery';
     import 'datatables.net-bs5';
 
     import { initDataTable } from '$lib/datatable';
-
-    let tableData = [];
-    let dataLoaded = false;
 
     onMount(() => {
     const columns = [
@@ -56,14 +52,11 @@
     ];
 
         initDataTable('dataTable', columns);
-        dataLoaded = true;
     });
 </script>
 
 <div>
-    {#if !dataLoaded}
-        <p>Loading...</p>
-    {:else}
+    
         <table id="dataTable" class="table table-striped">
             <thead>
                 <tr>
@@ -79,7 +72,7 @@
             </thead>
             <tbody></tbody>
         </table>
-    {/if}
+
 </div>
 
 
