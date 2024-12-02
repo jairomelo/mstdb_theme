@@ -14,6 +14,11 @@
         },
         { data: 'nombre_normalizado', title: 'Nombre' },
         { data: 'sexo', title: 'Sexo' },
+        { 
+            data: 'edad', 
+            render: (data, type, row) => data ? `${data} ${row.unidad_temporal_edad === undefined ? 'años' : row.unidad_temporal_edad}` : '-',
+            title: 'Edad' 
+        },
         {
             data: 'hispanizacion',
             render: (data) => (data && data.length > 0 ? data.join(', ') : '-'),
@@ -63,6 +68,7 @@
                     <th>Persona ID</th>
                     <th>Nombre</th>
                     <th>Sexo</th>
+                    <th>Edad</th>
                     <th>Hispanizaciones</th>
                     <th>Etnónimos</th>
                     <th>Ocupaciones</th>
