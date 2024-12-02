@@ -134,7 +134,7 @@ export const columns = [
 ];
 
 export const initDataTable = (tableId, columns, endpointresponse) => {
-    jQuery(document).ready(() => {
+    jQuery(() => {
         jQuery(`#${tableId}`).DataTable({
             processing: true,
             serverSide: true,
