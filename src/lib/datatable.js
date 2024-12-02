@@ -94,10 +94,16 @@ export const initDataTable = (tableId, columns) => {
             },
             columns,
             paging: true,
+            pageLength: 25,
             searching: false,
             ordering: true,
             info: true,
-            dom: 'Bfrtip', 
+            layout: {
+                topStart: 'buttons',
+                topEnd: 'pageLength',
+                bottomStart: 'info',
+                bottomEnd: 'paging'
+            },
             buttons: [
                 {
                     extend: 'colvis',
