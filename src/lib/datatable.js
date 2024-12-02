@@ -41,10 +41,10 @@ export const initDataTable = (tableId, columns) => {
             },
             columns,
             scrollCollapse: true,
-            scrollY: 400,
+            scrollY: 800,
             scrollX: true,
             paging: true,
-            searching: true,
+            searching: false,
             ordering: true,
             info: true,
         });
