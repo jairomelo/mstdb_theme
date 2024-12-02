@@ -12,59 +12,7 @@
 
             window.$ = window.jQuery = jQuery;
         
-            const { initDataTable } = await import('$lib/datatable');
-
-            const columns = [
-                {
-                    data: 'persona_idno',
-                    render: (data, type, row) =>
-                        `<a href="/Detail/personaesclavizada/${row.persona_id}" class="text-decoration-none">${data.split('-').pop()}</a>`,
-                    title: 'Persona ID',
-                },
-                { data: 'nombre_normalizado', title: 'Nombre' },
-                { data: 'sexo', title: 'Sexo' },
-                {
-                    data: 'edad',
-                    render: (data, type, row) =>
-                        data ? `${data} ${row.unidad_temporal_edad === undefined ? 'años' : row.unidad_temporal_edad}` : '-',
-                    title: 'Edad',
-                },
-                {
-                    data: 'hispanizacion',
-                    render: (data) => (data && data.length > 0 ? data.join(', ') : '-'),
-                    title: 'Hispanizaciones',
-                },
-                {
-                    data: 'etnonimos',
-                    render: (data) => (data && data.length > 0 ? data.join(', ') : '-'),
-                    title: 'Etnónimos',
-                },
-                {
-                    data: 'ocupaciones',
-                    render: (data) => (data && data.length > 0 ? data.join(', ') : '-'),
-                    title: 'Ocupaciones',
-                },
-                {
-                    data: 'marcas_corporales',
-                    render: (data) => data || '-',
-                    title: 'Marcas Corporales',
-                },
-                {
-                    data: 'documentos',
-                    render: (data) =>
-                        data && data.length > 0
-                            ? data
-                                  .map(
-                                      (doc) =>
-                                          `<a href="/Detail/documento/${doc.documento_id}" class="text-decoration-none">${
-                                              doc.tipo_documento || doc.titulo.substring(0, 30)
-                                          }</a>`
-                                  )
-                                  .join('<br>')
-                            : '-',
-                    title: 'Documentos',
-                },
-            ];
+            const { initDataTable, columns } = await import('$lib/datatable'); // if you want to add or replace columns, do it here
 
             initDataTable('dataTable', columns);
         }
