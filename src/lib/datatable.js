@@ -94,6 +94,42 @@ export const columns = [
                 tooltip(link);
             });
         }
+    },
+    {
+        data: 'lugares',
+        render: (data) => {
+            if (!data || data.length === 0) return '-';
+            
+            // Sort the lugares array
+            const sortedLugares = [...data].sort((a, b) => {
+                // First sort by date
+                const dateA = new Date(a.documento.fecha_inicial);
+                const dateB = new Date(b.documento.fecha_inicial);
+                
+                if (dateA.getTime() !== dateB.getTime()) {
+                    return dateA - dateB;
+                }
+                
+                // If same date, sort by ordinal with negative first
+                // Handle cases where ordinal might be null
+                const ordinalA = a.ordinal ?? 0;
+                const ordinalB = b.ordinal ?? 0;
+                
+                if (ordinalA < 0 && ordinalB >= 0) return -1;
+                if (ordinalA >= 0 && ordinalB < 0) return 1;
+                return ordinalA - ordinalB;
+            });
+            
+            return sortedLugares.map(item => {
+                const fecha = new Date(item.documento.fecha_inicial)
+                    .getFullYear();
+                
+                return `${fecha}, <a href="/Detail/lugar/${item.lugar.lugar_id}" 
+                    class="text-decoration-none">${item.lugar.nombre_lugar} 
+                    (${item.lugar.tipo})</a>`;
+            }).join(' => ');
+        },
+        title: 'Lugares'
     }
 ];
 
