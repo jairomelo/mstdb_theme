@@ -4,33 +4,59 @@
     import jQuery from 'jquery';
     import 'datatables.net-bs5';
 
-    import { personasescfull } from '$lib/api';
+    import { initDataTable } from '$lib/datatable';
 
     let tableData = [];
     let dataLoaded = false;
 
-    onMount(async () => {
-        try {
-            const res = await personasescfull();
-            tableData = res;
-            dataLoaded = true;
+    onMount(() => {
+    const columns = [
+        {
+            data: 'persona_idno',
+            render: (data, type, row) => `<a href="/Detail/personaesclavizada/${row.persona_id}" class="text-decoration-none">${data.split('-').pop()}</a>`,
+            title: 'Persona ID',
+        },
+        { data: 'nombre_normalizado', title: 'Nombre' },
+        { data: 'sexo', title: 'Sexo' },
+        {
+            data: 'hispanizacion',
+            render: (data) => (data && data.length > 0 ? data.join(', ') : '-'),
+            title: 'Hispanizaciones',
+        },
+        {
+            data: 'etnonimos',
+            render: (data) => (data && data.length > 0 ? data.join(', ') : '-'),
+            title: 'Etnónimos',
+        },
+        {
+            data: 'ocupaciones',
+            render: (data) => (data && data.length > 0 ? data.join(', ') : '-'),
+            title: 'Ocupaciones',
+        },
+        {
+            data: 'marcas_corporales',
+            render: (data) => data || '-',
+            title: 'Marcas Corporales',
+        },
+        {
+            data: 'documentos',
+            render: (data) =>
+                data && data.length > 0
+                    ? data
+                          .map(
+                              (doc) =>
+                                  `<a href="/Detail/documento/${doc.documento_id}" class="text-decoration-none">${
+                                      doc.tipo_documento || doc.titulo.substring(0, 30)
+                                  }</a>`
+                          )
+                          .join('<br>')
+                    : '-',
+            title: 'Documentos',
+        },
+    ];
 
-            // console.log(tableData);
-
-            jQuery(document).ready(function () {
-                jQuery('#dataTable').DataTable({
-                    scrollCollapse: true,
-                    scrollY: 400,
-                    scrollX: true,
-                    paging: true,
-                    searching: true,
-                    ordering: true,
-                    info: true
-                });
-            });
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
+        initDataTable('dataTable', columns);
+        dataLoaded = true;
     });
 </script>
 
@@ -44,26 +70,14 @@
                     <th>Persona ID</th>
                     <th>Nombre</th>
                     <th>Sexo</th>
+                    <th>Hispanizaciones</th>
+                    <th>Etnónimos</th>
+                    <th>Ocupaciones</th>
+                    <th>Marcas Corporales</th>
                     <th>Documentos</th>
                 </tr>
             </thead>
-            <tbody>
-                {#each tableData.results as row}
-                <tr>
-                    <td>{row.persona_idno.split('-').pop()}</td>
-                    <td>{row.nombre_normalizado}</td>
-                    <td>{row.sexo}</td>
-                    <td>{#if row.documentos.length > 0}
-                            {#each row.documentos as doc}
-                                <a href="/Detail/documento/{doc.documento_id}" class="text-decoration-none">
-                                    {#if doc.tipo_documento != null} {doc.tipo_documento } {:else} {doc.titulo.substring(0, 30)} {/if}
-                                </a>
-                            {/each}
-                        {/if}
-                    </td>
-                </tr>
-                {/each}
-            </tbody>
+            <tbody></tbody>
         </table>
     {/if}
 </div>
