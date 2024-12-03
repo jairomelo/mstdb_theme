@@ -1,5 +1,4 @@
 import 'datatables.net-buttons/js/dataTables.buttons.min';
-import 'datatables.net-buttons/js/buttons.html5.min';
 import 'datatables.net-buttons/js/buttons.colVis.min';
 import 'datatables.net-buttons-bs5';
 
@@ -168,7 +167,6 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
                     });
             },
             columns,
-            paging: true,
             pageLength: 25,
             searching: false,
             ordering: true,
@@ -176,7 +174,6 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
             info: true,
             stateSave: true,
             language: {
-                processing: "Procesando...",
                 search: "Buscar:",
                 lengthMenu: "Mostrar _MENU_ registros",
                 info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
@@ -191,9 +188,6 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
                     previous: "Anterior",
                     next: "Siguiente",
                     last: "Último"
-                },
-                buttons: {
-                    colvis: "Mostrar/Ocultar columnas"
                 }
             },
             layout: {
@@ -205,9 +199,9 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
             buttons: [
                 {
                     extend: 'colvis',
-                    text: 'Mostrar/Ocultar columnas',
                     className: 'btn btn-secondary me-2',
-                    columns: ':not(:first-child)'
+                    columns: ':not(:first-child)',
+                    text: '<i class="bi bi-columns"></i> Mostrar/Ocultar columnas'
                 }
             ],
             
