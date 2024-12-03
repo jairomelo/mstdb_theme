@@ -160,6 +160,26 @@ p, ol, ul, li {
   color: #dee3e7;
 }
 
+/* Global layout styles */
+
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-container {
+  padding-top: 56px; 
+  flex: 1;
+}
+
+@media (min-width: 992px) {
+  .content-container {
+    padding-top: 60px; 
+  }
+}
+
+
 /* Search view styles */
 
 .search-btn i {
