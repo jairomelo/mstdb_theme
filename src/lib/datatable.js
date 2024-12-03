@@ -134,7 +134,13 @@ export const columns = [
 
 export const initDataTable = (tableId, columns, endpointresponse) => {
     jQuery(() => {
+        // Check if DataTable already exists and destroy it
+        if ($.fn.DataTable.isDataTable(`#${tableId}`)) {
+            $(`#${tableId}`).DataTable().destroy();
+        }
+
         jQuery(`#${tableId}`).DataTable({
+            destroy: true,
             processing: true,
             serverSide: true,
             ajax: (data, callback) => {
