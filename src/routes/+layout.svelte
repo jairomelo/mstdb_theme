@@ -13,6 +13,9 @@
       type="button" 
       data-bs-toggle="collapse" 
       data-bs-target="#navbarSupportedContent" 
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
       use:collapse
     >
       <span class="navbar-toggler-icon"></span>
@@ -21,17 +24,19 @@
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item dropdown">
           <a 
-            class="nav-link dropdown-toggle" 
-            id="navbarDropdown" 
-            role="button" 
-            data-bs-toggle="dropdown" 
-            use:dropdown
+              class="nav-link dropdown-toggle" 
+              href="#"
+              id="navbarDropdown" 
+              role="button" 
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+              use:dropdown
           >
-            Explorar la base de datos
+              Explorar la base de datos
           </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="/Browse/personasesclavizadas/">Personas Esclavizadas</a></li>
-            <li><hr class="dropdown-divider"></li>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown" data-bs-popper="none">
+              <li><a class="dropdown-item" href="/Browse/personasesclavizadas/">Personas Esclavizadas</a></li>
+              <li><hr class="dropdown-divider"></li>
           </ul>
         </li>
       </ul>
@@ -40,7 +45,6 @@
   </nav>
   <slot />
 {:else}
-<div class="layout-wrapper">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand" href="/"><i class="bi bi-house-fill"></i></a>
@@ -79,6 +83,5 @@
   <div class="content-container">
     <slot />
   </div>
-  <!-- End of layout wrapper -->
-</div>
+
 {/if}
