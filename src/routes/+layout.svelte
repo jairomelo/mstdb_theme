@@ -3,6 +3,19 @@
   import '@fontsource/aleo';
   import '@fontsource/eb-garamond';
   import { dropdown, collapse } from '$lib/bootstrap-actions.js';
+
+  import { goto } from '$app/navigation';
+
+  let query = '';
+  let formElement;
+
+  function handleNavSearch() {
+    if (query) {
+      goto(`/Search/?q=${encodeURIComponent(query)}`);
+    }
+  }
+
+
 </script>
 
 {#if $page.url.pathname === '/'}
@@ -76,6 +89,26 @@
           </ul>
         </li>
       </ul>
+
+      {#if $page.url.pathname !== '/Search'}
+      <form
+        on:submit|preventDefault={handleNavSearch}
+        class="d-flex ms-auto"
+        bind:this={formElement}
+      >
+        <div class="input-group">
+          <input
+            type="text"
+            bind:value={query}
+            class="form-control"
+            placeholder="Buscar en la base de datos"
+          />
+          <button type="submit" class="btn btn-outline-light">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </form>
+      {/if}
     </div>
   </div>
 </nav>
