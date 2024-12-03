@@ -87,49 +87,7 @@
         </button>
       </div>
 
-	  <!-- TODO: Leave this as a reference for the future -->
-      <!-- <div class="hero-filter-options mt-2">
-        <button
-          type="button"
-          class="btn btn-outline-light"
-          class:active={currentFilter === 'documento'}
-          on:click={() => setFilter('documento')}
-        >
-          Documentos
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-light"
-          class:active={currentFilter === 'personaesclavizada'}
-          on:click={() => setFilter('personaesclavizada')}
-        >
-          Personas Esclavizadas
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-light"
-          class:active={currentFilter === 'personanoesclavizada'}
-          on:click={() => setFilter('personanoesclavizada')}
-        >
-          Personas No Esclavizadas
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-light"
-          class:active={currentFilter === 'corporacion'}
-          on:click={() => setFilter('corporacion')}
-        >
-          Corporaciones
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-light"
-          class:active={currentFilter === 'lugar'}
-          on:click={() => setFilter('lugar')}
-        >
-          Lugares
-        </button>
-      </div> -->
     </form>
   </div>
 </section>
+
