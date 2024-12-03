@@ -3,7 +3,7 @@ import 'datatables.net-buttons/js/buttons.colVis.min';
 import 'datatables.net-buttons-bs5';
 import languageES from 'datatables.net-plugins/i18n/es-ES.mjs';
 
-import { tooltip } from '$lib/tooltip.js';
+import { tooltip } from '$lib/bootstrap-actions.js';
 
 // Configure columns here
 
