@@ -11,7 +11,7 @@ export const columns = [
         data: 'persona_idno',
         render: (data, type, row) =>
             `<a href="/Detail/personaesclavizada/${row.persona_id}" class="text-decoration-none">${data.split('-').pop()}</a>`,
-        title: 'Persona ID',
+        title: 'Persona ID'
     },
     { data: 'nombre_normalizado', title: 'Nombre' },
     { data: 'sexo', title: 'Sexo' },
@@ -134,8 +134,10 @@ export const columns = [
 
 export const initDataTable = (tableId, columns, endpointresponse) => {
     jQuery(() => {
+        console.log('jQuery ready');
         // Check if DataTable already exists and destroy it
         if ($.fn.DataTable.isDataTable(`#${tableId}`)) {
+            console.log('Destroying existing DataTable');
             $(`#${tableId}`).DataTable().destroy();
         }
 
@@ -146,29 +148,33 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
             ajax: (data, callback) => {
                 const params = {
                     start: Math.floor(data.start / data.length) + 1,
-                    length: data.length,
+                    length: data.length
                 };
 
-                if (data.search.value) {
-                    params.search = data.search.value;
+                if (data.order && data.order.length > 0) {
+                    const sortParams = data.order.map(order => ({
+                        column: columns[order.column].data,
+                        dir: order.dir
+                    }));
+                    params.sort_by = JSON.stringify(sortParams);
                 }
 
                 endpointresponse(params)
-                    .then((response) => {
+                    .then(response => {
                         callback({
                             draw: data.draw,
                             recordsTotal: response.count,
                             recordsFiltered: response.count,
-                            data: response.results,
+                            data: response.results
                         });
                     })
-                    .catch((error) => {
+                    .catch(error => {
                         console.error('Error loading data:', error);
                         callback({
                             draw: data.draw,
                             recordsTotal: 0,
                             recordsFiltered: 0,
-                            data: [],
+                            data: []
                         });
                     });
             },
@@ -176,6 +182,7 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
             pageLength: 25,
             searching: false,
             ordering: true,
+            orderMulti: true,
             order: [[0, 'asc']],
             info: true,
             stateSave: true,
