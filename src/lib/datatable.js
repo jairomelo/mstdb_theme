@@ -1,6 +1,7 @@
 import 'datatables.net-buttons/js/dataTables.buttons.min';
 import 'datatables.net-buttons/js/buttons.colVis.min';
 import 'datatables.net-buttons-bs5';
+import languageES from 'datatables.net-plugins/i18n/es-ES.mjs';
 
 import { tooltip } from '$lib/tooltip.js';
 
@@ -186,23 +187,7 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
             order: [[0, 'asc']],
             info: true,
             stateSave: true,
-            language: {
-                search: "Buscar:",
-                lengthMenu: "Mostrar _MENU_ registros",
-                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-                infoEmpty: "Mostrando 0 a 0 de 0 registros",
-                infoFiltered: "(filtrado de _MAX_ registros totales)",
-                infoPostFix: "",
-                loadingRecords: "Cargando...",
-                zeroRecords: "No se encontraron registros",
-                emptyTable: "No hay datos disponibles",
-                paginate: {
-                    first: "Primero",
-                    previous: "Anterior",
-                    next: "Siguiente",
-                    last: "Último"
-                }
-            },
+            language: languageES,
             layout: {
                 topStart: 'buttons',
                 topEnd: 'pageLength',
