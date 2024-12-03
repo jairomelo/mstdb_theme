@@ -7,7 +7,7 @@ import { tooltip } from '$lib/tooltip.js';
 
 // Configure columns here
 
-export const columns = [
+export const columnsPersonasEsclavizadas = [
     {
         data: 'persona_idno',
         render: (data, type, row) =>
@@ -205,4 +205,14 @@ export const initDataTable = (tableId, columns, endpointresponse) => {
             
         });
     });
+};
+
+/**
+ * Initialize a DataTable with the columns from PersonasEsclavizadas and the endpoint response.
+ * @param {string} tableId The ID of the table to initialize
+ * @param {function} endpointresponse The response from the endpoint. Must be a response.json() type object.
+ */
+
+export const initDataTablePersonasEsclavizadas = (tableId, endpointresponse) => {
+    initDataTable(tableId, columnsPersonasEsclavizadas, endpointresponse);
 };

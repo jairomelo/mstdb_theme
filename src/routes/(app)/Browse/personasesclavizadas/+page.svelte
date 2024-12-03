@@ -11,8 +11,8 @@
             const jQuery = (await import('jquery')).default;
             window.$ = window.jQuery = jQuery;
         
-            const { initDataTable, columns } = await import('$lib/datatable'); // Define or modify columns here
-            initDataTable('dataTable', columns, personasescfull);
+            const { initDataTablePersonasEsclavizadas } = await import('$lib/datatable');
+            initDataTablePersonasEsclavizadas('dataTable', personasescfull);
         }
     });
 </script>
