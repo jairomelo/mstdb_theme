@@ -91,3 +91,26 @@
   </div>
 </section>
 
+<div class="row database-band" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
+  <div class="col-md-12 band-story">
+    <div class="band-header">
+      <h2>Base de datos</h2>
+      <h2 class="accent-title">Afrodescendientes en Nueva España</h2>
+    </div>
+    <div class="band-content">
+      <p>
+        Esta base de datos recopila información sobre la circulación de personas afrodescendientes, 
+        tanto esclavizadas como libres, en la Nueva España. Explore los registros históricos para 
+        conocer más sobre sus vidas, movimientos y relaciones.
+      </p>
+    </div>
+    <div class="band-buttons">
+      <a href="/Browse/personasesclavizadas">
+        <button class="band-btn">Personas Esclavizadas</button>
+      </a>
+      <a href="#">
+        <button class="band-btn">Personas Libres</button>
+      </a>
+    </div>
+  </div>
+</div>

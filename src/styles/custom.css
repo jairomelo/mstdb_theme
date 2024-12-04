@@ -56,6 +56,9 @@ p, ol, ul, li {
   line-height: 1.5;
 }
 
+/* Landing page styles */
+
+/* Hero section */
 .hero-section {
   background: url('/media/Mapa_de_Nueva_España.webp') no-repeat center center/cover;
   height: 100vh;
@@ -170,6 +173,59 @@ p, ol, ul, li {
   background-color: #C24F3Ca4;
   border: none;
   color: #dee3e7;
+}
+
+/* Other landing page styles */
+
+.database-band {
+  padding: 3rem 2rem;
+  margin: 2rem auto;
+  max-width: 1200px;
+}
+
+.band-story {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.band-header h2 {
+  margin: 0;
+  line-height: 1.2;
+  font-family: 'eb-garamond';
+}
+
+.accent-title {
+  color: var(--text-primary);
+}
+
+.band-content p {
+  font-family: 'aleo';
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.band-buttons {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.band-btn {
+  font-family: 'aleo';
+  font-weight: var(--font-weight-medium);
+  padding: 0.8rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--text-primary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.band-btn:hover {
+  background-color: var(--text-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(194, 79, 60, 0.2);
 }
 
 /* Global layout styles */
