@@ -1,6 +1,10 @@
 :root {
   --text-primary: #c24f3c;
   --underline-primary: 1px solid #C24F3C;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 }
 
 body {
@@ -35,7 +39,15 @@ h1, h2, h3 {
 
 h4, h5, a, span, li, label, input {
   font-family: 'aleo', sans-serif;
-  font-weight: bold;
+  font-weight: var(--font-weight-normal);
+}
+
+h4, h5 {
+  font-weight: var(--font-weight-semibold);
+}
+
+a, label {
+  font-weight: var(--font-weight-medium);
 }
 
 p, ol, ul, li {
@@ -158,6 +170,57 @@ p, ol, ul, li {
   background-color: #C24F3Ca4;
   border: none;
   color: #dee3e7;
+}
+
+/* Global layout styles */
+
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-container {
+  padding-top: 56px; 
+  flex: 1;
+}
+
+@media (min-width: 992px) {
+  .content-container {
+    padding-top: 60px; 
+  }
+}
+
+/* Navbar customization */
+
+.navbar-dark .dropdown-menu {
+  background-color: transparent; 
+  backdrop-filter: none; 
+  border: none;
+  border-radius: 8px;
+  box-shadow: none; 
+  min-width: 0;
+  width: max-content;
+  padding: 0.5rem 0;
+}
+
+.navbar-dark .dropdown-menu .dropdown-item {
+  color: white; 
+  font-family: 'aleo', sans-serif;
+  transition: all 0.3s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); 
+  white-space: nowrap;
+  padding: 0.5rem 1rem;
+}
+
+.navbar-dark .dropdown-menu .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1); 
+  color: var(--text-primary);
+  text-shadow: none; 
+}
+
+.navbar-dark .dropdown-menu .dropdown-divider {
+  border-color: rgba(255, 255, 255, 0.2); 
 }
 
 /* Search view styles */
@@ -381,6 +444,69 @@ p, ol, ul, li {
 
 .matches em {
   color:#C24F3C;
+}
+
+/* DataTable styles */
+
+.table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table th, .table td {
+  text-align: center;
+  vertical-align: middle;
+  font-family: 'aleo';
+  font-size: 16px;
+}
+
+.table thead th {
+  background-color: var(--text-primary);
+  color: #fff;
+  font-weight: var(--font-weight-semibold);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(194, 79, 60, 0.1); 
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(194, 79, 60, 0.2);
+}
+
+.dataTables_length select, .dataTables_filter input {
+  font-family: 'aleo';
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--text-primary);
+}
+
+.dataTables_length label, .dataTables_filter label {
+  font-family: 'aleo';
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+}
+
+.dt-button {
+  background-color: var(--text-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-family: 'aleo';
+  transition: background-color 0.3s ease;
+}
+
+.dt-button:hover {
+  background-color: var(--text-primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dt-button:active {
+  background-color: var(--text-primary);
+  color: white;
 }
 
 /* Detail view styles */

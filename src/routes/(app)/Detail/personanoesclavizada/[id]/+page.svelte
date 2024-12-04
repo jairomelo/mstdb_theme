@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { tooltip } from '$lib/tooltip.js';
+	import { tooltip } from '$lib/bootstrap-actions.js';
 	import { pernoesclavizadas } from '$lib/api';
 
 	export let data;

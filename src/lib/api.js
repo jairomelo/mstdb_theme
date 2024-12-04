@@ -39,6 +39,21 @@ export const searchAll = (params) => {
     return fetchWithBaseUrl(`search/?${querystring}`);
 };
 
+// Browse endpoints
+export const personasescfull = (params) => {
+    // Filter out empty or null parameters
+    const filteredParams = {};
+    for (const key in params) {
+        if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
+            filteredParams[key] = params[key];
+        }
+    }
+
+    const querystring = queryString.stringify(filteredParams);
+    console.log('personasescfull query string:', querystring);
+    return fetchWithBaseUrl(`peresclavizadas/?${querystring}`);
+};
+
 // Detail endpoints
 export const documentos = (params) => fetchWithBaseUrl(`documentos/${params}/`);
 export const peresclavizadas = (params) => fetchWithBaseUrl(`peresclavizadas/${params}/`);

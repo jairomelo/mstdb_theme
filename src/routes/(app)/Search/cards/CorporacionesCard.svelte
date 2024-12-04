@@ -1,7 +1,7 @@
 <script>
     import Card from './Card.svelte';
     import { getFilterConfigByValue } from '$conf/filters.js';
-    import { tooltip } from '$lib/tooltip.js';
+    import { tooltip } from '$lib/bootstrap-actions.js';
 
 	export let item;
 
