@@ -90,9 +90,7 @@
 								>
 							</li>
 							<li>
-								<a class="dropdown-item disabled" href="/Browse/personasnoesclavizadas/"
-									>Personas No Esclavizadas</a
-								>
+								<a class="dropdown-item disabled" href="#">Personas No Esclavizadas</a>
 							</li>
 							<li><hr class="dropdown-divider" /></li>
 						</ul>
