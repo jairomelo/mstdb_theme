@@ -36,7 +36,6 @@
 					<li class="nav-item dropdown">
 						<a
 							class="nav-link dropdown-toggle"
-							href="#"
 							id="navbarDropdown"
 							role="button"
 							data-bs-toggle="dropdown"
@@ -60,7 +59,7 @@
 	</nav>
 	<slot />
 {:else}
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+	<nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
 		<div class="container-fluid">
 			<a class="navbar-brand" href="/"><i class="bi bi-house-fill"></i></a>
 			<button
