@@ -72,10 +72,10 @@
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<ul class="navbar-nav ms-auto mb-lg-0">
 					<li class="nav-item dropdown">
 						<a
-							class="nav-link active dropdown-toggle"
+							class="nav-link dropdown-toggle"
 							id="navbarDropdown"
 							role="button"
 							data-bs-toggle="dropdown"
@@ -97,25 +97,33 @@
 					</li>
 				</ul>
 
-				{#if $page.url.pathname !== '/Search'}
-					<form
-						on:submit|preventDefault={handleNavSearch}
-						class="d-flex ms-auto"
-						bind:this={formElement}
-					>
-						<div class="input-group">
-							<input
-								type="text"
-								bind:value={query}
-								class="form-control"
-								placeholder="Buscar en la base de datos"
-							/>
-							<button type="submit" class="btn btn-outline-light">
-								<i class="bi bi-search"></i>
-							</button>
-						</div>
-					</form>
-				{/if}
+				<div class="d-flex align-items-center">
+					<ul class="navbar-nav me-2">
+						<li class="nav-item">
+							<a class="nav-link" href="/About/">Acerca de</a>
+						</li>
+					</ul>
+
+					{#if $page.url.pathname !== '/Search'}
+						<form
+							on:submit|preventDefault={handleNavSearch}
+							class="d-flex"
+							bind:this={formElement}
+						>
+							<div class="input-group">
+								<input
+									type="text"
+									bind:value={query}
+									class="form-control"
+									placeholder="Buscar en la base de datos"
+								/>
+								<button type="submit" class="btn btn-outline-light">
+									<i class="bi bi-search"></i>
+								</button>
+							</div>
+						</form>
+					{/if}
+				</div>
 			</div>
 		</div>
 	</nav>
