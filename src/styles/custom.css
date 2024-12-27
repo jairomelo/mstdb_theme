@@ -1,6 +1,6 @@
 :root {
-  --text-primary: #c24f3c;
-  --underline-primary: 1px solid #C24F3C;
+  --text-primary: #8e3b23;
+  --underline-primary: 1px solid #8e3b23;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -18,11 +18,11 @@ a {
 }
 
 a:hover {
-  color: #166a8e;
+  color: #2c5282;
 }
 
 a:active {
-  color: #03abd5;
+  color: #4b5c6b;
 }
 
 a h5 {
@@ -170,9 +170,9 @@ p, ol, ul, li {
 
 .hero-filter-options button:active,
 .hero-filter-options button.active {
-  background-color: #C24F3Ca4;
+  background-color: rgba(142, 59, 35, 0.65);
   border: none;
-  color: #dee3e7;
+  color: #f8f5f2;
 }
 
 /* Other landing page styles */
@@ -313,7 +313,7 @@ p, ol, ul, li {
 }
 
 .highlights .highlight-text em {
-  color: #856404;
+  color: #945619;
 }
 
 
@@ -519,16 +519,16 @@ p, ol, ul, li {
 
 .table thead th {
   background-color: var(--text-primary);
-  color: #fff;
+  color: #f8f5f2;
   font-weight: var(--font-weight-semibold);
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-  background-color: rgba(194, 79, 60, 0.1); 
+  background-color: rgba(142, 59, 35, 0.1);  
 }
 
 .table-hover tbody tr:hover {
-  background-color: rgba(194, 79, 60, 0.2);
+  background-color: rgba(142, 59, 35, 0.2);
 }
 
 .dataTables_length select, .dataTables_filter input {
