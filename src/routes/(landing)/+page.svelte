@@ -41,14 +41,22 @@
     element.scrollIntoView({ behavior: 'smooth' });
   }
 
+  let showScrollButton = true;
+
+  function handleScroll() {
+    showScrollButton = window.scrollY < 100;
+  }
+
 	onMount(() => {
 		updateSuffix();
 		document.addEventListener('click', handleClickOutside);
 		document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('scroll', handleScroll)
 
 		return () => {
 			document.removeEventListener('click', handleClickOutside);
 			document.removeEventListener('keydown', handleKeydown);
+      document.removeEventListener('scroll', handleScroll);
 		};
 	});
 </script>
@@ -95,15 +103,17 @@
     </form>
   </div>
 
-  <div class="go-to-body">
-    <button 
-      class="scroll-down-btn" 
-      on:click={scrollToBody}
-      aria-label="Scroll to content"
-    >
-      <i class="bi bi-chevron-double-down"></i>
-    </button>
-  </div>
+  {#if showScrollButton}
+    <div class="go-to-body">
+      <button 
+        class="scroll-down-btn" 
+        on:click={scrollToBody}
+        aria-label="Scroll to content"
+      >
+        <i class="bi bi-chevron-double-down"></i>
+      </button>
+    </div>
+  {/if}
 </section>
 
 <section id="landing-body">

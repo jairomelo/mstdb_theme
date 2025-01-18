@@ -181,6 +181,8 @@ p, ol, ul, li {
   left: 50%;
   transform: translateX(-50%);
   z-index: 3;
+  opacity: 1;
+  transition: opacity 0.3s ease;
 }
 
 .scroll-down-btn {
