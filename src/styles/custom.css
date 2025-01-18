@@ -175,6 +175,43 @@ p, ol, ul, li {
   color: #f8f5f2;
 }
 
+.go-to-body {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.scroll-down-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 1rem;
+  font-size: 2rem;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  animation: bounce 2s infinite;
+}
+
+.scroll-down-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}
+
 /* Other landing page styles */
 
 .database-band {

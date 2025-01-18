@@ -36,6 +36,11 @@
 		}
 	}
 
+  function scrollToBody() {
+    const element = document.getElementById('landing-body');
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
+
 	onMount(() => {
 		updateSuffix();
 		document.addEventListener('click', handleClickOutside);
@@ -89,7 +94,19 @@
 
     </form>
   </div>
+
+  <div class="go-to-body">
+    <button 
+      class="scroll-down-btn" 
+      on:click={scrollToBody}
+      aria-label="Scroll to content"
+    >
+      <i class="bi bi-chevron-double-down"></i>
+    </button>
+  </div>
 </section>
+
+<section id="landing-body">
 
 <div class="row database-band" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
   <div class="col-md-12 band-story">
@@ -114,3 +131,5 @@
     </div>
   </div>
 </div>
+
+</section>
