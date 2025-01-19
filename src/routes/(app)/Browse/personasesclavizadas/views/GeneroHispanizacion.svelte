@@ -18,7 +18,9 @@
         const statusSet = new Set();
         rawData.forEach(item => {
             const status = item.hispanizacion__hispanizacion || 'No especificado';
-            statusSet.add(status);
+            if (status !== 'No especificado') {
+                statusSet.add(status);
+            }
         });
         const statuses = Array.from(statusSet);
 
@@ -36,7 +38,9 @@
 
         rawData.forEach(item => {
             const status = item.hispanizacion__hispanizacion || 'No especificado';
-            counts[item.sexo][status] = item.count;
+            if (status !== 'No especificado') {
+                counts[item.sexo][status] = item.count;
+            }
         });
 
         return { statuses, counts };
@@ -71,7 +75,7 @@
             {
                 x: processedData.statuses,
                 y: processedData.statuses.map(status => processedData.counts.i[status]),
-                name: 'No especificado',
+                name: 'No identificado',
                 type: 'bar',
                 marker: {
                     color: 'rgb(150, 150, 150)',
