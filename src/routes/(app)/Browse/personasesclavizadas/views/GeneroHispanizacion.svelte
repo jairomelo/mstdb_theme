@@ -55,17 +55,17 @@
             {
                 x: processedData.statuses,
                 y: processedData.statuses.map(status => processedData.counts.v[status]),
-                name: 'Masculino',
+                name: 'Hombre',
                 type: 'bar',
                 marker: {
-                    color: '#8e3b23',
+                    color: '#3780bf',
                     opacity: 0.8
                 }
             },
             {
                 x: processedData.statuses,
                 y: processedData.statuses.map(status => processedData.counts.m[status]),
-                name: 'Femenino',
+                name: 'Mujer',
                 type: 'bar',
                 marker: {
                     color: '#862a28',
@@ -81,29 +81,62 @@
                     color: '#5d534c',
                     opacity: 0.8
                 }
+            },
+            // Add table trace
+            {
+                type: 'table',
+                header: {
+                    values: [['Hispanización'], ['Hombre'], ['Mujer'], ['Indeterminado']],
+                    align: 'center',
+                    line: { width: 1, color: '#1d1916' },
+                    fill: { color: '#3780bf' },
+                    font: { color: '#f8f5f2', size: 12 }
+                },
+                cells: {
+                    values: [
+                        processedData.statuses,
+                        processedData.statuses.map(status => processedData.counts.v[status]),
+                        processedData.statuses.map(status => processedData.counts.m[status]),
+                        processedData.statuses.map(status => processedData.counts.i[status])
+                    ],
+                    align: 'center',
+                    line: { width: 1, color: '#1d1916' },
+                    fill: { color: '#f8f5f2' },
+                    font: { color: '#1d1916', size: 11 }
+                },
+                domain: { y: [0, 0.35] }
             }
         ];
 
         const layout = {
+            grid: {
+                rows: 2,
+                columns: 1,
+                pattern: 'independent',
+                roworder: 'top to bottom'
+            },
             title: 'Distribución por Género e Hispanización',
             barmode: 'group',
             xaxis: {
                 title: 'Hispanización',
-                tickangle: -45
+                tickangle: -45,
+                domain: [0, 0.85]
             },
             yaxis: {
-                title: 'Cantidad'
+                title: 'Cantidad',
+                domain: [0.75, 1]
             },
             hovermode: 'closest',
             showlegend: true,
             legend: {
-                x: 0,
-                y: 1.2
+                x: 1.05,
+                y: 1,
+                xanchor: 'left'
             },
             margin: {
-                b: 150,
+                b: 10,
                 l: 50,
-                r: 50,
+                r: 150,
                 t: 100
             },
             width: plotDiv.offsetWidth,
@@ -194,7 +227,7 @@
         {:else if generoHisp}
             <div 
                 bind:this={plotDiv} 
-                style="width: 100%; height: 60vh;"
+                style="width: 100%; height: 80vh;"
                 id="plot-container"
             ></div>
         {/if}
