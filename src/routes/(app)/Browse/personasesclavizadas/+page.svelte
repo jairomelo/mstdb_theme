@@ -1,29 +1,21 @@
 <script>
-    import { onMount } from 'svelte';
-    import { personasescfull } from '$lib/api';
-    
-    let isClient = false;
+    import RawData from './views/RawData.svelte';
+    import GeneroHispanizacion from './views/GeneroHispanizacion.svelte';
 
-    onMount(async () => {
-        isClient = true;
+    import Sidebar from '../../Components/Sidebar.svelte';
 
-        if (isClient) {
-            const jQuery = (await import('jquery')).default;
-            window.$ = window.jQuery = jQuery;
-        
-            const { initDataTablePersonasEsclavizadas } = await import('$lib/datatable');
-            initDataTablePersonasEsclavizadas('dataTable', personasescfull);
-        }
-    });
+    let activeView = 'raw-data';
+
 </script>
 
-<div class="container mt-4">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h3 class="card-title mb-0">Personas Esclavizadas</h3>
-        </div>
-        <div class="card-body">
-            <table id="dataTable" class="table table-striped table-hover order-column"></table>
-        </div>
-    </div>
+<div class="dashboard-layout">
+    <Sidebar bind:activeView />
+    
+    <main class="dashboard-content">
+        {#if activeView === 'raw-data'}
+            <RawData />
+        {:else if activeView === 'genero'}
+            <GeneroHispanizacion />
+        {/if}
+    </main>
 </div>

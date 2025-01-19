@@ -11,6 +11,9 @@
     let Plotly;
     let plotCreated = false;
 
+    // Add resize observer
+    let resizeObserver;
+
     const processData = (rawData) => {
         const statusSet = new Set();
         rawData.forEach(item => {
@@ -108,7 +111,8 @@
             displayModeBar: true,
             modeBarButtonsToRemove: ['lasso2d', 'select2d'],
             displaylogo: false,
-            locale: 'es'
+            locale: 'es',
+            autosize: true
         };
 
         try {
@@ -119,11 +123,15 @@
         }
     };
 
-    afterUpdate(async () => {
-        if (generoHisp && plotDiv && Plotly && !plotCreated) {
-            await createPlot(generoHisp);
+    // Add resize handler
+    const handleResize = () => {
+        if (plotDiv && Plotly && plotCreated) {
+            Plotly.relayout(plotDiv, {
+                width: plotDiv.offsetWidth,
+                height: plotDiv.offsetHeight
+            });
         }
-    });
+    };
 
     onMount(async () => {
         if (browser) {
@@ -131,12 +139,30 @@
                 Plotly = (await import('plotly.js-dist')).default;
                 loading = true;
                 generoHisp = await generoHispanizacion();
+
+                // Setup resize observer
+                resizeObserver = new ResizeObserver(handleResize);
+                if (plotDiv) {
+                    resizeObserver.observe(plotDiv.parentElement);
+                }
             } catch (e) {
                 error = e.message;
                 console.error('Error in component setup:', e);
             } finally {
                 loading = false;
             }
+        }
+
+        return () => {
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
+        };
+    });
+
+    afterUpdate(async () => {
+        if (generoHisp && plotDiv && Plotly && !plotCreated) {
+            await createPlot(generoHisp);
         }
     });
 </script>

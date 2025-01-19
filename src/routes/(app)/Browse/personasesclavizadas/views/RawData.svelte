@@ -3,6 +3,17 @@
     import { personasescfull } from '$lib/api';
 
     let isClient = false;
+    let dataTable;
+    let tableContainer;
+
+    // Add resize observer
+    let resizeObserver;
+
+    const handleResize = () => {
+        if (dataTable) {
+            dataTable.columns.adjust().draw();
+        }
+    };
 
     onMount(async () => {
         isClient = true;
@@ -12,14 +23,27 @@
             window.$ = window.jQuery = jQuery;
         
             const { initDataTablePersonasEsclavizadas } = await import('$lib/datatable');
-            initDataTablePersonasEsclavizadas('dataTable', personasescfull);
+            dataTable = await initDataTablePersonasEsclavizadas('dataTable', personasescfull);
+
+            // Setup resize observer
+            resizeObserver = new ResizeObserver(handleResize);
+            if (tableContainer) {
+                resizeObserver.observe(tableContainer);
+            }
         }
+
+        return () => {
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
+            if (dataTable) {
+                dataTable.destroy();
+            }
+        };
     });
-
-
 </script>
 
-<div class="card shadow">
+<div class="card shadow" bind:this={tableContainer}>
     <div class="card-header bg-primary text-white">
         <h3 class="card-title mb-0">Personas Esclavizadas</h3>
     </div>
