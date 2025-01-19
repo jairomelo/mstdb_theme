@@ -58,7 +58,7 @@
                 name: 'Masculino',
                 type: 'bar',
                 marker: {
-                    color: 'rgb(54, 162, 235)',
+                    color: '#8e3b23',
                     opacity: 0.8
                 }
             },
@@ -68,17 +68,17 @@
                 name: 'Femenino',
                 type: 'bar',
                 marker: {
-                    color: 'rgb(255, 99, 132)',
+                    color: '#862a28',
                     opacity: 0.8
                 }
             },
             {
                 x: processedData.statuses,
                 y: processedData.statuses.map(status => processedData.counts.i[status]),
-                name: 'No identificado',
+                name: 'Indeterminado',
                 type: 'bar',
                 marker: {
-                    color: 'rgb(150, 150, 150)',
+                    color: '#5d534c',
                     opacity: 0.8
                 }
             }
@@ -107,7 +107,12 @@
                 t: 100
             },
             width: plotDiv.offsetWidth,
-            height: plotDiv.offsetHeight
+            height: plotDiv.offsetHeight,
+            paper_bgcolor: '#f8f5f2',
+            plot_bgcolor: '#f8f5f2',
+            font: {
+                color: '#1d1916'
+            }
         };
 
         const config = {
