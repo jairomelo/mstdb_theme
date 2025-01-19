@@ -64,3 +64,17 @@ export const lugarPersonasRelacionadas = (lugarId, page = 1) =>
     fetchWithBaseUrl(`lugares/${lugarId}/personas_relacionadas/?page=${page}/`);
 export const personaLugarRel = (personaxlugarId) => fetchWithBaseUrl(`personas_lugares/${personaxlugarId}/`);
 export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`personas_relaciones/${personaxpersonaId}/`);
+
+// Data Visualization endpoints
+export const generoHispanizacion = async () => {
+    try {
+        const data = await fetchWithBaseUrl(`gender-status-distribution/`);
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format received from server');
+        }
+        return data;
+    } catch (error) {
+        console.error('Error fetching género hispanización data:', error);
+        throw error;
+    }
+};
