@@ -43,6 +43,7 @@
 		"jquery": "^3.7.1",
 		"jszip": "^3.10.1",
 		"loglevel": "^1.9.1",
+		"plotly.js-dist": "^2.35.3",
 		"query-string": "^9.1.1"
 	}
 }
