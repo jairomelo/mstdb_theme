@@ -12,7 +12,7 @@
     const menuItems = [
         { id: 'raw-data', label: 'Raw Data', icon: 'bi bi-table' },
         { id: 'genero', label: 'Género e Hispanización', icon: 'bi bi-pie-chart' },
-        // New visualizations to add here
+        { id: 'place-people', label: 'Distribución de Personas por Lugar', icon: 'bi bi-map' }
     ];
 </script>
 

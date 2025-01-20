@@ -686,6 +686,125 @@ p, ol, ul, li {
   color: white;
 }
 
+/* Place People styles */
+.place-filter-container {
+  margin: 20px;
+  padding: 10px;
+}
+
+.place-filter-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: 'aleo', sans-serif;
+  font-size: 16px;
+}
+
+.place-filter-input:focus {
+  outline: none;
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px rgba(142, 59, 35, 0.1);
+}
+
+.place-filter-list {
+  position: absolute;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 4px;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.place-filter-item {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: 'aleo', sans-serif;
+}
+
+.place-filter-item:hover {
+  background-color: rgba(142, 59, 35, 0.1);
+}
+
+.place-filter-item.selected {
+  background-color: rgba(142, 59, 35, 0.2);
+}
+
+.place-view-container {
+  margin-bottom: 20px;
+}
+
+/* Place People Component Styles */
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tabs button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #f0f0f0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.tabs button:hover {
+  background: #e0e0e0;
+}
+
+.tabs button.active {
+  background: #007bff;
+  color: white;
+}
+
+.tab-content {
+  padding: 1rem 0;
+}
+
+/* Place Filter Styles */
+.place-filter-select {
+  width: 100%;
+  max-width: 300px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: 'aleo', sans-serif;
+}
+
+.place-filter-select:focus {
+  border-color: var(--text-primary);
+  outline: none;
+}
+
+/* Plot Styles */
+.js-plotly-plot {
+  width: 100%;
+}
+
+/* Card Styles for Genero Hispanizacion */
+.hispanizacion-card {
+  margin-top: 1.5rem !important;
+}
+
+.hispanizacion-card .card-title {
+  color: white;
+}
+
+.hispanizacion-plot-container {
+  width: 100%;
+  height: 80vh;
+}
+
 /* Detail view styles */
 
 .entity-banner {
