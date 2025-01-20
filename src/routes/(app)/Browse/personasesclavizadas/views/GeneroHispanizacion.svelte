@@ -11,7 +11,6 @@
     let Plotly;
     let plotCreated = false;
 
-    // Add resize observer
     let resizeObserver;
 
     const processData = (rawData) => {
@@ -82,7 +81,7 @@
                     opacity: 0.8
                 }
             },
-            // Add table trace
+            // Table trace
             {
                 type: 'table',
                 header: {
@@ -165,14 +164,20 @@
         }
     };
 
-    // Add resize handler
+    let resizeTimeout;
+
     const handleResize = () => {
-        if (plotDiv && Plotly && plotCreated) {
-            Plotly.relayout(plotDiv, {
-                width: plotDiv.offsetWidth,
-                height: plotDiv.offsetHeight
-            });
+        if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
         }
+        resizeTimeout = setTimeout(() => {
+            if (plotDiv && Plotly && plotCreated) {
+                Plotly.relayout(plotDiv, {
+                    width: plotDiv.offsetWidth,
+                    height: plotDiv.offsetHeight
+                });
+            }
+        }, 200);
     };
 
     onMount(async () => {
@@ -209,9 +214,9 @@
     });
 </script>
 
-<div class="card shadow mt-4">
+<div class="card shadow">
     <div class="card-header bg-primary text-white">
-        <h4 class="card-title mb-0">Distribución por Género e Hispanización</h4>
+        <h3 class="card-title mb-0">Distribución por Género e Hispanización</h3>
     </div>
     <div class="card-body">
         {#if loading}
@@ -227,15 +232,9 @@
         {:else if generoHisp}
             <div 
                 bind:this={plotDiv} 
-                style="width: 100%; height: 80vh;"
+                class="hispanizacion-plot-container"
                 id="plot-container"
             ></div>
         {/if}
     </div>
 </div>
-
-<style>
-    :global(.js-plotly-plot) {
-        width: 100%;
-    }
-</style>
