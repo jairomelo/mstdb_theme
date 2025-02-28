@@ -138,29 +138,110 @@
 </section>
 
 <section id="landing-body">
-
-<div class="row database-band" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
-  <div class="col-md-12 band-story">
-    <div class="band-header">
-      <h2>Base de datos</h2>
-      <h2 class="accent-title">Afrodescendientes en Nueva España</h2>
-    </div>
-    <div class="band-content">
-      <p>
-        Esta base de datos recopila información sobre la circulación de personas afrodescendientes, 
-        tanto esclavizadas como libres, en la Nueva España. Explore los registros históricos para 
-        conocer más sobre sus vidas, movimientos y relaciones.
-      </p>
-    </div>
-    <div class="band-buttons">
-      <a href="/Browse/personasesclavizadas">
-        <button class="band-btn">Personas Esclavizadas</button>
-      </a>
-      <a href="#">
-        <button class="band-btn">Personas Libres</button>
-      </a>
+  <div class="row database-band" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
+    <div class="col-md-12 band-story">
+      <div class="band-header">
+        <h2>Base de datos</h2>
+        <h2 class="accent-title">Afrodescendientes en Nueva España</h2>
+      </div>
+      <div class="band-content">
+        <p>
+          Esta base de datos recopila información sobre la circulación de personas afrodescendientes, 
+          tanto esclavizadas como libres, en la Nueva España. Explore los registros históricos para 
+          conocer más sobre sus vidas, movimientos y relaciones.
+        </p>
+      </div>
+      <div class="band-buttons">
+        <a href="/Browse/personasesclavizadas">
+          <button class="band-btn">Personas Esclavizadas</button>
+        </a>
+        <a href="#">
+          <button class="band-btn">Personas Libres</button>
+        </a>
+      </div>
     </div>
   </div>
-</div>
 
+  <!-- About Section -->
+  <div class="container mt-5">
+    <div class="row about-section" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
+      <div class="col-md-12">
+        <h2 class="section-title">Sobre el Proyecto</h2>
+        <div class="about-content">
+          <p class="lead">
+            El sitio web Trayectorias Afro es el resultado de colaboración entre investigadores 
+            de varias instituciones de México y Estados Unidos desde 2022, para la construcción 
+            de una base de datos de personas esclavizadas en la Nueva España en la que, a través 
+            del análisis pormenorizado de fuentes documentales se dé cuenta de su movilidad 
+            geográfica en el territorio novohispano.
+          </p>
+          <p>
+            Este proyecto también busca democratizar la información poniendo la documentación 
+            histórica al alcance de amplios sectores de la sociedad mexicana y del mundo académico.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row features-section mt-5" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
+      <div class="col-md-4">
+        <div class="feature-card">
+          <i class="bi bi-search feature-icon"></i>
+          <h3>Búsqueda Avanzada</h3>
+          <p>Explore registros históricos detallados sobre personas esclavizadas y libres</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <i class="bi bi-geo-alt feature-icon"></i>
+          <h3>Mapeo Geográfico</h3>
+          <p>Visualice los movimientos y rutas en el territorio novohispano</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <i class="bi bi-file-text feature-icon"></i>
+          <h3>Documentación</h3>
+          <p>Acceda a fuentes documentales históricas digitalizadas</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
+
+<!-- Footer -->
+<footer class="footer mt-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <h5>Financiamiento</h5>
+        <p>
+          Partes de este proyecto han sido financiadas por el University of California MRPI 
+          <a href="https://www.humanities.uci.edu/routes-enslavement-americas" target="_blank" rel="noopener">
+            Routes of Enslavement in the Americas
+          </a>
+        </p>
+      </div>
+      <div class="col-md-4">
+        <h5>Agradecimientos</h5>
+        <p>
+          Agradecemos el hospedaje web de este proyecto a la 
+          <a href="https://neogranadina.org/" target="_blank" rel="noopener">Fundación Neogranadina</a>, 
+          y el asesoramiento para esto de Juan Cobo de la 
+          <a href="https://www.history.ucsb.edu/faculty/juan-cobo/" target="_blank" rel="noopener">
+            Universidad de California, Santa Bárbara
+          </a>.
+        </p>
+      </div>
+      <div class="col-md-4">
+        <h5>Enlaces Rápidos</h5>
+        <ul class="list-unstyled">
+          <li><a href="/about">Sobre Nosotros</a></li>
+          <li><a href="/Browse/personasesclavizadas">Base de Datos</a></li>
+          <li><a href="/contact">Contacto</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
