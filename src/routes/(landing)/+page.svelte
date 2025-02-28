@@ -196,6 +196,12 @@
             Este proyecto también busca democratizar la información poniendo la documentación 
             histórica al alcance de amplios sectores de la sociedad mexicana y del mundo académico.
           </p>
+          <!-- Added "Read More" button -->
+          <div class="text-end mt-4">
+            <a href="/About" class="btn btn-outline-primary">
+              <i class="bi bi-arrow-right me-2"></i>Leer más
+            </a>
+          </div>
         </div>
       </div>
     </div>
