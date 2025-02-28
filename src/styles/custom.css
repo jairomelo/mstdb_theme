@@ -60,11 +60,13 @@ p, ol, ul, li {
 
 /* Hero section */
 .hero-section {
-  background: url('/media/Mapa_de_Nueva_España.webp') no-repeat center center/cover;
   height: 100vh;
   position: relative;
   z-index: 1;
   animation: zoomIn 20s infinite ease-in-out;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
 }
 
 .dynamic-title {

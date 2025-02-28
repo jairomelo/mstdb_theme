@@ -4,6 +4,25 @@
   import { animateSuffix } from '$lib/textanimation';
 
   let suffixElement;
+  let heroSectionElement;
+
+  // Array of available hero images
+  const heroImages = [
+    '/media/rutas_project1.webp',
+    '/media/rutas_project2.webp',
+    '/media/rutas_project3.webp',
+    '/media/rutas_project4.webp'
+  ];
+
+  // Function to randomly select a hero image
+  function setRandomHeroImage() {
+    const randomIndex = Math.floor(Math.random() * heroImages.length);
+    const selectedImage = heroImages[randomIndex];
+    
+    if (heroSectionElement) {
+      heroSectionElement.style.backgroundImage = `url('${selectedImage}')`;
+    }
+  }
 
   $: if ($currentSuffix) {
     animateSuffix(suffixElement, updateSuffix);
@@ -49,6 +68,7 @@
 
 	onMount(() => {
 		updateSuffix();
+    setRandomHeroImage(); // Set random hero image on mount
 		document.addEventListener('click', handleClickOutside);
 		document.addEventListener('keydown', handleKeydown);
     document.addEventListener('scroll', handleScroll)
@@ -63,6 +83,7 @@
 
 <section
   class="hero-section d-flex align-items-center justify-content-center text-white"
+  bind:this={heroSectionElement}
 >
   <div class="overlay"></div>
   <div class="hero-content text-center">
