@@ -29,13 +29,15 @@
   }
 
   let query = '';
+  let exactSearch = false;
   let currentFilter = ''; 
   let formElement;
 
   function handleHeroSearch() {
     if (query) {
       const filterParam = currentFilter !== '' ? `&filter=${currentFilter}` : '';
-      window.location.href = `/Search/?q=${encodeURIComponent(query)}${filterParam}`;
+      const searchQuery = exactSearch ? `"${query}"` : query;
+      window.location.href = `/Search/?q=${encodeURIComponent(searchQuery)}${filterParam}`;
     }
   }
 
@@ -109,7 +111,8 @@
       class="form-inline justify-content-center mt-4"
       bind:this={formElement}
     >
-      <div class="input-group">
+      <!-- Search bar -->
+      <div class="input-group mb-2">
         <input
           type="text"
           bind:value={query}
@@ -121,6 +124,20 @@
         </button>
       </div>
 
+      <!-- Checkbox below and right-aligned -->
+      <div class="d-flex justify-content-end">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            bind:checked={exactSearch}
+            id="exactSearchCheck"
+          />
+          <label class="form-check-label text-white" for="exactSearchCheck">
+            Búsqueda exacta
+          </label>
+        </div>
+      </div>
     </form>
   </div>
 
@@ -245,3 +262,28 @@
     </div>
   </div>
 </footer>
+
+<style>
+  .form-check-label {
+    font-size: 0.9rem;
+  }
+
+  .input-group-text {
+    padding: 0.5rem 1rem;
+    min-width: fit-content;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-group .form-check {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .form-check-input {
+    margin-right: 0.5rem;
+  }
+</style>

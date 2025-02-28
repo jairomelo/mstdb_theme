@@ -17,6 +17,7 @@
 	export let data;
 	let { searchQuery, filter } = data;
 	let query = searchQuery;
+	let exactSearch = searchQuery?.startsWith('"') && searchQuery?.endsWith('"');
 	let desiredPage = '';
 	let currentFilter = filter || 'all';
 	let currentSort = '';
@@ -40,7 +41,8 @@
 	function handleSearch() {
         searchPerformed = true;
         currentFilter = preSelectedFilter;
-        fetchResults(null, query, currentFilter, currentSort)
+        const searchQuery = exactSearch ? `"${query.replace(/^"|"$/g, '')}"` : query.replace(/^"|"$/g, '');
+        fetchResults(null, searchQuery, currentFilter, currentSort)
             .then(() => {
                 if ($searchResultsStore.typeCounts) {
                     initialTotalResults = Object.values($searchResultsStore.typeCounts)
@@ -105,16 +107,38 @@
 <div class="container mt-4">
 	<div class="row mb-3">
 		<div class="col">
-			<form on:submit|preventDefault={handleSearch} class="input-group">
-				<input
-					bind:value={query}
-					class="form-control"
-					placeholder="Buscar..."
-					aria-label="Buscar"
-				/>
-				<button type="submit" class="btn btn-primary">
-					<i class="bi bi-search me-1"></i> Buscar
-				</button>
+			<form on:submit|preventDefault={handleSearch} class="search-form">
+				<!-- Search bar -->
+				<div class="input-group mb-2">
+					<input
+						bind:value={query}
+						class="form-control"
+						placeholder="Buscar..."
+						aria-label="Buscar"
+					/>
+					<button type="submit" class="btn btn-primary">
+						<i class="bi bi-search me-1"></i> Buscar
+					</button>
+				</div>
+				
+				<!-- Checkbox below and right-aligned -->
+				<div class="d-flex justify-content-end">
+					<div class="form-check">
+						<input
+							class="form-check-input"
+							type="checkbox"
+							bind:checked={exactSearch}
+							id="exactSearchCheckResults"
+						/>
+						<label class="form-check-label" for="exactSearchCheckResults">
+							Búsqueda exacta
+							<i class="bi bi-info-circle ms-1" 
+							   data-bs-toggle="tooltip" 
+							   data-bs-placement="right" 
+							   title="Busca la frase exacta (equivalente a usar comillas)"></i>
+						</label>
+					</div>
+				</div>
 			</form>
 		</div>
 	</div>
@@ -265,3 +289,40 @@
 		</div>
 	{/if}
 </div>
+
+<style>
+  .search-form {
+    position: relative;
+  }
+  
+  .form-check {
+    margin-left: 0.5rem;
+  }
+  
+  .form-check-label {
+    font-size: 0.9rem;
+    color: #666;
+    white-space: nowrap;
+  }
+  
+  .input-group-text {
+    padding: 0.5rem 1rem;
+    min-width: fit-content;
+  }
+  
+  /* Remove default margins from form-check in input group */
+  .input-group .form-check {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  
+  /* Ensure the checkbox and label stay together */
+  .form-check-input {
+    margin-right: 0.5rem;
+  }
+  
+  /* Add any additional styles you need */
+</style>
