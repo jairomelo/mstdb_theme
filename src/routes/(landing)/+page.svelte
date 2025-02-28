@@ -260,7 +260,7 @@
       <div class="col-md-4">
         <h5>Enlaces Rápidos</h5>
         <ul class="list-unstyled">
-          <li><a href="/about">Sobre Nosotros</a></li>
+          <li><a href="/About">Sobre Nosotros</a></li>
           <li><a href="/Browse/personasesclavizadas">Base de Datos</a></li>
           <li><a href="/contact">Contacto</a></li>
         </ul>
