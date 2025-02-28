@@ -3,7 +3,7 @@
 
     export let activeView;
 
-    let isCollapsed = false;
+    let isCollapsed = true;
 
     const toggleSidebar = () => {
         isCollapsed = !isCollapsed;

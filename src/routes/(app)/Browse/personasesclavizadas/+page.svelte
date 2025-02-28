@@ -5,10 +5,9 @@
     import Sidebar from '../../Components/Sidebar.svelte';
 
     let activeView = 'raw-data';
-
 </script>
 
-<div class="dashboard-layout">
+<div class="dashboard-layout content-container">
     <Sidebar bind:activeView />
     
     <main class="dashboard-content">
@@ -21,3 +20,17 @@
         {/if}
     </main>
 </div>
+
+<style>
+    .dashboard-layout {
+        position: relative;
+        min-height: calc(100vh - 56px); /* Subtract navbar height */
+    }
+
+    /* Adjust these values if you're using a different navbar height for larger screens */
+    @media (min-width: 992px) {
+        .dashboard-layout {
+            min-height: calc(100vh - 60px);
+        }
+    }
+</style>
