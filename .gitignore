@@ -23,3 +23,5 @@ vite.config.ts.timestamp-*
 # dev script
 svelte-control.sh
 /devlog
+
+*Zone.Identifier

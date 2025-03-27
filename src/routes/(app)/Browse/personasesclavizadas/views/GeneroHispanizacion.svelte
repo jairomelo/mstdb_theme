@@ -11,14 +11,15 @@
     let Plotly;
     let plotCreated = false;
 
-    // Add resize observer
     let resizeObserver;
 
     const processData = (rawData) => {
         const statusSet = new Set();
         rawData.forEach(item => {
             const status = item.hispanizacion__hispanizacion || 'No especificado';
-            statusSet.add(status);
+            if (status !== 'No especificado') {
+                statusSet.add(status);
+            }
         });
         const statuses = Array.from(statusSet);
 
@@ -36,7 +37,9 @@
 
         rawData.forEach(item => {
             const status = item.hispanizacion__hispanizacion || 'No especificado';
-            counts[item.sexo][status] = item.count;
+            if (status !== 'No especificado') {
+                counts[item.sexo][status] = item.count;
+            }
         });
 
         return { statuses, counts };
@@ -51,59 +54,97 @@
             {
                 x: processedData.statuses,
                 y: processedData.statuses.map(status => processedData.counts.v[status]),
-                name: 'Masculino',
+                name: 'Hombre',
                 type: 'bar',
                 marker: {
-                    color: 'rgb(54, 162, 235)',
+                    color: '#3780bf',
                     opacity: 0.8
                 }
             },
             {
                 x: processedData.statuses,
                 y: processedData.statuses.map(status => processedData.counts.m[status]),
-                name: 'Femenino',
+                name: 'Mujer',
                 type: 'bar',
                 marker: {
-                    color: 'rgb(255, 99, 132)',
+                    color: '#862a28',
                     opacity: 0.8
                 }
             },
             {
                 x: processedData.statuses,
                 y: processedData.statuses.map(status => processedData.counts.i[status]),
-                name: 'No especificado',
+                name: 'Indeterminado',
                 type: 'bar',
                 marker: {
-                    color: 'rgb(150, 150, 150)',
+                    color: '#5d534c',
                     opacity: 0.8
                 }
+            },
+            // Table trace
+            {
+                type: 'table',
+                header: {
+                    values: [['Hispanización'], ['Hombre'], ['Mujer'], ['Indeterminado']],
+                    align: 'center',
+                    line: { width: 1, color: '#1d1916' },
+                    fill: { color: '#3780bf' },
+                    font: { color: '#f8f5f2', size: 12 }
+                },
+                cells: {
+                    values: [
+                        processedData.statuses,
+                        processedData.statuses.map(status => processedData.counts.v[status]),
+                        processedData.statuses.map(status => processedData.counts.m[status]),
+                        processedData.statuses.map(status => processedData.counts.i[status])
+                    ],
+                    align: 'center',
+                    line: { width: 1, color: '#1d1916' },
+                    fill: { color: '#f8f5f2' },
+                    font: { color: '#1d1916', size: 11 }
+                },
+                domain: { y: [0, 0.35] }
             }
         ];
 
         const layout = {
+            grid: {
+                rows: 2,
+                columns: 1,
+                pattern: 'independent',
+                roworder: 'top to bottom'
+            },
             title: 'Distribución por Género e Hispanización',
             barmode: 'group',
             xaxis: {
                 title: 'Hispanización',
-                tickangle: -45
+                tickangle: -45,
+                domain: [0, 0.85]
             },
             yaxis: {
-                title: 'Cantidad'
+                title: 'Cantidad',
+                domain: [0.75, 1]
             },
             hovermode: 'closest',
             showlegend: true,
             legend: {
-                x: 0,
-                y: 1.2
+                x: 1.05,
+                y: 1,
+                xanchor: 'left'
             },
             margin: {
-                b: 150,
+                b: 10,
                 l: 50,
-                r: 50,
+                r: 150,
                 t: 100
             },
             width: plotDiv.offsetWidth,
-            height: plotDiv.offsetHeight
+            height: plotDiv.offsetHeight,
+            paper_bgcolor: '#f8f5f2',
+            plot_bgcolor: '#f8f5f2',
+            font: {
+                color: '#1d1916'
+            }
         };
 
         const config = {
@@ -123,14 +164,20 @@
         }
     };
 
-    // Add resize handler
+    let resizeTimeout;
+
     const handleResize = () => {
-        if (plotDiv && Plotly && plotCreated) {
-            Plotly.relayout(plotDiv, {
-                width: plotDiv.offsetWidth,
-                height: plotDiv.offsetHeight
-            });
+        if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
         }
+        resizeTimeout = setTimeout(() => {
+            if (plotDiv && Plotly && plotCreated) {
+                Plotly.relayout(plotDiv, {
+                    width: plotDiv.offsetWidth,
+                    height: plotDiv.offsetHeight
+                });
+            }
+        }, 200);
     };
 
     onMount(async () => {
@@ -167,9 +214,9 @@
     });
 </script>
 
-<div class="card shadow mt-4">
+<div class="card shadow">
     <div class="card-header bg-primary text-white">
-        <h4 class="card-title mb-0">Distribución por Género e Hispanización</h4>
+        <h3 class="card-title mb-0">Distribución por Género e Hispanización</h3>
     </div>
     <div class="card-body">
         {#if loading}
@@ -185,15 +232,9 @@
         {:else if generoHisp}
             <div 
                 bind:this={plotDiv} 
-                style="width: 100%; height: 60vh;"
+                class="hispanizacion-plot-container"
                 id="plot-container"
             ></div>
         {/if}
     </div>
 </div>
-
-<style>
-    :global(.js-plotly-plot) {
-        width: 100%;
-    }
-</style>

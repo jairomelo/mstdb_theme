@@ -78,3 +78,17 @@ export const generoHispanizacion = async () => {
         throw error;
     }
 };
+
+
+export const placePeopleDistribution = async () => {
+    try {
+        const data = await fetchWithBaseUrl(`places-people-distribution/`);
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format received from server');
+        }
+        return data;
+    } catch (error) {
+        console.error('Error fetching place people distribution data:', error);
+        throw error;
+    }
+};
