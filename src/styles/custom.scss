@@ -1,20 +1,20 @@
 // Override default variables
 $theme-colors: (
-    "light":      #f8f5f2,
-    "dark":       #1d1916,
-    "primary":    #8e3b23,
-    "secondary":  #4b5c6b,
-    "info":       #2c5282,
-    "accent1":    #862a28,
-    "accent2":    #5d534c,
-    "accent3":    #c4b5a2,
-    "success":    #2d5a3c,
-    "warning":    #945619,
-    "danger":     #c41e3a,
+    "light":      #f8f5f2,    // Warm white - keeping it for good contrast
+    "dark":       #2d2420,    // Softer dark brown
+    "primary":    #8B4513,    // Saddle brown - softer than current primary
+    "secondary":  #5F7A8C,    // Muted blue-grey
+    "info":       #446B8C,    // Dusty blue
+    "accent1":    #A65D57,    // Muted terra cotta
+    "accent2":    #6B635D,    // Warm grey
+    "accent3":    #D6C7B8,    // Light taupe
+    "success":    #3C6B4F,    // Forest green
+    "warning":    #B87B3C,    // Muted orange
+    "danger":     #A64D57,    // Muted red
 );
 
 // Import Bootstrap
 @import "bootstrap/scss/bootstrap";
 
-// curtom CSS
+// custom CSS
 @import "./custom.css";

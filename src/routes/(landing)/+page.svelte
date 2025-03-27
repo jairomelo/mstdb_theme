@@ -158,8 +158,13 @@
   <div class="row database-band" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
     <div class="col-md-12 band-story">
       <div class="band-header">
-        <h2>Base de datos</h2>
-        <h2 class="accent-title">Afrodescendientes en Nueva España</h2>
+        <div class="icon-wrapper">
+          <img src="/icons/i_peresc.webp" alt="Ícono Personas Esclavizadas" class="section-icon">
+        </div>
+        <div class="title-group">
+          <h2>Base de datos</h2>
+          <h2 class="accent-title">Afrodescendientes en Nueva España</h2>
+        </div>
       </div>
       <div class="band-content">
         <p>
@@ -169,11 +174,11 @@
         </p>
       </div>
       <div class="band-buttons">
-        <a href="/Browse/personasesclavizadas">
-          <button class="band-btn">Personas Esclavizadas</button>
+        <a href="/Browse/personasesclavizadas" class="btn btn-outline-primary me-3">
+          <i class="bi bi-people-fill me-2"></i>Personas Esclavizadas
         </a>
-        <a href="#">
-          <button class="band-btn">Personas Libres</button>
+        <a href="#" class="btn btn-outline-primary">
+          <i class="bi bi-people-fill me-2"></i>Personas Libres
         </a>
       </div>
     </div>
@@ -291,5 +296,69 @@
 
   .form-check-input {
     margin-right: 0.5rem;
+  }
+
+  .band-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: rgba(142, 59, 35, 0.1);
+    border-radius: 50%;
+    padding: 1rem;
+    transition: transform 0.3s ease;
+  }
+
+  .icon-wrapper:hover {
+    transform: scale(1.05);
+  }
+
+  .section-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .title-group {
+    flex: 1;
+  }
+
+  @media (max-width: 768px) {
+    .band-header {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .icon-wrapper {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .band-buttons {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .band-buttons .btn {
+    transition: all 0.3s ease;
+  }
+
+  .band-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(142, 59, 35, 0.2);
+  }
+
+  @media (max-width: 768px) {
+    .band-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
   }
 </style>
