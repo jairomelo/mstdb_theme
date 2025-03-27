@@ -267,7 +267,6 @@
         <ul class="list-unstyled">
           <li><a href="/About">Sobre Nosotros</a></li>
           <li><a href="/Browse/personasesclavizadas">Base de Datos</a></li>
-          <li><a href="/contact">Contacto</a></li>
         </ul>
       </div>
     </div>
