@@ -25,3 +25,6 @@ svelte-control.sh
 /devlog
 
 *Zone.Identifier
+
+# Server-side scripts
+deploy.sh
