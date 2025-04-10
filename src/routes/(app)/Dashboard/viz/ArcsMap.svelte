@@ -103,12 +103,34 @@
         const [x2, y2] = projectPoint(to.lat, to.lon);
         const dx = x2 - x1;
         const dy = y2 - y1;
-        const dr = Math.sqrt(dx * dx + dy * dy) * 0.6;
-        return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`;
+
+        if (datasetType === 'aggregated') {
+          // Calculate the width of the path based on the count
+          const width = Math.log(d.count) * 3; // This value can be adjusted to control the width of the path
+          // Control points for the curve
+          const midX = (x1 + x2) / 2;
+          const midY = (y1 + y2) / 2;
+          
+          // Calculate perpendicular offset for width
+          const angle = Math.atan2(dy, dx);
+          const perpX = Math.sin(angle) * width;
+          const perpY = -Math.cos(angle) * width;
+          
+          // Create a path with width
+          return `M ${x1},${y1 - width/2}
+                  C ${midX},${y1 - width/2} ${midX},${y2 - width/2} ${x2},${y2 - width/2}
+                  L ${x2},${y2 + width/2}
+                  C ${midX},${y2 + width/2} ${midX},${y1 + width/2} ${x1},${y1 + width/2}
+                  Z`;
+        } else {
+          // Original arc path for individual trajectories
+          const dr = Math.sqrt(dx * dx + dy * dy) * 0.6;
+          return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`;
+        }
       })
       .attr("stroke", datasetType === 'aggregated' ? "#ff6600" : "#004080")
-      .attr("stroke-width", datasetType === 'aggregated' ? d => 1 + Math.log(d.count) : 1)
-      .attr("fill", "none")
+      .attr("stroke-width", datasetType === 'aggregated' ? 0 : 1) // Remove stroke for aggregated
+      .attr("fill", datasetType === 'aggregated' ? "#ff6600" : "none")
       .attr("opacity", datasetType === 'aggregated' ? 0.6 : 0.4)
       .attr("marker-end", datasetType === 'arcs' ? "url(#arrowhead)" : null);
   }
