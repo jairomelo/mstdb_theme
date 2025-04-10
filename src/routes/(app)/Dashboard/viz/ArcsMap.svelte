@@ -130,17 +130,17 @@
 {#if browser}
   <div class="map-controls">
     <label>
-      Dataset:
+      Grupo de datos:
       <select bind:value={datasetType} on:change={loadData}>
-        <option value="arcs">Individual Trajectories</option>
-        <option value="aggregated">Aggregated Flows</option>
+        <option value="arcs">Trayectorias individuales</option>
+        <option value="aggregated">Flujos agregados</option>
       </select>
     </label>
   </div>
   <div id="map"></div>
   {#if loading}
-    <p>Loading trajectory arcs...</p>
+    <p>Cargando trayectorias...</p>
   {:else if error}
-    <p class="error">Error loading arcs: {error}</p>
+    <p class="error">Error cargando trayectorias: {error}</p>
   {/if}
 {/if}

@@ -8,7 +8,7 @@
     <header>
       <h1>Dashboard</h1>
       <nav>
-        <button on:click={() => activeView = 'arcs-map'}>Show Arcs Map</button>
+        <button on:click={() => activeView = 'arcs-map'}>Mostrar trayectorias</button>
         <!-- More buttons for future views -->
       </nav>
     </header>
