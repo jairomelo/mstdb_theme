@@ -4,30 +4,43 @@
     let activeView = 'arcs-map';
   </script>
   
-  <div class="dashboard">
-    <header>
-      <h1>Dashboard</h1>
-      <nav>
-        <button on:click={() => activeView = 'arcs-map'}>Mostrar trayectorias</button>
-        <!-- More buttons for future views -->
-      </nav>
-    </header>
+  <div class="container-fluid py-4">
+    <div class="row mb-4">
+      <div class="col">
+        <div class="d-flex justify-content-between align-items-center">
+          <h1 class="display-5 mb-0">Dashboard</h1>
+          <nav>
+            <button 
+              class="btn btn-outline-primary"
+              class:active={activeView === 'arcs-map'}
+              on:click={() => activeView = 'arcs-map'}
+            >
+              <i class="bi bi-map me-2"></i>Mostrar trayectorias
+            </button>
+            <!-- More buttons for future views -->
+          </nav>
+        </div>
+      </div>
+    </div>
   
-    <main>
-      {#if activeView === 'arcs-map'}
-        <ArcsMap />
-      {/if}
+    <main class="row">
+      <div class="col">
+        {#if activeView === 'arcs-map'}
+          <ArcsMap />
+        {/if}
+      </div>
     </main>
   </div>
   
   <style>
-    .dashboard {
-      padding: 1rem;
-      font-family: sans-serif;
+    .btn-outline-primary.active {
+      background-color: var(--bs-primary);
+      color: white;
     }
-    nav button {
-      margin-right: 1rem;
-      padding: 0.5rem 1rem;
+    
+    .btn-outline-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
   </style>
   

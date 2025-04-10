@@ -116,31 +116,62 @@
 
 
 <style>
+  .map-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .form-select {
+    max-width: 300px;
+  }
+
   #map {
     width: 100%;
     height: 600px;
     border-radius: 0.5rem;
+    border: 1px solid var(--bs-border-color);
   }
-  .error {
-    color: red;
-    margin-top: 1rem;
+
+  :global(svg path) {
+    transition: opacity 0.2s ease;
+  }
+
+  :global(svg path:hover) {
+    opacity: 0.8 !important;
   }
 </style>
 
 {#if browser}
-  <div class="map-controls">
-    <label>
-      Grupo de datos:
-      <select bind:value={datasetType} on:change={loadData}>
-        <option value="arcs">Trayectorias individuales</option>
-        <option value="aggregated">Flujos agregados</option>
-      </select>
-    </label>
+  <div class="map-container card">
+    <div class="card-body">
+      <div class="map-controls mb-3">
+        <label class="form-label d-flex align-items-center">
+          <span class="me-2">Grupo de datos:</span>
+          <select 
+            class="form-select" 
+            bind:value={datasetType} 
+            on:change={loadData}
+          >
+            <option value="arcs">Trayectorias individuales</option>
+            <option value="aggregated">Flujos agregados</option>
+          </select>
+        </label>
+      </div>
+      <div id="map"></div>
+      {#if loading}
+        <div class="text-center mt-3">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="text-muted mt-2">Cargando trayectorias...</p>
+        </div>
+      {:else if error}
+        <div class="alert alert-danger mt-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          Error cargando trayectorias: {error}
+        </div>
+      {/if}
+    </div>
   </div>
-  <div id="map"></div>
-  {#if loading}
-    <p>Cargando trayectorias...</p>
-  {:else if error}
-    <p class="error">Error cargando trayectorias: {error}</p>
-  {/if}
 {/if}
