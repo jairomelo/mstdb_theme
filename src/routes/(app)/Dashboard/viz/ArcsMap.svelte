@@ -110,7 +110,7 @@
       .attr("stroke-width", datasetType === 'aggregated' ? d => 1 + Math.log(d.count) : 1)
       .attr("fill", "none")
       .attr("opacity", datasetType === 'aggregated' ? 0.6 : 0.4)
-      .attr("marker-end", "url(#arrowhead)");
+      .attr("marker-end", datasetType === 'arcs' ? "url(#arrowhead)" : null);
   }
 </script>
 
