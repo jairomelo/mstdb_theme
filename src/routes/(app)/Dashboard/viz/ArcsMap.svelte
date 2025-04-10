@@ -24,6 +24,20 @@
       }).addTo(map);
 
       const svg = d3.select(map.getPanes().overlayPane).append("svg");
+
+      const defs = svg.append("defs");
+      defs.append("marker")
+          .attr("id", "arrowhead")
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 10)
+          .attr("refY", 0)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto")
+          .attr("fill", "#004080")
+          .append("path")
+          .attr("d", "M0,-5L10,0L0,5");
+
       const g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
       const res = await fetch(arcsDataUrl, { mode: 'cors' });
@@ -65,7 +79,8 @@
           .attr("stroke", "#004080")
           .attr("stroke-width", 1)
           .attr("fill", "none")
-          .attr("opacity", 0.5);
+          .attr("opacity", 0.5)
+          .attr("marker-end", "url(#arrowhead)");
       }
 
       update();
