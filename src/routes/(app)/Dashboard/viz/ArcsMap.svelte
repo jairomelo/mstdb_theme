@@ -7,9 +7,33 @@
   let map;
   let loading = true;
   let error = null;
+  let datasetType = 'arcs';
+  let arcs = [];
 
-  const arcsDataUrl = '/temp/trayectorias_arcs.json';
-  
+  let svg, g;
+
+  function getDataUrl() {
+    return datasetType === 'arcs'
+      ? '/temp/trayectorias_arcs.json'
+      : '/temp/trayectorias_aggregated.json';
+  }
+
+  async function loadData() {
+    try {
+      loading = true;
+      const url = getDataUrl();
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Failed to load ${datasetType} data`);
+      arcs = await res.json();
+      update();
+      loading = false;
+    } catch (e) {
+      console.error(e);
+      error = e.message;
+      loading = false;
+    }
+  }
+
   onMount(async () => {
     if (!browser) return;
 
@@ -18,81 +42,78 @@
       L = leaflet.default;
 
       map = L.map('map').setView([17.5, -96], 6);
-
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
-      const svg = d3.select(map.getPanes().overlayPane).append("svg");
+      svg = d3.select(map.getPanes().overlayPane).append("svg");
 
       const defs = svg.append("defs");
       defs.append("marker")
-          .attr("id", "arrowhead")
-          .attr("viewBox", "0 -5 10 10")
-          .attr("refX", 10)
-          .attr("refY", 0)
-          .attr("markerWidth", 6)
-          .attr("markerHeight", 6)
-          .attr("orient", "auto")
-          .attr("fill", "#004080")
-          .append("path")
-          .attr("d", "M0,-5L10,0L0,5");
+        .attr("id", "arrowhead")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 10)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .attr("fill", "#004080")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5");
 
-      const g = svg.append("g").attr("class", "leaflet-zoom-hide");
+      g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
-      const res = await fetch(arcsDataUrl, { mode: 'cors' });
-      if (!res.ok) throw new Error(`Failed to load data: ${res.status}`);
-      const arcs = await res.json();
-
-      function projectPoint(lat, lon) {
-        const point = map.latLngToLayerPoint([lat, lon]);
-        return [point.x, point.y];
-      }
-
-      function update() {
-        const bounds = map.getBounds();
-        const topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
-        const bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
-
-        svg
-          .attr("width", bottomRight.x - topLeft.x)
-          .attr("height", bottomRight.y - topLeft.y)
-          .style("left", `${topLeft.x}px`)
-          .style("top", `${topLeft.y}px`);
-
-        g.attr("transform", `translate(${-topLeft.x},${-topLeft.y})`);
-
-        g.selectAll("path").remove();
-
-        g.selectAll("path")
-          .data(arcs)
-          .enter()
-          .append("path")
-          .attr("d", d => {
-            const [x1, y1] = projectPoint(d.from.lat, d.from.lon);
-            const [x2, y2] = projectPoint(d.to.lat, d.to.lon);
-            const dx = x2 - x1;
-            const dy = y2 - y1;
-            const dr = Math.sqrt(dx * dx + dy * dy) * 0.6;
-            return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`;
-          })
-          .attr("stroke", "#004080")
-          .attr("stroke-width", 1)
-          .attr("fill", "none")
-          .attr("opacity", 0.5)
-          .attr("marker-end", "url(#arrowhead)");
-      }
-
-      update();
+      await loadData();
       map.on("zoomend moveend", update);
-      loading = false;
     } catch (e) {
       console.error(e);
       error = e.message;
       loading = false;
     }
   });
+
+  function projectPoint(lat, lon) {
+    const point = map.latLngToLayerPoint([lat, lon]);
+    return [point.x, point.y];
+  }
+
+  function update() {
+    const bounds = map.getBounds();
+    const topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
+    const bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
+
+    svg
+      .attr("width", bottomRight.x - topLeft.x)
+      .attr("height", bottomRight.y - topLeft.y)
+      .style("left", `${topLeft.x}px`)
+      .style("top", `${topLeft.y}px`);
+
+    g.attr("transform", `translate(${-topLeft.x},${-topLeft.y})`);
+
+    g.selectAll("path").remove();
+
+    g.selectAll("path")
+      .data(arcs)
+      .enter()
+      .append("path")
+      .attr("d", d => {
+        const from = d.from;
+        const to = d.to;
+        const [x1, y1] = projectPoint(from.lat, from.lon);
+        const [x2, y2] = projectPoint(to.lat, to.lon);
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const dr = Math.sqrt(dx * dx + dy * dy) * 0.6;
+        return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`;
+      })
+      .attr("stroke", datasetType === 'aggregated' ? "#ff6600" : "#004080")
+      .attr("stroke-width", datasetType === 'aggregated' ? d => 1 + Math.log(d.count) : 1)
+      .attr("fill", "none")
+      .attr("opacity", datasetType === 'aggregated' ? 0.6 : 0.4)
+      .attr("marker-end", "url(#arrowhead)");
+  }
 </script>
+
 
 <style>
   #map {
@@ -107,6 +128,15 @@
 </style>
 
 {#if browser}
+  <div class="map-controls">
+    <label>
+      Dataset:
+      <select bind:value={datasetType} on:change={loadData}>
+        <option value="arcs">Individual Trajectories</option>
+        <option value="aggregated">Aggregated Flows</option>
+      </select>
+    </label>
+  </div>
   <div id="map"></div>
   {#if loading}
     <p>Loading trajectory arcs...</p>
