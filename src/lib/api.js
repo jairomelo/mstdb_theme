@@ -1,5 +1,7 @@
 import queryString from 'query-string';
 
+import { getCookie } from './csrf';
+
 import config from '../config';
 
 const fetchWithBaseUrl = async (endpoint, options = {}) => {
@@ -13,9 +15,14 @@ const fetchWithBaseUrl = async (endpoint, options = {}) => {
 
 export const postWithBaseUrl = async (endpoint, payload = {}) => {
 	const url = `${config.apiBaseUrl}${endpoint}`;
+	const csrfToken = getCookie("csrftoken");
+
 	const response = await fetch(url, {
 		method: "POST",
-		headers: { "Content-Type": "application/json" },
+		headers: {
+			"Content-Type": "application/json",
+			"X-CSRFToken": csrfToken || "",
+		},
 		credentials: "include",
 		body: JSON.stringify(payload)
 	});
@@ -29,7 +36,6 @@ export const postWithBaseUrl = async (endpoint, payload = {}) => {
 };
 
 // User admin endpoints
-
 export const login = async (username, password) => {
     return await postWithBaseUrl(
         "login/",
@@ -38,6 +44,10 @@ export const login = async (username, password) => {
             password
         }
     );
+};
+
+export const logout = async () => {
+	return await postWithBaseUrl("logout/", {});
 };
 
 /*
