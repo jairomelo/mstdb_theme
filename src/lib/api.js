@@ -4,7 +4,7 @@ import config from '../config';
 
 const fetchWithBaseUrl = async (endpoint, options = {}) => {
     const url = `${config.apiBaseUrl}${endpoint}`;
-    const response = await fetch(url, options);
+    const response = await fetch(url, {...options, credentials: "include"});
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -16,9 +16,15 @@ const postWithBaseUrl = async (endpoint, options = {}) => {
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
         body: JSON.stringify(options)
     });
     return await response.json();
+};
+
+// User admin endpoints
+export const whoami = async () => {
+	return await fetchWithBaseUrl("whoami/");
 };
 
 // Log endpoint
