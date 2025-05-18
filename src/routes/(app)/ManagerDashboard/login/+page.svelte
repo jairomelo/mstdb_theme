@@ -1,33 +1,43 @@
 <script>
-    import { login } from "$lib/api";
-	
-    let username = "";
-    let password = "";
-    let error = null;
+	import { login } from '$lib/api';
 
-    async function handleLogin() {
-        error = null;
+	let username = '';
+	let password = '';
+	let error = null;
 
-        try {
-            await login(username, password);
-            window.location.href = "/ManagerDashboard/users";
-            
-        } catch (err) {
-            console.error(err);
-            error = "An error occurred during login";
-        }
-    }
+	async function handleLogin() {
+		error = null;
 
+		try {
+			await login(username, password);
+			window.location.href = '/ManagerDashboard/users';
+		} catch (err) {
+			console.error(err);
+			error = 'An error occurred during login';
+		}
+	}
 </script>
 
+<div class="container mt-4">
+	<div class="login-container">
+		<h1 class="login-title">Ingresar</h1>
+		<form on:submit|preventDefault={handleLogin}>
+			<div class="form-group">
+				<i class="bi bi-person"></i>
+				<input type="text" placeholder="Username" bind:value={username} required />
+			</div>
+			<div class="form-group">
+				<i class="bi bi-lock"></i>
+				<input type="password" placeholder="Password" bind:value={password} required />
+			</div>
+			<button type="submit" class="login-btn">Entrar</button>
+		</form>
 
-<h1>Log in to TrayectoriasAfro</h1>
-<form on:submit|preventDefault={handleLogin}>
-	<label>Username: <input bind:value={username} /></label><br />
-	<label>Password: <input type="password" bind:value={password} /></label><br />
-	<button type="submit">Log In</button>
-</form>
-
-{#if error}
-	<p style="color: red;">{error}</p>
-{/if}
+		{#if error}
+			<div class="error-message">
+				<i class="bi bi-exclamation-circle"></i>
+				{error}
+			</div>
+		{/if}
+	</div>
+</div>
