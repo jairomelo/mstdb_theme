@@ -11,18 +11,39 @@ const fetchWithBaseUrl = async (endpoint, options = {}) => {
     return await response.json();
 };
 
-const postWithBaseUrl = async (endpoint, options = {}) => {
-    const url = `${config.apiBaseUrl}${endpoint}`;
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: "include",
-        body: JSON.stringify(options)
-    });
-    return await response.json();
+export const postWithBaseUrl = async (endpoint, payload = {}) => {
+	const url = `${config.apiBaseUrl}${endpoint}`;
+	const response = await fetch(url, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		credentials: "include",
+		body: JSON.stringify(payload)
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+		throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+	}
+
+	return await response.json();
 };
 
 // User admin endpoints
+
+export const login = async (username, password) => {
+    return await postWithBaseUrl(
+        "login/",
+        {
+            username,
+            password
+        }
+    );
+};
+
+/*
+* This function fetches the list of users from the API.
+* @returns {Promise<Array>} A promise that resolves to the list of users.
+*/
 export const whoami = async () => {
 	return await fetchWithBaseUrl("whoami/");
 };
