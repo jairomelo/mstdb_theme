@@ -1,5 +1,7 @@
 <script>
-	import { login } from '$lib/api';
+	import { login, whoami } from '$lib/api';
+	import { user } from '$lib/stores/user';
+
 
 	let username = '';
 	let password = '';
@@ -10,6 +12,9 @@
 
 		try {
 			await login(username, password);
+			const u = await whoami(); // re-confirm session
+			user.set(u);              // update global store
+
 			window.location.href = '/ManagerDashboard/users';
 		} catch (err) {
 			console.error(err);

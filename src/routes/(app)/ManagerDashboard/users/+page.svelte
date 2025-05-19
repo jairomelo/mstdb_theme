@@ -23,7 +23,7 @@
 	} catch (err) {
 		console.error(err);
 		error = "You are not logged in";
-        window.location.href = "/ManagerDashboard/login";
+        window.location.href = "/User/login";
 	}
 });
 

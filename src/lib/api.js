@@ -35,6 +35,9 @@ export const postWithBaseUrl = async (endpoint, payload = {}) => {
 	return await response.json();
 };
 
+// Log endpoint
+export const log = (level, message) => postWithBaseUrl('log/', { level, message });
+
 // User admin endpoints
 export const login = async (username, password) => {
     return await postWithBaseUrl(
@@ -55,11 +58,19 @@ export const logout = async () => {
 * @returns {Promise<Array>} A promise that resolves to the list of users.
 */
 export const whoami = async () => {
-	return await fetchWithBaseUrl("whoami/");
+    try {
+        const response = await fetchWithBaseUrl("whoami/");
+        return response;
+    } catch (error) {
+        if (error.message.includes("403")) {
+            console.log("User not authenticated. If there's a session, it might be expired.");
+            return null; 
+        }
+        throw error; 
+    }
 };
 
-// Log endpoint
-export const log = (level, message) => postWithBaseUrl('log/', { level, message });
+
 
 // Search endpoints
 export const searchAll = (params) => {
