@@ -2,27 +2,10 @@
   import { onMount } from 'svelte';
   import { currentSuffix, currentColor, updateSuffix, titleStem } from '$lib/maintitle';
   import { animateSuffix } from '$lib/textanimation';
+  import { setRandomHeroImage } from '$lib/heroBackground'; // Updated import path
 
   let suffixElement;
   let heroSectionElement;
-
-  // Array of available hero images
-  const heroImages = [
-    '/media/rutas_project1.webp',
-    '/media/rutas_project2.webp',
-    '/media/rutas_project3.webp',
-    '/media/rutas_project4.webp'
-  ];
-
-  // Function to randomly select a hero image
-  function setRandomHeroImage() {
-    const randomIndex = Math.floor(Math.random() * heroImages.length);
-    const selectedImage = heroImages[randomIndex];
-    
-    if (heroSectionElement) {
-      heroSectionElement.style.backgroundImage = `url('${selectedImage}')`;
-    }
-  }
 
   $: if ($currentSuffix) {
     animateSuffix(suffixElement, updateSuffix);
@@ -41,21 +24,17 @@
     }
   }
 
-/*   function setFilter(filter) {
-    currentFilter = filter;
-  } */
-
   function handleClickOutside(event) {
-		if (formElement && !formElement.contains(event.target)) {
-			currentFilter = 'all';
-		}
-	}
+    if (formElement && !formElement.contains(event.target)) {
+      currentFilter = 'all';
+    }
+  }
 
-	function handleKeydown(event) {
-		if (event.key === 'Escape') {
-			currentFilter = 'all';
-		}
-	}
+  function handleKeydown(event) {
+    if (event.key === 'Escape') {
+      currentFilter = 'all';
+    }
+  }
 
   function scrollToBody() {
     const element = document.getElementById('landing-body');
@@ -68,19 +47,19 @@
     showScrollButton = window.scrollY < 100;
   }
 
-	onMount(() => {
-		updateSuffix();
-    setRandomHeroImage(); // Set random hero image on mount
-		document.addEventListener('click', handleClickOutside);
-		document.addEventListener('keydown', handleKeydown);
-    document.addEventListener('scroll', handleScroll)
+  onMount(() => {
+    updateSuffix();
+    setRandomHeroImage(heroSectionElement); // Pass heroSectionElement here
+    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('scroll', handleScroll);
 
-		return () => {
-			document.removeEventListener('click', handleClickOutside);
-			document.removeEventListener('keydown', handleKeydown);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('keydown', handleKeydown);
       document.removeEventListener('scroll', handleScroll);
-		};
-	});
+    };
+  });
 </script>
 
 <section
@@ -272,92 +251,3 @@
     </div>
   </div>
 </footer>
-
-<style>
-  .form-check-label {
-    font-size: 0.9rem;
-  }
-
-  .input-group-text {
-    padding: 0.5rem 1rem;
-    min-width: fit-content;
-    display: flex;
-    align-items: center;
-  }
-
-  .input-group .form-check {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-  }
-
-  .form-check-input {
-    margin-right: 0.5rem;
-  }
-
-  .band-header {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .icon-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 80px;
-    height: 80px;
-    background: rgba(142, 59, 35, 0.1);
-    border-radius: 50%;
-    padding: 1rem;
-    transition: transform 0.3s ease;
-  }
-
-  .icon-wrapper:hover {
-    transform: scale(1.05);
-  }
-
-  .section-icon {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-
-  .title-group {
-    flex: 1;
-  }
-
-  @media (max-width: 768px) {
-    .band-header {
-      flex-direction: column;
-      text-align: center;
-    }
-
-    .icon-wrapper {
-      margin-bottom: 1rem;
-    }
-  }
-
-  .band-buttons {
-    display: flex;
-    gap: 1.5rem;
-  }
-
-  .band-buttons .btn {
-    transition: all 0.3s ease;
-  }
-
-  .band-buttons .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(142, 59, 35, 0.2);
-  }
-
-  @media (max-width: 768px) {
-    .band-buttons {
-      flex-direction: column;
-      align-items: center;
-    }
-  }
-</style>
