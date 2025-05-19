@@ -448,6 +448,34 @@ p, ol, ul, li {
   border-color: rgba(255, 255, 255, 0.2); 
 }
 
+.dropdown-menu {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Navbar dropdown */
+.navbar .dropdown-menu {
+  margin-top: 0.5rem;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-menu {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.dropdown-menu-end {
+  right: 0;
+  left: auto;
+}
+
 /* Search view styles */
 
 .search-btn i {

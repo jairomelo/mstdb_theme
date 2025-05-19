@@ -53,7 +53,7 @@
 						>
 							Explorar la base de datos
 						</a>
-						<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							<li>
 								<a class="dropdown-item" href="/Browse/personasesclavizadas/"
 									>Personas Esclavizadas</a
@@ -102,10 +102,11 @@
 								role="button"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
+								use:dropdown
 							>
 								<i class="bi bi-person-circle"></i>
 							</a>
-							<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 								{#if !$user}
 									<li>
 										<a class="dropdown-item" href="/User/login">Iniciar sesión</a>
