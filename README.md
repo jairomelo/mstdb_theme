@@ -15,7 +15,7 @@ A web-based interface for exploring and analyzing historical data about the slav
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v14.0.0 or higher)
+- Node.js (v22.9.0 or higher)
 - npm or yarn package manager
 
 ### Installation

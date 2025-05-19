@@ -1,28 +1,86 @@
 import queryString from 'query-string';
 
+import { getCookie } from './csrf';
+
 import config from '../config';
 
 const fetchWithBaseUrl = async (endpoint, options = {}) => {
     const url = `${config.apiBaseUrl}${endpoint}`;
-    const response = await fetch(url, options);
+    const response = await fetch(url, {...options, credentials: "include"});
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
     return await response.json();
 };
 
-const postWithBaseUrl = async (endpoint, options = {}) => {
-    const url = `${config.apiBaseUrl}${endpoint}`;
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(options)
-    });
-    return await response.json();
+export const postWithBaseUrl = async (endpoint, payload = {}) => {
+	const url = `${config.apiBaseUrl}${endpoint}`;
+	const csrfToken = getCookie("csrftoken");
+
+	const response = await fetch(url, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"X-CSRFToken": csrfToken || "",
+		},
+		credentials: "include",
+		body: JSON.stringify(payload)
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+		throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+	}
+
+	return await response.json();
 };
 
 // Log endpoint
 export const log = (level, message) => postWithBaseUrl('log/', { level, message });
+
+// set the CSRF cookie
+export const setCsrfCookie = async () => {
+	const url = `${config.apiBaseUrl}csrf/`;
+	const response = await fetch(url, {
+		method: "GET",
+		credentials: "include"
+	});
+	return await response.json();
+};
+
+// User admin endpoints
+export const login = async (username, password) => {
+    return await postWithBaseUrl(
+        "login/",
+        {
+            username,
+            password
+        }
+    );
+};
+
+export const logout = async () => {
+	return await postWithBaseUrl("logout/", {});
+};
+
+/*
+* This function fetches the list of users from the API.
+* @returns {Promise<Array>} A promise that resolves to the list of users.
+*/
+export const whoami = async () => {
+    try {
+        const response = await fetchWithBaseUrl("whoami/");
+        return response;
+    } catch (error) {
+        if (error.message.includes("403")) {
+            console.log("User not authenticated. If there's a session, it might be expired.");
+            return null; 
+        }
+        throw error; 
+    }
+};
+
+
 
 // Search endpoints
 export const searchAll = (params) => {

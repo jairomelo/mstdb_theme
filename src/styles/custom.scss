@@ -13,6 +13,78 @@ $theme-colors: (
     "danger":     #A64D57,    // Muted red
 );
 
+// ...existing code...
+
+// Login styles
+.login-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(map-get($theme-colors, "dark"), 0.1);
+    background: map-get($theme-colors, "light");
+  }
+  
+  .login-title {
+    text-align: center;
+    color: map-get($theme-colors, "dark");
+    margin-bottom: 2rem;
+    font-weight: 600;
+  }
+  
+  .form-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+  
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 1px solid map-get($theme-colors, "accent3");
+      border-radius: 4px;
+      transition: border-color 0.2s;
+      
+      &:focus {
+        outline: none;
+        border-color: map-get($theme-colors, "primary");
+        box-shadow: 0 0 0 2px rgba(map-get($theme-colors, "primary"), 0.2);
+      }
+    }
+  
+    i {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: map-get($theme-colors, "accent2");
+    }
+  }
+  
+  .login-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: map-get($theme-colors, "primary");
+    color: map-get($theme-colors, "light");
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  
+    &:hover {
+      background: darken(map-get($theme-colors, "primary"), 10%);
+    }
+  }
+  
+  .error-message {
+    color: map-get($theme-colors, "danger");
+    font-size: 0.875rem;
+    margin-top: 1rem;
+    text-align: center;
+    padding: 0.5rem;
+    background: rgba(map-get($theme-colors, "danger"), 0.1);
+    border-radius: 4px;
+  }
+
 // Import Bootstrap
 @import "bootstrap/scss/bootstrap";
 

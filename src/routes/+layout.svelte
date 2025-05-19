@@ -6,6 +6,9 @@
 
 	import { goto } from '$app/navigation';
 
+	import { user } from '$lib/stores/user';
+	import { logout } from '$lib/api';
+
 	let query = '';
 	let formElement;
 
@@ -13,6 +16,13 @@
 		if (query) {
 			goto(`/Search/?q=${encodeURIComponent(query)}`);
 		}
+	}
+
+	async function handleLogout() {
+		await logout();
+		user.set(null);
+		localStorage.removeItem('user');
+		window.location.href = '/';
 	}
 </script>
 
@@ -43,7 +53,7 @@
 						>
 							Explorar la base de datos
 						</a>
-						<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							<li>
 								<a class="dropdown-item" href="/Browse/personasesclavizadas/"
 									>Personas Esclavizadas</a
@@ -83,6 +93,39 @@
 							</div>
 						</form>
 					{/if}
+
+					<ul class="navbar-nav">
+						<li class="nav-item dropdown">
+							<a
+								class="nav-link dropdown-toggle"
+								id="navbarDropdown"
+								role="button"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+								use:dropdown
+							>
+								<i class="bi bi-person-circle"></i>
+							</a>
+							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+								{#if !$user}
+									<li>
+										<a class="dropdown-item" href="/User/login">Iniciar sesión</a>
+									</li>
+								{:else}
+									<li>
+										<a class="dropdown-item" href="/User/dashboard/">Panel de control</a>
+									</li>
+									<li><hr class="dropdown-divider" /></li>
+									<li>
+										<a class="dropdown-item" href="#" on:click|preventDefault={handleLogout}>
+											Cerrar sesión
+										</a>
+									</li>
+								{/if}
+							</ul>
+						</li>
+					</ul>
+
 				</div>
 			</div>
 		</div>
