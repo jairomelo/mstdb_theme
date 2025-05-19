@@ -15,7 +15,7 @@
 			const u = await whoami(); // re-confirm session
 			user.set(u);              // update global store
 
-			window.location.href = '/ManagerDashboard/users';
+			window.location.href = '/User/dashboard';
 		} catch (err) {
 			console.error(err);
 			error = 'An error occurred during login';

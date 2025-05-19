@@ -113,7 +113,7 @@
 									</li>
 								{:else}
 									<li>
-										<a class="dropdown-item" href="/ManagerDashboard/users/">Panel de control</a>
+										<a class="dropdown-item" href="/User/dashboard/">Panel de control</a>
 									</li>
 									<li><hr class="dropdown-divider" /></li>
 									<li>
