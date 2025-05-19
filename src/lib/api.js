@@ -38,6 +38,16 @@ export const postWithBaseUrl = async (endpoint, payload = {}) => {
 // Log endpoint
 export const log = (level, message) => postWithBaseUrl('log/', { level, message });
 
+// set the CSRF cookie
+export const setCsrfCookie = async () => {
+	const url = `${config.apiBaseUrl}csrf/`;
+	const response = await fetch(url, {
+		method: "GET",
+		credentials: "include"
+	});
+	return await response.json();
+};
+
 // User admin endpoints
 export const login = async (username, password) => {
     return await postWithBaseUrl(

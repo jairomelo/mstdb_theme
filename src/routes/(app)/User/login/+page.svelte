@@ -1,5 +1,5 @@
 <script>
-	import { login, whoami } from '$lib/api';
+	import { login, whoami, setCsrfCookie } from '$lib/api';
 	import { user } from '$lib/stores/user';
 
 
@@ -11,6 +11,7 @@
 		error = null;
 
 		try {
+			await setCsrfCookie();
 			await login(username, password);
 			const u = await whoami(); // re-confirm session
 			user.set(u);              // update global store
