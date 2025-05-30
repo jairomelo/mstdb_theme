@@ -10,6 +10,7 @@
   let error = null;
 
   let layoutType = 'fcose';
+  let personTypeFilter = 'all';
 
     function applyLayout() {
     if (!cy) return;
@@ -26,6 +27,23 @@
         cy.fit();
     }
     }
+
+    function applyFilter() {
+  if (!cy) return;
+
+  cy.nodes().forEach(node => {
+    const match = personTypeFilter === 'all' || node.data('type').toString() === personTypeFilter;
+    node.style('display', match ? 'element' : 'none');
+  });
+
+  cy.edges().forEach(edge => {
+    const source = cy.getElementById(edge.data('source'));
+    const target = cy.getElementById(edge.data('target'));
+    const visible = source.visible() && target.visible();
+    edge.style('display', visible ? 'element' : 'none');
+  });
+}
+
 
   onMount(async () => {
     if (!browser) return;
@@ -114,9 +132,9 @@
   }
 
   .form-select {
-    font-size: 0.875rem;
-    padding: 0.25rem 0.5rem;
-    }
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+}
 
     .btn-sm {
     font-size: 0.8rem;
@@ -128,6 +146,14 @@
     <h5 class="card-title">Red de personas relacionadas</h5>
 
     <div class="d-flex align-items-center mb-3 gap-3">
+
+        <label class="form-label mb-0">Filtrar por tipo:</label>
+  <select class="form-select w-auto" bind:value={personTypeFilter} on:change={applyFilter}>
+    <option value="all">Todos</option>
+    <option value="29">Esclavizada</option>
+    <option value="30">No esclavizada</option>
+  </select>
+
   <label class="form-label mb-0">Diseño:</label>
   <select class="form-select w-auto" bind:value={layoutType} on:change={applyLayout}>
     <option value="fcose">FCoSE</option>
