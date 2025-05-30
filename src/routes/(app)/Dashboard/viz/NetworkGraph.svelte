@@ -16,6 +16,9 @@
 	let minCentrality = 0;
 	let maxCentrality = 0;
 
+	let relationOptions = [];
+	let selectedRelation = 'all';
+
 	function applyLayout() {
 		if (!cy) return;
 		cy.layout({
@@ -35,19 +38,21 @@
 	function applyFilter() {
 		if (!cy) return;
 
+        cy.nodes().forEach(node => node.style('display', 'element'));
+
+		cy.edges().forEach((edge) => {
+			const match = selectedRelation === 'all' || edge.data('relation') === selectedRelation;
+			edge.style('display', match ? 'element' : 'none');
+		});
+
 		cy.nodes().forEach((node) => {
 			const typeMatch =
 				personTypeFilter === 'all' || node.data('type').toString() === personTypeFilter;
 			const centralityMatch = node.data('centrality') >= centralityThreshold;
-			const match = typeMatch && centralityMatch;
-			node.style('display', match ? 'element' : 'none');
-		});
+			const connectedToVisibleEdge = node.connectedEdges().some((e) => e.visible());
 
-		cy.edges().forEach((edge) => {
-			const source = cy.getElementById(edge.data('source'));
-			const target = cy.getElementById(edge.data('target'));
-			const visible = source.visible() && target.visible();
-			edge.style('display', visible ? 'element' : 'none');
+			const match = typeMatch && centralityMatch && connectedToVisibleEdge;
+			node.style('display', match ? 'element' : 'none');
 		});
 	}
 
@@ -121,6 +126,9 @@
 			}
 		});
 
+		relationOptions = [...new Set(cy.edges().map((e) => e.data('relation')))].sort();
+		relationOptions.unshift('all');
+
 		const centralities = cy.nodes().map((n) => n.data('centrality'));
 		minCentrality = Math.min(...centralities);
 		maxCentrality = Math.max(...centralities);
@@ -138,6 +146,13 @@
 				<option value="all">Todos</option>
 				<option value="29">Esclavizada</option>
 				<option value="30">No esclavizada</option>
+			</select>
+
+			<label class="form-label mb-0">Filtrar relación:</label>
+			<select class="form-select w-auto" bind:value={selectedRelation} on:change={applyFilter}>
+				{#each relationOptions as rel}
+					<option value={rel}>{rel === 'all' ? 'Todas' : rel}</option>
+				{/each}
 			</select>
 
 			<label class="form-label mb-0">Diseño:</label>
