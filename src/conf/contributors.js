@@ -29,6 +29,11 @@ export const contributors = {
   ],
   collaborators: [
     {
+      name: "Gabriela Iturralde Nieto",
+      institution: "INAH, Ciudad de México",
+      bio: "Antropóloga social, trabaja como investigadora en el Programa Nacional de Investigación Afrodescendientes y Diversidad Cultural del INAH. Es coordinadora del Diplomado virtual Racismo y Xenofobia vistos desde México que imparte el Seminario Universitario Interdisciplinario sobre Racismo y Xenofobia Desde 2008 es profesora de asignatura en Colegio de Estudios Latinoamericanos de la Facultad de Filosofía y Letras de la UNAM y es docente en la Maestria de Derechos Humanos de los Grupos Vulnerables en la Universidad Andina Simón Bolívar en Bolivia y en el Certificado de Estudios Afrolatinoamericanos del Instituto de Investigaciones sobre Afro-Latinoamérica (Alari) de la Universidad de Harvard. Sus temas de interés académico son los derechos de las poblaciones afrodescendientes, las movilizaciones políticas-identitarias, las dinámicas de alterización social en las sociedades contemporáneas, los procesos de racialización y las luchas antirracistas afrodescendientes, los usos sociales del patrimonio cultural. Es miembro del Seminario Universitario Interdisciplinario sobre Racismo y Xenofobia de la UNAM, del Observatorio de Justicia para Afrodescendientes en América Latina y de la organización Afrodescendencias en México: investigación e Incidencia A.C."
+    },
+    {
       name: "Maira Cristina Córdova",
       institution: "UNAM",
       bio: "Licenciada en Ciencias Humanas, Universidad Iberoamericana, Maestra, y Doctora en Historia por la Universidad Nacional Autónoma de México. Ha sido coordinadora y docente de talleres, cursos y diplomados de especialización sobre Estudios Afroamericanos en la Universidad Nacional Autónoma de México y en el Instituto Nacional de Antropología e Historia. Es miembro del Sistema Nacional de Investigadores.",
@@ -45,8 +50,8 @@ export const contributors = {
     },
     {
       name: "María Irma López",
-      institution: "",
-      bio: "",
+      institution: "Instituto Nacional de Antropología e Historia",
+      bio: "María Irma López Razgado es investigadora del Instituto Nacional de Antropología e Historia (INAH), especializada en el estudio de la población afrodescendiente en Colima durante el siglo XVIII, utilizando fuentes primarias de archivos locales. Pertenece al Seminario Permanente de Estudios Africanos y Afrodescendientes en México, coordinado por la Dra. María Elisa Velázquez. En 2024, su trabajo fue seleccionado para su publicación, contribuyendo con un capítulo sobre Joseph Fuentes, un mulato libertino en la Colima del siglo XVIII, en el libro Trayectorias de vida de afrodescendientes en la historia de México, coordinado por Gabriela Iturralde Nieto.\nAdemás, ha publicado obras como Colima: tras las huellas africanas y su diversidad cultural (2024), que explora la influencia africana en la región, y María de Iniesta y el auge de los Trapiches de Azúcar en Colima (siglos XVII-XVIII) (2024), donde analiza la historia económica, social y el mestizaje en Colima. En 2023, su libro Colima, el latido de sus años, coordinado junto con el Dr. José Miguel Romero de Solís, fue seleccionado para conmemorar los 500 años de la fundación de Colima, además ella contribuyó con un capítulo sobre: Siglo XVIII: Transformación y mestizaje multicultural.\nComo parte del proyecto Trayectorias Afromexicanas: La circulación de afrodescendientes esclavizados y libres en la Nueva España, López Razgado seleccionó protocolos históricos donde la paleografía del siglo XVI fue realizada por el Dr. José Miguel Romero de Solís, reconocido experto en este periodo. En el caso del siglo XVII, la transcripción y estudio de los documentos fue realizada por el Mtro. Juan Carlos Reyes Garza, quien se especializó en esta etapa histórica. Finalmente, para el siglo XVIII, la documentación y transcripción fueron llevadas a cabo por López Razgado, quien revisó y transcribió los archivos de manera detallada, carpeta por carpeta y foja por foja.",
     },
     {
         name: "Julieta Pineda",
