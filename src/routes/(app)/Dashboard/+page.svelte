@@ -1,6 +1,7 @@
 <script>
     import ArcsMap from './viz/ArcsMap.svelte';
     import NetworkGraph from './viz/NetworkGraph.svelte';
+    import PlacePeople from '../Browse/personasesclavizadas/views/PlacePeople.svelte';
   
     let activeView = 'arcs-map';
   </script>
@@ -25,6 +26,13 @@
           >
             <i class="bi bi-graph-up me-2"></i>Mostrar red
           </button>
+            <button 
+              class="btn btn-outline-primary"
+              class:active={activeView === 'place-people'}
+              on:click={() => activeView = 'place-people'}
+            >
+              <i class="bi bi-geo-alt me-2"></i>Personas por lugar
+            </button>
             <!-- More buttons for future views -->
           </nav>
         </div>
@@ -37,6 +45,8 @@
           <ArcsMap />
         {:else if activeView === 'network'}
           <NetworkGraph />
+        {:else if activeView === 'place-people'}
+          <PlacePeople />
         {:else}
           <p class="text-muted">Selecciona una vista para mostrar los datos.</p>
         {/if}
