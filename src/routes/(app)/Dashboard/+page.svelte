@@ -1,5 +1,6 @@
 <script>
     import ArcsMap from './viz/ArcsMap.svelte';
+    import NetworkGraph from './viz/NetworkGraph.svelte';
   
     let activeView = 'arcs-map';
   </script>
@@ -17,6 +18,13 @@
             >
               <i class="bi bi-map me-2"></i>Mostrar trayectorias
             </button>
+            <button 
+            class="btn btn-outline-primary"
+            class:active={activeView === 'network'}
+            on:click={() => activeView = 'network'}
+          >
+            <i class="bi bi-graph-up me-2"></i>Mostrar red
+          </button>
             <!-- More buttons for future views -->
           </nav>
         </div>
@@ -27,6 +35,10 @@
       <div class="col">
         {#if activeView === 'arcs-map'}
           <ArcsMap />
+        {:else if activeView === 'network'}
+          <NetworkGraph />
+        {:else}
+          <p class="text-muted">Selecciona una vista para mostrar los datos.</p>
         {/if}
       </div>
     </main>
