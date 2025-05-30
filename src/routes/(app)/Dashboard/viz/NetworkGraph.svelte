@@ -1,6 +1,8 @@
 <script>
   import { onMount, tick } from 'svelte';
   import cytoscape from 'cytoscape';
+  import fcose from 'cytoscape-fcose';
+    cytoscape.use(fcose);
   import { browser } from '$app/environment';
 
   let cy;
@@ -63,9 +65,17 @@
       }
     ],
     layout: {
-      name: 'cose',
-      animate: true
-    }
+        name: 'fcose',
+        animate: true,
+        randomize: true,
+        fit: true,
+        nodeSeparation: 100,
+        nodeRepulsion: 4500,
+        idealEdgeLength: 150,
+        edgeElasticity: 0.1,
+        gravity: 0.25,
+        initialEnergyOnIncremental: 0.5
+        }
   });
 }
 
