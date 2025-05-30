@@ -42,32 +42,14 @@
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<ul class="navbar-nav ms-auto mb-lg-0">
-					<li class="nav-item dropdown">
-						<a
-							class="nav-link dropdown-toggle"
-							id="navbarDropdown"
-							role="button"
-							data-bs-toggle="dropdown"
-							use:dropdown
-						>
-							Explorar la base de datos
-						</a>
-						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-							<li>
-								<a class="dropdown-item" href="/Browse/personasesclavizadas/"
-									>Personas Esclavizadas</a
-								>
-							</li>
-							<li>
-								<a class="dropdown-item disabled" href="#">Personas No Esclavizadas</a>
-							</li>
-							<li><hr class="dropdown-divider" /></li>
-						</ul>
-					</li>
-				</ul>
+				<!-- Add ms-auto class to push everything to the right -->
+				<div class="d-flex align-items-center ms-auto">
+					<ul class="navbar-nav me-2">
+						<li class="nav-item">
+							<a class="nav-link" href="/Dashboard/">Explorar la base de datos</a>
+						</li>
+					</ul>
 
-				<div class="d-flex align-items-center">
 					<ul class="navbar-nav me-2">
 						<li class="nav-item">
 							<a class="nav-link" href="/About/">Acerca de</a>

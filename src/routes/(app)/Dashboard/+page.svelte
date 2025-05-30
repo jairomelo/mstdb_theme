@@ -10,7 +10,7 @@
     <div class="row mb-4">
       <div class="col">
         <div class="d-flex justify-content-between align-items-center">
-          <h1 class="display-5 mb-0">Dashboard</h1>
+          <h1 class="display-5 mb-0">Tablero de datos</h1>
           <nav>
             <button 
               class="btn btn-outline-primary"

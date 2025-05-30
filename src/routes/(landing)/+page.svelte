@@ -153,11 +153,8 @@
         </p>
       </div>
       <div class="band-buttons">
-        <a href="/Browse/personasesclavizadas" class="btn btn-outline-primary me-3">
-          <i class="bi bi-people-fill me-2"></i>Personas Esclavizadas
-        </a>
-        <a href="#" class="btn btn-outline-primary">
-          <i class="bi bi-people-fill me-2"></i>Personas Libres
+        <a href="/Dashboard" class="btn btn-outline-primary me-3">
+          <i class="bi bi-people-fill me-2"></i>Tablero de datos
         </a>
       </div>
     </div>
