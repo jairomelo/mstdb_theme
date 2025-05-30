@@ -62,6 +62,12 @@
 								{peresc.etnonimos.join(', ') || 'No disponible'}
 							{/if}
 						</p>
+						<p>{#if peresc.hispanizacion}
+							<strong><i class="bi bi-translate me-2"></i>Agencia / Adaptación:</strong>
+								{peresc.hispanizacion || 'No disponible'}
+							{/if}
+
+						</p>
 						<p>{#if peresc.marcas_corporales}
 							<strong><i class="bi bi-body-text me-2"></i>Marcas corporales:</strong>
 								{peresc.marcas_corporales || 'No disponible'}

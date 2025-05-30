@@ -25,7 +25,7 @@ export const columnsPersonasEsclavizadas = [
     {
         data: 'hispanizacion',
         render: (data) => (data && data.length > 0 ? data.join(', ') : '-'),
-        title: 'Hispanizaciones',
+        title: 'Agencia / Adaptación',
     },
     {
         data: 'etnonimos',
