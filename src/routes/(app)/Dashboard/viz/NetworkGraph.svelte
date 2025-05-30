@@ -12,6 +12,11 @@
   let layoutType = 'fcose';
   let personTypeFilter = 'all';
 
+  let centralityThreshold = 0;
+  let minCentrality = 0;
+  let maxCentrality = 0;
+
+
     function applyLayout() {
     if (!cy) return;
     cy.layout({
@@ -32,9 +37,11 @@
   if (!cy) return;
 
   cy.nodes().forEach(node => {
-    const match = personTypeFilter === 'all' || node.data('type').toString() === personTypeFilter;
+    const typeMatch = personTypeFilter === 'all' || node.data('type').toString() === personTypeFilter;
+    const centralityMatch = node.data('centrality') >= centralityThreshold;
+    const match = typeMatch && centralityMatch;
     node.style('display', match ? 'element' : 'none');
-  });
+    });
 
   cy.edges().forEach(edge => {
     const source = cy.getElementById(edge.data('source'));
@@ -114,6 +121,11 @@
         initialEnergyOnIncremental: 0.5
         }
   });
+
+  const centralities = cy.nodes().map(n => n.data('centrality'));
+  minCentrality = Math.min(...centralities);
+  maxCentrality = Math.max(...centralities);
+  centralityThreshold = minCentrality;
 }
 
 </script>
@@ -167,6 +179,13 @@
     <i class="bi bi-arrows-fullscreen me-1"></i> Reenfocar
   </button>
 </div>
+
+    <div class="mb-3">
+  <label class="form-label">Filtrar por centralidad:</label>
+  <input type="range" min={minCentrality} max={maxCentrality} step="0.001" bind:value={centralityThreshold} on:input={applyFilter} class="form-range" />
+  <small>Mostrando nodos con centralidad ≥ {centralityThreshold}</small>
+</div>
+
     <!-- Always render the container -->
     <div id="network" class:hidden={loading || error}></div>
 
