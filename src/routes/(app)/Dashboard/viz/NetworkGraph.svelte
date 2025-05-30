@@ -9,6 +9,24 @@
   let loading = true;
   let error = null;
 
+  let layoutType = 'fcose';
+
+    function applyLayout() {
+    if (!cy) return;
+    cy.layout({
+        name: layoutType,
+        animate: true,
+        fit: true,
+        padding: 30
+    }).run();
+    }
+
+    function resetZoom() {
+    if (cy) {
+        cy.fit();
+    }
+    }
+
   onMount(async () => {
     if (!browser) return;
     try {
@@ -65,10 +83,11 @@
       }
     ],
     layout: {
-        name: 'fcose',
+        name: layoutType,
         animate: true,
         randomize: true,
         fit: true,
+        padding: 30,
         nodeSeparation: 100,
         nodeRepulsion: 4500,
         idealEdgeLength: 150,
@@ -92,13 +111,36 @@
 
   .hidden {
   display: none;
-}
+  }
+
+  .form-select {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    }
+
+    .btn-sm {
+    font-size: 0.8rem;
+    }
 </style>
 
 <div class="card">
   <div class="card-body">
     <h5 class="card-title">Red de personas relacionadas</h5>
 
+    <div class="d-flex align-items-center mb-3 gap-3">
+  <label class="form-label mb-0">Diseño:</label>
+  <select class="form-select w-auto" bind:value={layoutType} on:change={applyLayout}>
+    <option value="fcose">FCoSE</option>
+    <option value="cose">CoSE</option>
+    <option value="circle">Círculo</option>
+    <option value="concentric">Concéntrico</option>
+    <option value="grid">Cuadrícula</option>
+  </select>
+
+  <button class="btn btn-outline-primary btn-sm" on:click={resetZoom}>
+    <i class="bi bi-arrows-fullscreen me-1"></i> Reenfocar
+  </button>
+</div>
     <!-- Always render the container -->
     <div id="network" class:hidden={loading || error}></div>
 
