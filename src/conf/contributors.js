@@ -66,7 +66,7 @@ export const contributors = {
     {
         name: "Tatiana Seijas",
         institution: "Rutgers University",
-        bio: "",
+        bio: "Es profesora asociada en el Departamento de Historia de la Universidad de Rutgers. Dos libros suyos cubren temas relacionadas con el proyecto: <i>Asian Slaves in Colonial Mexico</i> (CUP 2014) y <i>As If She Were Free: A Collective Biography of Women and Emancipation in the Americas</i> (CUP 2020). La información hasta hoy incluida sobre personas que vivieron en la ciudad de México durante el siglo XVII deriva de documentación consultada en el Archivo General de Notarías en 2006 y 2007.  \n\n<a href=https://history.rutgers.edu/people/faculty/details/56-professors/1066-seijas-tatiana>Perfil en Rutgers</a>\n\n",
     },
     {
         name: "Sabrina Smith",

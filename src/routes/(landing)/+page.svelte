@@ -192,22 +192,15 @@
       <div class="col-md-4">
         <div class="feature-card">
           <i class="bi bi-search feature-icon"></i>
-          <h3>Búsqueda Avanzada</h3>
+          <h3>Búsqueda</h3>
           <p>Explore registros históricos detallados sobre personas esclavizadas y libres</p>
         </div>
       </div>
       <div class="col-md-4">
         <div class="feature-card">
           <i class="bi bi-geo-alt feature-icon"></i>
-          <h3>Mapeo Geográfico</h3>
+          <h3>Tablero de Datos</h3>
           <p>Visualice los movimientos y rutas en el territorio novohispano</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="feature-card">
-          <i class="bi bi-file-text feature-icon"></i>
-          <h3>Documentación</h3>
-          <p>Acceda a fuentes documentales históricas digitalizadas</p>
         </div>
       </div>
     </div>
