@@ -1,5 +1,6 @@
 <script>
 	import { login, whoami, setCsrfCookie } from '$lib/api';
+	import { getCookie } from '$lib/csrf';
 	import { user } from '$lib/stores/user';
 
 
@@ -11,10 +12,29 @@
 		error = null;
 
 		try {
-			await setCsrfCookie();
-			await login(username, password);
-			const u = await whoami(); // re-confirm session
-			user.set(u);              // update global store
+			// console.log("All cookies before setCsrfCookie:", document.cookie);
+			const csrfResponse = await setCsrfCookie();
+			// console.log("CSRF Response:", csrfResponse);
+			// console.log("All cookies after setCsrfCookie:", document.cookie);
+			
+			// Try to get token from cookie first
+			let csrfToken = getCookie("csrftoken");
+			// console.log("CSRF Token from cookie:", csrfToken);
+			
+			// If cookie failed, use the token from response
+			if (!csrfToken && csrfResponse.csrfToken) {
+				csrfToken = csrfResponse.csrfToken;
+				console.log("Using CSRF Token from response:", csrfToken);
+			}
+			
+			if (!csrfToken) {
+				throw new Error("CSRF token not available. Please try again.");
+			}
+			
+			// Pass the token explicitly to login
+			await login(username, password, csrfToken);
+			const u = await whoami();
+			user.set(u);
 
 			window.location.href = '/User/dashboard';
 		} catch (err) {

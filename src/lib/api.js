@@ -45,18 +45,35 @@ export const setCsrfCookie = async () => {
 		method: "GET",
 		credentials: "include"
 	});
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
 	return await response.json();
 };
 
 // User admin endpoints
-export const login = async (username, password) => {
-    return await postWithBaseUrl(
-        "login/",
-        {
-            username,
-            password
+export const login = async (username, password, csrfToken = null) => {
+    const token = csrfToken || getCookie("csrftoken") || "";
+    if (!token) {
+        throw new Error("CSRF token is required for login.");
+    }
+    
+    return await fetch(`${config.apiBaseUrl}login/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": token,
+        },
+        credentials: "include",
+        body: JSON.stringify({ username, password })
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    );
+        return response.json();
+    });
 };
 
 export const logout = async () => {
