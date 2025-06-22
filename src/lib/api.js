@@ -76,8 +76,26 @@ export const login = async (username, password, csrfToken = null) => {
     });
 };
 
-export const logout = async () => {
-	return await postWithBaseUrl("logout/", {});
+export const logout = async (csrfToken = null) => {
+    const token = csrfToken || getCookie("csrftoken") || "";
+    if (!token) {
+        throw new Error("CSRF token is required for logout.");
+    }
+
+    return await fetch(`${config.apiBaseUrl}logout/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": token,
+        },
+        credentials: "include",
+        body: JSON.stringify({})
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    });
 };
 
 /*
