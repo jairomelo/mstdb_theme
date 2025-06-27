@@ -221,8 +221,8 @@
 			
 			// Add tile layer
 			L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
-	attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
-	maxZoom: 8
+						attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
+						maxZoom: 8
 			}).addTo(map);
 
 			// Add D3 overlay for better visualization
