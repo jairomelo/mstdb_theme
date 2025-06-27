@@ -117,13 +117,34 @@
 				{
 					selector: 'edge',
 					style: {
-						width: 1,
-						'line-color': '#ccc',
+						width: 2, // Increased from 1 to 2
+						'line-color': '#999', // Default color, darker than before
 						'curve-style': 'bezier',
 						'target-arrow-shape': 'none',
 						label: 'data(relation)',
 						'font-size': '8px',
 						color: '#666'
+					}
+				},
+				{
+					selector: 'edge[relation = "aso"]', // Association relations
+					style: {
+						'line-color': '#3498DB', // Blue
+						width: 2
+					}
+				},
+				{
+					selector: 'edge[relation = "fam"]', // Family relations
+					style: {
+						'line-color': '#E74C3C', // Red
+						width: 3 // Slightly thicker for family relations
+					}
+				},
+				{
+					selector: 'edge[relation = "tmp"]', // Temporal relations
+					style: {
+						'line-color': '#F39C12', // Orange
+						width: 2
 					}
 				}
 			],
@@ -211,7 +232,7 @@
 		<!-- Color Legend -->
 		<div class="mb-3">
 			<div class="fw-bold mb-2">Leyenda:</div>
-			<div class="d-flex gap-4 align-items-start">
+			<div class="d-flex gap-4 align-items-start flex-wrap">
 				<div>
 					<div class="fw-semibold mb-2" style="font-size: 0.9rem;">Colores por tipo:</div>
 					<div class="d-flex gap-3 align-items-center">
@@ -234,6 +255,23 @@
 						<small>Media</small>
 						<div class="size-legend large"></div>
 						<small>Alta</small>
+					</div>
+				</div>
+				<div>
+					<div class="fw-semibold mb-2" style="font-size: 0.9rem;">Conexiones por relación:</div>
+					<div class="d-flex flex-column gap-1">
+						<div class="d-flex align-items-center">
+							<div class="edge-legend aso me-2"></div>
+							<small>Asociación (aso)</small>
+						</div>
+						<div class="d-flex align-items-center">
+							<div class="edge-legend fam me-2"></div>
+							<small>Familiar (fam)</small>
+						</div>
+						<div class="d-flex align-items-center">
+							<div class="edge-legend tmp me-2"></div>
+							<small>Temporal (tmp)</small>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -316,5 +354,24 @@
 	.size-legend.large {
 		width: 24px;
 		height: 24px;
+	}
+
+	.edge-legend {
+		width: 30px;
+		height: 3px;
+		border-radius: 1px;
+	}
+
+	.edge-legend.aso {
+		background-color: #3498DB;
+	}
+
+	.edge-legend.fam {
+		background-color: #E74C3C;
+		height: 4px; /* Slightly thicker like the actual edges */
+	}
+
+	.edge-legend.tmp {
+		background-color: #F39C12;
 	}
 </style>
