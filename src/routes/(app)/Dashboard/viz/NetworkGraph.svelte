@@ -18,6 +18,15 @@
 
 	let relationOptions = [];
 	let selectedRelation = 'all';
+	let tooltip = {
+		visible: false,
+		x: 0,
+		y: 0,
+		name: '',
+		id: '',
+		type: ''
+	};
+	let tooltipTimeout;
 
 	function applyLayout() {
 		if (!cy) return;
@@ -33,6 +42,21 @@
 		if (cy) {
 			cy.fit();
 		}
+	}
+
+	function handleTooltipMouseEnter() {
+		// Cancel any pending hide timeout when hovering over tooltip
+		if (tooltipTimeout) {
+			clearTimeout(tooltipTimeout);
+			tooltipTimeout = null;
+		}
+	}
+
+	function handleTooltipMouseLeave() {
+		// Hide tooltip when leaving the tooltip area
+		tooltipTimeout = setTimeout(() => {
+			tooltip = { ...tooltip, visible: false };
+		}, 100); // Shorter delay when leaving tooltip
 	}
 
 	function applyFilter() {
@@ -88,14 +112,24 @@
 				{
 					selector: 'node',
 					style: {
-						label: 'data(label)',
+						label: '', // Hide labels by default
 						'background-color': '#0074D9',
-						color: '#fff',
+						color: '#000',
 						'text-valign': 'center',
 						'text-halign': 'center',
 						width: 30, // Default size, will be updated dynamically
 						height: 30, // Default size, will be updated dynamically
-						'font-size': '10px'
+						'font-size': '12px',
+						'text-outline-width': 2,
+						'text-outline-color': '#fff'
+					}
+				},
+				{
+					selector: 'node:selected',
+					style: {
+						label: 'data(label)',
+						'border-width': 4,
+						'border-color': '#FFD700'
 					}
 				},
 				{
@@ -121,7 +155,6 @@
 						'line-color': '#999', // Default color, darker than before
 						'curve-style': 'bezier',
 						'target-arrow-shape': 'none',
-						label: 'data(relation)',
 						'font-size': '8px',
 						color: '#666'
 					}
@@ -179,6 +212,60 @@
 				height: `mapData(centrality, ${minCentrality}, ${maxCentrality}, 15, 80)`
 			})
 			.update();
+
+		// Add hover events for tooltip
+		cy.on('mouseover', 'node', function(event) {
+			const node = event.target;
+			const renderedPosition = node.renderedPosition();
+			const containerRect = container.getBoundingClientRect();
+			
+			// Clear any existing timeout
+			if (tooltipTimeout) {
+				clearTimeout(tooltipTimeout);
+				tooltipTimeout = null;
+			}
+			
+			// Show tooltip immediately
+			tooltip = {
+				visible: true,
+				x: renderedPosition.x + containerRect.left,
+				y: renderedPosition.y + containerRect.top - 60,
+				name: node.data('label'),
+				id: node.data('id').replace(/^\D+/g, ''), 
+				type: node.data('type')
+			};
+		});
+
+		cy.on('mouseout', 'node', function(event) {
+			// Add delay before hiding tooltip
+			tooltipTimeout = setTimeout(() => {
+				tooltip = { ...tooltip, visible: false };
+			}, 200); // 200ms delay
+		});
+
+		// Update tooltip position on pan/zoom
+		cy.on('pan zoom', function() {
+			tooltip = { ...tooltip, visible: false };
+		});
+
+		// Add click event for selection
+		cy.on('tap', 'node', function(event) {
+			const node = event.target;
+			// Hide tooltip on click
+			tooltip = { ...tooltip, visible: false };
+			// Unselect all other nodes
+			cy.nodes().unselect();
+			// Select this node
+			node.select();
+		});
+
+		// Add click on background to deselect
+		cy.on('tap', function(event) {
+			if (event.target === cy) {
+				tooltip = { ...tooltip, visible: false };
+				cy.nodes().unselect();
+			}
+		});
 	}
 </script>
 
@@ -231,7 +318,7 @@
 
 		<!-- Color Legend -->
 		<div class="mb-3">
-			<div class="fw-bold mb-2">Leyenda:</div>
+			<div class="fw-bold mb-2">Leyenda e interacciones:</div>
 			<div class="d-flex gap-4 align-items-start flex-wrap">
 				<div>
 					<div class="fw-semibold mb-2" style="font-size: 0.9rem;">Colores por tipo:</div>
@@ -274,11 +361,46 @@
 						</div>
 					</div>
 				</div>
+				<div>
+					<div class="fw-semibold mb-2" style="font-size: 0.9rem;">Interacciones:</div>
+					<div class="d-flex flex-column gap-1">
+						<small><i class="bi bi-cursor me-1"></i>Hover: ver tarjeta info</small>
+						<small><i class="bi bi-hand-index me-1"></i>Click: seleccionar nodo</small>
+						<small><i class="bi bi-box-arrow-up-right me-1"></i>Botón: ir a detalles</small>
+					</div>
+				</div>
 			</div>
 		</div>
 
 		<!-- Always render the container -->
 		<div id="network" class:hidden={loading || error}></div>
+
+		<!-- Tooltip -->
+		{#if tooltip.visible}
+			<div 
+				class="node-tooltip" 
+				style="left: {tooltip.x}px; top: {tooltip.y}px;"
+				on:mouseenter={handleTooltipMouseEnter}
+				on:mouseleave={handleTooltipMouseLeave}
+				role="tooltip"
+			>
+				<div class="tooltip-header">
+					<strong>{tooltip.name}</strong>
+					<div class="tooltip-type" class:enslaved={tooltip.type === 29} class:non-enslaved={tooltip.type === 30}>
+						{tooltip.type === 29 ? 'Esclavizada' : 'No esclavizada'}
+					</div>
+				</div>
+				<div class="tooltip-actions">
+					<a 
+						href={"/Detail/" + (tooltip.type === 29 ? "personaesclavizada" : "personanoesclavizada") + "/" + tooltip.id}
+						class="btn btn-sm btn-primary"
+						on:click={() => tooltip = { ...tooltip, visible: false }}
+					>
+						<i class="bi bi-eye me-1"></i>Ver detalles
+					</a>
+				</div>
+			</div>
+		{/if}
 
 		{#if loading}
 			<div class="text-center mt-3">
@@ -373,5 +495,60 @@
 
 	.edge-legend.tmp {
 		background-color: #F39C12;
+	}
+
+	.node-tooltip {
+		position: fixed;
+		background: white;
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		padding: 12px;
+		z-index: 1000;
+		min-width: 200px;
+		font-size: 0.9rem;
+		transform: translateX(-50%);
+		pointer-events: auto; /* Allow interactions with tooltip */
+		cursor: default;
+	}
+
+	.tooltip-header {
+		margin-bottom: 8px;
+	}
+
+	.tooltip-header strong {
+		display: block;
+		color: #2c3e50;
+		margin-bottom: 4px;
+		font-size: 1rem;
+	}
+
+	.tooltip-type {
+		font-size: 0.8rem;
+		padding: 2px 8px;
+		border-radius: 12px;
+		display: inline-block;
+		font-weight: 500;
+		background-color: #e9ecef;
+		color: #495057;
+	}
+
+	.tooltip-type.enslaved {
+		background-color: #FF6B6B;
+		color: white;
+	}
+
+	.tooltip-type.non-enslaved {
+		background-color: #4ECDC4;
+		color: white;
+	}
+
+	.tooltip-actions {
+		margin-top: 8px;
+	}
+
+	.tooltip-actions .btn {
+		font-size: 0.8rem;
+		padding: 4px 8px;
 	}
 </style>
