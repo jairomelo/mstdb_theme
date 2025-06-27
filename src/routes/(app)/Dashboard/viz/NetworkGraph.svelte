@@ -99,6 +99,22 @@
 					}
 				},
 				{
+					selector: 'node[type = 29]',
+					style: {
+						'background-color': '#FF6B6B',
+						'border-width': 2,
+						'border-color': '#FF4757'
+					}
+				},
+				{
+					selector: 'node[type = 30]',
+					style: {
+						'background-color': '#4ECDC4',
+						'border-width': 2,
+						'border-color': '#26D0CE'
+					}
+				},
+				{
 					selector: 'edge',
 					style: {
 						width: 1,
@@ -183,6 +199,21 @@
 			<small>Mostrando nodos con centralidad ≥ {centralityThreshold}</small>
 		</div>
 
+		<!-- Color Legend -->
+		<div class="mb-3">
+			<div class="fw-bold mb-2">Leyenda de colores:</div>
+			<div class="d-flex gap-3 align-items-center">
+				<div class="d-flex align-items-center">
+					<div class="color-legend enslaved me-2"></div>
+					<small>Esclavizada</small>
+				</div>
+				<div class="d-flex align-items-center">
+					<div class="color-legend non-enslaved me-2"></div>
+					<small>No esclavizada</small>
+				</div>
+			</div>
+		</div>
+
 		<!-- Always render the container -->
 		<div id="network" class:hidden={loading || error}></div>
 
@@ -222,5 +253,22 @@
 
 	.btn-sm {
 		font-size: 0.8rem;
+	}
+
+	.color-legend {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		border: 2px solid;
+	}
+
+	.color-legend.enslaved {
+		background-color: #FF6B6B;
+		border-color: #FF4757;
+	}
+
+	.color-legend.non-enslaved {
+		background-color: #4ECDC4;
+		border-color: #26D0CE;
 	}
 </style>
