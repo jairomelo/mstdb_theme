@@ -4,6 +4,7 @@
 	import fcose from 'cytoscape-fcose';
 	cytoscape.use(fcose);
 	import { browser } from '$app/environment';
+	import { peresclavizadas, pernoesclavizadas } from '$lib/api.js';
 
 	let cy;
 	let loading = true;
@@ -24,7 +25,9 @@
 		y: 0,
 		name: '',
 		id: '',
-		type: ''
+		type: '',
+		loading: false,
+		details: null
 	};
 	let tooltipTimeout;
 
@@ -151,8 +154,8 @@
 				{
 					selector: 'edge',
 					style: {
-						width: 2, // Increased from 1 to 2
-						'line-color': '#999', // Default color, darker than before
+						width: 2, 
+						'line-color': '#999', 
 						'curve-style': 'bezier',
 						'target-arrow-shape': 'none',
 						'font-size': '8px',
@@ -170,7 +173,7 @@
 					selector: 'edge[relation = "fam"]', // Family relations
 					style: {
 						'line-color': '#E74C3C', // Red
-						width: 3 // Slightly thicker for family relations
+						width: 3 
 					}
 				},
 				{
@@ -214,7 +217,7 @@
 			.update();
 
 		// Add hover events for tooltip
-		cy.on('mouseover', 'node', function(event) {
+		cy.on('mouseover', 'node', async function(event) {
 			const node = event.target;
 			const renderedPosition = node.renderedPosition();
 			const containerRect = container.getBoundingClientRect();
@@ -225,15 +228,51 @@
 				tooltipTimeout = null;
 			}
 			
-			// Show tooltip immediately
+			const nodeId = node.data('id').replace(/^\D+/g, '');
+			const nodeType = node.data('type');
+			
+			// Show tooltip immediately with basic info
 			tooltip = {
 				visible: true,
 				x: renderedPosition.x + containerRect.left,
 				y: renderedPosition.y + containerRect.top - 60,
 				name: node.data('label'),
-				id: node.data('id').replace(/^\D+/g, ''), 
-				type: node.data('type')
+				id: nodeId,
+				type: nodeType,
+				loading: true,
+				details: null
 			};
+
+			// Fetch detailed person data
+			try {
+				let personDetails;
+				if (nodeType === 29) {
+					// Enslaved person
+					personDetails = await peresclavizadas(nodeId);
+				} else if (nodeType === 30) {
+					// Non-enslaved person
+					personDetails = await pernoesclavizadas(nodeId);
+				}
+
+				// Update tooltip with fetched details (only if still visible and for same node)
+				if (tooltip.visible && tooltip.id === nodeId) {
+					tooltip = {
+						...tooltip,
+						loading: false,
+						details: personDetails
+					};
+				}
+			} catch (error) {
+				console.warn('Failed to fetch person details:', error);
+				// Update tooltip to show loading finished even if failed
+				if (tooltip.visible && tooltip.id === nodeId) {
+					tooltip = {
+						...tooltip,
+						loading: false,
+						details: null
+					};
+				}
+			}
 		});
 
 		cy.on('mouseout', 'node', function(event) {
@@ -243,12 +282,10 @@
 			}, 200); // 200ms delay
 		});
 
-		// Update tooltip position on pan/zoom
 		cy.on('pan zoom', function() {
 			tooltip = { ...tooltip, visible: false };
 		});
 
-		// Add click event for selection
 		cy.on('tap', 'node', function(event) {
 			const node = event.target;
 			// Hide tooltip on click
@@ -274,22 +311,22 @@
 		<h5 class="card-title">Red de personas relacionadas</h5>
 
 		<div class="d-flex align-items-center mb-3 gap-3">
-			<label class="form-label mb-0">Filtrar por tipo:</label>
-			<select class="form-select w-auto" bind:value={personTypeFilter} on:change={applyFilter}>
+			<label for="person-type-filter" class="form-label mb-0">Filtrar por tipo:</label>
+			<select id="person-type-filter" class="form-select w-auto" bind:value={personTypeFilter} on:change={applyFilter}>
 				<option value="all">Todos</option>
 				<option value="29">Esclavizada</option>
 				<option value="30">No esclavizada</option>
 			</select>
 
-			<label class="form-label mb-0">Filtrar relación:</label>
-			<select class="form-select w-auto" bind:value={selectedRelation} on:change={applyFilter}>
+			<label for="relation-filter" class="form-label mb-0">Filtrar relación:</label>
+			<select id="relation-filter" class="form-select w-auto" bind:value={selectedRelation} on:change={applyFilter}>
 				{#each relationOptions as rel}
 					<option value={rel}>{rel === 'all' ? 'Todas' : rel}</option>
 				{/each}
 			</select>
 
-			<label class="form-label mb-0">Diseño:</label>
-			<select class="form-select w-auto" bind:value={layoutType} on:change={applyLayout}>
+			<label for="layout-type" class="form-label mb-0">Diseño:</label>
+			<select id="layout-type" class="form-select w-auto" bind:value={layoutType} on:change={applyLayout}>
 				<option value="fcose">FCoSE</option>
 				<option value="cose">CoSE</option>
 				<option value="circle">Círculo</option>
@@ -303,8 +340,9 @@
 		</div>
 
 		<div class="mb-3">
-			<label class="form-label">Filtrar por centralidad:</label>
+			<label for="centrality-slider" class="form-label">Filtrar por centralidad:</label>
 			<input
+				id="centrality-slider"
 				type="range"
 				min={minCentrality}
 				max={maxCentrality}
@@ -390,6 +428,65 @@
 						{tooltip.type === 29 ? 'Esclavizada' : 'No esclavizada'}
 					</div>
 				</div>
+				
+				<!-- Show loading spinner while fetching details -->
+				{#if tooltip.loading}
+					<div class="tooltip-loading">
+						<div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+							<span class="visually-hidden">Cargando...</span>
+						</div>
+						<small class="text-muted">Cargando detalles...</small>
+					</div>
+				{:else if tooltip.details}
+					<!-- Show fetched details -->
+					<div class="tooltip-details">
+						{#if tooltip.details.sexo}
+							<div class="detail-item">
+								<small class="text-muted">Sexo:</small>
+								<small class="fw-medium">{tooltip.details.sexo}</small>
+							</div>
+						{/if}
+						{#if tooltip.details.edad}
+							<div class="detail-item">
+								<small class="text-muted">Edad:</small>
+								<small class="fw-medium">{tooltip.details.edad} {#if tooltip.details.unidad_temporal_edad != undefined}{tooltip.details.unidad_temporal_edad}{/if}</small>
+							</div>
+						{/if}
+						{#if tooltip.details.hispanizacion && tooltip.details.hispanizacion.length > 0}
+						  <!-- iterate over the hispanizacion list -->
+							<div class="detail-item">
+								<small class="text-muted">Agencia / Adaptación:</small>
+								<small class="fw-medium">
+									{#each tooltip.details.hispanizacion as hisp, i}
+										{hisp}{#if i < tooltip.details.hispanizacion.length - 1}, {/if}
+									{/each}
+								</small>
+							</div>
+						{/if}
+						{#if tooltip.details.etnonimos && tooltip.details.etnonimos.length > 0}
+							<div class="detail-item">
+								<small class="text-muted">Etnónimos:</small>
+								<small class="fw-medium">
+									{#each tooltip.details.etnonimos as etno, i}
+										{etno}{#if i < tooltip.details.etnonimos.length - 1}, {/if}
+									{/each}
+								</small>
+							</div>
+						{/if}
+						{#if tooltip.details.ocupaciones && tooltip.details.ocupaciones.length > 0}
+							<div class="detail-item">
+								<small class="text-muted">Ocupación:</small>
+								<small class="fw-medium">
+									{#each tooltip.details.ocupaciones as ocup, i}
+										{ocup}{#if i < tooltip.details.ocupaciones.length - 1}, {/if}
+									{/each}
+								</small>
+							</div>
+						{/if}
+						<!-- Add more fields as needed -->
+					</div>
+				{/if}
+				
 				<div class="tooltip-actions">
 					<a 
 						href={"/Detail/" + (tooltip.type === 29 ? "personaesclavizada" : "personanoesclavizada") + "/" + tooltip.id}
@@ -550,5 +647,40 @@
 	.tooltip-actions .btn {
 		font-size: 0.8rem;
 		padding: 4px 8px;
+	}
+
+	.tooltip-loading {
+		display: flex;
+		align-items: center;
+		margin: 8px 0;
+		padding: 4px 0;
+	}
+
+	.tooltip-details {
+		margin: 8px 0;
+		border-top: 1px solid #e9ecef;
+		padding-top: 8px;
+	}
+
+	.detail-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 4px;
+		gap: 8px;
+	}
+
+	.detail-item:last-child {
+		margin-bottom: 0;
+	}
+
+	.detail-item .text-muted {
+		flex-shrink: 0;
+		min-width: 50px;
+	}
+
+	.detail-item .fw-medium {
+		text-align: right;
+		word-break: break-word;
 	}
 </style>
