@@ -93,8 +93,8 @@
 						color: '#fff',
 						'text-valign': 'center',
 						'text-halign': 'center',
-						width: 'mapData(centrality, 0, 0.1, 20, 60)',
-						height: 'mapData(centrality, 0, 0.1, 20, 60)',
+						width: 30, // Default size, will be updated dynamically
+						height: 30, // Default size, will be updated dynamically
 						'font-size': '10px'
 					}
 				},
@@ -149,6 +149,15 @@
 		minCentrality = Math.min(...centralities);
 		maxCentrality = Math.max(...centralities);
 		centralityThreshold = minCentrality;
+
+		// Update node sizes based on actual centrality range
+		cy.style()
+			.selector('node')
+			.style({
+				width: `mapData(centrality, ${minCentrality}, ${maxCentrality}, 15, 80)`,
+				height: `mapData(centrality, ${minCentrality}, ${maxCentrality}, 15, 80)`
+			})
+			.update();
 	}
 </script>
 
@@ -201,15 +210,31 @@
 
 		<!-- Color Legend -->
 		<div class="mb-3">
-			<div class="fw-bold mb-2">Leyenda de colores:</div>
-			<div class="d-flex gap-3 align-items-center">
-				<div class="d-flex align-items-center">
-					<div class="color-legend enslaved me-2"></div>
-					<small>Esclavizada</small>
+			<div class="fw-bold mb-2">Leyenda:</div>
+			<div class="d-flex gap-4 align-items-start">
+				<div>
+					<div class="fw-semibold mb-2" style="font-size: 0.9rem;">Colores por tipo:</div>
+					<div class="d-flex gap-3 align-items-center">
+						<div class="d-flex align-items-center">
+							<div class="color-legend enslaved me-2"></div>
+							<small>Esclavizada</small>
+						</div>
+						<div class="d-flex align-items-center">
+							<div class="color-legend non-enslaved me-2"></div>
+							<small>No esclavizada</small>
+						</div>
+					</div>
 				</div>
-				<div class="d-flex align-items-center">
-					<div class="color-legend non-enslaved me-2"></div>
-					<small>No esclavizada</small>
+				<div>
+					<div class="fw-semibold mb-2" style="font-size: 0.9rem;">Tamaño por centralidad:</div>
+					<div class="d-flex gap-2 align-items-center">
+						<div class="size-legend small"></div>
+						<small>Baja</small>
+						<div class="size-legend medium"></div>
+						<small>Media</small>
+						<div class="size-legend large"></div>
+						<small>Alta</small>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -270,5 +295,26 @@
 	.color-legend.non-enslaved {
 		background-color: #4ECDC4;
 		border-color: #26D0CE;
+	}
+
+	.size-legend {
+		border-radius: 50%;
+		background-color: #6c757d;
+		border: 2px solid #495057;
+	}
+
+	.size-legend.small {
+		width: 10px;
+		height: 10px;
+	}
+
+	.size-legend.medium {
+		width: 16px;
+		height: 16px;
+	}
+
+	.size-legend.large {
+		width: 24px;
+		height: 24px;
 	}
 </style>
