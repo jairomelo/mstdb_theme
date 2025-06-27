@@ -28,4 +28,4 @@ svelte-control.sh
 
 # Server-side scripts
 deploy.sh
-static/temp/
+routes/static/temp/*

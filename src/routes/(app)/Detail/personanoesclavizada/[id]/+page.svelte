@@ -17,6 +17,7 @@
 
 	// Network visualization variables
 	let relationsCy = null;
+	let hasNetworkConnections = false;
 
 	onMount(async () => {
 		try {
@@ -28,11 +29,17 @@
 				
 				if (networkRes.ok) {
 					networkData = await networkRes.json();
+					
+					// Check if current person has connections in the network
+					const currentPersonId = `p${data.id}`;
+					hasNetworkConnections = networkData.edges.some(edge => 
+						edge.data.source === currentPersonId || edge.data.target === currentPersonId
+					);
 				}
 				
 				// Initialize map and network after data is loaded
 				await tick();
-				if (pernoesc.relaciones && pernoesc.relaciones.length > 0) {
+				if (hasNetworkConnections) {
 					initializeRelationsNetwork();
 				}
 				if (pernoesc.lugares && pernoesc.lugares.length > 0) {
@@ -46,7 +53,7 @@
 	});
 
 	function initializeRelationsNetwork() {
-		if (!networkData || !pernoesc.relaciones) return;
+		if (!networkData) return;
 
 		const container = document.getElementById('relations-network');
 		if (!container) return;
@@ -56,42 +63,44 @@
 			relationsCy.destroy();
 		}
 
-		// Create nodes and edges from the network data
-		const elements = [];
+		// Get the current person's ID in the format used by the network
 		const currentPersonId = `p${data.id}`;
+		
+		// Find all edges that involve the current person
+		const relatedEdges = networkData.edges.filter(edge => 
+			edge.data.source === currentPersonId || edge.data.target === currentPersonId
+		);
 
-		// Find all person IDs mentioned in relations for this person
-		const relatedPersonIds = new Set([currentPersonId]);
-		pernoesc.relaciones.forEach(rel => {
-			rel.personas.forEach(persona => {
-				relatedPersonIds.add(`p${persona.persona_idno}`);
-			});
+		// Find all person IDs connected to the current person
+		const relatedPersonIds = new Set();
+		relatedEdges.forEach(edge => {
+			relatedPersonIds.add(edge.data.source);
+			relatedPersonIds.add(edge.data.target);
 		});
 
-		// Add nodes for all related persons
-		relatedPersonIds.forEach(personId => {
-			const personData = networkData.nodes.find(n => n.data.id === personId);
-			if (personData) {
-				elements.push({
-					data: {
-						id: personId,
-						label: personData.data.label,
-						type: personData.data.type
-					}
-				});
-			}
-		});
+		// Filter network data to include only related persons
+		const filteredNodes = networkData.nodes.filter(node => 
+			relatedPersonIds.has(node.data.id)
+		);
+		
+		const filteredEdges = relatedEdges;
 
-		// Add edges from network data for related persons
-		networkData.edges.forEach(edge => {
-			if (relatedPersonIds.has(edge.data.source) && relatedPersonIds.has(edge.data.target)) {
-				elements.push(edge);
-			}
-		});
+		if (filteredNodes.length === 0) {
+			// Show a message if no network data is available
+			container.innerHTML = `
+				<div class="d-flex align-items-center justify-content-center h-100 text-muted">
+					<div class="text-center">
+						<i class="bi bi-diagram-2" style="font-size: 2rem;"></i>
+						<p class="mt-2">No hay datos de red disponibles para visualizar las relaciones</p>
+					</div>
+				</div>
+			`;
+			return;
+		}
 
 		relationsCy = cytoscape({
 			container: container,
-			elements: elements,
+			elements: [...filteredNodes, ...filteredEdges],
 			style: [
 				{
 					selector: 'node',
@@ -101,7 +110,7 @@
 							const nodeType = node.data('type');
 							
 							if (nodeId === currentPersonId) {
-								return '#FF6B6B'; // Current person (red)
+								return '#4ECDC4'; // Current person (teal for no esclavizada)
 							} else if (nodeType === 29) {
 								return '#FF6B6B'; // Persona esclavizada (red)
 							} else {
@@ -400,7 +409,7 @@
 		</div>
 
 		<!-- Relations Network -->
-		{#if pernoesc.relaciones && pernoesc.relaciones.length > 0}
+		{#if hasNetworkConnections}
 			<div class="card mb-4">
 				<div class="card-header bg-info text-white">
 					<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones</h2>
