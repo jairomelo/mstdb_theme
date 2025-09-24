@@ -59,8 +59,28 @@ export function tooltip(node, options = {}) {
 
   let tooltipInstance;
 
+  /* Safely dispose of the tooltip instance */
+  function safeDisposeTooltip() {
+      if (tooltipInstance) {
+          try {
+              if (node && node.isConnected && document.contains(node)) {
+                  tooltipInstance.dispose();
+              } else {
+                  tooltipInstance = null;
+              }
+          } catch (error) {
+              console.warn('Tooltip disposal error (safely handled):', error.message);
+              tooltipInstance = null;
+          }
+      }
+  }
+
   function initializeTooltip() {
       import('bootstrap').then((bootstrap) => {
+          if (!node || !node.isConnected) {
+              return;
+          }
+          
           const title = options.title || node.getAttribute('title') || node.getAttribute('data-bs-title');
           
           if (title) {
@@ -72,7 +92,13 @@ export function tooltip(node, options = {}) {
 
               // Hide tooltip on click
               node.addEventListener('click', () => {
-                  tooltipInstance.hide();
+                  if (tooltipInstance) {
+                      try {
+                          tooltipInstance.hide();
+                      } catch (error) {
+                          console.warn('Tooltip hide error (safely handled):', error.message);
+                      }
+                  }
               });
           } else {
               console.warn('Tooltip initialization skipped: No valid title found for', node);
@@ -85,15 +111,11 @@ export function tooltip(node, options = {}) {
   return {
       update(newOptions) {
           options = newOptions;
-          if (tooltipInstance) {
-              tooltipInstance.dispose();
-          }
+          safeDisposeTooltip();
           initializeTooltip();
       },
       destroy() {
-          if (tooltipInstance) {
-              tooltipInstance.dispose();
-          }
+          safeDisposeTooltip();
       }
   };
 }
