@@ -17,6 +17,11 @@ export const postWithBaseUrl = async (endpoint, payload = {}) => {
 	const url = `${config.apiBaseUrl}${endpoint}`;
 	const csrfToken = getCookie("csrftoken");
 
+	// For logging endpoint, fail silently if no CSRF token is available
+	if (endpoint === 'log/' && !csrfToken) {
+		throw new Error('CSRF token not available for logging');
+	}
+
 	const response = await fetch(url, {
 		method: "POST",
 		headers: {
@@ -37,6 +42,17 @@ export const postWithBaseUrl = async (endpoint, payload = {}) => {
 
 // Log endpoint
 export const log = (level, message) => postWithBaseUrl('log/', { level, message });
+
+// Initialize API for logging
+export const initializeLogging = async () => {
+	try {
+		await setCsrfCookie();
+		return true;
+	} catch (error) {
+		console.warn('Failed to initialize logging API:', error);
+		return false;
+	}
+};
 
 // set the CSRF cookie
 export const setCsrfCookie = async () => {

@@ -1,9 +1,12 @@
 import log from 'loglevel';
 
-import { log as logApi } from '$lib/api';
+import { log as logApi, setCsrfCookie } from '$lib/api';
 
 // Set the default logging level
 log.setLevel("debug");
+
+let csrfInitialized = false;
+let csrfInitializing = false;
 
 const originalFactory = log.methodFactory;
 log.methodFactory = function (methodName, logLevel, loggerName) {
@@ -22,11 +25,36 @@ log.methodFactory = function (methodName, logLevel, loggerName) {
 
 log.setLevel(log.getLevel());
 
+async function ensureCsrfToken() {
+  if (csrfInitialized || csrfInitializing) {
+    return;
+  }
+  
+  csrfInitializing = true;
+  try {
+    await setCsrfCookie();
+    csrfInitialized = true;
+  } catch (error) {
+    console.warn('Failed to initialize CSRF cookie for logging:', error);
+  } finally {
+    csrfInitializing = false;
+  }
+}
+
 async function sendLogToServer(level, message) {
   try {
+    // Ensure CSRF token is available before sending logs
+    if (!csrfInitialized) {
+      await ensureCsrfToken();
+    }
+    
     await logApi(level, message);
   } catch (error) {
-    console.error('Failed to send log to server:', error);
+    if (!error.message.includes('403') && !error.message.includes('CSRF')) {
+      console.error('Failed to send log to server:', error);
+    } else {
+      console.warn('Log API unavailable (authentication required)');
+    }
   }
 }
 
