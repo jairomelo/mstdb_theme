@@ -2,6 +2,25 @@ import { writable } from 'svelte/store';
 import { searchAll } from '$lib/api';
 import log from '$lib/logger';
 
+// ── Active filter state ──────────────────────────────────────────────
+const initialFilters = {
+    types: [],          // e.g. ['personaesclavizada', 'personanoesclavizada']
+    lugar_id: [],       // Lugar PKs
+    archivo_id: [],     // Archivo PKs
+    year: [],           // individual years
+    etnonimo: [],
+    calidad: [],
+    hispanizacion: [],
+    ocupacion: [],
+};
+
+export const activeFilters = writable({ ...initialFilters });
+
+export function resetFilters() {
+    activeFilters.set({ ...initialFilters });
+}
+
+// ── Results store ────────────────────────────────────────────────────
 const initialState = {
     results: [],
     totalResults: 0,
@@ -14,51 +33,64 @@ const initialState = {
     currentSort: '',
     availableTypes: new Set(),
     typesCounts: {},
-    initialTypeCounts: {}
+    initialTypeCounts: {},
+    facets: {
+        lugares: [],
+        archivos: [],
+        fechas: {},
+        etnonimos: [],
+        calidades: [],
+        hispanizaciones: [],
+        ocupaciones: [],
+    },
 };
 
-export const searchResultsStore = writable(initialState);
+export const searchResultsStore = writable({ ...initialState });
 
-export async function initializeSearch(query, type, sort = '') {
-    const results = await fetchResults(null, query, type, sort);
+// ── Public API ───────────────────────────────────────────────────────
+
+export async function initializeSearch(query, sort = '') {
+    resetFilters();
+    await fetchResults(null, query, sort);
     searchResultsStore.update(store => ({
         ...store,
-        initialTypeCounts: store.typesCounts
+        initialTypeCounts: store.typesCounts,
     }));
-    return results;
 }
 
-export async function fetchResults(page = null, searchQuery, type = '', sort = '') {
-    log.info(`Fetching results: query=${searchQuery}, type=${type}, sort=${sort}, page=${page}`);
-    searchResultsStore.update(store => ({ ...store, isLoading: true, error: null }));
+export async function fetchResults(page = null, searchQuery, sort = '') {
+    log.info(`Fetching results: query=${searchQuery}, sort=${sort}, page=${page}`);
+    searchResultsStore.update(s => ({ ...s, isLoading: true, error: null }));
+
     try {
-        const params = {
-            q: searchQuery,
-            page: page || '1'
-        };
+        // Build params from active filters
+        let filters;
+        activeFilters.subscribe(f => (filters = f))();
 
-        if (type && type !== '' && type !== 'all') {
-            params.type = type;
+        const params = { q: searchQuery, page: page || '1' };
+
+        // Type filter: if specific types selected, send them; otherwise omit (= all)
+        if (filters.types.length > 0) {
+            params.type = filters.types.join(',');
         }
+        if (sort) params.sort = sort;
 
-        if (sort && sort !== '') {
-            params.sort = sort;
+        // Sidebar filter params (comma-separated)
+        for (const key of ['lugar_id', 'archivo_id', 'year', 'etnonimo', 'calidad', 'hispanizacion', 'ocupacion']) {
+            if (filters[key].length > 0) {
+                params[key] = filters[key].join(',');
+            }
         }
 
         console.log('fetchResults params:', params);
 
         const data = await searchAll(params);
-
         const results = data.results;
-
         const currentPage = parseInt(params.page);
 
-        log.debug(`Fetched ${data.results.length} results`);
+        log.debug(`Fetched ${results.length} results`);
 
         const availableTypes = new Set(Object.keys(data.typeCounts));
-
-        console.log('results:', results);
-        console.log('availableTypes:', availableTypes);
 
         searchResultsStore.update(store => ({
             results,
@@ -72,13 +104,14 @@ export async function fetchResults(page = null, searchQuery, type = '', sort = '
             currentSort: sort,
             availableTypes,
             typesCounts: data.typeCounts,
-            initialTypeCounts: store.initialTypeCounts || data.typeCounts
+            initialTypeCounts: store.initialTypeCounts || data.typeCounts,
+            facets: data.facets || store.facets,
         }));
 
         log.info(`Search completed: ${data.count} total results`);
     } catch (err) {
         log.error(`Error fetching results: ${err.message}`);
         console.error('Fetch error:', err);
-        searchResultsStore.update(store => ({ ...store, error: err.message, isLoading: false }));
+        searchResultsStore.update(s => ({ ...s, error: err.message, isLoading: false }));
     }
 }
