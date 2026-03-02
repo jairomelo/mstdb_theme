@@ -4,6 +4,9 @@
   import { animateSuffix } from '$lib/textanimation';
   import { setRandomHeroImage } from '$lib/heroBackground'; // Updated import path
 
+  /* global __APP_VERSION__ */
+  const appVersion = __APP_VERSION__;
+
   let suffixElement;
   let heroSectionElement;
 
@@ -237,6 +240,11 @@
           <li><a href="/About">Sobre Nosotros</a></li>
           <li><a href="/Browse/personasesclavizadas">Base de Datos</a></li>
         </ul>
+      </div>
+    </div>
+    <div class="row mt-3 border-top pt-2">
+      <div class="col text-center text-muted small">
+        v{appVersion}
       </div>
     </div>
   </div>
