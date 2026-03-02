@@ -27,9 +27,9 @@
     const typeLabels = {
         personaesclavizada: { label: 'Personas esclavizadas', icon: 'bi-person-lock' },
         personanoesclavizada: { label: 'Personas no esclavizadas', icon: 'bi-person' },
-        documento: { label: 'Documentos', icon: 'bi-file-text' },
-        lugar: { label: 'Lugares', icon: 'bi-geo-alt' },
         corporacion: { label: 'Corporaciones', icon: 'bi-building' },
+        lugar: { label: 'Lugares', icon: 'bi-geo-alt' },
+        documento: { label: 'Documentos', icon: 'bi-file-text' },
     };
 
     function toggle(section) {

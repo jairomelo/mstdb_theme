@@ -79,11 +79,11 @@
 	}
   
 	const componentMap = {
-	  'documento': DocumentCard,
 	  'personaesclavizada': PersonasEsclavizadas,
 	  'personanoesclavizada': PersonasNoEsclavizadas,
 	  'corporacion': CorporacionesCard,
-	  'lugar': LugaresCard
+	  'lugar': LugaresCard,
+	  'documento': DocumentCard
 	};
 </script>
 
