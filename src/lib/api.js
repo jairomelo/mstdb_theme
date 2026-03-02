@@ -160,19 +160,19 @@ export const personasescfull = (params) => {
 
     const querystring = queryString.stringify(filteredParams);
     console.log('personasescfull query string:', querystring);
-    return fetchWithBaseUrl(`peresclavizadas/?${querystring}`);
+    return fetchWithBaseUrl(`personas-esclavizadas/?${querystring}`);
 };
 
 // Detail endpoints
 export const documentos = (params) => fetchWithBaseUrl(`documentos/${params}/`);
-export const peresclavizadas = (params) => fetchWithBaseUrl(`peresclavizadas/${params}/`);
-export const pernoesclavizadas =  (params) => fetchWithBaseUrl(`pernoesclavizadas/${params}/`);
+export const peresclavizadas = (params) => fetchWithBaseUrl(`personas-esclavizadas/${params}/`);
+export const pernoesclavizadas =  (params) => fetchWithBaseUrl(`personas-no-esclavizadas/${params}/`);
 export const corporaciones = (params) => fetchWithBaseUrl(`corporaciones/${params}/`);
 export const lugares = (params) => fetchWithBaseUrl(`lugares/${params}/`);
 export const lugarPersonasRelacionadas = (lugarId, page = 1) => 
-    fetchWithBaseUrl(`lugares/${lugarId}/personas_relacionadas/?page=${page}/`);
-export const personaLugarRel = (personaxlugarId) => fetchWithBaseUrl(`personas_lugares/${personaxlugarId}/`);
-export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`personas_relaciones/${personaxpersonaId}/`);
+    fetchWithBaseUrl(`lugares/${lugarId}/personas/?page=${page}`);
+export const personaLugarRel = (personaxlugarId) => fetchWithBaseUrl(`relaciones-lugares/${personaxlugarId}/`);
+export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`relaciones-personas/${personaxpersonaId}/`);
 
 // Data Visualization endpoints
 export const generoHispanizacion = async () => {
