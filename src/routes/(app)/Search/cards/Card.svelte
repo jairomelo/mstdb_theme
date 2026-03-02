@@ -1,5 +1,15 @@
 <script>
   export let item;
+
+  const idMap = {
+    documento: 'documento_id',
+    personaesclavizada: 'persona_id',
+    personanoesclavizada: 'persona_id',
+    lugar: 'lugar_id',
+    corporacion: 'corporacion_id',
+  };
+
+  $: itemId = item.source[idMap[item.type]] || '';
 </script>
 
 <div class="card mb-3">
@@ -18,7 +28,7 @@
         <div class="d-flex justify-content-between align-items-start">
           <div>
             <!-- Title Link -->
-            <a href="/Detail/{item.type}/{item.id}" class="text-decoration-none">
+            <a href="/Detail/{item.type}/{itemId}" class="text-decoration-none">
               <h5 class="card-title mb-1">
                 <slot name="title">
                   {item.source.titulo || item.source.nombre_normalizado || 'N/A'}
