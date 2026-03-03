@@ -174,6 +174,10 @@ export const lugarPersonasRelacionadas = (lugarId, page = 1) =>
 export const personaLugarRel = (personaxlugarId) => fetchWithBaseUrl(`relaciones-lugares/${personaxlugarId}/`);
 export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`relaciones-personas/${personaxpersonaId}/`);
 
+// Visualization endpoints for detail views
+export const personaNetwork = (personaId) => fetchWithBaseUrl(`personas-esclavizadas/${personaId}/network/`);
+export const personaTrajectory = (personaId) => fetchWithBaseUrl(`personas-esclavizadas/${personaId}/trajectory/`);
+
 // Data Visualization endpoints
 export const generoHispanizacion = async () => {
     try {

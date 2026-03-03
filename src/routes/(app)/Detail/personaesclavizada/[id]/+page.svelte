@@ -1,6 +1,6 @@
 <script>
 	import { onMount, tick, onDestroy } from 'svelte';
-	import { peresclavizadas } from '$lib/api';
+	import { peresclavizadas, personaNetwork, personaTrajectory } from '$lib/api';
 	import cytoscape from 'cytoscape';
 	import fcose from 'cytoscape-fcose';
 	import { browser } from '$app/environment';
@@ -23,22 +23,29 @@
 		try {
 			peresc = await peresclavizadas(data.id);
 			
-			// Load network data for relations visualization
 			if (browser) {
-				const [networkRes, trajectoryRes] = await Promise.all([
-					fetch('/temp/persona_network.json'),
-					fetch('/temp/trayectorias_arcs.json')
-				]);
-				
-				if (networkRes.ok) {
-					networkData = await networkRes.json();
+				// Fetch network + trajectory from live API (parallel)
+				const promises = [];
+
+				if (peresc.relaciones && peresc.relaciones.length > 0) {
+					promises.push(
+						personaNetwork(data.id)
+							.then(d => { networkData = d; })
+							.catch(e => console.warn('Network data unavailable:', e))
+					);
 				}
-				
-				if (trajectoryRes.ok) {
-					trajectoryData = await trajectoryRes.json();
+
+				if (peresc.lugares && peresc.lugares.length > 0) {
+					promises.push(
+						personaTrajectory(data.id)
+							.then(d => { trajectoryData = d; })
+							.catch(e => console.warn('Trajectory data unavailable:', e))
+					);
 				}
-				
-				// Initialize map and network after data is loaded
+
+				await Promise.all(promises);
+
+				// Initialize visualizations after data is loaded
 				await tick();
 				if (peresc.relaciones && peresc.relaciones.length > 0) {
 					initializeRelationsNetwork();
@@ -59,29 +66,11 @@
 		const container = document.getElementById('relations-network');
 		if (!container) return;
 
-		// Get the current person's ID in the format used by the network
 		const currentPersonId = `p${data.id}`;
-		
-		// Find nodes related to this person
-		const relatedPersonIds = new Set();
-		peresc.relaciones.forEach(relacion => {
-			relacion.personas.forEach(persona => {
-				const personId = `p${persona.persona_id}`;
-				relatedPersonIds.add(personId);
-			});
-		});
+		const esclavizadaCtype = peresc.polymorphic_ctype;
 
-		// Filter network data to include only related persons
-		const filteredNodes = networkData.nodes.filter(node => 
-			relatedPersonIds.has(node.data.id)
-		);
-		
-		const filteredEdges = networkData.edges.filter(edge => 
-			relatedPersonIds.has(edge.data.source) && relatedPersonIds.has(edge.data.target)
-		);
-
-		if (filteredNodes.length === 0) {
-			// Show a message if no network data is available
+		// networkData is already the persona-specific ego-network {nodes, edges}
+		if (!networkData.nodes || networkData.nodes.length === 0) {
 			container.innerHTML = `
 				<div class="d-flex align-items-center justify-content-center h-100 text-muted">
 					<div class="text-center">
@@ -95,7 +84,7 @@
 
 		relationsCy = cytoscape({
 			container,
-			elements: [...filteredNodes, ...filteredEdges],
+			elements: [...networkData.nodes, ...networkData.edges],
 			style: [
 				{
 					selector: 'node',
@@ -125,7 +114,7 @@
 					}
 				},
 				{
-					selector: 'node[type = 29]',
+					selector: `node[type = ${esclavizadaCtype}]`,
 					style: {
 						'background-color': '#FF6B6B',
 						'border-color': '#FF4757'
@@ -176,7 +165,7 @@
 			const nodeType = node.data('type');
 			
 			if (nodeId !== data.id) {
-				const detailUrl = nodeType === 29 
+				const detailUrl = nodeType === esclavizadaCtype 
 					? `/Detail/personaesclavizada/${nodeId}`
 					: `/Detail/personanoesclavizada/${nodeId}`;
 				window.open(detailUrl, '_blank');
@@ -240,10 +229,8 @@
 					lon: parseFloat(lugar.lugar.lon)
 				}));
 
-			// Find trajectory data for this person
-			const personTrajectories = trajectoryData?.filter(arc => 
-				arc.persona_id === parseInt(data.id)
-			) || [];
+			// trajectoryData is already persona-specific arcs from the API
+			const personTrajectories = trajectoryData || [];
 
 			function projectPoint(lat, lon) {
 				const point = map.latLngToLayerPoint([lat, lon]);
