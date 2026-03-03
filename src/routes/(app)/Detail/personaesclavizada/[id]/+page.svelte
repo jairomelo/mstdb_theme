@@ -255,19 +255,19 @@
 
 				// Draw trajectory paths if available
 				if (personTrajectories.length > 0) {
-					// Create arrowhead marker
+					// Create arrowhead marker — small, proportional to stroke
 					const defs = svg.append("defs");
 					defs.append("marker")
 						.attr("id", "arrow-person")
-						.attr("viewBox", "0 -8 16 16")
-						.attr("refX", 16)
+						.attr("viewBox", "0 -3 6 6")
+						.attr("refX", 6)
 						.attr("refY", 0)
-						.attr("markerWidth", 8)
-						.attr("markerHeight", 8)
+						.attr("markerWidth", 4)
+						.attr("markerHeight", 4)
 						.attr("orient", "auto")
 						.attr("fill", "#e74c3c")
 						.append("path")
-						.attr("d", "M0,-8L16,0L0,8L4,0Z"); // Larger, more prominent arrow
+						.attr("d", "M0,-3L6,0L0,3Z");
 
 					// Draw trajectory lines
 					g.selectAll(".trajectory-path")
@@ -280,7 +280,9 @@
 							const [x2, y2] = projectPoint(d.to.lat, d.to.lon);
 							const dx = x2 - x1;
 							const dy = y2 - y1;
-							const dr = Math.sqrt(dx * dx + dy * dy) * 0.3;
+							const dist = Math.sqrt(dx * dx + dy * dy);
+							// Gentle curvature: subtle for long arcs, slightly more for short ones
+							const dr = Math.max(dist * 1.2, 80);
 							return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`;
 						})
 						.attr("stroke", "#e74c3c")
