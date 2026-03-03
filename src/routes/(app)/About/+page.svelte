@@ -134,6 +134,10 @@
             <a href="https://www.humanities.uci.edu/routes-enslavement-americas" target="_blank">
               Routes of Enslavement in the Americas
             </a>
+            y la Universidad de California
+            <a href="https://alianzamx.universityofcalifornia.edu/research-and-innovation/latino-studies-projects/" target="_blank">
+              Alianza MX — Latino Studies Projects
+            </a>
           </p>
         </div>
 

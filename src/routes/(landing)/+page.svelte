@@ -99,7 +99,7 @@
           type="text"
           bind:value={query}
           class="form-control form-control-lg"
-          placeholder="Busca por palabra clave, documento, nombre, lugar..."
+          placeholder="Busca por persona, lugar, documento, o palabra clave..."
         />
         <button type="submit" class="btn btn-lg btn-primary search-btn">
           <i class="bi bi-search"></i>
@@ -208,6 +208,23 @@
       </div>
     </div>
   </div>
+
+  <!-- Funders Section -->
+  <!-- <div class="funders-band" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
+    <div class="container">
+      <h2 class="funders-title">Financiado por</h2>
+      <div class="funders-grid">
+        <a href="https://www.humanities.uci.edu/routes-enslavement-americas" target="_blank" rel="noopener" class="funder-card">
+          <i class="bi bi-bank2 funder-icon"></i>
+          <span class="funder-name">UC MRPI — Routes of Enslavement in the Americas</span>
+        </a>
+        <a href="https://alianzamx.universityofcalifornia.edu/research-and-innovation/latino-studies-projects/" target="_blank" rel="noopener" class="funder-card">
+          <i class="bi bi-mortarboard funder-icon"></i>
+          <span class="funder-name">UC Alianza MX — Latino Studies Projects</span>
+        </a>
+      </div>
+    </div>
+  </div> -->
 </section>
 
 <!-- Footer -->
@@ -220,6 +237,10 @@
           Partes de este proyecto han sido financiadas por el University of California MRPI 
           <a href="https://www.humanities.uci.edu/routes-enslavement-americas" target="_blank" rel="noopener">
             Routes of Enslavement in the Americas
+          </a>
+          y la Universidad de California
+          <a href="https://alianzamx.universityofcalifornia.edu/research-and-innovation/latino-studies-projects/" target="_blank" rel="noopener">
+            Alianza MX — Latino Studies Projects
           </a>
         </p>
       </div>
