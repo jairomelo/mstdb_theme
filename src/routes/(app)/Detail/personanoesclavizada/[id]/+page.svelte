@@ -375,38 +375,36 @@
 		</div>
 	{:else if pernoesc}
 
-	<div class="entity-banner">
-		<h1><img src="/icons/i_pernoesc.webp" alt="Persona Esclavizada"> Persona No Esclavizada</h1>
+	<div class="entity-banner persona-no-esclavizada">
+		<h1>{pernoesc.nombre_normalizado || 'Persona No Esclavizada'}</h1>
+		<span class="entity-type">Persona No Esclavizada</span>
 	</div>
 
-		<div class="card mb-4">
-			<div class="card-header bg-primary text-white">
-				<h1 class="card-title mb-0">{pernoesc.nombre_normalizado || 'Persona Esclavizada'}</h1>
+		<div class="detailwrap">
+			<div class="detail">
+				<h3>ID</h3>
+				<div class="detail-bottom"><p>{pernoesc.persona_idno}</p></div>
 			</div>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6">
-						<p><strong><i class="bi bi-fingerprint me-2"></i>ID:</strong> {pernoesc.persona_idno}</p>
-						<p>
-							<strong><i class="bi bi-person me-2"></i>Nombres:</strong>
-							{pernoesc.nombres || 'No disponible'}
-						</p>
-						<p>
-							<strong><i class="bi bi-person-badge me-2"></i>Apellidos:</strong>
-							{pernoesc.apellidos || 'No disponible'}
-						</p>
-						<p>
-							<strong><i class="bi bi-gender-ambiguous me-2"></i>Sexo:</strong>
-							{pernoesc.sexo || 'No disponible'}
-						</p>
-						<p>
-							<strong><i class="bi bi-calendar-event me-2"></i>Edad:</strong>
-							{pernoesc.edad}
-							{pernoesc.unidad_temporal_edad || 'años'}
-						</p>
-					</div>
-				</div>
+			<div class="detail">
+				<h3>Nombres</h3>
+				<div class="detail-bottom"><p>{pernoesc.nombres || 'No disponible'}</p></div>
 			</div>
+			<div class="detail">
+				<h3>Apellidos</h3>
+				<div class="detail-bottom"><p>{pernoesc.apellidos || 'No disponible'}</p></div>
+			</div>
+			{#if pernoesc.sexo}
+			<div class="detail">
+				<h3>Sexo</h3>
+				<div class="detail-bottom"><p>{pernoesc.sexo}</p></div>
+			</div>
+			{/if}
+			{#if pernoesc.edad}
+			<div class="detail">
+				<h3>Edad</h3>
+				<div class="detail-bottom"><p>{pernoesc.edad} {pernoesc.unidad_temporal_edad || 'años'}</p></div>
+			</div>
+			{/if}
 		</div>
 
 		<!-- Relations Network -->
@@ -531,6 +529,67 @@
 </div>
 
 <style>
+	/* enslaved.org-style detail blocks */
+	.entity-banner {
+		padding: 1.5rem 0 1rem;
+		border-bottom: 3px solid;
+		margin-bottom: 1.5rem;
+	}
+
+	.entity-banner.persona-no-esclavizada {
+		border-color: #2980b9;
+	}
+
+	.entity-banner h1 {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin: 0 0 0.25rem;
+		color: #2c3e50;
+	}
+
+	.entity-banner .entity-type {
+		font-size: 0.85rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #7f8c8d;
+		font-weight: 600;
+	}
+
+	.detailwrap {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0;
+		margin-bottom: 2rem;
+	}
+
+	.detailwrap .detail {
+		flex: 1 1 200px;
+		max-width: 100%;
+		padding: 0.75rem 1rem;
+		border-bottom: 1px solid #e9ecef;
+	}
+
+	.detailwrap .detail h3 {
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: #7f8c8d;
+		font-weight: 600;
+		margin: 0 0 0.35rem;
+	}
+
+	.detailwrap .detail .detail-bottom {
+		margin: 0;
+	}
+
+	.detailwrap .detail .detail-bottom p {
+		margin: 0;
+		font-size: 1rem;
+		color: #2c3e50;
+		line-height: 1.4;
+	}
+
+	/* Network & map cards */
 	.color-legend-mini {
 		display: inline-block;
 		width: 12px;

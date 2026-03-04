@@ -407,68 +407,66 @@
 		</div>
 	{:else if peresc}
 
-	<div class="entity-banner">
-		<h1 class="text-primary"><img src="/icons/i_peresc.webp" alt="Persona Esclavizada"> Persona Esclavizada</h1>
+	<div class="entity-banner persona-esclavizada">
+		<h1>{peresc.nombre_normalizado || 'Persona Esclavizada'}</h1>
+		<span class="entity-type">Persona Esclavizada</span>
 	</div>
 
-		<div class="card mb-4">
-			<div class="card-header bg-primary text-white">
-				<h1 class="card-title mb-0">{peresc.nombre_normalizado || 'Persona Esclavizada'}</h1>
+		<div class="detailwrap">
+			<div class="detail">
+				<h3>ID</h3>
+				<div class="detail-bottom"><p>{peresc.persona_idno}</p></div>
 			</div>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6">
-						<p><strong><i class="bi bi-fingerprint me-2"></i>ID:</strong> {peresc.persona_idno}</p>
-						<p>
-							<strong><i class="bi bi-person me-2"></i>Nombres:</strong>
-							{peresc.nombres || 'No disponible'}
-						</p>
-						<p>
-							<strong><i class="bi bi-person-badge me-2"></i>Apellidos:</strong>
-							{peresc.apellidos || 'No disponible'}
-						</p>
-						<p>{#if peresc.sexo}
-							<strong><i class="bi bi-gender-ambiguous me-2"></i>Sexo:</strong>
-								{peresc.sexo || 'No disponible'}
-							{/if}
-						</p>
-						<p>{#if peresc.edad}
-							<strong><i class="bi bi-calendar-event me-2"></i>Edad:</strong>
-								{peresc.edad}
-								{peresc.unidad_temporal_edad || 'años'}
-							{/if}
-						</p>
-					</div>
-					<div class="col-md-6">
-						<p>{#if peresc.etnonimos}
-							<strong><i class="bi bi-globe me-2"></i>Etnónimos:</strong>
-								{peresc.etnonimos.join(', ') || 'No disponible'}
-							{/if}
-						</p>
-						<p>{#if peresc.hispanizacion}
-							<strong><i class="bi bi-translate me-2"></i>Agencia / Adaptación:</strong>
-								{peresc.hispanizacion || 'No disponible'}
-							{/if}
-
-						</p>
-						<p>{#if peresc.marcas_corporales}
-							<strong><i class="bi bi-body-text me-2"></i>Marcas corporales:</strong>
-								{peresc.marcas_corporales || 'No disponible'}
-							{/if}
-						</p>
-						<p>{#if peresc.salud}
-							<strong><i class="bi bi-heart-pulse me-2"></i>Salud:</strong>
-								{peresc.salud || 'No disponible'}
-							{/if}
-						</p>
-						<p>{#if peresc.conducta}
-							<strong><i class="bi bi-person-lines-fill me-2"></i>Conducta:</strong>
-								{peresc.conducta || 'No disponible'}
-							{/if}
-						</p>
-					</div>
-				</div>
+			<div class="detail">
+				<h3>Nombres</h3>
+				<div class="detail-bottom"><p>{peresc.nombres || 'No disponible'}</p></div>
 			</div>
+			<div class="detail">
+				<h3>Apellidos</h3>
+				<div class="detail-bottom"><p>{peresc.apellidos || 'No disponible'}</p></div>
+			</div>
+			{#if peresc.sexo}
+			<div class="detail">
+				<h3>Sexo</h3>
+				<div class="detail-bottom"><p>{peresc.sexo}</p></div>
+			</div>
+			{/if}
+			{#if peresc.edad}
+			<div class="detail">
+				<h3>Edad</h3>
+				<div class="detail-bottom"><p>{peresc.edad} {peresc.unidad_temporal_edad || 'años'}</p></div>
+			</div>
+			{/if}
+			{#if peresc.etnonimos}
+			<div class="detail">
+				<h3>Etnónimos</h3>
+				<div class="detail-bottom"><p>{peresc.etnonimos.join(', ')}</p></div>
+			</div>
+			{/if}
+			{#if peresc.hispanizacion}
+			<div class="detail">
+				<h3>Agencia / Adaptación</h3>
+				<div class="detail-bottom"><p>{peresc.hispanizacion}</p></div>
+			</div>
+			{/if}
+			{#if peresc.marcas_corporales}
+			<div class="detail">
+				<h3>Marcas corporales</h3>
+				<div class="detail-bottom"><p>{peresc.marcas_corporales}</p></div>
+			</div>
+			{/if}
+			{#if peresc.salud}
+			<div class="detail">
+				<h3>Salud</h3>
+				<div class="detail-bottom"><p>{peresc.salud}</p></div>
+			</div>
+			{/if}
+			{#if peresc.conducta}
+			<div class="detail">
+				<h3>Conducta</h3>
+				<div class="detail-bottom"><p>{peresc.conducta}</p></div>
+			</div>
+			{/if}
 		</div>
 
 		<!-- Relations Network -->
@@ -593,6 +591,67 @@
 </div>
 
 <style>
+	/* enslaved.org-style detail blocks */
+	.entity-banner {
+		padding: 1.5rem 0 1rem;
+		border-bottom: 3px solid;
+		margin-bottom: 1.5rem;
+	}
+
+	.entity-banner.persona-esclavizada {
+		border-color: #c0392b;
+	}
+
+	.entity-banner h1 {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin: 0 0 0.25rem;
+		color: #2c3e50;
+	}
+
+	.entity-banner .entity-type {
+		font-size: 0.85rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #7f8c8d;
+		font-weight: 600;
+	}
+
+	.detailwrap {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0;
+		margin-bottom: 2rem;
+	}
+
+	.detailwrap .detail {
+		flex: 1 1 200px;
+		max-width: 100%;
+		padding: 0.75rem 1rem;
+		border-bottom: 1px solid #e9ecef;
+	}
+
+	.detailwrap .detail h3 {
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: #7f8c8d;
+		font-weight: 600;
+		margin: 0 0 0.35rem;
+	}
+
+	.detailwrap .detail .detail-bottom {
+		margin: 0;
+	}
+
+	.detailwrap .detail .detail-bottom p {
+		margin: 0;
+		font-size: 1rem;
+		color: #2c3e50;
+		line-height: 1.4;
+	}
+
+	/* Network & map cards */
 	.color-legend-mini {
 		display: inline-block;
 		width: 12px;
