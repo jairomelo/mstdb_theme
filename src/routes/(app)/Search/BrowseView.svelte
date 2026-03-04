@@ -196,13 +196,13 @@
     .nav-tabs .nav-link {
         font-size: 0.85rem;
         padding: 0.5rem 0.75rem;
-        color: #555;
+        color: #212529;
         cursor: pointer;
         border: 1px solid transparent;
     }
     .nav-tabs .nav-link.active {
         font-weight: 600;
-        color: #212529;
+        color: #000;
         background-color: #f8f9fa;
         border-color: #dee2e6 #dee2e6 #f8f9fa;
     }
