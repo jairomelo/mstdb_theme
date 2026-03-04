@@ -175,28 +175,7 @@
 		<BrowseView />
 	{:else}
 		<!-- ═══ SEARCH MODE ═══ -->
-		<!-- Entity type tabs -->
-		<ul class="nav nav-tabs mb-0 border-bottom-0 browse-view justify-content-end">
-			{#each searchEntityTypes as et}
-				{@const cfg = entityTabConfig[et]}
-				{@const count = typeCounts[et] || 0}
-				<li class="nav-item">
-					<button
-						class="nav-link d-flex align-items-center gap-1"
-						class:active={searchActiveTab === et}
-						on:click={() => handleSearchTabClick(et)}
-					>
-						<i class="bi {cfg.icon}"></i>
-						<span class="d-none d-md-inline">{cfg.label}</span>
-						{#if count > 0}
-							<span class="badge bg-secondary ms-1">{count.toLocaleString()}</span>
-						{/if}
-					</button>
-				</li>
-			{/each}
-		</ul>
-
-		<!-- Main content: sidebar + results -->
+		<!-- Sidebar + Content layout (same as browse mode) -->
 		<div class="row">
 			<!-- Sidebar -->
 			<div class="col-lg-3">
@@ -205,82 +184,94 @@
 				{/if}
 			</div>
 
-			<!-- Results -->
+			<!-- Main content area -->
 			<div class="col-lg-9">
-			{#if $searchResultsStore.isLoading}
-				<div class="alert alert-info">
-					<i class="bi bi-hourglass-split me-2"></i> Cargando...
-				</div>
-			{:else if $searchResultsStore.error}
-				<div class="alert alert-danger">
-					<i class="bi bi-exclamation-triangle me-2"></i>
-					{$searchResultsStore.error}
-				</div>
-			{/if}
+				<!-- Entity type tabs -->
+				<ul class="nav nav-tabs mb-0 border-bottom-0 browse-view">
+					{#each searchEntityTypes as et}
+						{@const cfg = entityTabConfig[et]}
+						{@const count = typeCounts[et] || 0}
+						<li class="nav-item">
+							<button
+								class="nav-link d-flex align-items-center gap-1"
+								class:active={searchActiveTab === et}
+								on:click={() => handleSearchTabClick(et)}
+							>
+								<i class="bi {cfg.icon}"></i>
+								<span class="d-none d-md-inline">{cfg.label}</span>
+								{#if count > 0}
+									<span class="badge bg-secondary ms-1">{count.toLocaleString()}</span>
+								{/if}
+							</button>
+						</li>
+					{/each}
+				</ul>
 
-			{#if $searchResultsStore.totalResults > 0}
-				<!-- Results summary -->
-				<p class="text-muted mb-2">
-					<small>{$searchResultsStore.totalResults} resultados encontrados</small>
-				</p>
+				<!-- Control bar -->
+				<div class="browse-controls d-flex flex-wrap align-items-center gap-2 p-2 bg-light border rounded-bottom mb-3">
+					<!-- Results count -->
+					<span class="small text-muted">
+						{#if $searchResultsStore.isLoading}
+							<i class="bi bi-hourglass-split"></i> Cargando...
+						{:else}
+							{$searchResultsStore.totalResults || 0} resultados encontrados
+						{/if}
+					</span>
 
-				<!-- Pagination controls -->
-				<div class="pagination-controls">
-					<div class="navigation-group">
-						<button 
-							class="nav-button" 
-							disabled={!previousPage}
-							on:click={loadPreviousPage}
-						>
-							<i class="bi bi-chevron-left"></i>
-						</button>
-				
-						<div class="page-input-wrapper">
-							<input
-								type="number"
-								bind:value={desiredPage}
-								min="1"
-								max={$searchResultsStore.totalPages}
-								class="page-input"
-								placeholder={currentPage.toString()}
-								aria-label="Ir a página"
-							/>
-							<span class="page-total">de {totalPages}</span>
-							<button on:click={goToPage} class="jump-button">
-								<i class="bi bi-arrow-right"></i>
+					<!-- Pagination -->
+					{#if $searchResultsStore.totalResults > 0}
+						<div class="ms-auto d-flex align-items-center gap-1">
+							<button class="btn btn-sm btn-outline-secondary" disabled={!previousPage} on:click={loadPreviousPage}>
+								<i class="bi bi-chevron-left"></i>
+							</button>
+							<div class="input-group input-group-sm" style="width: 140px;">
+								<input type="number" class="form-control" bind:value={desiredPage}
+									min="1" max={$searchResultsStore.totalPages}
+									placeholder={currentPage.toString()} aria-label="Ir a página" />
+								<span class="input-group-text small">de {totalPages}</span>
+								<button class="btn btn-outline-secondary" on:click={goToPage}>
+									<i class="bi bi-arrow-right"></i>
+								</button>
+							</div>
+							<button class="btn btn-sm btn-outline-secondary" disabled={!nextPage} on:click={loadNextPage}>
+								<i class="bi bi-chevron-right"></i>
 							</button>
 						</div>
-				
-						<button 
-							class="nav-button"
-							disabled={!nextPage}
-							on:click={loadNextPage}
-						>
-							<i class="bi bi-chevron-right"></i>
-						</button>
-					</div>
+					{/if}
 				</div>
 
-				<!-- Result list -->
-				<div class="list-group mb-4">
-					{#each $searchResultsStore.results as item}
-					  {#if componentMap[item.type]}
-						<svelte:component
-						  this={componentMap[item.type]}
-						  {item}
-						  iconClass={getFilterConfigByValue(item.type)?.icon}
-						/>
-					  {/if}
-					{/each}
-				</div>
-			{:else if query && !$searchResultsStore.isLoading}
-				<div class="alert alert-info mt-4">
-					<i class="bi bi-info-circle me-2"></i> No se encontraron resultados para <em>{query}</em>.
-					Intente con otros términos o ajuste los filtros.
-				</div>
-			{/if}
+				{#if $searchResultsStore.isLoading}
+					<div class="alert alert-info">
+						<i class="bi bi-hourglass-split me-2"></i> Cargando...
+					</div>
+				{:else if $searchResultsStore.error}
+					<div class="alert alert-danger">
+						<i class="bi bi-exclamation-triangle me-2"></i>
+						{$searchResultsStore.error}
+					</div>
+				{/if}
+
+				{#if $searchResultsStore.totalResults > 0}
+					<!-- Result list -->
+					<div class="list-group mb-4">
+						{#each $searchResultsStore.results as item}
+						{#if componentMap[item.type]}
+							<svelte:component
+							this={componentMap[item.type]}
+							{item}
+							iconClass={getFilterConfigByValue(item.type)?.icon}
+							/>
+						{/if}
+						{/each}
+					</div>
+				{:else if query && !$searchResultsStore.isLoading}
+					<div class="alert alert-info mt-4">
+						<i class="bi bi-info-circle me-2"></i> No se encontraron resultados para <em>{query}</em>.
+						Intente con otros términos o ajuste los filtros.
+					</div>
+				{/if}
+			</div>
 		</div>
-	</div>
 	{/if}
 </div>
 
