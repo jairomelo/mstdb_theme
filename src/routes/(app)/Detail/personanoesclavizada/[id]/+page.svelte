@@ -391,18 +391,26 @@
 							<strong><i class="bi bi-person me-2"></i>Nombres:</strong>
 							{pernoesc.nombres || 'No disponible'}
 						</p>
-						<p>
+						<p>{#if pernoesc.apellidos}
 							<strong><i class="bi bi-person-badge me-2"></i>Apellidos:</strong>
 							{pernoesc.apellidos || 'No disponible'}
+							{/if}
 						</p>
-						<p>
+						<p>{#if pernoesc.sexo}
 							<strong><i class="bi bi-gender-ambiguous me-2"></i>Sexo:</strong>
-							{pernoesc.sexo || 'No disponible'}
+							{pernoesc.sexo || ''}
+							{/if}
 						</p>
-						<p>
+						<p>{#if pernoesc.edad}
 							<strong><i class="bi bi-calendar-event me-2"></i>Edad:</strong>
 							{pernoesc.edad}
-							{pernoesc.unidad_temporal_edad || 'años'}
+							{pernoesc.unidad_temporal_edad || ''}
+							{/if}
+						</p>
+						<p>{#if pernoesc.estado_civil}
+							<strong><i class="bi bi-people-fill me-2"></i>Estado Matrimonial:</strong>
+							{pernoesc.estado_civil}
+							{/if}
 						</p>
 					</div>
 				</div>

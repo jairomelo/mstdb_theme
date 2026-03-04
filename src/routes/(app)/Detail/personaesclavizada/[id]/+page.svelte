@@ -456,6 +456,11 @@
 								{peresc.marcas_corporales || 'No disponible'}
 							{/if}
 						</p>
+						<p>{#if peresc.estado_civil}
+							<strong><i class="bi bi-people-fill me-2"></i>Estado Matrimonial:</strong>
+							{peresc.estado_civil}
+							{/if}
+						</p>
 						<p>{#if peresc.salud}
 							<strong><i class="bi bi-heart-pulse me-2"></i>Salud:</strong>
 								{peresc.salud || 'No disponible'}
