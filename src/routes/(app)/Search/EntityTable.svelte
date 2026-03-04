@@ -68,34 +68,4 @@
     </table>
 </div>
 
-<style>
-    .table-responsive {
-        max-height: 65vh;
-        overflow-y: auto;
-    }
-    thead.sticky-top th {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-        background-color: #f8f9fa;
-    }
-    th.sortable:hover {
-        background-color: #e9ecef;
-    }
-    th.sorted {
-        color: var(--bs-primary);
-    }
-    .browse-row {
-        cursor: pointer;
-    }
-    .browse-row:hover {
-        background-color: rgba(var(--bs-primary-rgb), 0.05) !important;
-    }
-    td {
-        font-size: 0.875rem;
-        max-width: 250px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-</style>
+

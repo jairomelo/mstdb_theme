@@ -54,6 +54,7 @@
     }
 </script>
 
+<div class="browse-view">
 <!-- Entity type tabs -->
 <ul class="nav nav-tabs mb-0 border-bottom-0">
     {#each ENTITY_TYPES as entityType}
@@ -191,26 +192,4 @@
 {#if showColumnConfig}
     <ColumnConfigModal entityType={activeTab} on:close={() => showColumnConfig = false} />
 {/if}
-
-<style>
-    .nav-tabs .nav-link {
-        font-size: 0.85rem;
-        padding: 0.5rem 0.75rem;
-        color: #212529;
-        cursor: pointer;
-        border: 1px solid transparent;
-    }
-    .nav-tabs .nav-link.active {
-        font-weight: 600;
-        color: #000;
-        background-color: #f8f9fa;
-        border-color: #dee2e6 #dee2e6 #f8f9fa;
-    }
-    .nav-tabs .nav-link:hover:not(.active) {
-        border-color: #e2e6ea #e2e6ea #dee2e6;
-    }
-    .badge {
-        font-size: 0.7rem;
-        font-weight: 500;
-    }
-</style>
+</div>

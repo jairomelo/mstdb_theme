@@ -19,6 +19,7 @@
     }
 </script>
 
+<div class="browse-column-modal">
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="modal-backdrop show" on:click={handleClose}></div>
@@ -51,18 +52,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .modal-backdrop {
-        opacity: 0.3;
-    }
-    .modal {
-        background: transparent;
-    }
-    .list-group-item {
-        cursor: pointer;
-    }
-    .list-group-item:hover {
-        background-color: #f0f0f0;
-    }
-</style>
+</div>

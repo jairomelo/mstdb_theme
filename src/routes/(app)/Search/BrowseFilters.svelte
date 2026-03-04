@@ -103,9 +103,4 @@
     {/if}
 </div>
 
-<style>
-    .filter-panel {
-        border-top: none !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-</style>
+
