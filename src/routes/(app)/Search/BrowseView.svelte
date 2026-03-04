@@ -56,80 +56,6 @@
 
 <div class="browse-view">
 <!-- Entity type tabs -->
-<ul class="nav nav-tabs mb-0 border-bottom-0">
-    {#each ENTITY_TYPES as entityType}
-        {@const cfg = entityTabConfig[entityType]}
-        <li class="nav-item">
-            <button
-                class="nav-link d-flex align-items-center gap-1"
-                class:active={activeTab === entityType}
-                on:click={() => handleTabClick(entityType)}
-            >
-                <i class="bi {cfg.icon}"></i>
-                <span class="d-none d-md-inline">{cfg.label}</span>
-                {#if counts[entityType] !== undefined}
-                    <span class="badge bg-secondary ms-1">{counts[entityType].toLocaleString()}</span>
-                {/if}
-            </button>
-        </li>
-    {/each}
-</ul>
-
-<!-- Control bar -->
-<div class="browse-controls d-flex flex-wrap align-items-center gap-2 p-2 bg-light border rounded-bottom mb-3">
-    <!-- View toggle -->
-    <div class="btn-group btn-group-sm" role="group">
-        <button
-            class="btn"
-            class:btn-primary={viewMode === 'table'}
-            class:btn-outline-secondary={viewMode !== 'table'}
-            on:click={() => setViewMode('table')}
-            title="Vista de tabla"
-        >
-            <i class="bi bi-table"></i>
-        </button>
-        <button
-            class="btn"
-            class:btn-primary={viewMode === 'card'}
-            class:btn-outline-secondary={viewMode !== 'card'}
-            on:click={() => setViewMode('card')}
-            title="Vista de tarjetas"
-        >
-            <i class="bi bi-grid-3x3-gap"></i>
-        </button>
-    </div>
-
-    <!-- Page size -->
-    <div class="d-flex align-items-center gap-1">
-        <label for="pageSize" class="form-label mb-0 small text-muted">Mostrar</label>
-        <select id="pageSize" class="form-select form-select-sm" style="width: auto;" value={tab?.pageSize} on:change={handlePageSizeChange}>
-            {#each PAGE_SIZES as size}
-                <option value={size}>{size}</option>
-            {/each}
-        </select>
-    </div>
-
-    <!-- Column config button (table mode only) -->
-    {#if viewMode === 'table'}
-        <button class="btn btn-sm btn-outline-secondary" on:click={() => showColumnConfig = true}>
-            <i class="bi bi-columns me-1"></i>Columnas
-        </button>
-    {/if}
-
-    <!-- Export CSV -->
-    <button class="btn btn-sm btn-outline-secondary" on:click={handleExport}>
-        <i class="bi bi-download me-1"></i>CSV
-    </button>
-
-    <!-- Results count -->
-    <span class="ms-auto small text-muted">
-        {#if tab?.isLoading}
-            <i class="bi bi-hourglass-split"></i> Cargando...
-        {:else}
-            {tab?.totalResults?.toLocaleString() || 0} resultados
-        {/if}
-    </span>
-</div>
 
 <!-- Sidebar + Content layout (same as search mode) -->
 <div class="row">
@@ -140,6 +66,83 @@
 
     <!-- Main content area -->
     <div class="col-lg-9">
+
+        <ul class="nav nav-tabs mb-0 border-bottom-0">
+            {#each ENTITY_TYPES as entityType}
+                {@const cfg = entityTabConfig[entityType]}
+                <li class="nav-item">
+                    <button
+                        class="nav-link d-flex align-items-center gap-1"
+                        class:active={activeTab === entityType}
+                        on:click={() => handleTabClick(entityType)}
+                    >
+                        <i class="bi {cfg.icon}"></i>
+                        <span class="d-none d-md-inline">{cfg.label}</span>
+                        {#if counts[entityType] !== undefined}
+                            <span class="badge bg-secondary ms-1">{counts[entityType].toLocaleString()}</span>
+                        {/if}
+                    </button>
+                </li>
+            {/each}
+        </ul>
+
+        <!-- Control bar -->
+        <div class="browse-controls d-flex flex-wrap align-items-center gap-2 p-2 bg-light border rounded-bottom mb-3">
+            <!-- View toggle -->
+            <div class="btn-group btn-group-sm" role="group">
+                <button
+                    class="btn"
+                    class:btn-primary={viewMode === 'table'}
+                    class:btn-outline-secondary={viewMode !== 'table'}
+                    on:click={() => setViewMode('table')}
+                    title="Vista de tabla"
+                >
+                    <i class="bi bi-table"></i>
+                </button>
+                <button
+                    class="btn"
+                    class:btn-primary={viewMode === 'card'}
+                    class:btn-outline-secondary={viewMode !== 'card'}
+                    on:click={() => setViewMode('card')}
+                    title="Vista de tarjetas"
+                >
+                    <i class="bi bi-grid-3x3-gap"></i>
+                </button>
+            </div>
+
+            <!-- Page size -->
+            <div class="d-flex align-items-center gap-1">
+                <label for="pageSize" class="form-label mb-0 small text-muted">Mostrar</label>
+                <select id="pageSize" class="form-select form-select-sm" style="width: auto;" value={tab?.pageSize} on:change={handlePageSizeChange}>
+                    {#each PAGE_SIZES as size}
+                        <option value={size}>{size}</option>
+                    {/each}
+                </select>
+            </div>
+
+            <!-- Column config button (table mode only) -->
+            {#if viewMode === 'table'}
+                <button class="btn btn-sm btn-outline-secondary" on:click={() => showColumnConfig = true}>
+                    <i class="bi bi-columns me-1"></i>Columnas
+                </button>
+            {/if}
+
+            <!-- Export CSV -->
+            <button class="btn btn-sm btn-outline-secondary" on:click={handleExport}>
+                <i class="bi bi-download me-1"></i>CSV
+            </button>
+
+            <!-- Results count -->
+            <span class="ms-auto small text-muted">
+                {#if tab?.isLoading}
+                    <i class="bi bi-hourglass-split"></i> Cargando...
+                {:else}
+                    {tab?.totalResults?.toLocaleString() || 0} resultados
+                {/if}
+            </span>
+        </div>
+
+
         {#if tab?.error}
             <div class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle me-2"></i>{tab.error}
