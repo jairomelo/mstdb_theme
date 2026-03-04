@@ -131,62 +131,69 @@
     </span>
 </div>
 
-<!-- Advanced filters -->
-<BrowseFilters entityType={activeTab} />
-
-<!-- Content area -->
-{#if tab?.error}
-    <div class="alert alert-danger">
-        <i class="bi bi-exclamation-triangle me-2"></i>{tab.error}
+<!-- Sidebar + Content layout (same as search mode) -->
+<div class="row">
+    <!-- Sidebar filters -->
+    <div class="col-lg-3">
+        <BrowseFilters entityType={activeTab} />
     </div>
-{/if}
 
-{#if tab?.isLoading}
-    <div class="text-center py-4">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
+    <!-- Main content area -->
+    <div class="col-lg-9">
+        {#if tab?.error}
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>{tab.error}
+            </div>
+        {/if}
+
+        {#if tab?.isLoading}
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        {:else if tab?.results?.length > 0}
+            {#if viewMode === 'table'}
+                <EntityTable entityType={activeTab} results={tab.results} />
+            {:else}
+                <BrowseCards entityType={activeTab} results={tab.results} />
+            {/if}
+
+            <!-- Pagination -->
+            <nav class="d-flex justify-content-center align-items-center gap-2 my-3" aria-label="Paginación">
+                <button class="btn btn-sm btn-outline-secondary" disabled={tab.currentPage <= 1} on:click={goFirst}>
+                    <i class="bi bi-chevron-double-left"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" disabled={tab.currentPage <= 1} on:click={goPrev}>
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+
+                <span class="small text-muted">
+                    Página {tab.currentPage} de {totalPages}
+                </span>
+
+                <button class="btn btn-sm btn-outline-secondary" disabled={tab.currentPage >= totalPages} on:click={goNext}>
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" disabled={tab.currentPage >= totalPages} on:click={goLast}>
+                    <i class="bi bi-chevron-double-right"></i>
+                </button>
+
+                <div class="input-group input-group-sm" style="width: 140px;">
+                    <input type="number" class="form-control" bind:value={desiredPage}
+                        min="1" max={totalPages} placeholder="Ir a..." />
+                    <button class="btn btn-outline-secondary" on:click={goToPage}>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </nav>
+        {:else if !tab?.isLoading}
+            <div class="alert alert-info mt-3">
+                <i class="bi bi-info-circle me-2"></i>No se encontraron resultados. Intente ajustar los filtros.
+            </div>
+        {/if}
     </div>
-{:else if tab?.results?.length > 0}
-    {#if viewMode === 'table'}
-        <EntityTable entityType={activeTab} results={tab.results} />
-    {:else}
-        <BrowseCards entityType={activeTab} results={tab.results} />
-    {/if}
-
-    <!-- Pagination -->
-    <nav class="d-flex justify-content-center align-items-center gap-2 my-3" aria-label="Paginación">
-        <button class="btn btn-sm btn-outline-secondary" disabled={tab.currentPage <= 1} on:click={goFirst}>
-            <i class="bi bi-chevron-double-left"></i>
-        </button>
-        <button class="btn btn-sm btn-outline-secondary" disabled={tab.currentPage <= 1} on:click={goPrev}>
-            <i class="bi bi-chevron-left"></i>
-        </button>
-
-        <span class="small text-muted">
-            Página {tab.currentPage} de {totalPages}
-        </span>
-
-        <button class="btn btn-sm btn-outline-secondary" disabled={tab.currentPage >= totalPages} on:click={goNext}>
-            <i class="bi bi-chevron-right"></i>
-        </button>
-        <button class="btn btn-sm btn-outline-secondary" disabled={tab.currentPage >= totalPages} on:click={goLast}>
-            <i class="bi bi-chevron-double-right"></i>
-        </button>
-
-        <div class="input-group input-group-sm" style="width: 140px;">
-            <input type="number" class="form-control" bind:value={desiredPage}
-                min="1" max={totalPages} placeholder="Ir a..." />
-            <button class="btn btn-outline-secondary" on:click={goToPage}>
-                <i class="bi bi-arrow-right"></i>
-            </button>
-        </div>
-    </nav>
-{:else if !tab?.isLoading}
-    <div class="alert alert-info mt-3">
-        <i class="bi bi-info-circle me-2"></i>No se encontraron resultados. Intente ajustar los filtros.
-    </div>
-{/if}
+</div>
 
 <!-- Column config modal -->
 {#if showColumnConfig}

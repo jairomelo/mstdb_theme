@@ -1207,6 +1207,74 @@ p, ol, ul, li {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+/* ── Facet sidebar (shared by search & browse) ── */
+.facet-sidebar {
+  font-size: 0.875rem;
+  border-right: 1px solid #dee2e6;
+  padding-right: 1rem;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  position: sticky;
+  top: 100px;
+}
+.facet-section {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.facet-section-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.4rem 0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+.facet-section-header:hover {
+  color: var(--bs-primary, #8B4513);
+}
+.facet-options {
+  padding-left: 0.25rem;
+}
+.facet-option {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: #444;
+}
+.facet-option:hover {
+  color: #000;
+}
+.facet-option input[type="checkbox"],
+.facet-option input[type="radio"] {
+  flex-shrink: 0;
+  margin: 0;
+}
+.facet-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.facet-count {
+  flex-shrink: 0;
+  color: #888;
+  font-size: 0.75rem;
+}
+.date-tree .tree-decade {
+  border-left: 1px solid #ddd;
+  padding-left: 0.5rem;
+}
+
 /* Column config modal */
 .browse-column-modal .modal-backdrop {
   opacity: 0.3;
