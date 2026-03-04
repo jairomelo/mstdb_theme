@@ -49,8 +49,11 @@ export const searchResultsStore = writable({ ...initialState });
 
 // ── Public API ───────────────────────────────────────────────────────
 
-export async function initializeSearch(query, sort = '') {
+export async function initializeSearch(query, sort = '', initialFilterOverrides = {}) {
     resetFilters();
+    if (Object.keys(initialFilterOverrides).length > 0) {
+        activeFilters.update(f => ({ ...f, ...initialFilterOverrides }));
+    }
     await fetchResults(null, query, sort);
     searchResultsStore.update(store => ({
         ...store,

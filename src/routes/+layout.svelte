@@ -52,6 +52,12 @@
 
 					<ul class="navbar-nav me-2">
 						<li class="nav-item">
+							<a class="nav-link" href="/Archivos/">Archivos</a>
+						</li>
+					</ul>
+
+					<ul class="navbar-nav me-2">
+						<li class="nav-item">
 							<a class="nav-link" href="/About/">Acerca de</a>
 						</li>
 					</ul>

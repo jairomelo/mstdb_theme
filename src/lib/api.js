@@ -163,6 +163,9 @@ export const personasescfull = (params) => {
     return fetchWithBaseUrl(`personas-esclavizadas/?${querystring}`);
 };
 
+// Archivo list (with documento_count)
+export const archivos = () => fetchWithBaseUrl('archivos/');
+
 // Detail endpoints
 export const documentos = (params) => fetchWithBaseUrl(`documentos/${params}/`);
 export const peresclavizadas = (params) => fetchWithBaseUrl(`personas-esclavizadas/${params}/`);

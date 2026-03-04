@@ -16,7 +16,7 @@
   
 	// define variables
 	export let data;
-	let { searchQuery } = data;
+	let { searchQuery, archivoId } = data;
 	let query = searchQuery;
 	let exactSearch = searchQuery?.startsWith('"') && searchQuery?.endsWith('"');
 	let desiredPage = '';
@@ -29,8 +29,12 @@
 	$: totalPages = $searchResultsStore.totalPages;
   
 	onMount(() => {
-	  if (query) {
-		initializeSearch(query, currentSort);
+	  const initialFilters = {};
+	  if (archivoId) {
+		initialFilters.archivo_id = archivoId.split(',').map(Number);
+	  }
+	  if (query || Object.keys(initialFilters).length > 0) {
+		initializeSearch(query, currentSort, initialFilters);
 		searchPerformed = true;
 	  }
 	});
