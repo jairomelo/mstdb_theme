@@ -469,47 +469,12 @@
 			{/if}
 		</div>
 
-		<!-- Relations Network -->
-		{#if peresc.relaciones && peresc.relaciones.length > 0}
-			<div class="card mb-4">
-				<div class="card-header bg-info text-white">
-					<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones</h2>
-					<small class="text-white-50">Haz clic en un nodo para ver los detalles de esa persona</small>
-				</div>
-				<div class="card-body">
-					<div id="relations-network" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
-				</div>
-				<div class="card-footer">
-					<div class="row text-center">
-						<div class="col-md-4">
-							<small class="text-muted">
-								<div class="color-legend-mini enslaved me-1"></div>
-								Esclavizada
-							</small>
-						</div>
-						<div class="col-md-4">
-							<small class="text-muted">
-								<div class="color-legend-mini non-enslaved me-1"></div>
-								No esclavizada
-							</small>
-						</div>
-						<div class="col-md-4">
-							<small class="text-muted">
-								<div class="color-legend-mini current me-1"></div>
-								Persona actual
-							</small>
-						</div>
-					</div>
-				</div>
-			</div>
-		{/if}
-
 		<!-- Places Map -->
 		{#if peresc.lugares && peresc.lugares.length > 0}
 			<div class="card mb-4">
 				<div class="card-header bg-success text-white">
-					<h2 class="card-title h5 mb-0"><i class="bi bi-geo-alt me-2"></i>Lugares relacionados</h2>
-					<small class="text-white-50">Mapa interactivo mostrando ubicaciones y trayectorias</small>
+					<h2 class="card-title h5 mb-0"><i class="bi bi-geo-alt me-2"></i>Trayectoria</h2>
+					<small class="text-white-50">Lugares conocidos y trayectoria de la persona</small>
 				</div>
 				<div class="card-body">
 					<div id="places-map" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
@@ -538,6 +503,41 @@
 							<small class="text-muted">
 								<div class="trajectory-legend me-1"></div>
 								Trayectoria
+							</small>
+						</div>
+					</div>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Relations Network -->
+		{#if peresc.relaciones && peresc.relaciones.length > 0}
+			<div class="card mb-4">
+				<div class="card-header bg-info text-white">
+					<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones</h2>
+					<small class="text-white-50">Haz clic en un nodo para ver los detalles de esa persona</small>
+				</div>
+				<div class="card-body">
+					<div id="relations-network" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
+				</div>
+				<div class="card-footer">
+					<div class="row text-center">
+						<div class="col-md-4">
+							<small class="text-muted">
+								<div class="color-legend-mini enslaved me-1"></div>
+								Esclavizada
+							</small>
+						</div>
+						<div class="col-md-4">
+							<small class="text-muted">
+								<div class="color-legend-mini non-enslaved me-1"></div>
+								No esclavizada
+							</small>
+						</div>
+						<div class="col-md-4">
+							<small class="text-muted">
+								<div class="color-legend-mini current me-1"></div>
+								Persona actual
 							</small>
 						</div>
 					</div>
