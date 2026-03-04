@@ -13,6 +13,7 @@
 	import CorporacionesCard from './cards/CorporacionesCard.svelte';
 	import LugaresCard from './cards/LugaresCard.svelte';
 	import FacetSidebar from './FacetSidebar.svelte';
+	import BrowseView from './BrowseView.svelte';
   
 	// define variables
 	export let data;
@@ -23,6 +24,9 @@
 	let currentSort = '';
 	let searchPerformed = false;
   
+	// Mode: 'browse' when no query, 'search' when query exists
+	$: mode = (searchPerformed && query) ? 'search' : 'browse';
+
 	$: previousPage = $searchResultsStore.previousPage;
 	$: nextPage = $searchResultsStore.nextPage;
 	$: currentPage = $searchResultsStore.currentPage;
@@ -40,9 +44,19 @@
 	});
   
 	function handleSearch() {
+		if (!query || query.trim() === '') {
+			// Empty query → switch to browse mode
+			searchPerformed = false;
+			return;
+		}
 		searchPerformed = true;
 		const searchQuery = exactSearch ? `"${query.replace(/^"|"$/g, '')}"` : query.replace(/^"|"$/g, '');
 		fetchResults(null, searchQuery, currentSort);
+	}
+
+	function clearSearch() {
+		query = '';
+		searchPerformed = false;
 	}
 
 	function onFilterChange() {
@@ -94,20 +108,32 @@
 <div class="container-fluid mt-4 px-4">
 	<!-- Search bar row (full width) -->
 	<div class="row mb-3">
-		<div class="col-lg-8 offset-lg-3">
+		<div class="col-lg-8 offset-lg-2">
 			<form on:submit|preventDefault={handleSearch} class="search-form">
 				<div class="input-group mb-2">
 					<input
 						bind:value={query}
 						class="form-control"
-						placeholder="Buscar..."
+						placeholder="Buscar en la base de datos..."
 						aria-label="Buscar"
 					/>
+					{#if query}
+						<button type="button" class="btn btn-outline-secondary" on:click={clearSearch} title="Limpiar búsqueda">
+							<i class="bi bi-x-lg"></i>
+						</button>
+					{/if}
 					<button type="submit" class="btn btn-primary">
 						<i class="bi bi-search me-1"></i> Buscar
 					</button>
 				</div>
-				<div class="d-flex justify-content-end">
+				<div class="d-flex justify-content-between align-items-center">
+					<div>
+						{#if mode === 'browse'}
+							<small class="text-muted">
+								<i class="bi bi-grid-3x3-gap me-1"></i>Explorando la base de datos
+							</small>
+						{/if}
+					</div>
 					<div class="form-check">
 						<input
 							class="form-check-input"
@@ -128,17 +154,22 @@
 		</div>
 	</div>
 
-	<!-- Main content: sidebar + results -->
-	<div class="row">
-		<!-- Sidebar -->
-		<div class="col-lg-3">
-			{#if searchPerformed}
-				<FacetSidebar on:change={onFilterChange} />
-			{/if}
-		</div>
+	{#if mode === 'browse'}
+		<!-- ═══ BROWSE MODE ═══ -->
+		<BrowseView />
+	{:else}
+		<!-- ═══ SEARCH MODE ═══ -->
+		<!-- Main content: sidebar + results -->
+		<div class="row">
+			<!-- Sidebar -->
+			<div class="col-lg-3">
+				{#if searchPerformed}
+					<FacetSidebar on:change={onFilterChange} />
+				{/if}
+			</div>
 
-		<!-- Results -->
-		<div class="col-lg-9">
+			<!-- Results -->
+			<div class="col-lg-9">
 			{#if $searchResultsStore.isLoading}
 				<div class="alert alert-info">
 					<i class="bi bi-hourglass-split me-2"></i> Cargando...
@@ -147,14 +178,6 @@
 				<div class="alert alert-danger">
 					<i class="bi bi-exclamation-triangle me-2"></i>
 					{$searchResultsStore.error}
-				</div>
-			{/if}
-
-			{#if !query}
-				<div class="alert alert-info mt-4">
-					<i class="bi bi-search me-2"></i> Ingrese un término de búsqueda para comenzar la exploración.
-					Puede buscar documentos, personas, corporaciones o lugares relacionados con la esclavitud en Nueva
-					España.
 				</div>
 			{/if}
 
@@ -221,6 +244,7 @@
 			{/if}
 		</div>
 	</div>
+	{/if}
 </div>
 
 <style>

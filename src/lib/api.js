@@ -149,6 +149,38 @@ export const searchAll = (params) => {
 };
 
 // Browse endpoints
+
+const ENTITY_ENDPOINT_MAP = {
+    personaesclavizada: 'personas-esclavizadas',
+    personanoesclavizada: 'personas-no-esclavizadas',
+    documento: 'documentos',
+    lugar: 'lugares',
+    corporacion: 'corporaciones',
+};
+
+export const browseEntities = (entityType, params) => {
+    const endpoint = ENTITY_ENDPOINT_MAP[entityType];
+    if (!endpoint) throw new Error(`Unknown entity type: ${entityType}`);
+
+    const filteredParams = {};
+    for (const key in params) {
+        if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
+            filteredParams[key] = params[key];
+        }
+    }
+    const qs = queryString.stringify(filteredParams);
+    return fetchWithBaseUrl(`${endpoint}/?${qs}`);
+};
+
+export const fetchCounts = () => fetchWithBaseUrl('counts/');
+
+export const exportCsv = (entityType) => {
+    const endpoint = ENTITY_ENDPOINT_MAP[entityType];
+    if (!endpoint) throw new Error(`Unknown entity type: ${entityType}`);
+    // Return the URL for download (opens in new tab)
+    return `${config.apiBaseUrl}${endpoint}/export_csv/`;
+};
+
 export const personasescfull = (params) => {
     // Filter out empty or null parameters
     const filteredParams = {};
