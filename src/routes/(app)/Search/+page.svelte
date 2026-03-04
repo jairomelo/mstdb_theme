@@ -1,10 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
-	import { searchResultsStore, initializeSearch, fetchResults } from '$lib/searchFull-store';
+	import { searchResultsStore, activeFilters, initializeSearch, fetchResults } from '$lib/searchFull-store';
 	import { get } from 'svelte/store';
   
 	// import config files
 	import { getFilterConfigByValue } from '$conf/filters.js';
+	import { entityTabConfig } from '$conf/columns';
   
 	// import components
 	import DocumentCard from './cards/DocumentCard.svelte';
@@ -38,6 +39,7 @@
 		initialFilters.archivo_id = archivoId.split(',').map(Number);
 	  }
 	  if (query || Object.keys(initialFilters).length > 0) {
+		initialFilters.types = [searchActiveTab];
 		initializeSearch(query, currentSort, initialFilters);
 		searchPerformed = true;
 	  }
@@ -50,6 +52,8 @@
 			return;
 		}
 		searchPerformed = true;
+		searchActiveTab = 'personaesclavizada';
+		activeFilters.update(f => ({ ...f, types: ['personaesclavizada'] }));
 		const searchQuery = exactSearch ? `"${query.replace(/^"|"$/g, '')}"` : query.replace(/^"|"$/g, '');
 		fetchResults(null, searchQuery, currentSort);
 	}
@@ -103,6 +107,18 @@
 	  'lugar': LugaresCard,
 	  'documento': DocumentCard
 	};
+
+	// ── Search entity tabs ──────────────────────────
+	const searchEntityTypes = ['personaesclavizada', 'personanoesclavizada', 'documento', 'lugar', 'corporacion'];
+	let searchActiveTab = 'personaesclavizada';
+
+	$: typeCounts = $searchResultsStore.typesCounts || {};
+
+	function handleSearchTabClick(entityType) {
+		searchActiveTab = entityType;
+		activeFilters.update(f => ({ ...f, types: [entityType] }));
+		onFilterChange();
+	}
 </script>
 
 <div class="container-fluid mt-4 px-4">
@@ -159,6 +175,27 @@
 		<BrowseView />
 	{:else}
 		<!-- ═══ SEARCH MODE ═══ -->
+		<!-- Entity type tabs -->
+		<ul class="nav nav-tabs mb-0 border-bottom-0 browse-view">
+			{#each searchEntityTypes as et}
+				{@const cfg = entityTabConfig[et]}
+				{@const count = typeCounts[et] || 0}
+				<li class="nav-item">
+					<button
+						class="nav-link d-flex align-items-center gap-1"
+						class:active={searchActiveTab === et}
+						on:click={() => handleSearchTabClick(et)}
+					>
+						<i class="bi {cfg.icon}"></i>
+						<span class="d-none d-md-inline">{cfg.label}</span>
+						{#if count > 0}
+							<span class="badge bg-secondary ms-1">{count.toLocaleString()}</span>
+						{/if}
+					</button>
+				</li>
+			{/each}
+		</ul>
+
 		<!-- Main content: sidebar + results -->
 		<div class="row">
 			<!-- Sidebar -->
