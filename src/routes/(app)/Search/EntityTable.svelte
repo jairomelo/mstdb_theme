@@ -1,15 +1,15 @@
 <script>
-    import { browseStore, toggleSort } from '$lib/browse-store';
+    import { unifiedStore, toggleSort } from '$lib/unified-store';
     import { columnsConfig, entityIdField, entityTabConfig, renderCellValue } from '$conf/columns';
 
     export let entityType;
     export let results;
 
     $: allColumns = columnsConfig[entityType] || [];
-    $: visibleColumnKeys = $browseStore.tabs[entityType]?.visibleColumns || [];
+    $: visibleColumnKeys = $unifiedStore.tabs[entityType]?.visibleColumns || [];
     $: visibleColumns = allColumns.filter(c => visibleColumnKeys.includes(c.key));
-    $: sortField = $browseStore.tabs[entityType]?.sortField || '';
-    $: sortDir = $browseStore.tabs[entityType]?.sortDir || 'asc';
+    $: sortField = $unifiedStore.tabs[entityType]?.sortField || '';
+    $: sortDir = $unifiedStore.tabs[entityType]?.sortDir || 'asc';
     $: idField = entityIdField[entityType];
     $: detailPath = entityTabConfig[entityType]?.detailPath || '';
 

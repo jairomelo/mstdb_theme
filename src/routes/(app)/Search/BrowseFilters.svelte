@@ -1,11 +1,11 @@
 <script>
-    import { setFilter, clearFilters, browseStore } from '$lib/browse-store';
+    import { setFilter, clearFilters, unifiedStore } from '$lib/unified-store';
     import { filtersDefinition } from '$conf/columns';
 
     export let entityType;
 
     $: filterDefs = filtersDefinition[entityType] || [];
-    $: currentFilters = $browseStore.tabs[entityType]?.filters || {};
+    $: currentFilters = $unifiedStore.tabs[entityType]?.filters || {};
     $: hasActiveFilters = Object.values(currentFilters).some(v => v);
 
     // Track which sections are expanded — first section open by default

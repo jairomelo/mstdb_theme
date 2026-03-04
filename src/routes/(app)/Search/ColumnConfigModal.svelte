@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte';
-    import { browseStore, toggleColumn } from '$lib/browse-store';
+    import { unifiedStore, toggleColumn } from '$lib/unified-store';
     import { columnsConfig } from '$conf/columns';
 
     export let entityType;
@@ -8,7 +8,7 @@
     const dispatch = createEventDispatcher();
 
     $: allColumns = columnsConfig[entityType] || [];
-    $: visibleColumnKeys = $browseStore.tabs[entityType]?.visibleColumns || [];
+    $: visibleColumnKeys = $unifiedStore.tabs[entityType]?.visibleColumns || [];
 
     function handleToggle(key) {
         toggleColumn(entityType, key);
