@@ -176,7 +176,7 @@
 	{:else}
 		<!-- ═══ SEARCH MODE ═══ -->
 		<!-- Entity type tabs -->
-		<ul class="nav nav-tabs mb-0 border-bottom-0 browse-view">
+		<ul class="nav nav-tabs mb-0 border-bottom-0 browse-view justify-content-end">
 			{#each searchEntityTypes as et}
 				{@const cfg = entityTabConfig[et]}
 				{@const count = typeCounts[et] || 0}
