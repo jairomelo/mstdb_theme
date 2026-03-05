@@ -63,7 +63,7 @@
 										<a class="dropdown-item" href="/Archivos/">Archivos</a>
 									</li>
 									<li>
-										<a class="dropdown-item" href="/About/">Acerca de</a>
+										<a class="dropdown-item" href="/About/">Sobre el proyecto</a>
 									</li>
 								</ul>
 						</li>

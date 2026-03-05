@@ -183,7 +183,7 @@
       </div>
       <div class="band-buttons">
         <a href="/Dashboard" class="btn btn-outline-primary me-3">
-          <i class="bi bi-people-fill me-2"></i>Tablero de datos
+          <i class="bi bi-people-fill me-2"></i>Visualizaciones
         </a>
       </div>
     </div>
@@ -235,22 +235,22 @@
     </div>
   </div>
 
-  <!-- Funders Section -->
-  <!-- <div class="funders-band" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
-    <div class="container">
-      <h2 class="funders-title">Financiado por</h2>
-      <div class="funders-grid">
-        <a href="https://www.humanities.uci.edu/routes-enslavement-americas" target="_blank" rel="noopener" class="funder-card">
-          <i class="bi bi-bank2 funder-icon"></i>
-          <span class="funder-name">UC MRPI — Routes of Enslavement in the Americas</span>
-        </a>
-        <a href="https://alianzamx.universityofcalifornia.edu/research-and-innovation/latino-studies-projects/" target="_blank" rel="noopener" class="funder-card">
-          <i class="bi bi-mortarboard funder-icon"></i>
-          <span class="funder-name">UC Alianza MX — Latino Studies Projects</span>
+  <!-- Brother Projects -->
+  <div class="container mt-5">
+    <h2 class="section-title" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">Proyectos Hermanos</h2>
+    <div class="row justify-content-center" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
+      <div class="col-lg-10">
+        <a href="https://memoricamexico.gob.mx/es/memorica/Memorias_afromexicanas" target="_blank" rel="noopener" class="showcase-card">
+          <img src="/media/memorica_afromexicanos.jpg" alt="Memorica – Memorias Afromexicanas" class="showcase-card-img" />
+          <div class="showcase-card-overlay">
+            <span class="showcase-card-badge">Memorica México</span>
+            <h3 class="showcase-card-title">Memorias Afromexicanas</h3>
+            <span class="showcase-card-cta">Visitar <i class="bi bi-arrow-right"></i></span>
+          </div>
         </a>
       </div>
     </div>
-  </div> -->
+  </div>
 </section>
 
 <!-- Footer -->
