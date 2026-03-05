@@ -161,10 +161,27 @@
 <style>
   .about-hero {
     padding: 4rem 0;
-    background-color: var(--text-primary);
+    background-image: url('/media/rutas_project1.webp');
+    background-size: cover;
+    background-position: center;
     color: white;
     border-radius: 8px;
     margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    border-radius: 8px;
+  }
+
+  .about-hero > * {
+    position: relative;
+    z-index: 1;
   }
 
   .divider {

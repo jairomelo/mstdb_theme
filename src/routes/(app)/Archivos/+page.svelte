@@ -175,9 +175,26 @@
   /* Hero */
   .archivos-hero {
     padding: 4rem 0;
-    background-color: var(--text-primary);
+    background-image: url('/media/rutas_project2.webp');
+    background-size: cover;
+    background-position: center;
     color: white;
     border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .archivos-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    border-radius: 8px;
+  }
+
+  .archivos-hero > * {
+    position: relative;
+    z-index: 1;
   }
   .hero-sub {
     color: rgba(255,255,255,0.85);
