@@ -317,4 +317,12 @@
 		color: #666;
 		white-space: nowrap;
 	}
+
+	/* Inactive tab links: muted gray with darker hover */
+	.browse-view .nav-link:not(.active) {
+		color: #999;
+	}
+	.browse-view .nav-link:not(.active):hover {
+		color: #444;
+	}
 </style>
