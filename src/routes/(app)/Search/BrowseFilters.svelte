@@ -1,11 +1,13 @@
 <script>
     import { setFilter, clearFilters, unifiedStore } from '$lib/unified-store';
     import { filtersDefinition } from '$conf/columns';
+    import SearchableSelect from './SearchableSelect.svelte';
 
     export let entityType;
 
     $: filterDefs = filtersDefinition[entityType] || [];
     $: currentFilters = $unifiedStore.tabs[entityType]?.filters || {};
+    $: facets = $unifiedStore.facets || {};
     $: hasActiveFilters = Object.values(currentFilters).some(v => v);
 
     // Track which sections are expanded — first section open by default
@@ -119,6 +121,13 @@
                                 placeholder={filter.placeholder || ''}
                                 value={currentFilters[filter.key] || ''}
                                 on:input={(e) => handleFilterChange(filter.key, e.target.value)}
+                            />
+                        {:else if filter.type === 'searchable-select'}
+                            <SearchableSelect
+                                options={facets[filter.facetKey] || []}
+                                value={currentFilters[filter.key] || ''}
+                                placeholder="Buscar {filter.label.toLowerCase()}..."
+                                on:change={(e) => handleFilterChange(filter.key, e.detail, true)}
                             />
                         {:else if filter.type === 'select'}
                             <!-- Render as radio-style options, matching FacetSidebar -->
