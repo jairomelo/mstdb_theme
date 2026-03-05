@@ -57,7 +57,7 @@
                                 <a href={getDetailUrl(row)} class="text-decoration-none">
                                     {renderCellValue(entityType, col.key, row)}
                                 </a>
-                            {:else if col.key === 'has_relaciones' && entityType === 'personaesclavizada'}
+                            {:else if col.key === 'has_relaciones' && (entityType === 'personaesclavizada' || entityType === 'personanoesclavizada')}
                                 {#if row.has_relaciones}
                                     <a href="{getDetailUrl(row)}#relations-network"
                                        class="text-decoration-none" title="Ver red de relaciones"
@@ -67,7 +67,7 @@
                                 {:else}
                                     <span class="text-muted">—</span>
                                 {/if}
-                            {:else if col.key === 'has_lugares' && entityType === 'personaesclavizada'}
+                            {:else if col.key === 'has_lugares' && (entityType === 'personaesclavizada' || entityType === 'personanoesclavizada')}
                                 {#if row.has_lugares}
                                     <a href="{getDetailUrl(row)}#places-map"
                                        class="text-decoration-none" title="Ver trayectoria"
@@ -77,7 +77,7 @@
                                 {:else}
                                     <span class="text-muted">—</span>
                                 {/if}
-                            {:else if col.key === 'documento_list' && entityType === 'personaesclavizada'}
+                            {:else if col.key === 'documento_list' && (entityType === 'personaesclavizada' || entityType === 'personanoesclavizada')}
                                 {#if row.documento_list?.length > 0}
                                     <span class="d-flex gap-1 flex-wrap">
                                         {#each row.documento_list as doc}
