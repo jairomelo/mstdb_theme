@@ -1,7 +1,7 @@
 <script>
     import ArcsMap from './viz/ArcsMap.svelte';
     import NetworkGraph from './viz/NetworkGraph.svelte';
-    import PlacePeople from '../Browse/personasesclavizadas/views/PlacePeople.svelte';
+    import PlacePeople from './viz/PlacePeople.svelte';
   
     let activeView = 'arcs-map';
   </script>

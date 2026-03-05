@@ -225,6 +225,6 @@ export function resetBrowse() {
 }
 
 // ── Legacy exports (used by Browse/documentos and Browse/personasesclavizadas) ──
-import { writable as _w } from 'svelte/store';
-export const DocumentStore = _w([]);
-export const PerEscStore = _w([]);
+// import { writable as _w } from 'svelte/store';
+// export const DocumentStore = _w([]);
+// export const PerEscStore = _w([]);
