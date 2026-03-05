@@ -57,6 +57,40 @@
                                 <a href={getDetailUrl(row)} class="text-decoration-none">
                                     {renderCellValue(entityType, col.key, row)}
                                 </a>
+                            {:else if col.key === 'has_relaciones' && entityType === 'personaesclavizada'}
+                                {#if row.has_relaciones}
+                                    <a href="{getDetailUrl(row)}#relations-network"
+                                       class="text-decoration-none" title="Ver red de relaciones"
+                                       on:click|stopPropagation>
+                                        <i class="bi bi-diagram-3 text-primary"></i>
+                                    </a>
+                                {:else}
+                                    <span class="text-muted">—</span>
+                                {/if}
+                            {:else if col.key === 'has_lugares' && entityType === 'personaesclavizada'}
+                                {#if row.has_lugares}
+                                    <a href="{getDetailUrl(row)}#places-map"
+                                       class="text-decoration-none" title="Ver trayectoria"
+                                       on:click|stopPropagation>
+                                        <i class="bi bi-geo-alt text-success"></i>
+                                    </a>
+                                {:else}
+                                    <span class="text-muted">—</span>
+                                {/if}
+                            {:else if col.key === 'documento_list' && entityType === 'personaesclavizada'}
+                                {#if row.documento_list?.length > 0}
+                                    <span class="d-flex gap-1 flex-wrap">
+                                        {#each row.documento_list as doc}
+                                            <a href="/Detail/documento/{doc.documento_id}"
+                                               class="text-decoration-none" title={doc.titulo || doc.documento_idno}
+                                               on:click|stopPropagation>
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </a>
+                                        {/each}
+                                    </span>
+                                {:else}
+                                    <span class="text-muted">—</span>
+                                {/if}
                             {:else}
                                 {renderCellValue(entityType, col.key, row)}
                             {/if}
