@@ -228,7 +228,7 @@
       <div class="col-md-4">
         <a href="/Dashboard" class="feature-card">
           <i class="bi bi-geo-alt feature-icon"></i>
-          <h3>Tablero de Datos</h3>
+          <h3>Visualizaciones</h3>
           <p>Visualice los movimientos y rutas en el territorio novohispano</p>
         </a>
       </div>
