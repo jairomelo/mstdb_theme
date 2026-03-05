@@ -29,9 +29,19 @@
 	$: typeCounts = $unifiedStore.typeCounts || {};
 	$: isSearch = !!$unifiedStore.query;
 
-	// Tab badge: show typeCounts when searching, DB counts when browsing
+	// Tab badge: in search mode use typeCounts (all types returned by API);
+	// for the active tab prefer totalResults (reflects applied filters).
+	// In browse mode use DB counts from loadCounts().
 	function badgeCount(entityType) {
-		if (isSearch) return typeCounts[entityType] || 0;
+		if (isSearch) {
+			if (entityType === activeTab) {
+				const tab = $unifiedStore.tabs[entityType];
+				if (tab?.totalResults > 0) return tab.totalResults;
+			}
+			return typeCounts[entityType] || 0;
+		}
+		const tab = $unifiedStore.tabs[entityType];
+		if (tab?.totalResults > 0) return tab.totalResults;
 		return counts[entityType] ?? '';
 	}
 
@@ -168,7 +178,9 @@
 							<i class="bi {cfg.icon}"></i>
 							<span class="d-none d-md-inline">{cfg.label}</span>
 							{#if badge !== '' && badge !== 0}
-								<span class="badge bg-secondary ms-1">{badge.toLocaleString()}</span>
+							<span class="badge ms-1" class:bg-primary={activeTab === et} class:bg-secondary={activeTab !== et}>{badge.toLocaleString()}</span>
+						{:else if $unifiedStore.tabs[et]?.isLoading}
+							<span class="badge bg-secondary ms-1"><i class="bi bi-hourglass-split"></i></span>
 							{/if}
 						</button>
 					</li>
@@ -220,15 +232,6 @@
 				<button class="btn btn-sm btn-outline-secondary" on:click={handleExport}>
 					<i class="bi bi-download me-1"></i>CSV
 				</button>
-
-				<!-- Results count -->
-				<span class="ms-auto small text-muted">
-					{#if tabState?.isLoading}
-						<i class="bi bi-hourglass-split"></i> Cargando...
-					{:else}
-						{tabState?.totalResults?.toLocaleString() || 0} resultados
-					{/if}
-				</span>
 			</div>
 
 			<!-- Error -->
