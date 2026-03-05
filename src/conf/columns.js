@@ -27,6 +27,8 @@ export const columnsConfig = {
         { key: 'persona_idno', label: 'ID', sortable: false, visible: true },
         { key: 'nombre_normalizado', label: 'Nombre', sortable: true, visible: true },
         { key: 'sexo', label: 'Sexo', sortable: false, visible: true },
+        { key: 'ocupaciones', label: 'Ocupaciones', sortable: false, visible: true },
+        { key: 'calidades', label: 'Calidades', sortable: false, visible: true },
         { key: 'has_relaciones', label: 'Relaciones', sortable: false, visible: true },
         { key: 'has_lugares', label: 'Lugares', sortable: false, visible: true },
         { key: 'documento_list', label: 'Documentos', sortable: false, visible: true },
@@ -108,6 +110,8 @@ export const filtersDefinition = {
                 { value: 'na', label: 'N/A' },
             ],
         },
+        { key: 'ocupaciones__actividad__icontains', label: 'Ocupación', type: 'text', placeholder: 'Buscar ocupación...' },
+        { key: 'calidades__calidad__icontains', label: 'Calidad', type: 'text', placeholder: 'Buscar calidad...' },
     ],
     documento: [
         { key: 'search', label: 'Título', type: 'text', placeholder: 'Buscar por título...' },
