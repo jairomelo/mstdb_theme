@@ -46,43 +46,31 @@
 				<div class="d-flex align-items-center ms-auto">
 					<ul class="navbar-nav me-2">
 						<li class="nav-item">
-							<a class="nav-link" href="/Dashboard/">Explorar la base de datos</a>
+							<a class="nav-link" href="/Search/">Buscar/Explorar <i class="bi bi-search"></i></a>
 						</li>
-					</ul>
 
-					<ul class="navbar-nav me-2">
 						<li class="nav-item">
-							<a class="nav-link" href="/Archivos/">Archivos</a>
+							<a class="nav-link" href="/Dashboard/">Visualizaciones</a>
+						</li>
+
+					
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" use:dropdown>
+								Acerca de
+							</a>
+								<ul class="dropdown-menu">
+									<li>
+										<a class="dropdown-item" href="/Archivos/">Archivos</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="/About/">Acerca de</a>
+									</li>
+								</ul>
 						</li>
 					</ul>
 
-					<ul class="navbar-nav me-2">
-						<li class="nav-item">
-							<a class="nav-link" href="/About/">Acerca de</a>
-						</li>
-					</ul>
-
-					{#if $page.url.pathname !== '/Search'}
-						<form
-							on:submit|preventDefault={handleNavSearch}
-							class="d-flex"
-							bind:this={formElement}
-						>
-							<div class="input-group">
-								<input
-									type="text"
-									bind:value={query}
-									class="form-control"
-									placeholder="Buscar en la base de datos"
-								/>
-								<button type="submit" class="btn btn-outline-light">
-									<i class="bi bi-search"></i>
-								</button>
-							</div>
-						</form>
-					{/if}
-
-					<ul class="navbar-nav">
+					<!-- Placeholder for authentication from the Frontend side -->
+					<!-- <ul class="navbar-nav">
 						<li class="nav-item dropdown">
 							<a
 								class="nav-link dropdown-toggle"
@@ -112,7 +100,7 @@
 								{/if}
 							</ul>
 						</li>
-					</ul>
+					</ul> -->
 
 				</div>
 			</div>
