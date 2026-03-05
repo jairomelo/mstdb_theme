@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { currentSuffix, currentColor, updateSuffix, titleStem } from '$lib/maintitle';
+  import { unifiedStore, loadCounts } from '$lib/unified-store';
   import { animateSuffix } from '$lib/textanimation';
   import { setRandomHeroImage } from '$lib/heroBackground'; // Updated import path
 
@@ -18,6 +19,16 @@
   let exactSearch = false;
   let currentFilter = ''; 
   let formElement;
+
+  $: counts = $unifiedStore.counts;
+
+  const quickBrowseItems = [
+    { label: 'Personas Esclavizadas',     tab: 'personaesclavizada',    icon: 'bi-person-fill' },
+    { label: 'Personas No Esclavizadas',  tab: 'personanoesclavizada',  icon: 'bi-person' },
+    { label: 'Documentos',               tab: 'documento',             icon: 'bi-file-text' },
+    { label: 'Lugares',                  tab: 'lugar',                 icon: 'bi-geo-alt-fill' },
+    { label: 'Corporaciones',            tab: 'corporacion',           icon: 'bi-building' },
+  ];
 
   function handleHeroSearch() {
     if (query) {
@@ -53,6 +64,7 @@
   onMount(() => {
     updateSuffix();
     setRandomHeroImage(heroSectionElement); // Pass heroSectionElement here
+    loadCounts();
     document.addEventListener('click', handleClickOutside);
     document.addEventListener('keydown', handleKeydown);
     document.addEventListener('scroll', handleScroll);
@@ -121,6 +133,20 @@
         </div>
       </div>
     </form>
+
+    <!-- Quick-browse entity links -->
+    <div class="hero-explore-row">
+      {#each quickBrowseItems as item}
+        <a class="hero-explore-link" href="/Search/?tab={item.tab}">
+          <i class="bi {item.icon} hero-explore-icon"></i>
+          <span class="hero-explore-label">{item.label}</span>
+          {#if counts[item.tab] != null}
+            <span class="hero-explore-count">{counts[item.tab].toLocaleString('es-MX')}</span>
+          {/if}
+          <i class="bi bi-arrow-right hero-explore-arrow"></i>
+        </a>
+      {/each}
+    </div>
   </div>
 
   {#if showScrollButton}

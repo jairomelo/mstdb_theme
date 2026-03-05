@@ -239,6 +239,62 @@ p, ol, ul, li {
   margin-right: 0.5rem;
 }
 
+/* Hero quick-browse row */
+.hero-explore-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  z-index: 3;
+  position: relative;
+}
+
+.hero-explore-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2rem;
+  color: #fff;
+  text-decoration: none;
+  font-family: 'aleo', serif;
+  font-size: 0.9rem;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.hero-explore-link:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #fff;
+}
+
+.hero-explore-icon {
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+.hero-explore-count {
+  font-size: 0.78rem;
+  opacity: 0.75;
+  font-style: italic;
+}
+
+.hero-explore-arrow {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+@media (max-width: 576px) {
+  .hero-explore-row {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
 .band-header {
   display: flex;
   align-items: center;
