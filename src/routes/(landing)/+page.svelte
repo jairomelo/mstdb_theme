@@ -217,20 +217,20 @@
     </div>
 
     <!-- Features Section -->
-    <div class="row features-section mt-5" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
+    <div class="row features-section mt-5 justify-content-center" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
       <div class="col-md-4">
-        <div class="feature-card">
+        <a href="/Search" class="feature-card">
           <i class="bi bi-search feature-icon"></i>
           <h3>Búsqueda</h3>
           <p>Explore registros históricos detallados sobre personas esclavizadas y libres</p>
-        </div>
+        </a>
       </div>
       <div class="col-md-4">
-        <div class="feature-card">
+        <a href="/Dashboard" class="feature-card">
           <i class="bi bi-geo-alt feature-icon"></i>
           <h3>Tablero de Datos</h3>
           <p>Visualice los movimientos y rutas en el territorio novohispano</p>
-        </div>
+        </a>
       </div>
     </div>
   </div>
