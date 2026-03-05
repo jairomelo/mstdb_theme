@@ -7,6 +7,7 @@
 	} from '$lib/unified-store';
 	import { exportCsv } from '$lib/api';
 	import { entityTabConfig } from '$conf/columns';
+	import { setRandomHeroImage } from '$lib/heroBackground';
 
 	import EntityTable from './EntityTable.svelte';
 	import BrowseFilters from './BrowseFilters.svelte';
@@ -20,6 +21,7 @@
 	let exactSearch = searchQuery?.startsWith('"') && searchQuery?.endsWith('"');
 	let showColumnConfig = false;
 	let desiredPage = '';
+	let heroSectionElement;
 
 	$: activeTab = $unifiedStore.activeTab;
 	$: viewMode = $unifiedStore.viewMode;
@@ -46,6 +48,7 @@
 	}
 
 	onMount(async () => {
+		setRandomHeroImage(heroSectionElement);
 		if (initialView === 'card' || initialView === 'table') {
 			setViewMode(initialView);
 		}
@@ -102,59 +105,56 @@
 	}
 </script>
 
-<div class="container-fluid mt-4 px-4">
-	<!-- Search bar -->
-	<div class="row mb-3">
-		<div class="col-lg-8 offset-lg-2">
-			<form on:submit|preventDefault={handleSearch} class="search-form">
-				<div class="input-group mb-2">
-					<input
-						bind:value={query}
-						class="form-control"
-						placeholder="Buscar en la base de datos..."
-						aria-label="Buscar"
-					/>
-					{#if query}
-						<button type="button" class="btn btn-outline-secondary" on:click={handleClearSearch} title="Limpiar búsqueda">
-							<i class="bi bi-x-lg"></i>
-						</button>
-					{/if}
-					<button type="submit" class="btn btn-primary">
-						<i class="bi bi-search me-1"></i> Buscar
+<!-- Search hero banner -->
+<section class="search-hero" bind:this={heroSectionElement}>
+	<div class="overlay"></div>
+	<div class="search-hero-content">
+		<form on:submit|preventDefault={handleSearch} class="w-100">
+			<div class="input-group mb-2">
+				<input
+					bind:value={query}
+					class="form-control form-control-lg"
+					placeholder="Buscar en la base de datos..."
+					aria-label="Buscar"
+				/>
+				{#if query}
+					<button type="button" class="btn btn-outline-light" on:click={handleClearSearch} title="Limpiar búsqueda">
+						<i class="bi bi-x-lg"></i>
 					</button>
+				{/if}
+				<button type="submit" class="btn btn-primary btn-lg">
+					<i class="bi bi-search"></i>
+				</button>
+			</div>
+			<div class="d-flex justify-content-between align-items-center">
+				<small class="text-white-50">
+					{#if !isSearch}
+						<i class="bi bi-grid-3x3-gap me-1"></i>Explorando la base de datos
+					{:else}
+						<i class="bi bi-search me-1"></i>Resultados para <em>{$unifiedStore.query}</em>
+					{/if}
+				</small>
+				<div class="form-check">
+					<input
+						class="form-check-input"
+						type="checkbox"
+						bind:checked={exactSearch}
+						id="exactSearchCheck"
+					/>
+					<label class="form-check-label text-white-50" for="exactSearchCheck">
+						Búsqueda exacta
+						<i class="bi bi-info-circle ms-1"
+						   data-bs-toggle="tooltip"
+						   data-bs-placement="right"
+						   title="Busca la frase exacta (equivalente a usar comillas)"></i>
+					</label>
 				</div>
-				<div class="d-flex justify-content-between align-items-center">
-					<div>
-						{#if !isSearch}
-							<small class="text-muted">
-								<i class="bi bi-grid-3x3-gap me-1"></i>Explorando la base de datos
-							</small>
-						{:else}
-							<small class="text-muted">
-								<i class="bi bi-search me-1"></i>Resultados para <em>{$unifiedStore.query}</em>
-							</small>
-						{/if}
-					</div>
-					<div class="form-check">
-						<input
-							class="form-check-input"
-							type="checkbox"
-							bind:checked={exactSearch}
-							id="exactSearchCheck"
-						/>
-						<label class="form-check-label" for="exactSearchCheck">
-							Búsqueda exacta
-							<i class="bi bi-info-circle ms-1"
-							   data-bs-toggle="tooltip"
-							   data-bs-placement="right"
-							   title="Busca la frase exacta (equivalente a usar comillas)"></i>
-						</label>
-					</div>
-				</div>
-			</form>
-		</div>
+			</div>
+		</form>
 	</div>
+</section>
 
+<div class="container-fluid py-4 px-4">
 	<!-- Sidebar + Content -->
 	<div class="row">
 		<!-- Sidebar filters -->
@@ -304,20 +304,6 @@
 {/if}
 
 <style>
-	.search-form {
-		position: relative;
-	}
-
-	.form-check {
-		margin-left: 0.5rem;
-	}
-
-	.form-check-label {
-		font-size: 0.9rem;
-		color: #666;
-		white-space: nowrap;
-	}
-
 	/* Inactive tab links: muted gray with darker hover */
 	.browse-view .nav-link:not(.active) {
 		color: #999;
