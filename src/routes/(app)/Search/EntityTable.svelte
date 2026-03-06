@@ -1,4 +1,5 @@
 <script>
+    import { goto } from '$app/navigation';
     import { unifiedStore, toggleSort } from '$lib/unified-store';
     import { columnsConfig, entityIdField, entityTabConfig, renderCellValue } from '$conf/columns';
 
@@ -22,6 +23,12 @@
     function getDetailUrl(row) {
         const id = row[idField];
         return id ? `${detailPath}/${id}` : '#';
+    }
+
+    function handleRowClick(e, row) {
+        // Don't navigate if user clicked an <a> inside the row (it handles its own navigation)
+        if (e.target.closest('a')) return;
+        goto(getDetailUrl(row));
     }
 </script>
 
@@ -50,7 +57,7 @@
         </thead>
         <tbody>
             {#each results as row}
-                <tr class="browse-row" on:click={() => window.location.href = getDetailUrl(row)}>
+                <tr class="browse-row" on:click={(e) => handleRowClick(e, row)}>
                     {#each visibleColumns as col}
                         <td>
                             {#if col.key === idField || col.key === 'persona_idno' || col.key === 'documento_idno'}

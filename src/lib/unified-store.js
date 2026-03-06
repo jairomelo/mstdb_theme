@@ -1,7 +1,19 @@
 import { writable, get } from 'svelte/store';
-import { searchAll, fetchCounts, exportCsv } from '$lib/api';
+import { searchAll, fetchCounts, exportCsv, fetchWithBaseUrl } from '$lib/api';
 import { defaultVisibleColumns } from '$conf/columns';
 import log from '$lib/logger';
+import queryString from 'query-string';
+
+// ── Abort controllers for in-flight requests ─────────────────────────
+const abortControllers = {};
+
+function abortPrevious(key) {
+    if (abortControllers[key]) {
+        abortControllers[key].abort();
+    }
+    abortControllers[key] = new AbortController();
+    return abortControllers[key].signal;
+}
 
 // ── Entity type definitions ──────────────────────────────────────────
 export const ENTITY_TYPES = [
@@ -52,6 +64,9 @@ export async function fetchResults(entityType) {
     const tab = state.tabs[entityType];
     if (!tab) return;
 
+    // Abort any in-flight fetch for this entity type
+    const signal = abortPrevious(`fetch:${entityType}`);
+
     unifiedStore.update(s => ({
         ...s,
         tabs: {
@@ -88,7 +103,14 @@ export async function fetchResults(entityType) {
             params[key] = value;
         }
 
-        const data = await searchAll(params);
+        const filteredParams = {};
+        for (const key in params) {
+            if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
+                filteredParams[key] = params[key];
+            }
+        }
+        const qs = queryString.stringify(filteredParams);
+        const data = await fetchWithBaseUrl(`search/?${qs}`, { signal });
 
         unifiedStore.update(s => ({
             ...s,
@@ -107,6 +129,9 @@ export async function fetchResults(entityType) {
             },
         }));
     } catch (err) {
+        // Silently ignore aborted requests
+        if (err.name === 'AbortError') return;
+
         log.error(`Error fetching ${entityType}: ${err.message}`);
         unifiedStore.update(s => ({
             ...s,
@@ -125,10 +150,12 @@ export async function fetchResults(entityType) {
 // ── Actions ──────────────────────────────────────────────────────────
 
 export async function loadCounts() {
+    const signal = abortPrevious('counts');
     try {
-        const counts = await fetchCounts();
+        const counts = await fetchWithBaseUrl('counts/', { signal });
         unifiedStore.update(s => ({ ...s, counts }));
     } catch (err) {
+        if (err.name === 'AbortError') return;
         log.error(`Error loading counts: ${err.message}`);
     }
 }
@@ -262,8 +289,20 @@ export function clearSearch() {
 }
 
 export function resetStore() {
+    // Cancel all in-flight requests before resetting
+    for (const key of Object.keys(abortControllers)) {
+        abortControllers[key].abort();
+        delete abortControllers[key];
+    }
     unifiedStore.set({
         ...initialState,
         tabs: Object.fromEntries(ENTITY_TYPES.map(t => [t, createTabState(t)])),
     });
+}
+
+export function abortAll() {
+    for (const key of Object.keys(abortControllers)) {
+        abortControllers[key].abort();
+        delete abortControllers[key];
+    }
 }

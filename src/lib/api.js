@@ -13,6 +13,8 @@ const fetchWithBaseUrl = async (endpoint, options = {}) => {
     return await response.json();
 };
 
+export { fetchWithBaseUrl };
+
 export const postWithBaseUrl = async (endpoint, payload = {}) => {
 	const url = `${config.apiBaseUrl}${endpoint}`;
 	const csrfToken = getCookie("csrftoken");
@@ -206,6 +208,8 @@ export const corporaciones = (params) => fetchWithBaseUrl(`corporaciones/${param
 export const lugares = (params) => fetchWithBaseUrl(`lugares/${params}/`);
 export const lugarPersonasRelacionadas = (lugarId, page = 1) => 
     fetchWithBaseUrl(`lugares/${lugarId}/personas/?page=${page}`);
+export const lugarProcedencia = (lugarId, page = 1) =>
+    fetchWithBaseUrl(`lugares/${lugarId}/procedencia/?page=${page}`);
 export const personaLugarRel = (personaxlugarId) => fetchWithBaseUrl(`relaciones-lugares/${personaxlugarId}/`);
 export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`relaciones-personas/${personaxpersonaId}/`);
 

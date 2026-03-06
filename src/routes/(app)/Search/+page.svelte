@@ -1,9 +1,9 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import {
 		unifiedStore, fetchResults, setActiveTab, setViewMode,
 		setPageSize, setPage, performSearch, clearSearch,
-		loadCounts, PAGE_SIZES, ENTITY_TYPES,
+		loadCounts, PAGE_SIZES, ENTITY_TYPES, abortAll,
 	} from '$lib/unified-store';
 	import { exportCsv } from '$lib/api';
 	import { entityTabConfig } from '$conf/columns';
@@ -103,6 +103,10 @@
 			desiredPage = '';
 		}
 	}
+
+	onDestroy(() => {
+		abortAll();
+	});
 </script>
 
 <!-- Search hero banner -->
