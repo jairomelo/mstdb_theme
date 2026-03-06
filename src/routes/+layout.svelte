@@ -58,7 +58,7 @@
 							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" use:dropdown>
 								Acerca de
 							</a>
-								<ul class="dropdown-menu">
+								<ul class="dropdown-menu dropdown-menu-end">
 									<li>
 										<a class="dropdown-item" href="/Archivos/">Archivos</a>
 									</li>
