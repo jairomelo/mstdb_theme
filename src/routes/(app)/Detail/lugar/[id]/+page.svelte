@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { tooltip } from '$lib/bootstrap-actions.js';
-	import { lugares, lugarPersonasRelacionadas } from '$lib/api';
+	import { lugares, lugarPersonasRelacionadas, lugarProcedencia } from '$lib/api';
 
 
 	export let data;
@@ -12,10 +12,18 @@
     let totalPages = 1;
     let loading = false;
 
+	let procedenciaPersonas = [];
+	let procPage = 1;
+	let procTotalPages = 1;
+	let procLoading = false;
+
 	onMount(async () => {
 		try {
 			lugar = await lugares(data.id);
             await loadPersonas(1);
+			if (lugar.procedencia_count > 0) {
+				await loadProcedencia(1);
+			}
 		} catch (e) {
 			error = e.message;
 			console.error('Failed to fetch lugar:', e);
@@ -29,13 +37,28 @@
             const response = await lugarPersonasRelacionadas(data.id, page);
             personasRelacionadas = response.results;
             currentPage = page;
-            totalPages = Math.ceil(response.count / 10); 
+            totalPages = Math.ceil(response.count / 20); 
         } catch (e) {
             console.error('Failed to fetch personas:', e);
         } finally {
             loading = false;
         }
     }
+
+	async function loadProcedencia(page) {
+		if (procLoading) return;
+		procLoading = true;
+		try {
+			const response = await lugarProcedencia(data.id, page);
+			procedenciaPersonas = response.results;
+			procPage = page;
+			procTotalPages = Math.ceil(response.count / 20);
+		} catch (e) {
+			console.error('Failed to fetch procedencia:', e);
+		} finally {
+			procLoading = false;
+		}
+	}
 
     function nextPage() {
         if (currentPage < totalPages) {
@@ -48,6 +71,19 @@
             loadPersonas(currentPage - 1);
         }
     }
+
+	function procNextPage() {
+		if (procPage < procTotalPages) loadProcedencia(procPage + 1);
+	}
+	function procPrevPage() {
+		if (procPage > 1) loadProcedencia(procPage - 1);
+	}
+
+	function personaDetailPath(persona) {
+		const ct = persona.polymorphic_ctype;
+		const isEsclavizada = ct === 25 || (typeof ct === 'string' && ct.includes('esclavizada'));
+		return isEsclavizada ? 'personaesclavizada' : 'personanoesclavizada';
+	}
 </script>
 
 <div class="container mt-4">
@@ -91,13 +127,13 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     {#each per.personas as persona}
-                                        <a class="{persona.polymorphic_ctype?.includes('persona esclavizada') ? 'text-primary' : 'text-secondary'}" 
-                                           href="/Detail/{persona.polymorphic_ctype?.includes('persona esclavizada') ? 'personaesclavizada' : 'personanoesclavizada'}/{persona.persona_id}">
+                                        <a class="{personaDetailPath(persona) === 'personaesclavizada' ? 'text-primary' : 'text-secondary'}" 
+                                           href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}">
                                             <h3 class="h6 mb-2">{persona.nombre_normalizado}</h3>
                                         </a>
                                     {/each}
                                     {#if per.fecha_inicial_lugar_raw || per.fecha_final_lugar_raw}
-                                        <p class="mb-1"><small>Período: {per.fecha_inicial_lugar_raw} - {per.fecha_final_lugar_raw}</small></p>
+                                        <p class="mb-1"><small>Período: {per.fecha_inicial_lugar_raw || '?'} - {per.fecha_final_lugar_raw || '?'}</small></p>
                                     {/if}
                                     {#if per.situacion_lugar}
                                         <p class="mb-1"><small>Situación: {per.situacion_lugar}</small></p>
@@ -122,12 +158,12 @@
                 </ul>
                 <div class="card-footer">
                     <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-primary" on:click={prevPage} disabled={currentPage === 1}>
-                            <i class="bi bi-chevron-left"></i> Previous
+                        <button class="btn btn-primary btn-sm" on:click={prevPage} disabled={currentPage === 1}>
+                            <i class="bi bi-chevron-left"></i> Anterior
                         </button>
-                        <span>Page {currentPage} of {totalPages}</span>
-                        <button class="btn btn-primary" on:click={nextPage} disabled={currentPage === totalPages}>
-                            Next <i class="bi bi-chevron-right"></i>
+                        <span class="small text-muted">Página {currentPage} de {totalPages}</span>
+                        <button class="btn btn-primary btn-sm" on:click={nextPage} disabled={currentPage === totalPages}>
+                            Siguiente <i class="bi bi-chevron-right"></i>
                         </button>
                     </div>
                 </div>
@@ -142,36 +178,43 @@
             </div>
         {/if}
 
-		{#if lugar.personas_esclavizadas_procedencia && lugar.personas_esclavizadas_procedencia.length > 0}
+		{#if procedenciaPersonas.length > 0}
 		<div class="card mb-4">
 			<div class="card-header bg-success text-white">
-				<h2 class="card-title h5 mb-0"><i class="bi bi-geo-alt me-2"></i>{lugar.personas_esclavizadas_procedencia.length} Personas provenientes de este lugar:</h2>
+				<h2 class="card-title h5 mb-0">
+					<i class="bi bi-geo-alt me-2"></i>Personas provenientes de este lugar
+				</h2>
 			</div>
 			<ul class="list-group list-group-flush">
-				{#each lugar.personas_esclavizadas_procedencia as proc}
+				{#each procedenciaPersonas as proc}
 					<li class="list-group-item">
-						<a class="{proc.polymorphic_ctype == 29 ? 'text-primary' : 'text-secondary'}" 
-                                           href="/Detail/{proc.polymorphic_ctype == 29 ? 'personaesclavizada' : 'personanoesclavizada'}/{proc.persona_id}">
-                                            <h3 class="h6 mb-2">{proc.nombre_normalizado}</h3>
-                                        </a>
-										{#if proc.documentos}
-                                        <p class="mb-1">
-                                            <small>Registro: 
-												{#each proc.documentos as docu }
-                                                <a href="/Detail/documento/{docu.documento_id}">
-                                                    {docu.titulo?.length > 50 
-                                                        ? docu.titulo.substring(0, 50) + '...'
-                                                        : docu.titulo}
-                                                </a>
-												{/each}
-                                            </small>
-                                        </p>
-                                    {/if}
+						<a href="/Detail/personaesclavizada/{proc.persona_id}">
+							<h3 class="h6 mb-2">{proc.nombre_normalizado}</h3>
+						</a>
 					</li>
 				{/each}
 			</ul>
+			<div class="card-footer">
+				<div class="d-flex justify-content-between align-items-center">
+					<button class="btn btn-success btn-sm" on:click={procPrevPage} disabled={procPage === 1}>
+						<i class="bi bi-chevron-left"></i> Anterior
+					</button>
+					<span class="small text-muted">Página {procPage} de {procTotalPages}</span>
+					<button class="btn btn-success btn-sm" on:click={procNextPage} disabled={procPage === procTotalPages}>
+						Siguiente <i class="bi bi-chevron-right"></i>
+					</button>
+				</div>
+			</div>
 		</div>
-	{/if}
+		{/if}
+
+		{#if procLoading}
+            <div class="text-center my-3">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        {/if}
 
 	{:else}
 		<div class="d-flex justify-content-center">
