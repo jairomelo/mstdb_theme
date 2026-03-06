@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { tooltip } from '$lib/bootstrap-actions.js';
-	import { documentos } from '$lib/api';
+	import { documentos, documentoPersonas } from '$lib/api';
 	import { generateDocumentTree } from '$lib/documentTree.js';
 
 	export let data;
@@ -10,15 +10,51 @@
 	let treeExpanded = false;
 	let documentTree = [];
 
+	let personas = [];
+	let personaPage = 1;
+	let personaTotalPages = 1;
+	let personaLoading = false;
+
 	onMount(async () => {
 		try {
 			documento = await documentos(data.id);
 			documentTree = generateDocumentTree(documento);
+			if (documento.persona_count > 0) {
+				await loadPersonas(1);
+			}
 		} catch (e) {
 			error = e.message;
 			console.error('Failed to fetch document:', e);
 		}
 	});
+
+	async function loadPersonas(page) {
+		if (personaLoading) return;
+		personaLoading = true;
+		try {
+			const response = await documentoPersonas(data.id, page);
+			personas = response.results;
+			personaPage = page;
+			personaTotalPages = Math.ceil(response.count / 20);
+		} catch (e) {
+			console.error('Failed to fetch personas:', e);
+		} finally {
+			personaLoading = false;
+		}
+	}
+
+	function nextPage() {
+		if (personaPage < personaTotalPages) loadPersonas(personaPage + 1);
+	}
+	function prevPage() {
+		if (personaPage > 1) loadPersonas(personaPage - 1);
+	}
+
+	function personaDetailPath(persona) {
+		const ct = persona.polymorphic_ctype;
+		const isEsclavizada = ct === 25 || (typeof ct === 'string' && ct.includes('esclavizada'));
+		return isEsclavizada ? 'personaesclavizada' : 'personanoesclavizada';
+	}
 
 	function toggleFullTree() {
 		treeExpanded = !treeExpanded;
@@ -90,7 +126,9 @@
 					<div class="col-md-6">
 						<p>{#if documento.lugar_de_produccion}
 							<strong><i class="bi bi-geo-alt me-2"></i>Lugar de producción:</strong>
-								{documento.lugar_de_produccion || 'No disponible'}
+								<a href="/Detail/lugar/{documento.lugar_de_produccion.lugar_id}">
+									{documento.lugar_de_produccion.nombre_lugar}
+								</a>
 							{/if}
 						</p>
 						<p>
@@ -128,6 +166,47 @@
 				</div>
 			</div>
 		</div>
+
+		{#if personaLoading}
+			<div class="text-center my-3">
+				<div class="spinner-border text-primary" role="status">
+					<span class="visually-hidden">Cargando...</span>
+				</div>
+			</div>
+		{/if}
+
+		{#if personas.length > 0}
+			<div class="card mb-4">
+				<div class="card-header bg-secondary text-white">
+					<h2 class="card-title h5 mb-0">
+						<i class="bi bi-people me-2"></i>Personas relacionadas con este documento
+					</h2>
+				</div>
+				<ul class="list-group list-group-flush">
+					{#each personas as persona}
+						<li class="list-group-item">
+							<a class="{personaDetailPath(persona) === 'personaesclavizada' ? 'text-primary' : 'text-secondary'}"
+							   href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}">
+								<h3 class="h6 mb-0">{persona.nombre_normalizado}</h3>
+							</a>
+						</li>
+					{/each}
+				</ul>
+				{#if personaTotalPages > 1}
+					<div class="card-footer">
+						<div class="d-flex justify-content-between align-items-center">
+							<button class="btn btn-secondary btn-sm" on:click={prevPage} disabled={personaPage === 1}>
+								<i class="bi bi-chevron-left"></i> Anterior
+							</button>
+							<span class="small text-muted">Página {personaPage} de {personaTotalPages}</span>
+							<button class="btn btn-secondary btn-sm" on:click={nextPage} disabled={personaPage === personaTotalPages}>
+								Siguiente <i class="bi bi-chevron-right"></i>
+							</button>
+						</div>
+					</div>
+				{/if}
+			</div>
+		{/if}
 	{:else}
 		<div class="d-flex justify-content-center">
 			<div class="spinner-border text-primary" role="status">

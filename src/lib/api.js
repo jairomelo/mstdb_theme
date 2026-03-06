@@ -210,6 +210,8 @@ export const lugarPersonasRelacionadas = (lugarId, page = 1) =>
     fetchWithBaseUrl(`lugares/${lugarId}/personas/?page=${page}`);
 export const lugarProcedencia = (lugarId, page = 1) =>
     fetchWithBaseUrl(`lugares/${lugarId}/procedencia/?page=${page}`);
+export const documentoPersonas = (documentoId, page = 1) =>
+    fetchWithBaseUrl(`documentos/${documentoId}/personas/?page=${page}`);
 export const personaLugarRel = (personaxlugarId) => fetchWithBaseUrl(`relaciones-lugares/${personaxlugarId}/`);
 export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`relaciones-personas/${personaxpersonaId}/`);
 
