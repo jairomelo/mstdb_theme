@@ -49,6 +49,7 @@
 		"loglevel": "^1.9.1",
 		"plotly.js-dist": "^2.35.3",
 		"query-string": "^9.1.1",
-		"svelte-combobox": "^1.0.16"
+		"svelte-combobox": "^1.0.16",
+		"svelte-dnd-action": "^0.9.69"
 	}
 }
