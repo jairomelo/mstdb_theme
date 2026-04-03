@@ -217,21 +217,31 @@ $theme-colors: (
     border: 1px solid #dee2e6;
     border-radius: 0.5rem;
     padding: 0.75rem;
-    cursor: grab;
     transition: box-shadow 0.15s;
 
     &:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
-    &:active { cursor: grabbing; }
-
-    &.is-drag-target {
-        outline: 2px solid map-get($theme-colors, "primary");
-        outline-offset: 2px;
-    }
 
     .hub-card-actions {
         display: flex;
         gap: 0.25rem;
         margin-top: 0.5rem;
+    }
+}
+
+.hub-card-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+
+    &:hover {
+        border-color: map-get($theme-colors, "primary");
+        background: map-get($theme-colors, "accent3");
     }
 }
 
