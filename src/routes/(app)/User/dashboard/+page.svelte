@@ -69,8 +69,8 @@
     <section class="mb-5">
         <div class="cataloguer-section-header">
             <h2 class="h5 mb-0"><i class="bi bi-pencil-square me-2"></i>Catalogar</h2>
-            <a href="/User/catalogar/documento/nuevo" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-lg me-1"></i>Nuevo documento
+            <a href="/User/catalogar/evento/nuevo" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>Nuevo evento
             </a>
         </div>
 
@@ -91,7 +91,7 @@
         {:else}
             <div class="list-group">
                 {#each docResults as doc}
-                <a href={`/User/catalogar/documento/${doc.documento_id}`} class="list-group-item list-group-item-action">
+                <a href={`/User/catalogar/evento/${doc.documento_id}`} class="list-group-item list-group-item-action">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <strong>{doc.titulo}</strong>

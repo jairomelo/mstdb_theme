@@ -201,7 +201,7 @@
         newLugarRel = { lugar: null, situacion_lugar: null, personas: [], fecha_inicial_lugar_raw: '', notas: '' };
         slideErrors = {};
         activePanel = 'lugar-rel';
-        slideTitle = 'Agregar punto de trayectoria';
+        slideTitle = 'Agregar punto de trayectoria (persona)';
         slideOpen = true;
     }
 
@@ -307,14 +307,14 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb small">
             <li class="breadcrumb-item"><a href="/User/dashboard">Dashboard</a></li>
-            <li class="breadcrumb-item active">Doc #{docId}</li>
+            <li class="breadcrumb-item active">Evento #{docId}</li>
         </ol>
     </nav>
 
     <!-- ── Metadata section ─────────────────────────────────────────────── -->
     <div class="card mb-4">
         <div class="card-header cataloguer-section-header py-2">
-            <span class="fw-semibold">Metadatos del documento</span>
+            <span class="fw-semibold">Datos del evento</span>
             {#if $hasPerm('dbgestor.change_documento')}
             <button
                 class="btn btn-primary btn-sm"
@@ -445,7 +445,7 @@
     <!-- ── Trayectoria swimlane ──────────────────────────────────────────── -->
     <div class="card mb-4">
         <div class="card-header cataloguer-section-header py-2">
-            <span class="fw-semibold"><i class="bi bi-geo-alt me-1"></i>Trayectoria de lugares</span>
+            <span class="fw-semibold"><i class="bi bi-geo-alt me-1"></i>Trayectorias de personas</span>
             {#if $hasPerm('dbgestor.add_personalugarrel')}
             <button class="btn btn-outline-primary btn-sm" on:click={openLugarRelPanel}>
                 <i class="bi bi-plus-lg me-1"></i>Agregar punto
