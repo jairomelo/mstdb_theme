@@ -42,6 +42,44 @@ export const postWithBaseUrl = async (endpoint, payload = {}) => {
 	return await response.json();
 };
 
+const _writeRequest = async (method, endpoint, payload = {}) => {
+	const url = `${config.apiBaseUrl}${endpoint}`;
+	const csrfToken = getCookie("csrftoken");
+	const response = await fetch(url, {
+		method,
+		headers: {
+			"Content-Type": "application/json",
+			"X-CSRFToken": csrfToken || "",
+		},
+		credentials: "include",
+		body: JSON.stringify(payload),
+	});
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+		throw Object.assign(new Error(`HTTP error! status: ${response.status}`), { data: errorData });
+	}
+	// 204 No Content has no body
+	if (response.status === 204) return null;
+	return await response.json();
+};
+
+export const putWithBaseUrl   = (endpoint, payload) => _writeRequest('PUT',   endpoint, payload);
+export const patchWithBaseUrl = (endpoint, payload) => _writeRequest('PATCH', endpoint, payload);
+export const deleteWithBaseUrl = async (endpoint) => {
+	const url = `${config.apiBaseUrl}${endpoint}`;
+	const csrfToken = getCookie("csrftoken");
+	const response = await fetch(url, {
+		method: "DELETE",
+		headers: { "X-CSRFToken": csrfToken || "" },
+		credentials: "include",
+	});
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+		throw Object.assign(new Error(`HTTP error! status: ${response.status}`), { data: errorData });
+	}
+	return null;
+};
+
 // Log endpoint
 export const log = (level, message) => postWithBaseUrl('log/', { level, message });
 
