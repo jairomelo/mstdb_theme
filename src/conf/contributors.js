@@ -85,10 +85,10 @@ export const contributors = {
   ],
   developers: [
     {
-        name: "Jairo A. Melo Flórez",
-        institution: "Universidad de California, Santa Bárbara",
+        name: "Jairo A. Melo Flórez, PhD",
+        institution: "Digital Humanities Research Facilitator, UCSB Library",
         institutionurl: "https://www.library.ucsb.edu/staff/jairo-melo-florez",
-        role: "Digital Humanities Specialist. Desarrollo e implementación del modelo de base de datos relacional, interfaz de interacción, desarrollo de API y plataforma front-end",
+        role: "Responsable del diseño y la evolución de la infraestructura de investigación de TrayectoriasAfro. Lidera el desarrollo de sistemas de recolección estructurada y el diseño del modelo de datos relacional. Actualmente, coordina la implementación de inteligencia artificial agéntica para la innovación en procesos de enriquecimiento, curaduría y preservación de datos históricos.",
     }
   ]
 };

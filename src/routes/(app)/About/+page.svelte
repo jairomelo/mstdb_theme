@@ -106,7 +106,7 @@
       {#if contributors.developers.length > 0}
         <div class="developers-section mb-5" data-aos="fade-up">
           <h2 class="section-title">
-            <i class="bi bi-code-slash me-2"></i>Desarrollo Técnico
+            <i class="bi bi-code-slash me-2"></i>Arquitectura y Curaduría de Datos de Investigación
           </h2>
           <div class="developer-cards mt-3">
             {#each contributors.developers as developer}
