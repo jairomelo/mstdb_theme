@@ -19,6 +19,14 @@
 	// Network visualization variables
 	let relationsCy = null;
 
+	// Helper: does this persona have any place data (FK or relational)?
+	function hasPlaceData(p) {
+		return (p.lugares && p.lugares.length > 0) ||
+			(p.procedencia && p.procedencia.lat) ||
+			(p.lugar_nacimiento && p.lugar_nacimiento.lat) ||
+			(p.lugar_defuncion && p.lugar_defuncion.lat);
+	}
+
 	onMount(async () => {
 		try {
 			peresc = await peresclavizadas(data.id);
@@ -35,7 +43,7 @@
 					);
 				}
 
-				if (peresc.lugares && peresc.lugares.length > 0) {
+				if (hasPlaceData(peresc)) {
 					promises.push(
 						personaTrajectory(data.id)
 							.then(d => { trajectoryData = d; })
@@ -50,7 +58,7 @@
 				if (peresc.relaciones && peresc.relaciones.length > 0) {
 					initializeRelationsNetwork();
 				}
-				if (peresc.lugares && peresc.lugares.length > 0) {
+				if (hasPlaceData(peresc)) {
 					await initializeMap();
 				}
 			}
@@ -186,7 +194,7 @@
 	}
 
 	async function initializeMap() {
-		if (!browser || !peresc.lugares || peresc.lugares.length === 0) return;
+		if (!browser || !hasPlaceData(peresc)) return;
 		
 		const container = document.getElementById('places-map');
 		if (!container) return;
@@ -218,8 +226,8 @@
 			const svg = d3.select(map.getPanes().overlayPane).append("svg");
 			const g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
-			// Collect all places with coordinates
-			const places = peresc.lugares
+			// Collect all places with coordinates from persona_x_lugares
+			const places = (peresc.lugares || [])
 				.filter(lugar => lugar.lugar.lat && lugar.lugar.lon)
 				.map(lugar => ({
 					name: lugar.lugar.nombre_lugar,
@@ -228,6 +236,30 @@
 					lat: parseFloat(lugar.lugar.lat),
 					lon: parseFloat(lugar.lugar.lon)
 				}));
+
+			// Add direct FK places (procedencia, nacimiento, defuncion) if not already present
+			const seenCoords = new Set(places.map(p => `${p.lat},${p.lon}`));
+			const fkPlaces = [
+				peresc.lugar_nacimiento ? { ...peresc.lugar_nacimiento, _situacion: 'Nacimiento' } : null,
+				peresc.procedencia ? { ...peresc.procedencia, _situacion: 'Procedencia' } : null,
+				peresc.lugar_defuncion ? { ...peresc.lugar_defuncion, _situacion: 'Defunción' } : null,
+			].filter(Boolean);
+
+			for (const fk of fkPlaces) {
+				if (fk.lat && fk.lon) {
+					const key = `${parseFloat(fk.lat)},${parseFloat(fk.lon)}`;
+					if (!seenCoords.has(key)) {
+						places.push({
+							name: fk.nombre_lugar,
+							type: fk.tipo,
+							situation: fk._situacion,
+							lat: parseFloat(fk.lat),
+							lon: parseFloat(fk.lon)
+						});
+						seenCoords.add(key);
+					}
+				}
+			}
 
 			// trajectoryData is already persona-specific arcs from the API
 			const personTrajectories = trajectoryData || [];
@@ -255,19 +287,36 @@
 
 				// Draw trajectory paths if available
 				if (personTrajectories.length > 0) {
-					// Create arrowhead marker — small, proportional to stroke
+					// Arc color helper based on situacion
+					function arcColor(d) {
+						const fromSit = d.from.situacion || '';
+						const toSit = d.to.situacion || '';
+						if (fromSit === 'Nacimiento' || fromSit === 'Procedencia' || toSit === 'Procedencia') return '#2980b9';
+						if (toSit === 'Defunción') return '#7f8c8d';
+						return '#e74c3c';
+					}
+
+					// Create arrowhead markers for each arc type
 					const defs = svg.append("defs");
-					defs.append("marker")
-						.attr("id", "arrow-person")
-						.attr("viewBox", "0 -3 6 6")
-						.attr("refX", 6)
-						.attr("refY", 0)
-						.attr("markerWidth", 4)
-						.attr("markerHeight", 4)
-						.attr("orient", "auto")
-						.attr("fill", "#e74c3c")
-						.append("path")
-						.attr("d", "M0,-3L6,0L0,3Z");
+					['#e74c3c', '#2980b9', '#7f8c8d'].forEach((color, i) => {
+						defs.append("marker")
+							.attr("id", `arrow-person-${i}`)
+							.attr("viewBox", "0 -3 6 6")
+							.attr("refX", 6)
+							.attr("refY", 0)
+							.attr("markerWidth", 4)
+							.attr("markerHeight", 4)
+							.attr("orient", "auto")
+							.attr("fill", color)
+							.append("path")
+							.attr("d", "M0,-3L6,0L0,3Z");
+					});
+
+					function arrowId(d) {
+						const c = arcColor(d);
+						const idx = ['#e74c3c', '#2980b9', '#7f8c8d'].indexOf(c);
+						return `url(#arrow-person-${idx >= 0 ? idx : 0})`;
+					}
 
 					// Draw trajectory lines
 					g.selectAll(".trajectory-path")
@@ -281,15 +330,15 @@
 							const dx = x2 - x1;
 							const dy = y2 - y1;
 							const dist = Math.sqrt(dx * dx + dy * dy);
-							// Gentle curvature: subtle for long arcs, slightly more for short ones
 							const dr = Math.max(dist * 1.2, 80);
 							return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`;
 						})
-						.attr("stroke", "#e74c3c")
+						.attr("stroke", d => arcColor(d))
 						.attr("stroke-width", 3)
+						.attr("stroke-dasharray", d => (d.to.situacion === 'Defunción') ? '6,3' : null)
 						.attr("fill", "none")
 						.attr("opacity", 0.8)
-						.attr("marker-end", "url(#arrow-person)")
+						.attr("marker-end", d => arrowId(d))
 						.on("mouseover", function() {
 							d3.select(this)
 								.attr("stroke-width", 5)
@@ -470,7 +519,7 @@
 		</div>
 
 		<!-- Places Map -->
-		{#if peresc.lugares && peresc.lugares.length > 0}
+		{#if hasPlaceData(peresc)}
 			<div class="card mb-4">
 				<div class="card-header bg-success text-white">
 					<h2 class="card-title h5 mb-0"><i class="bi bi-geo-alt me-2"></i>Trayectoria</h2>
@@ -481,28 +530,40 @@
 				</div>
 				<div class="card-footer">
 					<div class="row text-center">
-						<div class="col-md-3">
+						<div class="col-md-2">
 							<small class="text-muted">
 								<div class="place-legend ciudad me-1"></div>
 								Ciudad
 							</small>
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-2">
 							<small class="text-muted">
 								<div class="place-legend villa me-1"></div>
 								Villa
 							</small>
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-2">
 							<small class="text-muted">
 								<div class="place-legend pueblo me-1"></div>
 								Pueblo
 							</small>
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-2">
 							<small class="text-muted">
 								<div class="trajectory-legend me-1"></div>
 								Trayectoria
+							</small>
+						</div>
+						<div class="col-md-2">
+							<small class="text-muted">
+								<div class="trajectory-legend origin me-1"></div>
+								Procedencia
+							</small>
+						</div>
+						<div class="col-md-2">
+							<small class="text-muted">
+								<div class="trajectory-legend defuncion me-1"></div>
+								Defunción
 							</small>
 						</div>
 					</div>
@@ -714,6 +775,16 @@
 		vertical-align: middle;
 	}
 
+	.trajectory-legend.origin {
+		background-color: #2980b9;
+	}
+
+	.trajectory-legend.defuncion {
+		background-color: #7f8c8d;
+		border-top: 1px dashed #7f8c8d;
+		background: none;
+	}
+
 	.trajectory-legend::after {
 		content: '';
 		position: absolute;
@@ -724,6 +795,14 @@
 		border-left: 6px solid #e74c3c;
 		border-top: 4px solid transparent;
 		border-bottom: 4px solid transparent;
+	}
+
+	.trajectory-legend.origin::after {
+		border-left-color: #2980b9;
+	}
+
+	.trajectory-legend.defuncion::after {
+		border-left-color: #7f8c8d;
 	}
 
 	:global(.leaflet-container) {
