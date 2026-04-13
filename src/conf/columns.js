@@ -93,8 +93,8 @@ export const filtersDefinition = {
         { key: 'calidades__calidad__icontains', label: 'Calidad', type: 'searchable-select', facetKey: 'calidades' },
         { key: 'edad__gte', label: 'Edad mínima', type: 'number', placeholder: 'Min' },
         { key: 'edad__lte', label: 'Edad máxima', type: 'number', placeholder: 'Max' },
-        { key: 'fecha_documento__gte', label: 'Fecha documento desde', type: 'date' },
-        { key: 'fecha_documento__lte', label: 'Fecha documento hasta', type: 'date' },
+        { key: 'fecha_documento__gte', label: 'Desde', type: 'year' },
+        { key: 'fecha_documento__lte', label: 'Hasta', type: 'year' },
     ],
     personanoesclavizada: [
         { key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },

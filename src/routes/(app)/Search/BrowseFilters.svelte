@@ -8,6 +8,7 @@
     $: filterDefs = filtersDefinition[entityType] || [];
     $: currentFilters = $unifiedStore.tabs[entityType]?.filters || {};
     $: facets = $unifiedStore.facets || {};
+    $: yearRange = facets.year_range || {};
     $: hasActiveFilters = Object.values(currentFilters).some(v => v);
 
     // Track which sections are expanded — first section open by default
@@ -73,6 +74,17 @@
                 const next = defs[i + 1];
                 if (next.type === 'date') {
                     groups.push({ kind: 'daterange', label: 'Fecha', filters: [f, next] });
+                    consumed.add(i);
+                    consumed.add(i + 1);
+                    continue;
+                }
+            }
+
+            // Year range pair (e.g. fecha_documento__gte + fecha_documento__lte)
+            if (f.type === 'year' && i + 1 < defs.length) {
+                const next = defs[i + 1];
+                if (next.type === 'year') {
+                    groups.push({ kind: 'yearrange', label: 'Período documental', filters: [f, next] });
                     consumed.add(i);
                     consumed.add(i + 1);
                     continue;
@@ -181,6 +193,28 @@
                                     on:change={(e) => handleFilterChange(filter.key, e.target.value, true)}
                                 />
                             {/each}
+                        </div>
+                    {:else if group.kind === 'yearrange'}
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <input
+                                type="number"
+                                class="form-control form-control-sm text-center"
+                                min={yearRange.min || ''}
+                                max={yearRange.max || ''}
+                                placeholder={yearRange.min || ''}
+                                value={currentFilters[group.filters[0].key] || yearRange.min || ''}
+                                on:input={(e) => handleFilterChange(group.filters[0].key, e.target.value)}
+                            />
+                            <span class="text-muted">–</span>
+                            <input
+                                type="number"
+                                class="form-control form-control-sm text-center"
+                                min={yearRange.min || ''}
+                                max={yearRange.max || ''}
+                                placeholder={yearRange.max || ''}
+                                value={currentFilters[group.filters[1].key] || yearRange.max || ''}
+                                on:input={(e) => handleFilterChange(group.filters[1].key, e.target.value)}
+                            />
                         </div>
                     {/if}
                 </div>
