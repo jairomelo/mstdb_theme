@@ -165,7 +165,7 @@
                                         </a>
                                     {/each}
                                     {#if per.fecha_inicial_lugar_raw || per.fecha_final_lugar_raw}
-                                        <p class="mb-1"><small>Período: {per.fecha_inicial_lugar_raw || '?'} - {per.fecha_final_lugar_raw || '?'}</small></p>
+                                        <p class="mb-1"><small>Periodo: {per.fecha_inicial_lugar_raw || '?'} - {per.fecha_final_lugar_raw || '?'}</small></p>
                                     {/if}
                                     {#if per.situacion_lugar}
                                         <p class="mb-1"><small>Situación: {per.situacion_lugar}</small></p>
