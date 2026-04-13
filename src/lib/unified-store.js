@@ -19,9 +19,9 @@ function abortPrevious(key) {
 export const ENTITY_TYPES = [
     'personaesclavizada',
     'personanoesclavizada',
-    'documento',
     'lugar',
     'corporacion',
+    'documento',
 ];
 
 export const PAGE_SIZES = [30, 90, 150, 300];
