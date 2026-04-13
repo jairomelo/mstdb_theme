@@ -2,6 +2,7 @@
     import { setFilter, setFilters, clearFilters, unifiedStore } from '$lib/unified-store';
     import { filtersDefinition } from '$conf/columns';
     import SearchableSelect from './SearchableSelect.svelte';
+    import IdSearchableSelect from './IdSearchableSelect.svelte';
 
     export let entityType;
 
@@ -161,6 +162,14 @@
                                 options={facets[filter.facetKey] || []}
                                 value={currentFilters[filter.key] || ''}
                                 placeholder="Buscar {filter.label.toLowerCase()}..."
+                                on:change={(e) => handleFilterChange(filter.key, e.detail, true)}
+                            />
+                        {:else if filter.type === 'id-searchable-select'}
+                            <IdSearchableSelect
+                                options={facets[filter.facetKey] || []}
+                                value={currentFilters[filter.key] || ''}
+                                placeholder="Buscar {filter.label.toLowerCase()}..."
+                                multi={filter.multi || false}
                                 on:change={(e) => handleFilterChange(filter.key, e.detail, true)}
                             />
                         {:else if filter.type === 'select'}

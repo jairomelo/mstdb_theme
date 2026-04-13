@@ -91,6 +91,8 @@ export const filtersDefinition = {
         { key: 'etnonimos__etonimo__icontains', label: 'Etnónimo', type: 'searchable-select', facetKey: 'etnonimos' },
         { key: 'hispanizacion__hispanizacion__icontains', label: 'Agencia / Adaptación', type: 'searchable-select', facetKey: 'hispanizaciones' },
         { key: 'calidades__calidad__icontains', label: 'Calidad', type: 'searchable-select', facetKey: 'calidades' },
+        { key: 'procedencia', label: 'Procedencia', type: 'id-searchable-select', facetKey: 'procedencias' },
+        { key: 'trayectoria_lugar', label: 'Lugares (trayectoria)', type: 'id-searchable-select', facetKey: 'lugares', multi: true },
         { key: 'edad__gte', label: 'Edad mínima', type: 'number', placeholder: 'Min' },
         { key: 'edad__lte', label: 'Edad máxima', type: 'number', placeholder: 'Max' },
         { key: 'fecha_documento__gte', label: 'Desde', type: 'year' },
@@ -120,6 +122,7 @@ export const filtersDefinition = {
         },
         { key: 'ocupaciones__actividad__icontains', label: 'Ocupación', type: 'searchable-select', facetKey: 'ocupaciones' },
         { key: 'calidades__calidad__icontains', label: 'Calidad', type: 'searchable-select', facetKey: 'calidades' },
+        { key: 'trayectoria_lugar', label: 'Lugares (trayectoria)', type: 'id-searchable-select', facetKey: 'lugares', multi: true },
     ],
     documento: [
         { key: 'search', label: 'Título', type: 'text', placeholder: 'Buscar por título...' },
@@ -148,6 +151,7 @@ export const filtersDefinition = {
     corporacion: [
         { key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
         { key: 'tipo_institucion__tipo__icontains', label: 'Tipo institución', type: 'text', placeholder: 'Buscar tipo...' },
+        { key: 'lugar_corporacion__nombre_lugar__icontains', label: 'Lugar', type: 'text', placeholder: 'Nombre del lugar...' },
     ],
 };
 
