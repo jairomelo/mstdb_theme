@@ -1,6 +1,7 @@
 <script>
     import { createEventDispatcher } from 'svelte';
     import { fly } from 'svelte/transition';
+    import { focusTrap } from '$lib/actions/focusTrap.js';
 
     export let open = false;
     export let title = '';
@@ -28,6 +29,7 @@
          role="dialog"
          aria-modal="true"
          aria-label={title}
+         use:focusTrap
          transition:fly={{ x: 400, duration: 250 }}>
         <div class="slide-over-header">
             <h5 class="mb-0">{title}</h5>

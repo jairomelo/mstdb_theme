@@ -50,7 +50,7 @@
                     role="button"
                     tabindex="0"
                     on:click={() => $hasPerm(addPermission) && dispatch('add')}
-                    on:keydown={e => e.key === 'Enter' && $hasPerm(addPermission) && dispatch('add')}
+                    on:keydown={e => (e.key === 'Enter' || e.key === ' ') && $hasPerm(addPermission) && (e.preventDefault(), dispatch('add'))}
                 >
                     <i class="bi bi-plus-circle fs-3 text-muted"></i>
                     <span class="text-muted small mt-2">{emptyLabel}</span>

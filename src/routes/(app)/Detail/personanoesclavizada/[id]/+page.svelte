@@ -368,6 +368,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>{pernoesc ? `${pernoesc.nombre_normalizado} — Persona No Esclavizada — Trayectorias Afro` : 'Persona No Esclavizada — Trayectorias Afro'}</title>
+</svelte:head>
+
 <div class="container mt-4">
 	{#if error}
 		<div class="alert alert-danger" role="alert">

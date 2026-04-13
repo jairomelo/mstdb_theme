@@ -2,6 +2,10 @@
   import NetworkGraph from '../viz/NetworkGraph.svelte';
 </script>
 
+<svelte:head>
+  <title>Red de Personas — Trayectorias Afro</title>
+</svelte:head>
+
 <div class="container-fluid py-4">
   <div class="row mb-3">
     <div class="col">

@@ -19,6 +19,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>{corp ? `${corp.nombre_institucion} — Corporación — Trayectorias Afro` : 'Corporación — Trayectorias Afro'}</title>
+</svelte:head>
+
 <div class="container mt-4">
 	{#if error}
 		<div class="alert alert-danger" role="alert">

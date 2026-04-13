@@ -14,9 +14,9 @@
     {/if}
     <slot />
     {#if hint && !error}
-        <div class="form-text">{hint}</div>
+        <div id="{id ? `${id}-hint` : undefined}" class="form-text">{hint}</div>
     {/if}
     {#if error}
-        <div class="invalid-feedback d-block">{error}</div>
+        <div id="{id ? `${id}-error` : undefined}" class="invalid-feedback d-block">{error}</div>
     {/if}
 </div>

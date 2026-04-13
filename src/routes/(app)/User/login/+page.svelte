@@ -44,24 +44,46 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Ingresar — Trayectorias Afro</title>
+</svelte:head>
+
 <div class="container mt-4">
 	<div class="login-container">
 		<h1 class="login-title">Ingresar</h1>
 		<form on:submit|preventDefault={handleLogin}>
 			<div class="form-group">
-				<i class="bi bi-person"></i>
-				<input type="text" placeholder="Username" bind:value={username} required />
+				<label for="login-username" class="visually-hidden">Nombre de usuario</label>
+				<i class="bi bi-person" aria-hidden="true"></i>
+				<input
+					id="login-username"
+					type="text"
+					placeholder="Nombre de usuario"
+					bind:value={username}
+					autocomplete="username"
+					aria-describedby={error ? 'login-error' : undefined}
+					required
+				/>
 			</div>
 			<div class="form-group">
-				<i class="bi bi-lock"></i>
-				<input type="password" placeholder="Password" bind:value={password} required />
+				<label for="login-password" class="visually-hidden">Contraseña</label>
+				<i class="bi bi-lock" aria-hidden="true"></i>
+				<input
+					id="login-password"
+					type="password"
+					placeholder="Contraseña"
+					bind:value={password}
+					autocomplete="current-password"
+					aria-describedby={error ? 'login-error' : undefined}
+					required
+				/>
 			</div>
 			<button type="submit" class="login-btn">Entrar</button>
 		</form>
 
 		{#if error}
-			<div class="error-message">
-				<i class="bi bi-exclamation-circle"></i>
+			<div id="login-error" class="error-message" role="alert">
+				<i class="bi bi-exclamation-circle" aria-hidden="true"></i>
 				{error}
 			</div>
 		{/if}

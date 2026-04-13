@@ -1,5 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte';
+    import { focusTrap } from '$lib/actions/focusTrap.js';
 
     export let open = false;
     export let message = '¿Está seguro de querer borrar este elemento? Esta acción no se puede deshacer.';
@@ -12,7 +13,7 @@
 {#if open}
     <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+            <div class="modal-content" use:focusTrap>
                 <div class="modal-header">
                     <h5 class="modal-title">Confirmar borrado</h5>
                     <button type="button" class="btn-close"

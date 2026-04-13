@@ -77,6 +77,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Trayectorias Afro</title>
+</svelte:head>
+
 <section
   class="hero-section d-flex align-items-center justify-content-center text-white"
   bind:this={heroSectionElement}
@@ -107,14 +111,17 @@
     >
       <!-- Search bar -->
       <div class="input-group mb-2">
+        <label for="hero-search" class="visually-hidden">Buscar en la base de datos</label>
         <input
+          id="hero-search"
           type="text"
           bind:value={query}
           class="form-control form-control-lg"
           placeholder="Busca por persona, lugar, documento, o palabra clave..."
+          aria-label="Buscar en la base de datos"
         />
-        <button type="submit" class="btn btn-lg btn-primary search-btn">
-          <i class="bi bi-search"></i>
+        <button type="submit" class="btn btn-lg btn-primary search-btn" aria-label="Buscar">
+          <i class="bi bi-search" aria-hidden="true"></i>
         </button>
       </div>
 
@@ -138,12 +145,12 @@
     <div class="hero-explore-row">
       {#each quickBrowseItems as item}
         <a class="hero-explore-link" href="/Search/?tab={item.tab}">
-          <i class="bi {item.icon} hero-explore-icon"></i>
+          <i class="bi {item.icon} hero-explore-icon" aria-hidden="true"></i>
           <span class="hero-explore-label">{item.label}</span>
           {#if counts[item.tab] != null}
-            <span class="hero-explore-count">{counts[item.tab].toLocaleString('es-MX')}</span>
+            <span class="hero-explore-count" aria-label="{counts[item.tab].toLocaleString('es-MX')} registros">{counts[item.tab].toLocaleString('es-MX')}</span>
           {/if}
-          <i class="bi bi-arrow-right hero-explore-arrow"></i>
+          <i class="bi bi-arrow-right hero-explore-arrow" aria-hidden="true"></i>
         </a>
       {/each}
     </div>
@@ -154,9 +161,9 @@
       <button 
         class="scroll-down-btn" 
         on:click={scrollToBody}
-        aria-label="Scroll to content"
+        aria-label="Desplazarse al contenido"
       >
-        <i class="bi bi-chevron-double-down"></i>
+        <i class="bi bi-chevron-double-down" aria-hidden="true"></i>
       </button>
     </div>
   {/if}

@@ -29,12 +29,18 @@
 {#if $page.url.pathname === '/'}
 	<slot />
 {:else}
+	<a class="skip-link" href="#main-content">Saltar al contenido principal</a>
 	<nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
 		<div class="container-fluid">
-			<a class="navbar-brand" href="/"><i class="bi bi-house-fill"></i></a>
+			<a class="navbar-brand" href="/">
+				<i class="bi bi-house-fill" aria-hidden="true"></i>
+				<span class="visually-hidden">Inicio</span>
+			</a>
 			<button
 				class="navbar-toggler"
 				type="button"
+				aria-label="Alternar navegación"
+				aria-controls="navbarSupportedContent"
 				data-bs-toggle="collapse"
 				data-bs-target="#navbarSupportedContent"
 				use:collapse
@@ -42,30 +48,50 @@
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<!-- Add ms-auto class to push everything to the right -->
 				<div class="d-flex align-items-center ms-auto">
 					<ul class="navbar-nav me-2">
 						<li class="nav-item">
-							<a class="nav-link" href="/Search/">Buscar/Explorar <i class="bi bi-search"></i></a>
+							<a
+								class="nav-link"
+								href="/Search/"
+								aria-current={$page.url.pathname.startsWith('/Search') ? 'page' : undefined}
+							>Buscar/Explorar <i class="bi bi-search" aria-hidden="true"></i></a>
 						</li>
 
 						<li class="nav-item">
-							<a class="nav-link" href="/Dashboard/">Visualizaciones</a>
+							<a
+								class="nav-link"
+								href="/Dashboard/"
+								aria-current={$page.url.pathname.startsWith('/Dashboard') ? 'page' : undefined}
+							>Visualizaciones</a>
 						</li>
 
-					
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" use:dropdown>
+							<button
+								type="button"
+								class="nav-link dropdown-toggle"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+								use:dropdown
+							>
 								Acerca de
-							</a>
-								<ul class="dropdown-menu dropdown-menu-end">
-									<li>
-										<a class="dropdown-item" href="/Archivos/">Archivos</a>
-									</li>
-									<li>
-										<a class="dropdown-item" href="/About/">Sobre el proyecto</a>
-									</li>
-								</ul>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-end">
+								<li>
+									<a
+										class="dropdown-item"
+										href="/Archivos/"
+										aria-current={$page.url.pathname.startsWith('/Archivos') ? 'page' : undefined}
+									>Archivos</a>
+								</li>
+								<li>
+									<a
+										class="dropdown-item"
+										href="/About/"
+										aria-current={$page.url.pathname.startsWith('/About') ? 'page' : undefined}
+									>Sobre el proyecto</a>
+								</li>
+							</ul>
 						</li>
 					</ul>
 
@@ -107,7 +133,7 @@
 		</div>
 	</nav>
 
-	<div class="content-container">
+	<div id="main-content" class="content-container" tabindex="-1">
 		<slot />
 	</div>
 {/if}

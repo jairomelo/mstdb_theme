@@ -694,7 +694,7 @@ p, ol, ul, li {
 }
 
 .footer h5 {
-  color: var(--text-primary);
+  color: #e8d5c4;
   margin-bottom: 1.5rem;
   font-family: 'eb-garamond';
   font-size: 1.25rem;
@@ -707,7 +707,7 @@ p, ol, ul, li {
 }
 
 .footer a {
-  color: var(--text-primary);
+  color: #d4a87a;
   text-decoration: none;
   transition: color 0.3s ease;
 }
@@ -727,8 +727,12 @@ p, ol, ul, li {
 }
 
 .footer ul li a:hover {
-  color: var(--text-primary);
+  color: #e8d5c4;
   text-decoration: none;
+}
+
+.footer .text-muted {
+  color: #aaa !important;
 }
 
 /* Responsive adjustments */
@@ -747,6 +751,14 @@ p, ol, ul, li {
 }
 
 /* Navbar customization */
+
+/* Browse/Search entity tabs — inactive state must meet WCAG 4.5:1 on white */
+.browse-view .nav-link:not(.active) {
+  color: #595959;
+}
+.browse-view .nav-link:not(.active):hover {
+  color: #333;
+}
 
 .navbar-dark .dropdown-menu {
   background-color: transparent; 
@@ -1601,5 +1613,86 @@ p, ol, ul, li {
 
 .trajectory-map-container svg path.trajectory-arc:hover {
   opacity: 0.9 !important;
+}
+
+/* ── Accessibility ────────────────────────────────────────────────────────── */
+
+/* Skip-to-main-content link (WCAG 2.4.1) */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 10000;
+  padding: 0.75rem 1.25rem;
+  background: #fff;
+  color: #2d2420;
+  font-family: 'aleo', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 3px solid #8B4513;
+  border-radius: 0 0 4px 0;
+  text-decoration: none;
+  transition: top 0.1s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid #8B4513;
+  outline-offset: 2px;
+}
+
+/* Ensure visible focus on all interactive elements (WCAG 2.4.7, 1.4.11) */
+:focus-visible {
+  outline: 3px solid #8B4513;
+  outline-offset: 2px;
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible,
+.dropdown-item:focus-visible,
+.form-control:focus-visible,
+.form-check-input:focus-visible,
+.form-select:focus-visible,
+.hero-explore-link:focus-visible,
+.feature-card:focus-visible,
+.showcase-card:focus-visible,
+.funder-card:focus-visible {
+  outline: 3px solid #8B4513;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(139, 69, 19, 0.2);
+}
+
+/* Keep the page-input focus ring too */
+.page-input:focus-visible {
+  outline: 3px solid #8B4513;
+  outline-offset: 2px;
+}
+
+/* Reduced motion: disable animations for users who prefer it (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  .hero-section,
+  .search-hero {
+    animation: none;
+  }
+
+  .scroll-down-btn {
+    animation: none;
+  }
+
+  [data-aos] {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }
 

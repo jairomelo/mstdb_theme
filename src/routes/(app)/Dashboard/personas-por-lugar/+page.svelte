@@ -2,6 +2,10 @@
   import PlacePeople from '../viz/PlacePeople.svelte';
 </script>
 
+<svelte:head>
+  <title>Personas por Lugar — Trayectorias Afro</title>
+</svelte:head>
+
 <div class="container-fluid py-4">
   <div class="row mb-3">
     <div class="col">

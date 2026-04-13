@@ -29,10 +29,14 @@
     {required}
     {disabled}
     bind:value
+    aria-invalid={!isValid ? 'true' : undefined}
+    aria-describedby={id ? `${id}-format-hint` : undefined}
     on:input={onInput}
     on:blur={() => (touched = true)}
     autocomplete="off"
 />
 {#if !isValid}
-    <div class="invalid-feedback">{HINT}</div>
+    <div id="{id ? `${id}-format-hint` : undefined}" class="invalid-feedback">{HINT}</div>
+{:else if id}
+    <div id="{id}-format-hint" class="form-text visually-hidden">{HINT}</div>
 {/if}

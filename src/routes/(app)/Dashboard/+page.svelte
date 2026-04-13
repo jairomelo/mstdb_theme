@@ -24,6 +24,10 @@
   ];
 </script>
 
+<svelte:head>
+  <title>Visualizaciones — Trayectorias Afro</title>
+</svelte:head>
+
 <div class="container-fluid py-4">
   <div class="row mb-4">
     <div class="col">

@@ -3,7 +3,7 @@ $theme-colors: (
     "light":      #f8f5f2,    // Warm white - keeping it for good contrast
     "dark":       #2d2420,    // Softer dark brown
     "primary":    #8B4513,    // Saddle brown - softer than current primary
-    "secondary":  #5F7A8C,    // Muted blue-grey
+    "secondary":  #4d6578,    // Muted blue-grey (WCAG AA compliant)
     "info":       #446B8C,    // Dusty blue
     "accent1":    #A65D57,    // Muted terra cotta
     "accent2":    #6B635D,    // Warm grey
@@ -44,9 +44,13 @@ $theme-colors: (
       transition: border-color 0.2s;
       
       &:focus {
-        outline: none;
         border-color: map-get($theme-colors, "primary");
         box-shadow: 0 0 0 2px rgba(map-get($theme-colors, "primary"), 0.2);
+      }
+
+      &:focus-visible {
+        outline: 3px solid map-get($theme-colors, "primary");
+        outline-offset: 2px;
       }
     }
   

@@ -78,6 +78,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>{documento ? `${documento.titulo} — Documento — Trayectorias Afro` : 'Documento — Trayectorias Afro'}</title>
+</svelte:head>
+
 <div class="container mt-4">
 	{#if error}
 		<div class="alert alert-danger" role="alert">

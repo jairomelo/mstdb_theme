@@ -115,6 +115,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>{lugar ? `${lugar.nombre_lugar} — Lugar — Trayectorias Afro` : 'Lugar — Trayectorias Afro'}</title>
+</svelte:head>
+
 <div class="container mt-4">
 	{#if error}
 		<div class="alert alert-danger" role="alert">

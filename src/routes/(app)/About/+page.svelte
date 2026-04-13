@@ -2,6 +2,10 @@
   import { contributors } from '$conf/contributors';
 </script>
 
+<svelte:head>
+  <title>Sobre el Proyecto — Trayectorias Afro</title>
+</svelte:head>
+
 <div class="container mt-4">
   <!-- Hero Section for About Page -->
   <div class="about-hero mb-5 text-center" data-aos="fade-up">

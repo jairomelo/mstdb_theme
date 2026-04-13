@@ -110,6 +110,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Buscar / Explorar — Trayectorias Afro</title>
+</svelte:head>
+
 <!-- Search hero banner -->
 <section class="search-hero" bind:this={heroSectionElement}>
 	<div class="overlay"></div>
@@ -123,12 +127,12 @@
 					aria-label="Buscar"
 				/>
 				{#if query}
-					<button type="button" class="btn btn-outline-light" on:click={handleClearSearch} title="Limpiar búsqueda">
-						<i class="bi bi-x-lg"></i>
+					<button type="button" class="btn btn-outline-light" aria-label="Limpiar búsqueda" on:click={handleClearSearch} title="Limpiar búsqueda">
+						<i class="bi bi-x-lg" aria-hidden="true"></i>
 					</button>
 				{/if}
-				<button type="submit" class="btn btn-primary btn-lg">
-					<i class="bi bi-search"></i>
+				<button type="submit" class="btn btn-primary btn-lg" aria-label="Buscar">
+					<i class="bi bi-search" aria-hidden="true"></i>
 				</button>
 			</div>
 			<div class="d-flex justify-content-between align-items-center">
@@ -276,29 +280,29 @@
 
 				<!-- Pagination -->
 				<nav class="d-flex justify-content-center align-items-center gap-2 my-3" aria-label="Paginación">
-					<button class="btn btn-sm btn-outline-secondary" disabled={tabState.currentPage <= 1} on:click={goFirst}>
-						<i class="bi bi-chevron-double-left"></i>
-					</button>
-					<button class="btn btn-sm btn-outline-secondary" disabled={tabState.currentPage <= 1} on:click={goPrev}>
-						<i class="bi bi-chevron-left"></i>
+<button class="btn btn-sm btn-outline-secondary" aria-label="Primera página" disabled={tabState.currentPage <= 1} on:click={goFirst}>
+					<i class="bi bi-chevron-double-left" aria-hidden="true"></i>
+				</button>
+				<button class="btn btn-sm btn-outline-secondary" aria-label="Página anterior" disabled={tabState.currentPage <= 1} on:click={goPrev}>
+					<i class="bi bi-chevron-left" aria-hidden="true"></i>
 					</button>
 
 					<span class="small text-muted">
 						Página {tabState.currentPage} de {totalPages}
 					</span>
 
-					<button class="btn btn-sm btn-outline-secondary" disabled={tabState.currentPage >= totalPages} on:click={goNext}>
-						<i class="bi bi-chevron-right"></i>
-					</button>
-					<button class="btn btn-sm btn-outline-secondary" disabled={tabState.currentPage >= totalPages} on:click={goLast}>
-						<i class="bi bi-chevron-double-right"></i>
+<button class="btn btn-sm btn-outline-secondary" aria-label="Página siguiente" disabled={tabState.currentPage >= totalPages} on:click={goNext}>
+					<i class="bi bi-chevron-right" aria-hidden="true"></i>
+				</button>
+				<button class="btn btn-sm btn-outline-secondary" aria-label="Última página" disabled={tabState.currentPage >= totalPages} on:click={goLast}>
+					<i class="bi bi-chevron-double-right" aria-hidden="true"></i>
 					</button>
 
 					<div class="input-group input-group-sm" style="width: 140px;">
 						<input type="number" class="form-control" bind:value={desiredPage}
 							min="1" max={totalPages} placeholder="Ir a..." />
-						<button class="btn btn-outline-secondary" on:click={goToPage}>
-							<i class="bi bi-arrow-right"></i>
+					<button class="btn btn-outline-secondary" aria-label="Ir a la página" on:click={goToPage}>
+						<i class="bi bi-arrow-right" aria-hidden="true"></i>
 						</button>
 					</div>
 				</nav>
@@ -320,13 +324,3 @@
 {#if showColumnConfig}
 	<ColumnConfigModal entityType={activeTab} on:close={() => showColumnConfig = false} />
 {/if}
-
-<style>
-	/* Inactive tab links: muted gray with darker hover */
-	.browse-view .nav-link:not(.active) {
-		color: #999;
-	}
-	.browse-view .nav-link:not(.active):hover {
-		color: #444;
-	}
-</style>
