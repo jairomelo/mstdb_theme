@@ -13,6 +13,7 @@
 	import BrowseFilters from './BrowseFilters.svelte';
 	import BrowseCards from './BrowseCards.svelte';
 	import ColumnConfigModal from './ColumnConfigModal.svelte';
+	import TrajectoryMap from './TrajectoryMap.svelte';
 
 	export let data;
 	let { searchQuery, archivoId, tab: initialTab, view: initialView } = data;
@@ -213,6 +214,17 @@
 					>
 						<i class="bi bi-grid-3x3-gap"></i>
 					</button>
+					{#if activeTab === 'personaesclavizada'}
+					<button
+						class="btn"
+						class:btn-primary={viewMode === 'map'}
+						class:btn-outline-secondary={viewMode !== 'map'}
+						on:click={() => setViewMode('map')}
+						title="Mapa de trayectorias"
+					>
+						<i class="bi bi-globe-americas"></i>
+					</button>
+					{/if}
 				</div>
 
 				<!-- Page size -->
@@ -256,6 +268,8 @@
 				<!-- Results -->
 				{#if viewMode === 'table'}
 					<EntityTable entityType={activeTab} results={tabState.results} />
+				{:else if viewMode === 'map' && activeTab === 'personaesclavizada'}
+					<TrajectoryMap filters={tabState.filters} />
 				{:else}
 					<BrowseCards entityType={activeTab} results={tabState.results} />
 				{/if}

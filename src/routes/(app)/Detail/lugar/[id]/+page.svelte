@@ -1,5 +1,6 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import { browser } from '$app/environment';
 	import { tooltip } from '$lib/bootstrap-actions.js';
 	import { lugares, lugarPersonasRelacionadas, lugarProcedencia } from '$lib/api';
 
@@ -17,6 +18,9 @@
 	let procTotalPages = 1;
 	let procLoading = false;
 
+	let L = null;
+	let map = null;
+
 	onMount(async () => {
 		try {
 			lugar = await lugares(data.id);
@@ -24,11 +28,36 @@
 			if (lugar.procedencia_count > 0) {
 				await loadProcedencia(1);
 			}
+			await initializeMap();
 		} catch (e) {
 			error = e.message;
 			console.error('Failed to fetch lugar:', e);
 		}
 	});
+
+	onDestroy(() => {
+		if (map) { map.remove(); map = null; }
+	});
+
+	async function initializeMap() {
+		if (!browser || !lugar || !lugar.lat || !lugar.lon) return;
+		const container = document.getElementById('lugar-map');
+		if (!container) return;
+		const leaflet = await import('leaflet');
+		L = leaflet.default;
+		if (map) { map.remove(); }
+		const lat = parseFloat(lugar.lat);
+		const lon = parseFloat(lugar.lon);
+		map = L.map(container).setView([lat, lon], 6);
+		L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
+			attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
+			maxZoom: 8
+		}).addTo(map);
+		L.circleMarker([lat, lon], {
+			radius: 8, fillColor: '#e74c3c', color: '#c0392b',
+			weight: 2, opacity: 1, fillOpacity: 0.8
+		}).addTo(map).bindPopup(`<strong>${lugar.nombre_lugar}</strong><br>${lugar.tipo}`);
+	}
 
 	async function loadPersonas(page) {
         if (loading) return;
@@ -111,6 +140,9 @@
 						</p>
 					</div>
 				</div>
+				{#if lugar.lat && lugar.lon}
+				<div id="lugar-map" style="height: 350px; width: 100%; border-radius: 0 0 0.375rem 0.375rem;"></div>
+				{/if}
 			</div>
 		</div>
 

@@ -257,6 +257,17 @@ export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`relac
 export const personaNetwork = (personaId) => fetchWithBaseUrl(`personas-esclavizadas/${personaId}/network/`);
 export const personaTrajectory = (personaId) => fetchWithBaseUrl(`personas-esclavizadas/${personaId}/trajectory/`);
 
+// Aggregated trajectory endpoints
+export const aggregatedTrajectories = (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return fetchWithBaseUrl(`travel-trajectories/aggregated/${qs ? '?' + qs : ''}`);
+};
+export const routeDetail = (fromId, toId, page = 1, params = {}) => {
+    const extra = new URLSearchParams(params).toString();
+    const base = `travel-trajectories/route_detail/?from_lugar_id=${fromId}&to_lugar_id=${toId}&page=${page}`;
+    return fetchWithBaseUrl(extra ? `${base}&${extra}` : base);
+};
+
 // Data Visualization endpoints
 export const generoHispanizacion = async () => {
     try {
