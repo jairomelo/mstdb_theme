@@ -1390,6 +1390,38 @@ p, ol, ul, li {
   max-height: calc(100vh - 200px);
   position: sticky;
   top: 100px;
+  display: flex;
+  flex-direction: column;
+}
+.filter-scroll {
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 0.25rem;
+}
+.filter-group {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.filter-group-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.4rem 0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+.filter-group-header:hover {
+  color: var(--bs-primary, #8B4513);
+}
+.filter-group-body {
+  padding-left: 0.25rem;
 }
 .facet-section {
   border-bottom: 1px solid #eee;
