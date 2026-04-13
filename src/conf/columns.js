@@ -21,6 +21,10 @@ export const columnsConfig = {
         { key: 'has_relaciones', label: 'Relaciones', sortable: false, visible: true },
         { key: 'has_lugares', label: 'Trayectoria', sortable: false, visible: true },
         { key: 'documento_list', label: 'Documentos', sortable: false, visible: true },
+        { key: 'fecha_nacimiento', label: 'Nacimiento', sortable: true, visible: false },
+        { key: 'earliest_doc_date', label: 'Primer registro', sortable: true, visible: true },
+        { key: 'latest_doc_date', label: 'Último registro', sortable: true, visible: true },
+        { key: 'documented_span', label: 'Período (años)', sortable: false, visible: false },
         { key: 'created_at', label: 'Creado', sortable: true, visible: false },
         { key: 'updated_at', label: 'Actualizado', sortable: true, visible: false },
     ],
@@ -89,6 +93,8 @@ export const filtersDefinition = {
         { key: 'calidades__calidad__icontains', label: 'Calidad', type: 'searchable-select', facetKey: 'calidades' },
         { key: 'edad__gte', label: 'Edad mínima', type: 'number', placeholder: 'Min' },
         { key: 'edad__lte', label: 'Edad máxima', type: 'number', placeholder: 'Max' },
+        { key: 'fecha_documento__gte', label: 'Fecha documento desde', type: 'date' },
+        { key: 'fecha_documento__lte', label: 'Fecha documento hasta', type: 'date' },
     ],
     personanoesclavizada: [
         { key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
@@ -191,6 +197,21 @@ export function renderCellValue(entityType, columnKey, row) {
     if (columnKey === 'edad' && value) {
         const unit = row.unidad_temporal_edad || 'años';
         return `${value} ${unit}`;
+    }
+
+    // Date fields — show year or full date for colonial-era data
+    if (['fecha_nacimiento', 'earliest_doc_date', 'latest_doc_date', 'fecha_inicial', 'fecha_final'].includes(columnKey) && value) {
+        const d = new Date(value);
+        if (!isNaN(d)) {
+            // If day/month are Jan 1 (placeholder), show year only
+            if (d.getMonth() === 0 && d.getDate() === 1) return String(d.getFullYear());
+            return d.toLocaleDateString('es', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+    }
+
+    // Documented span
+    if (columnKey === 'documented_span' && value) {
+        return `${value} año${value !== 1 ? 's' : ''}`;
     }
 
     return String(value);
