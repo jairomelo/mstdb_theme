@@ -289,10 +289,10 @@
         </p>
       </div>
       <div class="col-md-4">
-        <h5>Enlaces Rápidos</h5>
+        <h5>Acerca de Trayectorias Afro</h5>
         <ul class="list-unstyled">
           <li><a href="/About">Sobre Nosotros</a></li>
-          <li><a href="/Browse/personasesclavizadas">Base de Datos</a></li>
+          <li><a href="/Accessibility">Accesibilidad</a></li>
         </ul>
       </div>
     </div>
