@@ -11,7 +11,7 @@
 
 export const columnsConfig = {
     personaesclavizada: [
-        { key: 'persona_idno', label: 'ID', sortable: false, visible: true },
+        { key: 'persona_idno', label: 'ID', sortable: false, visible: false },
         { key: 'nombre_normalizado', label: 'Nombre', sortable: true, visible: true },
         { key: 'sexo', label: 'Sexo', sortable: false, visible: true },
         { key: 'edad', label: 'Edad', sortable: true, visible: true },
@@ -22,14 +22,14 @@ export const columnsConfig = {
         { key: 'has_lugares', label: 'Trayectoria', sortable: false, visible: true },
         { key: 'documento_list', label: 'Documentos', sortable: false, visible: true },
         { key: 'fecha_nacimiento', label: 'Nacimiento', sortable: true, visible: false },
-        { key: 'earliest_doc_date', label: 'Primer registro', sortable: true, visible: true },
-        { key: 'latest_doc_date', label: 'Último registro', sortable: true, visible: true },
+        { key: 'earliest_doc_date', label: 'Primer registro', sortable: true, visible: false },
+        { key: 'latest_doc_date', label: 'Último registro', sortable: true, visible: false },
         { key: 'documented_span', label: 'Período (años)', sortable: false, visible: false },
         { key: 'created_at', label: 'Creado', sortable: true, visible: false },
         { key: 'updated_at', label: 'Actualizado', sortable: true, visible: false },
     ],
     personanoesclavizada: [
-        { key: 'persona_idno', label: 'ID', sortable: false, visible: true },
+        { key: 'persona_idno', label: 'ID', sortable: false, visible: false },
         { key: 'nombre_normalizado', label: 'Nombre', sortable: true, visible: true },
         { key: 'sexo', label: 'Sexo', sortable: false, visible: true },
         { key: 'ocupaciones', label: 'Ocupaciones', sortable: false, visible: true },
@@ -50,7 +50,7 @@ export const columnsConfig = {
         { key: 'created_at', label: 'Creado', sortable: true, visible: false },
     ],
     lugar: [
-        { key: 'nombre_lugar', label: 'Nombre', sortable: true, visible: true },
+        { key: 'nombre_lugar', label: 'Nombre', sortable: true, visible: false },
         { key: 'tipo', label: 'Tipo', sortable: true, visible: true },
         { key: 'otros_nombres', label: 'Otros nombres', sortable: false, visible: true },
         { key: 'persona_count', label: 'Personas', sortable: false, visible: true },
@@ -58,7 +58,7 @@ export const columnsConfig = {
         { key: 'lon', label: 'Longitud', sortable: false, visible: false },
     ],
     corporacion: [
-        { key: 'nombre_institucion', label: 'Nombre', sortable: true, visible: true },
+        { key: 'nombre_institucion', label: 'Nombre', sortable: true, visible: false },
         { key: 'tipo_institucion', label: 'Tipo', sortable: false, visible: true },
         { key: 'lugar_corporacion', label: 'Lugar', sortable: false, visible: true },
     ],
