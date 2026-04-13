@@ -135,7 +135,7 @@
 					</div>
 					<div class="col-md-6">
 						<p>
-							<strong><i class="bi bi-file-earmark-text me-2"></i>Localización (georreferenciacíón):</strong>
+							<strong><i class="bi bi-file-earmark-text me-2"></i>Localización (georreferenciación):</strong>
 							{lugar.lat || 'latitud'},{lugar.lon || 'longitud'}
 						</p>
 					</div>
