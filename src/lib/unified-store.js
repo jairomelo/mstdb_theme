@@ -231,6 +231,23 @@ export function setFilter(entityType, key, value) {
     fetchResults(entityType);
 }
 
+export function setFilters(entityType, entries) {
+    unifiedStore.update(s => {
+        const merged = { ...s.tabs[entityType].filters };
+        for (const [key, value] of Object.entries(entries)) {
+            merged[key] = value;
+        }
+        return {
+            ...s,
+            tabs: {
+                ...s.tabs,
+                [entityType]: { ...s.tabs[entityType], filters: merged, currentPage: 1 },
+            },
+        };
+    });
+    fetchResults(entityType);
+}
+
 export function clearFilters(entityType) {
     unifiedStore.update(s => ({
         ...s,

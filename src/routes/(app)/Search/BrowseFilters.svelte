@@ -1,5 +1,5 @@
 <script>
-    import { setFilter, clearFilters, unifiedStore } from '$lib/unified-store';
+    import { setFilter, setFilters, clearFilters, unifiedStore } from '$lib/unified-store';
     import { filtersDefinition } from '$conf/columns';
     import SearchableSelect from './SearchableSelect.svelte';
 
@@ -45,6 +45,28 @@
 
     function handleClear() {
         clearFilters(entityType);
+        yearFrom = '';
+        yearTo = '';
+    }
+
+    // Year range: local state so inputs don't trigger API on every keystroke
+    let yearFrom = '';
+    let yearTo = '';
+    let yearDirty = false;
+
+    // Sync local year fields when facets arrive or entity changes
+    $: if (yearRange.min !== undefined) {
+        if (!yearFrom && !currentFilters[filterDefs.find(f => f.key?.endsWith('__gte'))?.key]) {
+            yearFrom = '';
+        }
+        if (!yearTo && !currentFilters[filterDefs.find(f => f.key?.endsWith('__lte'))?.key]) {
+            yearTo = '';
+        }
+    }
+
+    function applyYearRange(gteKey, lteKey) {
+        setFilters(entityType, { [gteKey]: yearFrom || '', [lteKey]: yearTo || '' });
+        yearDirty = false;
     }
 
     // Group related range filters (e.g. edad__gte + edad__lte → "Edad")
@@ -84,7 +106,7 @@
             if (f.type === 'year' && i + 1 < defs.length) {
                 const next = defs[i + 1];
                 if (next.type === 'year') {
-                    groups.push({ kind: 'yearrange', label: 'Período documental', filters: [f, next] });
+                    groups.push({ kind: 'yearrange', label: 'Rango de fechas', filters: [f, next] });
                     consumed.add(i);
                     consumed.add(i + 1);
                     continue;
@@ -202,8 +224,9 @@
                                 min={yearRange.min || ''}
                                 max={yearRange.max || ''}
                                 placeholder={yearRange.min || ''}
-                                value={currentFilters[group.filters[0].key] || yearRange.min || ''}
-                                on:input={(e) => handleFilterChange(group.filters[0].key, e.target.value)}
+                                bind:value={yearFrom}
+                                on:input={() => { yearDirty = true; }}
+                                on:keydown={(e) => { if (e.key === 'Enter') applyYearRange(group.filters[0].key, group.filters[1].key); }}
                             />
                             <span class="text-muted">–</span>
                             <input
@@ -212,10 +235,18 @@
                                 min={yearRange.min || ''}
                                 max={yearRange.max || ''}
                                 placeholder={yearRange.max || ''}
-                                value={currentFilters[group.filters[1].key] || yearRange.max || ''}
-                                on:input={(e) => handleFilterChange(group.filters[1].key, e.target.value)}
+                                bind:value={yearTo}
+                                on:input={() => { yearDirty = true; }}
+                                on:keydown={(e) => { if (e.key === 'Enter') applyYearRange(group.filters[0].key, group.filters[1].key); }}
                             />
                         </div>
+                        <button
+                            class="btn btn-sm btn-outline-primary w-100 mt-2"
+                            disabled={!yearDirty}
+                            on:click={() => applyYearRange(group.filters[0].key, group.filters[1].key)}
+                        >
+                            Aplicar
+                        </button>
                     {/if}
                 </div>
             {/if}
