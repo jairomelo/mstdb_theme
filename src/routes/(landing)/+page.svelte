@@ -25,9 +25,9 @@
   const quickBrowseItems = [
     { label: 'Personas Esclavizadas',     tab: 'personaesclavizada',    icon: 'bi-person-fill' },
     { label: 'Personas No Esclavizadas',  tab: 'personanoesclavizada',  icon: 'bi-person' },
-    { label: 'Documentos',               tab: 'documento',             icon: 'bi-file-text' },
     { label: 'Lugares',                  tab: 'lugar',                 icon: 'bi-geo-alt-fill' },
     { label: 'Corporaciones',            tab: 'corporacion',           icon: 'bi-building' },
+    { label: 'Documentos',               tab: 'documento',             icon: 'bi-file-text' },
   ];
 
   function handleHeroSearch() {
