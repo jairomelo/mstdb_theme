@@ -81,13 +81,14 @@
   <title>Trayectorias Afro</title>
 </svelte:head>
 
+<main id="main-content">
 <section
   class="hero-section d-flex align-items-center justify-content-center text-white"
   bind:this={heroSectionElement}
 >
   <div class="overlay"></div>
   <div class="hero-content text-center">
-    <h1 class="display-4 dynamic-title">
+    <h1 class="display-4 dynamic-title" aria-label="{titleStem} {$currentSuffix}">
 		<span class="title-stem">{titleStem}</span>
 		<span
 		  class="title-suffix"
@@ -168,6 +169,7 @@
     </div>
   {/if}
 </section>
+</main>
 
 <section id="landing-body">
   <div class="row database-band" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
