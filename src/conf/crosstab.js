@@ -8,7 +8,7 @@
 /** @type {Record<string, DimConfig>} */
 export const DIMENSIONS = {
     fecha_periodo: {
-        label: 'Período de tiempo',
+        label: 'Periodo de tiempo',
         entities: ['personaesclavizada', 'personanoesclavizada'],
         isPeriod: true,
         isMM: false,
