@@ -114,6 +114,64 @@
 		return cellPrimary(tot);
 	}
 
+	// ── Sorting ──────────────────────────────────────────────────────────
+	// sortCol: -1 = row-label column, 0..N = data columns, Infinity = total column
+	let sortCol = null;
+	let sortDir = 'asc'; // 'asc' | 'desc'
+
+	function toggleSort(col) {
+		if (sortCol === col) {
+			sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+		} else {
+			sortCol = col;
+			sortDir = 'asc';
+		}
+	}
+
+	// Reset sort when a new result arrives
+	$: if (result) { sortCol = null; sortDir = 'asc'; }
+
+	function _numericVal(cell) {
+		if (!cfg) return 0;
+		if (cfg.cellOp === 'avg_edad') return cell?.avg_edad ?? -Infinity;
+		if (cfg.cellOp === 'pct_of_total') return cell?.pct ?? -Infinity;
+		return cell?.count ?? 0;
+	}
+
+	// sortedIndices: an array of original row indices in display order
+	$: sortedIndices = (() => {
+		if (!result) return [];
+		const indices = result.rows.map((_, i) => i);
+		if (sortCol == null) return indices;
+
+		indices.sort((a, b) => {
+			let va, vb;
+			if (sortCol === -1) {
+				// Sort by row label (string)
+				va = result.rows[a] ?? '';
+				vb = result.rows[b] ?? '';
+				return sortDir === 'asc'
+					? va.localeCompare(vb, 'es')
+					: vb.localeCompare(va, 'es');
+			} else if (sortCol === Infinity) {
+				// Sort by row total
+				va = _numericVal(result.row_totals[a]);
+				vb = _numericVal(result.row_totals[b]);
+			} else {
+				// Sort by a specific data column
+				va = _numericVal(result.cells[a]?.[sortCol]);
+				vb = _numericVal(result.cells[b]?.[sortCol]);
+			}
+			return sortDir === 'asc' ? va - vb : vb - va;
+		});
+		return indices;
+	})();
+
+	function sortIcon(col) {
+		if (sortCol !== col) return 'bi-chevron-expand';
+		return sortDir === 'asc' ? 'bi-sort-up' : 'bi-sort-down';
+	}
+
 	onMount(() => {
 		if (!cfg?.result && !cfg?.isLoading) {
 			fetchCrosstab(entityType);
@@ -241,19 +299,30 @@
 
 			<thead class="table-dark">
 				<tr>
-					<!-- Top-left: describes the row dimension -->
-					<th scope="col" class="crosstab-row-header">{meta?.row_dim_label}</th>
-					{#each result.cols as col}
-						<th scope="col" class="text-end">{col}</th>
+					<th scope="col" class="crosstab-row-header crosstab-sortable" on:click={() => toggleSort(-1)}
+						aria-sort={sortCol === -1 ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+						{meta?.row_dim_label}
+						<i class="bi {sortIcon(-1)} ms-1 small" aria-hidden="true"></i>
+					</th>
+					{#each result.cols as col, ci}
+						<th scope="col" class="text-end crosstab-sortable" on:click={() => toggleSort(ci)}
+							aria-sort={sortCol === ci ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+							{col}
+							<i class="bi {sortIcon(ci)} ms-1 small" aria-hidden="true"></i>
+						</th>
 					{/each}
-					<th scope="col" class="text-end crosstab-total-col">Total</th>
+					<th scope="col" class="text-end crosstab-total-col crosstab-sortable" on:click={() => toggleSort(Infinity)}
+						aria-sort={sortCol === Infinity ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+						Total
+						<i class="bi {sortIcon(Infinity)} ms-1 small" aria-hidden="true"></i>
+					</th>
 				</tr>
 			</thead>
 
 			<tbody>
-				{#each result.rows as rowLabel, ri}
+				{#each sortedIndices as ri}
 				<tr>
-					<th scope="row" class="crosstab-row-header">{rowLabel}</th>
+					<th scope="row" class="crosstab-row-header">{result.rows[ri]}</th>
 					{#each result.cells[ri] as cell}
 						<td class="text-end" class:crosstab-zero={cell?.count === 0}>
 							{cellPrimary(cell)}

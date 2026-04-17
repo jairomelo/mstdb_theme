@@ -1748,3 +1748,13 @@ p, ol, ul, li {
 .crosstab-controls select {
   min-width: 160px;
 }
+
+.crosstab-sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.crosstab-sortable:hover {
+  text-decoration: underline;
+}
