@@ -32,7 +32,7 @@ export const DIMENSIONS = {
         isMM: true,
     },
     hispanizacion: {
-        label: 'Hispanización',
+        label: 'Agencia / Adaptación',
         entities: ['personaesclavizada'],
         isPeriod: false,
         isMM: true,
@@ -43,23 +43,11 @@ export const DIMENSIONS = {
         isPeriod: false,
         isMM: false,
     },
-    procedencia_region: {
-        label: 'Procedencia (región)',
-        entities: ['personaesclavizada'],
-        isPeriod: false,
-        isMM: false,
-    },
     estado_civil: {
-        label: 'Estado civil',
+        label: 'Estado matrimonial',
         entities: ['personaesclavizada', 'personanoesclavizada'],
         isPeriod: false,
         isMM: true,
-    },
-    lugar_nacimiento: {
-        label: 'Lugar de nacimiento',
-        entities: ['personaesclavizada', 'personanoesclavizada'],
-        isPeriod: false,
-        isMM: false,
     },
     honorifico: {
         label: 'Honorífico',
