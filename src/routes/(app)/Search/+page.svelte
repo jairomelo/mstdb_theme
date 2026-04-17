@@ -289,7 +289,11 @@
 				{#if viewMode === 'table'}
 					<EntityTable entityType={activeTab} results={tabState.results} />
 				{:else if viewMode === 'map' && activeTab === 'personaesclavizada'}
-					<TrajectoryMap filters={tabState.filters} />
+					<TrajectoryMap
+						filters={tabState.filters}
+						query={$unifiedStore.query}
+						exactSearch={$unifiedStore.exactSearch}
+					/>
 				{:else}
 					<BrowseCards entityType={activeTab} results={tabState.results} />
 				{/if}

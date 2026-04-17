@@ -6,6 +6,8 @@
 	import RouteDetailPanel from './RouteDetailPanel.svelte';
 
 	export let filters = {};
+	export let query = '';
+	export let exactSearch = false;
 
 	let L = null;
 	let map = null;
@@ -21,7 +23,7 @@
 	// Modal state
 	let selectedRoute = null;
 
-	$: if (browser && map && filters) {
+	$: if (browser && map && (filters || query)) {
 		loadData();
 	}
 
@@ -72,14 +74,17 @@
 		error = null;
 		try {
 			const params = {};
-			if (filters.sexo) params.sexo = filters.sexo;
-			if (filters.etnonimo) params.etnonimo = filters.etnonimo;
-			if (filters.calidad) params.calidad = filters.calidad;
-			if (filters.hispanizacion) params.hispanizacion = filters.hispanizacion;
-			if (filters.edad__gte) params.edad__gte = filters.edad__gte;
-			if (filters.edad__lte) params.edad__lte = filters.edad__lte;
-			if (filters.fecha_inicial__gte) params.fecha_inicial__gte = filters.fecha_inicial__gte;
-			if (filters.fecha_inicial__lte) params.fecha_inicial__lte = filters.fecha_inicial__lte;
+			if (query) {
+				params.q = exactSearch
+					? `"${query.replace(/^"|"$/g, '')}"`
+					: query.replace(/^"|"$/g, '');
+			}
+			// Forward all active filters from the search form
+			for (const [key, value] of Object.entries(filters || {})) {
+				if (value !== null && value !== '' && value !== undefined) {
+					params[key] = value;
+				}
+			}
 
 			const data = await aggregatedTrajectories(params);
 			routes = data.routes || [];
