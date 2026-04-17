@@ -1696,3 +1696,55 @@ p, ol, ul, li {
   }
 }
 
+
+/* ── Crosstab / pivot-table view ─────────────────────────────────────────── */
+
+.crosstab-table-wrap {
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.crosstab-table thead th,
+.crosstab-table tfoot td,
+.crosstab-table tfoot th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.crosstab-table .crosstab-row-header {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background-color: var(--bs-table-bg, #fff);
+  min-width: 140px;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crosstab-table thead .crosstab-row-header {
+  z-index: 4;
+  background-color: var(--bs-dark);
+}
+
+.crosstab-table tfoot .crosstab-row-header {
+  z-index: 4;
+}
+
+.crosstab-table .crosstab-total-col {
+  background-color: var(--bs-gray-100);
+}
+
+.crosstab-table thead .crosstab-total-col {
+  background-color: var(--bs-dark);
+}
+
+.crosstab-table td.crosstab-zero {
+  color: var(--bs-gray-400);
+}
+
+.crosstab-controls select {
+  min-width: 160px;
+}

@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
 import { searchAll, fetchCounts, exportCsv, fetchWithBaseUrl } from '$lib/api';
 import { defaultVisibleColumns } from '$conf/columns';
+import { DEFAULT_CROSSTAB_CONFIG } from '$conf/crosstab';
 import log from '$lib/logger';
 import queryString from 'query-string';
 
@@ -28,6 +29,7 @@ export const PAGE_SIZES = [30, 90, 150, 300];
 
 // ── Per-tab state factory ────────────────────────────────────────────
 function createTabState(entityType) {
+    const defaultCT = DEFAULT_CROSSTAB_CONFIG[entityType];
     return {
         results: [],
         totalResults: 0,
@@ -40,6 +42,10 @@ function createTabState(entityType) {
         visibleColumns: defaultVisibleColumns[entityType] || [],
         isLoading: false,
         error: null,
+        // Crosstab / pivot view state (only meaningful for PE and PNE)
+        crosstabConfig: defaultCT
+            ? { ...defaultCT, result: null, isLoading: false, error: null }
+            : null,
     };
 }
 
@@ -321,5 +327,115 @@ export function abortAll() {
     for (const key of Object.keys(abortControllers)) {
         abortControllers[key].abort();
         delete abortControllers[key];
+    }
+}
+
+// ── Crosstab / pivot-table actions ───────────────────────────────────────────
+
+/**
+ * Update one or more fields of the crosstabConfig for an entity tab.
+ * Does NOT trigger a fetch — call fetchCrosstab() separately.
+ */
+export function setCrosstabConfig(entityType, patch) {
+    unifiedStore.update(s => ({
+        ...s,
+        tabs: {
+            ...s.tabs,
+            [entityType]: {
+                ...s.tabs[entityType],
+                crosstabConfig: {
+                    ...s.tabs[entityType].crosstabConfig,
+                    ...patch,
+                },
+            },
+        },
+    }));
+}
+
+/**
+ * Fetch the pivot-table data for the given entity type.
+ * Uses crosstabConfig settings + current tab filters + global search query.
+ */
+export async function fetchCrosstab(entityType) {
+    const state = get(unifiedStore);
+    const tab = state.tabs[entityType];
+    if (!tab?.crosstabConfig) return;
+
+    const cfg = tab.crosstabConfig;
+    const signal = abortPrevious(`crosstab:${entityType}`);
+
+    unifiedStore.update(s => ({
+        ...s,
+        tabs: {
+            ...s.tabs,
+            [entityType]: {
+                ...s.tabs[entityType],
+                crosstabConfig: {
+                    ...s.tabs[entityType].crosstabConfig,
+                    isLoading: true,
+                    error: null,
+                },
+            },
+        },
+    }));
+
+    try {
+        const params = {
+            type: entityType,
+            row_dim: cfg.rowDim,
+            col_dim: cfg.colDim,
+            cell_op: cfg.cellOp,
+            period_size: cfg.periodSize,
+        };
+
+        // Pass through the active search query
+        if (state.query) {
+            params.q = state.exactSearch
+                ? `"${state.query.replace(/^"|"$/g, '')}"`
+                : state.query.replace(/^"|"$/g, '');
+        }
+
+        // Pass through all active form filters
+        for (const [key, value] of Object.entries(tab.filters)) {
+            if (value !== null && value !== '' && value !== undefined) {
+                params[key] = value;
+            }
+        }
+
+        const qs = queryString.stringify(params);
+        const data = await fetchWithBaseUrl(`crosstab/?${qs}`, { signal });
+
+        unifiedStore.update(s => ({
+            ...s,
+            tabs: {
+                ...s.tabs,
+                [entityType]: {
+                    ...s.tabs[entityType],
+                    crosstabConfig: {
+                        ...s.tabs[entityType].crosstabConfig,
+                        result: data,
+                        isLoading: false,
+                        error: null,
+                    },
+                },
+            },
+        }));
+    } catch (err) {
+        if (err.name === 'AbortError') return;
+        log.error(`Error fetching crosstab for ${entityType}: ${err.message}`);
+        unifiedStore.update(s => ({
+            ...s,
+            tabs: {
+                ...s.tabs,
+                [entityType]: {
+                    ...s.tabs[entityType],
+                    crosstabConfig: {
+                        ...s.tabs[entityType].crosstabConfig,
+                        isLoading: false,
+                        error: err.message,
+                    },
+                },
+            },
+        }));
     }
 }

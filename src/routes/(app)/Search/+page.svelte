@@ -4,6 +4,7 @@
 		unifiedStore, fetchResults, setActiveTab, setViewMode,
 		setPageSize, setPage, performSearch, clearSearch,
 		loadCounts, PAGE_SIZES, ENTITY_TYPES, abortAll,
+		fetchCrosstab, setCrosstabConfig,
 	} from '$lib/unified-store';
 	import { exportCsv } from '$lib/api';
 	import { entityTabConfig } from '$conf/columns';
@@ -14,6 +15,7 @@
 	import BrowseCards from './BrowseCards.svelte';
 	import ColumnConfigModal from './ColumnConfigModal.svelte';
 	import TrajectoryMap from './TrajectoryMap.svelte';
+	import CrosstabView from './CrosstabView.svelte';
 
 	export let data;
 	let { searchQuery, archivoId, tab: initialTab, view: initialView } = data;
@@ -229,6 +231,18 @@
 						<i class="bi bi-globe-americas"></i>
 					</button>
 					{/if}
+					{#if activeTab === 'personaesclavizada' || activeTab === 'personanoesclavizada'}
+					<button
+						class="btn"
+						class:btn-primary={viewMode === 'crosstab'}
+						class:btn-outline-secondary={viewMode !== 'crosstab'}
+						on:click={() => setViewMode('crosstab')}
+						title="Tabla cruzada"
+						aria-pressed={viewMode === 'crosstab'}
+					>
+						<i class="bi bi-layout-three-columns" aria-hidden="true"></i>
+					</button>
+					{/if}
 				</div>
 
 				<!-- Page size -->
@@ -268,6 +282,8 @@
 						<span class="visually-hidden">Cargando...</span>
 					</div>
 				</div>
+			{:else if viewMode === 'crosstab' && (activeTab === 'personaesclavizada' || activeTab === 'personanoesclavizada')}
+				<CrosstabView entityType={activeTab} />
 			{:else if tabState?.results?.length > 0}
 				<!-- Results -->
 				{#if viewMode === 'table'}
