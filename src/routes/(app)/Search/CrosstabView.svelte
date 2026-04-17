@@ -1,5 +1,5 @@
 <script>
-	import { onMount, tick } from 'svelte';
+	import { onMount } from 'svelte';
 	import { unifiedStore, fetchCrosstab, setCrosstabConfig } from '$lib/unified-store';
 	import { dimsForEntity, opsForEntity, PERIOD_SIZES, DIMENSIONS } from '$conf/crosstab';
 	import config from '../../../config';
@@ -14,20 +14,25 @@
 	$: error = cfg?.error;
 	$: meta = result?.meta;
 
-	// Local select values — kept in sync with the store via reactive blocks.
-	// Using local variables + bind:value avoids the Svelte 3 timing bug where
-	// `value={expr}` is applied before `{#each}` options are re-rendered,
-	// causing the browser to silently select the wrong option.
-	let selRow = cfg?.rowDim ?? '';
-	let selCol = cfg?.colDim ?? '';
-	let selOp = cfg?.cellOp ?? 'count';
-	let selPeriod = cfg?.periodSize ?? 50;
+	// Local select values – synced from store ONLY on entity-type switch.
+	// Using bind:value so Svelte owns the DOM ↔ variable binding.
+	// We must NOT reactively sync store→local on every cfg change, because
+	// that would reset the local var back to the old store value the instant
+	// bind:value updates it (before on:change can push the new value).
+	let selRow = '';
+	let selCol = '';
+	let selOp = 'count';
+	let selPeriod = 50;
+	let _syncedEntity = '';
 
-	// Store → local (when store changes externally, e.g. entity type switch)
-	$: if (cfg?.rowDim != null && cfg.rowDim !== selRow) selRow = cfg.rowDim;
-	$: if (cfg?.colDim != null && cfg.colDim !== selCol) selCol = cfg.colDim;
-	$: if (cfg?.cellOp != null && cfg.cellOp !== selOp) selOp = cfg.cellOp;
-	$: if (cfg?.periodSize != null && cfg.periodSize !== selPeriod) selPeriod = cfg.periodSize;
+	// Store → local: fires only when entityType changes (tab switch)
+	$: if (cfg && entityType !== _syncedEntity) {
+		_syncedEntity = entityType;
+		selRow = cfg.rowDim;
+		selCol = cfg.colDim;
+		selOp = cfg.cellOp;
+		selPeriod = cfg.periodSize;
+	}
 
 	// Dimension lists — do NOT exclude the opposite dim from the list.
 	// Both selects always show the full set for the entity type so the
