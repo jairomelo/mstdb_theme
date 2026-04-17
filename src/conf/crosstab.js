@@ -43,6 +43,12 @@ export const DIMENSIONS = {
         isPeriod: false,
         isMM: false,
     },
+    lugar_trayectoria: {
+        label: 'Lugar (trayectoria)',
+        entities: ['personaesclavizada', 'personanoesclavizada'],
+        isPeriod: false,
+        isMM: true,
+    },
     estado_civil: {
         label: 'Estado matrimonial',
         entities: ['personaesclavizada', 'personanoesclavizada'],
