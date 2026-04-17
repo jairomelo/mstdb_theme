@@ -1,7 +1,7 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { unifiedStore, fetchCrosstab, setCrosstabConfig } from '$lib/unified-store';
-	import { dimsForEntity, opsForEntity, PERIOD_SIZES } from '$conf/crosstab';
+	import { dimsForEntity, opsForEntity, PERIOD_SIZES, DIMENSIONS } from '$conf/crosstab';
 	import config from '../../../config';
 	import queryString from 'query-string';
 
@@ -14,35 +14,57 @@
 	$: error = cfg?.error;
 	$: meta = result?.meta;
 
-	$: rowDims = dimsForEntity(entityType, cfg?.colDim);
-	$: colDims = dimsForEntity(entityType, cfg?.rowDim);
+	// Local select values — kept in sync with the store via reactive blocks.
+	// Using local variables + bind:value avoids the Svelte 3 timing bug where
+	// `value={expr}` is applied before `{#each}` options are re-rendered,
+	// causing the browser to silently select the wrong option.
+	let selRow = cfg?.rowDim ?? '';
+	let selCol = cfg?.colDim ?? '';
+	let selOp = cfg?.cellOp ?? 'count';
+	let selPeriod = cfg?.periodSize ?? 50;
+
+	// Store → local (when store changes externally, e.g. entity type switch)
+	$: if (cfg?.rowDim != null && cfg.rowDim !== selRow) selRow = cfg.rowDim;
+	$: if (cfg?.colDim != null && cfg.colDim !== selCol) selCol = cfg.colDim;
+	$: if (cfg?.cellOp != null && cfg.cellOp !== selOp) selOp = cfg.cellOp;
+	$: if (cfg?.periodSize != null && cfg.periodSize !== selPeriod) selPeriod = cfg.periodSize;
+
+	// Dimension lists — do NOT exclude the opposite dim from the list.
+	// Both selects always show the full set for the entity type so the
+	// browser never loses the selected value when options re-render.
+	$: allDims = dimsForEntity(entityType);
 	$: ops = opsForEntity(entityType);
 
-	$: rowIsPeriod = rowDims.find(d => d.key === cfg?.rowDim)?.isPeriod;
-	$: colIsPeriod = colDims.find(d => d.key === cfg?.colDim)?.isPeriod;
+	$: rowIsPeriod = DIMENSIONS[selRow]?.isPeriod;
+	$: colIsPeriod = DIMENSIONS[selCol]?.isPeriod;
 	$: showPeriodSize = rowIsPeriod || colIsPeriod;
+
+	// Local → store (push on every user change)
+	function pushRow() {
+		if (selRow === selCol) {
+			// Swap if user picked the same dim as the other axis
+			selCol = cfg?.rowDim ?? '';
+			setCrosstabConfig(entityType, { rowDim: selRow, colDim: selCol, result: null });
+		} else {
+			setCrosstabConfig(entityType, { rowDim: selRow, result: null });
+		}
+	}
+	function pushCol() {
+		if (selCol === selRow) {
+			selRow = cfg?.colDim ?? '';
+			setCrosstabConfig(entityType, { colDim: selCol, rowDim: selRow, result: null });
+		} else {
+			setCrosstabConfig(entityType, { colDim: selCol, result: null });
+		}
+	}
+	function pushOp() { setCrosstabConfig(entityType, { cellOp: selOp, result: null }); }
+	function pushPeriod() { setCrosstabConfig(entityType, { periodSize: selPeriod, result: null }); }
 
 	function apply() {
 		fetchCrosstab(entityType);
 	}
 
-	function handleRowDimChange(e) {
-		setCrosstabConfig(entityType, { rowDim: e.target.value, result: null });
-	}
-
-	function handleColDimChange(e) {
-		setCrosstabConfig(entityType, { colDim: e.target.value, result: null });
-	}
-
-	function handleCellOpChange(e) {
-		setCrosstabConfig(entityType, { cellOp: e.target.value, result: null });
-	}
-
-	function handlePeriodSizeChange(e) {
-		setCrosstabConfig(entityType, { periodSize: parseInt(e.target.value), result: null });
-	}
-
-	function csvUrl() {
+	async function downloadCsv() {
 		const state = $unifiedStore;
 		const params = {
 			type: entityType,
@@ -50,7 +72,7 @@
 			col_dim: cfg.colDim,
 			cell_op: cfg.cellOp,
 			period_size: cfg.periodSize,
-			format: 'csv',
+			export_format: 'csv',
 		};
 		if (state.query) {
 			params.q = state.exactSearch
@@ -62,7 +84,14 @@
 				params[key] = value;
 			}
 		}
-		return `${config.apiBaseUrl}crosstab/?${queryString.stringify(params)}`;
+		const url = `${config.apiBaseUrl}crosstab/?${queryString.stringify(params)}`;
+		const res = await fetch(url, { credentials: 'include' });
+		const blob = await res.blob();
+		const a = document.createElement('a');
+		a.href = URL.createObjectURL(blob);
+		a.download = 'crosstab.csv';
+		a.click();
+		URL.revokeObjectURL(a.href);
 	}
 
 	function cellPrimary(cell) {
@@ -81,7 +110,6 @@
 	}
 
 	onMount(() => {
-		// Auto-load if there's no result yet
 		if (!cfg?.result && !cfg?.isLoading) {
 			fetchCrosstab(entityType);
 		}
@@ -96,11 +124,11 @@
 			<select
 				id="ct-row-{entityType}"
 				class="form-select form-select-sm"
-				value={cfg?.rowDim}
-				on:change={handleRowDimChange}
+				bind:value={selRow}
+				on:change={pushRow}
 				aria-label="Dimensión de filas"
 			>
-				{#each rowDims as dim}
+				{#each allDims as dim}
 					<option value={dim.key}>{dim.label}</option>
 				{/each}
 			</select>
@@ -111,11 +139,11 @@
 			<select
 				id="ct-col-{entityType}"
 				class="form-select form-select-sm"
-				value={cfg?.colDim}
-				on:change={handleColDimChange}
+				bind:value={selCol}
+				on:change={pushCol}
 				aria-label="Dimensión de columnas"
 			>
-				{#each colDims as dim}
+				{#each allDims as dim}
 					<option value={dim.key}>{dim.label}</option>
 				{/each}
 			</select>
@@ -127,8 +155,8 @@
 			<select
 				id="ct-period-{entityType}"
 				class="form-select form-select-sm"
-				value={cfg?.periodSize}
-				on:change={handlePeriodSizeChange}
+				bind:value={selPeriod}
+				on:change={pushPeriod}
 				aria-label="Tamaño del intervalo temporal"
 			>
 				{#each PERIOD_SIZES as ps}
@@ -143,8 +171,8 @@
 			<select
 				id="ct-op-{entityType}"
 				class="form-select form-select-sm"
-				value={cfg?.cellOp}
-				on:change={handleCellOpChange}
+				bind:value={selOp}
+				on:change={pushOp}
 				aria-label="Operación de celda"
 			>
 				{#each ops as op}
@@ -163,14 +191,13 @@
 		</button>
 
 		{#if result}
-		<a
-			href={csvUrl()}
-			download="crosstab.csv"
+		<button
 			class="btn btn-sm btn-outline-secondary"
 			aria-label="Descargar tabla como CSV"
+			on:click={downloadCsv}
 		>
 			<i class="bi bi-download me-1" aria-hidden="true"></i>CSV
-		</a>
+		</button>
 		{/if}
 	</div>
 
