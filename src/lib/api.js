@@ -214,11 +214,23 @@ export const browseEntities = (entityType, params) => {
 
 export const fetchCounts = () => fetchWithBaseUrl('counts/');
 
-export const exportCsv = (entityType) => {
-    const endpoint = ENTITY_ENDPOINT_MAP[entityType];
-    if (!endpoint) throw new Error(`Unknown entity type: ${entityType}`);
-    // Return the URL for download (opens in new tab)
-    return `${config.apiBaseUrl}${endpoint}/export_csv/`;
+export const exportCsv = (entityType, { query, exactSearch, filters, ordering } = {}) => {
+    const params = { type: entityType, export_format: 'csv' };
+    if (query) {
+        params.q = exactSearch
+            ? `"${query.replace(/^"|"$/g, '')}"`
+            : query.replace(/^"|"$/g, '');
+    }
+    if (ordering) params.ordering = ordering;
+    if (filters) {
+        for (const [key, value] of Object.entries(filters)) {
+            if (value !== null && value !== '' && value !== undefined) {
+                params[key] = value;
+            }
+        }
+    }
+    const qs = queryString.stringify(params);
+    return `${config.apiBaseUrl}search/?${qs}`;
 };
 
 export const personasescfull = (params) => {

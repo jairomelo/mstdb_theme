@@ -90,7 +90,16 @@
 	}
 
 	function handleExport() {
-		const url = exportCsv(activeTab);
+		const state = $unifiedStore;
+		const tab = state.tabs[activeTab];
+		const url = exportCsv(activeTab, {
+			query: state.query,
+			exactSearch: state.exactSearch,
+			filters: tab?.filters,
+			ordering: tab?.sortField
+				? (tab.sortDir === 'desc' ? `-${tab.sortField}` : tab.sortField)
+				: undefined,
+		});
 		window.open(url, '_blank');
 	}
 
@@ -264,10 +273,12 @@
 					</button>
 				{/if}
 
-				<!-- Export CSV -->
+				<!-- Export CSV (hidden in crosstab mode — CrosstabView has its own) -->
+				{#if viewMode !== 'crosstab'}
 				<button class="btn btn-sm btn-outline-secondary" on:click={handleExport}>
 					<i class="bi bi-download me-1"></i>CSV
 				</button>
+				{/if}
 			</div>
 
 			<!-- Error -->
