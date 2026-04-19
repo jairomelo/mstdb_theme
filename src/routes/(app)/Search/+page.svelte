@@ -198,52 +198,54 @@
 				{/each}
 			</ul>
 
-			<!-- Control bar -->
-			<div class="browse-controls d-flex flex-wrap align-items-center gap-2 p-2 bg-light border rounded-bottom mb-3">
-				<!-- View toggle -->
-				<div class="btn-group btn-group-sm" role="group">
+			<!-- View mode switcher -->
+			<div class="view-mode-switcher d-flex justify-content-center py-2 border-start border-end border-bottom bg-white mb-0" role="group" aria-label="Modo de vista">
+				<div class="btn-group">
 					<button
-						class="btn"
+						class="btn btn-sm"
 						class:btn-primary={viewMode === 'table'}
 						class:btn-outline-secondary={viewMode !== 'table'}
 						on:click={() => setViewMode('table')}
-						title="Vista de tabla"
+						aria-pressed={viewMode === 'table'}
 					>
-						<i class="bi bi-table"></i>
+						<i class="bi bi-table me-1" aria-hidden="true"></i>Lista
 					</button>
 					<button
-						class="btn"
+						class="btn btn-sm"
 						class:btn-primary={viewMode === 'card'}
 						class:btn-outline-secondary={viewMode !== 'card'}
 						on:click={() => setViewMode('card')}
-						title="Vista de tarjetas"
+						aria-pressed={viewMode === 'card'}
 					>
-						<i class="bi bi-grid-3x3-gap"></i>
+						<i class="bi bi-grid-3x3-gap me-1" aria-hidden="true"></i>Tarjetas
 					</button>
 					{#if activeTab === 'personaesclavizada'}
 					<button
-						class="btn"
+						class="btn btn-sm"
 						class:btn-primary={viewMode === 'map'}
 						class:btn-outline-secondary={viewMode !== 'map'}
 						on:click={() => setViewMode('map')}
-						title="Mapa de trayectorias"
+						aria-pressed={viewMode === 'map'}
 					>
-						<i class="bi bi-globe-americas"></i>
+						<i class="bi bi-globe-americas me-1" aria-hidden="true"></i>Mapa
 					</button>
 					{/if}
 					{#if activeTab === 'personaesclavizada' || activeTab === 'personanoesclavizada'}
 					<button
-						class="btn"
+						class="btn btn-sm"
 						class:btn-primary={viewMode === 'crosstab'}
 						class:btn-outline-secondary={viewMode !== 'crosstab'}
 						on:click={() => setViewMode('crosstab')}
-						title="Tabla cruzada"
 						aria-pressed={viewMode === 'crosstab'}
 					>
-						<i class="bi bi-layout-three-columns" aria-hidden="true"></i>
+						<i class="bi bi-layout-three-columns me-1" aria-hidden="true"></i>Tabla
 					</button>
 					{/if}
 				</div>
+			</div>
+
+			<!-- Control bar -->
+			<div class="browse-controls d-flex flex-wrap align-items-center gap-2 p-2 bg-light border rounded-bottom mb-3">
 
 				<!-- Page size -->
 				<div class="d-flex align-items-center gap-1">
@@ -258,7 +260,7 @@
 				<!-- Column config (table mode only) -->
 				{#if viewMode === 'table'}
 					<button class="btn btn-sm btn-outline-secondary" on:click={() => showColumnConfig = true}>
-						<i class="bi bi-columns me-1"></i>Columnas
+						<i class="bi bi-columns me-1"></i>Configurar Columnas
 					</button>
 				{/if}
 
