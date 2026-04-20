@@ -23,6 +23,7 @@
 		tmp: true,
 		sub: true,
 	};
+	let showOrphans = false;
 	let centralityThreshold = 0;
 	let minCentrality = 0;
 	let maxCentrality = 1;
@@ -57,10 +58,17 @@
 		cy.nodes().forEach((node) => {
 			const centrality = Number(node.data('centrality') || 0);
 			const centralityMatch = centrality >= centralityThreshold;
-			const connectedToVisibleEdge = node.connectedEdges().some((e) => e.visible());
-			const shouldShow = centralityMatch && (connectedToVisibleEdge || node.data('in_results'));
+			const connectedToVisibleEdge = node.connectedEdges().some((e) => edgeIsVisible(e));
+			const shouldShow = centralityMatch && (showOrphans || connectedToVisibleEdge);
 			node.style('display', shouldShow ? 'element' : 'none');
 		});
+	}
+
+	function detailHref() {
+		if (!tooltip.id) return '#';
+		return tooltip.type === 'esclavizada'
+			? `/Detail/personaesclavizada/${tooltip.id}`
+			: `/Detail/personanoesclavizada/${tooltip.id}`;
 	}
 
 	function applyLayout() {
@@ -313,6 +321,10 @@
 				<input class="form-check-input" type="checkbox" bind:checked={relationFilter.sub} on:change={applyFilter}>
 				<span class="form-check-label">Subordinación</span>
 			</label>
+			<label class="form-check form-check-inline mb-0 ms-2">
+				<input class="form-check-input" type="checkbox" bind:checked={showOrphans} on:change={applyFilter}>
+				<span class="form-check-label">Mostrar nodos huérfanos</span>
+			</label>
 		</div>
 
 		<div class="mb-3">
@@ -388,6 +400,9 @@
 					{#if tooltip.details.etnonimos?.length}<div><strong>Etnónimos:</strong> {tooltip.details.etnonimos.join(', ')}</div>{/if}
 				</div>
 			{/if}
+			<a class="btn btn-sm btn-outline-primary mt-2" href={detailHref()}>
+				<i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Ver ficha
+			</a>
 		</div>
 	</div>
 {/if}
