@@ -115,23 +115,23 @@
 					}
 				},
 				{
-					selector: `node[id = "${currentPersonId}"]`,
+					selector: 'node[type = "esclavizada"]',
 					style: {
 						'background-color': '#C9735B',
-						'border-color': '#A85A44',
+						'border-color': '#A85A44'
+					}
+				},
+				{
+					selector: `node[id = "${currentPersonId}"]`,
+					style: {
+						'background-color': '#3B6D8C',
+						'border-color': '#2A4F66',
 						'border-width': 3,
 						'width': 38,
 						'height': 38,
 						'font-size': '10px',
 						'font-weight': 'bold',
 						'color': '#1a2a36'
-					}
-				},
-				{
-					selector: 'node[type = "esclavizada"]',
-					style: {
-						'background-color': '#C9735B',
-						'border-color': '#A85A44'
 					}
 				},
 				{
@@ -757,8 +757,8 @@
 	}
 
 	.color-legend-mini.current {
-		background-color: #C9735B;
-		border-color: #A85A44;
+		background-color: #3B6D8C;
+		border-color: #2A4F66;
 		border-width: 2px;
 	}
 

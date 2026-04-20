@@ -101,6 +101,13 @@
 					}
 				},
 				{
+					selector: 'node[type = "esclavizada"]',
+					style: {
+						'background-color': '#C9735B',
+						'border-color': '#A85A44'
+					}
+				},
+				{
 					selector: `node[id = "${currentPersonId}"]`,
 					style: {
 						'background-color': '#3B6D8C',
@@ -111,13 +118,6 @@
 						'font-size': '10px',
 						'font-weight': 'bold',
 						'color': '#1a2a36'
-					}
-				},
-				{
-					selector: 'node[type = "esclavizada"]',
-					style: {
-						'background-color': '#C9735B',
-						'border-color': '#A85A44'
 					}
 				},
 				{
