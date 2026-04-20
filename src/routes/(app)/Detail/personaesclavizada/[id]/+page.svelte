@@ -5,6 +5,7 @@
 	import fcose from 'cytoscape-fcose';
 	import { browser } from '$app/environment';
 	import * as d3 from 'd3';
+	import html2canvas from 'html2canvas';
 	
 	cytoscape.use(fcose);
 
@@ -457,6 +458,38 @@
 		}
 	}
 
+	function downloadBlob(blob, filename) {
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = filename;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
+	function slugify(name) {
+		return (name || 'persona').trim().replace(/\s+/g, '_').replace(/[^\w-]/g, '').toLowerCase();
+	}
+
+	function exportNetwork() {
+		if (!relationsCy) return;
+		const blob = relationsCy.png({ output: 'blob', bg: '#f8fafa', full: true, scale: 2 });
+		downloadBlob(blob, `red_${slugify(peresc?.nombre_normalizado)}.png`);
+	}
+
+	async function exportMap() {
+		const container = document.getElementById('places-map');
+		if (!container) return;
+		try {
+			const canvas = await html2canvas(container, { useCORS: true, scale: 2 });
+			canvas.toBlob(blob => {
+				if (blob) downloadBlob(blob, `mapa_${slugify(peresc?.nombre_normalizado)}.png`);
+			});
+		} catch (e) {
+			console.error('Map export failed:', e);
+		}
+	}
+
 	onDestroy(() => {
 		// Clean up map and cytoscape instances
 		if (map) {
@@ -546,9 +579,14 @@
 		<!-- Places Map -->
 		{#if hasPlaceData(peresc)}
 			<div class="card mb-4">
-				<div class="card-header bg-success text-white">
-					<h2 class="card-title h5 mb-0"><i class="bi bi-geo-alt me-2"></i>Trayectoria</h2>
-					<small class="text-white-50">Lugares conocidos y trayectoria de la persona</small>
+				<div class="card-header bg-success text-white d-flex justify-content-between align-items-start">
+					<div>
+						<h2 class="card-title h5 mb-0"><i class="bi bi-geo-alt me-2"></i>Trayectoria</h2>
+						<small class="text-white-50">Lugares conocidos y trayectoria de la persona</small>
+					</div>
+					<button class="btn btn-sm btn-outline-light" on:click={exportMap} title="Guardar imagen del mapa">
+						<i class="bi bi-download me-1"></i>PNG
+					</button>
 				</div>
 				<div class="card-body">
 					<div id="places-map" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
@@ -599,9 +637,14 @@
 		<!-- Relations Network -->
 		{#if peresc.relaciones && peresc.relaciones.length > 0}
 			<div class="card mb-4">
-				<div class="card-header bg-info text-white">
-					<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones</h2>
-					<small class="text-white-50">Haz clic en un nodo para ver los detalles de esa persona</small>
+				<div class="card-header bg-info text-white d-flex justify-content-between align-items-start">
+					<div>
+						<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones</h2>
+						<small class="text-white-50">Haz clic en un nodo para ver los detalles de esa persona</small>
+					</div>
+					<button class="btn btn-sm btn-outline-light" on:click={exportNetwork} title="Guardar imagen de la red">
+						<i class="bi bi-download me-1"></i>PNG
+					</button>
 				</div>
 				<div class="card-body">
 					<div id="relations-network" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
