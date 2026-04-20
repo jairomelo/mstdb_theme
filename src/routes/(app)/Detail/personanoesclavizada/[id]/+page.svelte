@@ -1,6 +1,6 @@
 <script>
 	import { onMount, tick, onDestroy } from 'svelte';
-	import { pernoesclavizadas } from '$lib/api';
+	import { pernoesclavizadas, personaNoEsclavizadaNetwork } from '$lib/api';
 	import cytoscape from 'cytoscape';
 	import fcose from 'cytoscape-fcose';
 	import { browser } from '$app/environment';
@@ -17,7 +17,6 @@
 
 	// Network visualization variables
 	let relationsCy = null;
-	let hasNetworkConnections = false;
 
 	onMount(async () => {
 		try {
@@ -25,21 +24,21 @@
 			
 			// Load network data for relations visualization
 			if (browser) {
-				const networkRes = await fetch('/temp/persona_network.json');
-				
-				if (networkRes.ok) {
-					networkData = await networkRes.json();
-					
-					// Check if current person has connections in the network
-					const currentPersonId = `p${data.id}`;
-					hasNetworkConnections = networkData.edges.some(edge => 
-						edge.data.source === currentPersonId || edge.data.target === currentPersonId
+				const promises = [];
+
+				if (pernoesc.relaciones && pernoesc.relaciones.length > 0) {
+					promises.push(
+						personaNoEsclavizadaNetwork(data.id)
+							.then(d => { networkData = d; })
+							.catch(e => console.warn('Network data unavailable:', e))
 					);
 				}
-				
+
+				await Promise.all(promises);
+
 				// Initialize map and network after data is loaded
 				await tick();
-				if (hasNetworkConnections) {
+				if (networkData) {
 					initializeRelationsNetwork();
 				}
 				if (pernoesc.lugares && pernoesc.lugares.length > 0) {
@@ -53,40 +52,18 @@
 	});
 
 	function initializeRelationsNetwork() {
-		if (!networkData) return;
+		if (!networkData || !browser) return;
 
 		const container = document.getElementById('relations-network');
 		if (!container) return;
 
-		// Clear any existing network
 		if (relationsCy) {
 			relationsCy.destroy();
 		}
 
-		// Get the current person's ID in the format used by the network
 		const currentPersonId = `p${data.id}`;
-		
-		// Find all edges that involve the current person
-		const relatedEdges = networkData.edges.filter(edge => 
-			edge.data.source === currentPersonId || edge.data.target === currentPersonId
-		);
 
-		// Find all person IDs connected to the current person
-		const relatedPersonIds = new Set();
-		relatedEdges.forEach(edge => {
-			relatedPersonIds.add(edge.data.source);
-			relatedPersonIds.add(edge.data.target);
-		});
-
-		// Filter network data to include only related persons
-		const filteredNodes = networkData.nodes.filter(node => 
-			relatedPersonIds.has(node.data.id)
-		);
-		
-		const filteredEdges = relatedEdges;
-
-		if (filteredNodes.length === 0) {
-			// Show a message if no network data is available
+		if (!networkData.nodes || networkData.nodes.length === 0) {
 			container.innerHTML = `
 				<div class="d-flex align-items-center justify-content-center h-100 text-muted">
 					<div class="text-center">
@@ -100,7 +77,7 @@
 
 		relationsCy = cytoscape({
 			container: container,
-			elements: [...filteredNodes, ...filteredEdges],
+			elements: [...networkData.nodes, ...networkData.edges],
 			style: [
 				{
 					selector: 'node',
@@ -160,6 +137,14 @@
 					selector: 'edge[relation = "tmp"]',
 					style: {
 						'line-color': '#F39C12'
+					}
+				},
+				{
+					selector: 'edge[relation = "sub"]',
+					style: {
+						'line-color': '#8E44AD',
+						'target-arrow-shape': 'triangle',
+						'target-arrow-color': '#8E44AD'
 					}
 				}
 			],
@@ -453,7 +438,7 @@
 		{/if}
 
 		<!-- Relations Network -->
-		{#if hasNetworkConnections}
+		{#if networkData}
 			<div class="card mb-4">
 				<div class="card-header bg-info text-white">
 					<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones</h2>

@@ -267,6 +267,7 @@ export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`relac
 
 // Visualization endpoints for detail views
 export const personaNetwork = (personaId) => fetchWithBaseUrl(`personas-esclavizadas/${personaId}/network/`);
+export const personaNoEsclavizadaNetwork = (personaId) => fetchWithBaseUrl(`personas-no-esclavizadas/${personaId}/network/`);
 export const personaTrajectory = (personaId) => fetchWithBaseUrl(`personas-esclavizadas/${personaId}/trajectory/`);
 
 // Aggregated trajectory endpoints
