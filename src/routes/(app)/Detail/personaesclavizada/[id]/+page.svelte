@@ -19,6 +19,8 @@
 
 	// Network visualization variables
 	let relationsCy = null;
+	let activeRelFilter = null;
+	let showSexo = false;
 
 	// Helper: does this persona have any place data (FK or relational)?
 	function hasPlaceData(p) {
@@ -490,6 +492,35 @@
 		}
 	}
 
+	function filterByRelation(relType) {
+		if (!relationsCy) return;
+		if (activeRelFilter === relType) {
+			activeRelFilter = null;
+			relationsCy.elements().show();
+		} else {
+			activeRelFilter = relType;
+			const currentPersonId = `p${data.id}`;
+			relationsCy.elements().hide();
+			const matchingEdges = relationsCy.edges(`[relation = "${relType}"]`);
+			matchingEdges.show();
+			const connectedNodes = matchingEdges.connectedNodes();
+			connectedNodes.show();
+			relationsCy.$id(currentPersonId).show();
+		}
+	}
+
+	function toggleSexo() {
+		if (!relationsCy) return;
+		showSexo = !showSexo;
+		if (showSexo) {
+			relationsCy.nodes('[sexo = "m"]').style('shape', 'diamond');
+			relationsCy.nodes('[sexo = "v"]').style('shape', 'round-rectangle');
+			relationsCy.nodes('[sexo = "i"]').style('shape', 'ellipse');
+		} else {
+			relationsCy.nodes().style('shape', 'ellipse');
+		}
+	}
+
 	onDestroy(() => {
 		// Clean up map and cytoscape instances
 		if (map) {
@@ -646,7 +677,20 @@
 						<i class="bi bi-download me-1"></i>PNG
 					</button>
 				</div>
-				<div class="card-body">
+				<div class="card-body p-2 pb-0">
+					<div class="d-flex flex-wrap gap-1 align-items-center mb-2">
+						<small class="text-muted me-1">Filtrar:</small>
+						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'fam'} style="--fc: #D4A27F;" on:click={() => filterByRelation('fam')}>Parentesco</button>
+						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'aso'} style="--fc: #7BA7BC;" on:click={() => filterByRelation('aso')}>Asociación</button>
+						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'tmp'} style="--fc: #B8C99A;" on:click={() => filterByRelation('tmp')}>Temporal</button>
+						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'sub'} style="--fc: #9B8EC4;" on:click={() => filterByRelation('sub')}>Subordinación</button>
+						<span class="mx-1 text-muted">|</span>
+						<button class="btn btn-sm network-filter-btn" class:active={showSexo} style="--fc: #6c757d;" on:click={toggleSexo}>
+							<i class="bi bi-shapes me-1"></i>Sexo
+						</button>
+					</div>
+				</div>
+				<div class="card-body pt-0">
 					<div id="relations-network" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
 				</div>
 				<div class="card-footer">
@@ -670,6 +714,28 @@
 							</small>
 						</div>
 					</div>
+					{#if showSexo}
+					<div class="row text-center mt-2 border-top pt-2">
+						<div class="col-md-4">
+							<small class="text-muted">
+								<span class="shape-legend diamond me-1"></span>
+								Mujer
+							</small>
+						</div>
+						<div class="col-md-4">
+							<small class="text-muted">
+								<span class="shape-legend rectangle me-1"></span>
+								Varón
+							</small>
+						</div>
+						<div class="col-md-4">
+							<small class="text-muted">
+								<span class="shape-legend circle me-1"></span>
+								Desconocido
+							</small>
+						</div>
+					</div>
+					{/if}
 				</div>
 			</div>
 		{/if}

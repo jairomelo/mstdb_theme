@@ -1758,3 +1758,46 @@ p, ol, ul, li {
 .crosstab-sortable:hover {
   text-decoration: underline;
 }
+
+/* Network visualization toolbar */
+.network-filter-btn {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--fc, #6c757d);
+  color: var(--fc, #6c757d);
+  background: transparent;
+  border-radius: 1rem;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.network-filter-btn:hover {
+  background-color: color-mix(in srgb, var(--fc, #6c757d) 15%, transparent);
+  color: var(--fc, #6c757d);
+}
+
+.network-filter-btn.active {
+  background-color: var(--fc, #6c757d);
+  color: #fff;
+  border-color: var(--fc, #6c757d);
+}
+
+/* Shape legend for sexo toggle */
+.shape-legend {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #6c757d;
+  vertical-align: middle;
+}
+
+.shape-legend.diamond {
+  transform: rotate(45deg) scale(0.8);
+}
+
+.shape-legend.rectangle {
+  border-radius: 3px;
+}
+
+.shape-legend.circle {
+  border-radius: 50%;
+}
