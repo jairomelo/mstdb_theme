@@ -82,105 +82,121 @@
 				{
 					selector: 'node',
 					style: {
-						'background-color': function(node) {
-							const nodeId = node.data('id');
-							const nodeType = node.data('type');
-							
-							if (nodeId === currentPersonId) {
-								return '#4ECDC4'; // Current person (teal for no esclavizada)
-							} else if (nodeType === 29) {
-								return '#FF6B6B'; // Persona esclavizada (red)
-							} else {
-								return '#4ECDC4'; // Persona no esclavizada (teal)
-							}
-						},
+						'background-color': '#9DB5B2',
+						'border-width': 2,
+						'border-color': '#7A9E9A',
 						'label': 'data(label)',
-						'text-valign': 'center',
+						'text-valign': 'bottom',
 						'text-halign': 'center',
-						'color': '#2c3e50',
+						'text-margin-y': 6,
+						'color': '#3d4f5f',
+						'font-size': '9px',
+						'text-wrap': 'wrap',
+						'text-max-width': '72px',
+						'width': 28,
+						'height': 28,
+						'text-outline-width': 1.5,
+						'text-outline-color': '#fff',
+						'text-outline-opacity': 0.8
+					}
+				},
+				{
+					selector: `node[id = "${currentPersonId}"]`,
+					style: {
+						'background-color': '#3B6D8C',
+						'border-color': '#2A4F66',
+						'border-width': 3,
+						'width': 38,
+						'height': 38,
 						'font-size': '10px',
 						'font-weight': 'bold',
-						'text-wrap': 'wrap',
-						'text-max-width': '60px',
-						'width': 40,
-						'height': 40,
-						'border-width': function(node) {
-							return node.data('id') === currentPersonId ? 4 : 2;
-						},
-						'border-color': '#2c3e50'
+						'color': '#1a2a36'
+					}
+				},
+				{
+					selector: 'node[type = "esclavizada"]',
+					style: {
+						'background-color': '#C9735B',
+						'border-color': '#A85A44'
 					}
 				},
 				{
 					selector: 'edge',
 					style: {
-						'width': 2,
-						'line-color': '#95A5A6',
-						'target-arrow-color': '#95A5A6',
-						'target-arrow-shape': 'triangle',
-						'arrow-scale': 1.2,
-						'curve-style': 'bezier'
+						'width': 1.5,
+						'line-color': '#C8D1D9',
+						'line-opacity': 0.7,
+						'curve-style': 'bezier',
+						'target-arrow-shape': 'none'
 					}
 				},
 				{
 					selector: 'edge[relation = "fam"]',
 					style: {
-						'line-color': '#E74C3C'
+						'line-color': '#D4A27F',
+						'width': 2
 					}
 				},
 				{
 					selector: 'edge[relation = "aso"]',
 					style: {
-						'line-color': '#3498DB'
+						'line-color': '#7BA7BC'
 					}
 				},
 				{
 					selector: 'edge[relation = "tmp"]',
 					style: {
-						'line-color': '#F39C12'
+						'line-color': '#B8C99A'
 					}
 				},
 				{
 					selector: 'edge[relation = "sub"]',
 					style: {
-						'line-color': '#8E44AD',
+						'line-color': '#9B8EC4',
 						'target-arrow-shape': 'triangle',
-						'target-arrow-color': '#8E44AD'
+						'target-arrow-color': '#9B8EC4',
+						'line-opacity': 0.85
 					}
 				}
 			],
 			layout: {
 				name: 'fcose',
 				animate: true,
+				animationDuration: 600,
 				fit: true,
-				padding: 20,
-				randomize: false
+				padding: 35,
+				nodeSeparation: 120,
+				idealEdgeLength: 120,
+				edgeElasticity: 0.45,
+				nodeRepulsion: 6500,
+				gravity: 0.25,
+				gravityRange: 1.5,
+				numIter: 2500,
+				randomize: true
 			}
 		});
 
-		// Add click event to navigate to related person details
 		relationsCy.on('tap', 'node', function(event) {
 			const node = event.target;
 			const nodeId = node.data('id').replace('p', '');
 			const nodeType = node.data('type');
-			
-			if (nodeId !== data.id) {
-				const detailUrl = nodeType === 29 
+
+			if (nodeId !== String(data.id)) {
+				const detailUrl = nodeType === 'esclavizada'
 					? `/Detail/personaesclavizada/${nodeId}`
 					: `/Detail/personanoesclavizada/${nodeId}`;
 				window.open(detailUrl, '_blank');
 			}
 		});
 
-		// Add hover effect
 		relationsCy.on('mouseover', 'node', function(event) {
-			const node = event.target;
-			node.style('border-width', '3px');
+			event.target.style({ 'border-width': 3, 'overlay-opacity': 0.08 });
 		});
 
 		relationsCy.on('mouseout', 'node', function(event) {
 			const node = event.target;
 			const isCurrentPerson = node.data('id') === currentPersonId;
-			node.style('border-width', isCurrentPerson ? '4px' : '2px');
+			node.style({ 'border-width': isCurrentPerson ? 3 : 2, 'overlay-opacity': 0 });
 		});
 	}
 
@@ -588,18 +604,18 @@
 	}
 
 	.color-legend-mini.enslaved {
-		background-color: #FF6B6B;
-		border-color: #FF4757;
+		background-color: #C9735B;
+		border-color: #A85A44;
 	}
 
 	.color-legend-mini.non-enslaved {
-		background-color: #4ECDC4;
-		border-color: #26D0CE;
+		background-color: #9DB5B2;
+		border-color: #7A9E9A;
 	}
 
 	.color-legend-mini.current {
-		background-color: #4ECDC4;
-		border-color: #26D0CE;
+		background-color: #3B6D8C;
+		border-color: #2A4F66;
 		border-width: 2px;
 	}
 
@@ -641,7 +657,8 @@
 	}
 
 	#relations-network {
-		background: white;
+		background: #f8fafa;
+		border-radius: 0.375rem;
 	}
 
 	#places-map {
