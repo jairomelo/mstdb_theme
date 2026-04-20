@@ -188,6 +188,18 @@ export const searchAll = (params) => {
     return fetchWithBaseUrl(`search/?${querystring}`);
 };
 
+export const searchNetwork = (params, options = {}) => {
+    const filteredParams = {};
+    for (const key in params) {
+        if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
+            filteredParams[key] = params[key];
+        }
+    }
+
+    const querystring = queryString.stringify(filteredParams);
+    return fetchWithBaseUrl(`search/network/?${querystring}`, options);
+};
+
 // Browse endpoints
 
 const ENTITY_ENDPOINT_MAP = {

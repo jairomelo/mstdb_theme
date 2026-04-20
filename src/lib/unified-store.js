@@ -1,5 +1,5 @@
 import { writable, get } from 'svelte/store';
-import { searchAll, fetchCounts, exportCsv, fetchWithBaseUrl } from '$lib/api';
+import { searchAll, searchNetwork, fetchCounts, exportCsv, fetchWithBaseUrl } from '$lib/api';
 import { defaultVisibleColumns } from '$conf/columns';
 import { DEFAULT_CROSSTAB_CONFIG } from '$conf/crosstab';
 import log from '$lib/logger';
@@ -27,6 +27,10 @@ export const ENTITY_TYPES = [
 
 export const PAGE_SIZES = [30, 90, 150, 300];
 
+function isPeopleType(entityType) {
+    return entityType === 'personaesclavizada' || entityType === 'personanoesclavizada';
+}
+
 // ── Per-tab state factory ────────────────────────────────────────────
 function createTabState(entityType) {
     const defaultCT = DEFAULT_CROSSTAB_CONFIG[entityType];
@@ -46,6 +50,12 @@ function createTabState(entityType) {
         crosstabConfig: defaultCT
             ? { ...defaultCT, result: null, isLoading: false, error: null }
             : null,
+        network: {
+            graphData: null,
+            isLoading: false,
+            error: null,
+            scopeMode: 'strict',
+        },
     };
 }
 
@@ -134,6 +144,11 @@ export async function fetchResults(entityType) {
                 },
             },
         }));
+
+        const refreshed = get(unifiedStore);
+        if (refreshed.viewMode === 'network' && refreshed.activeTab === entityType && isPeopleType(entityType)) {
+            fetchSearchNetwork(entityType);
+        }
     } catch (err) {
         // Silently ignore aborted requests
         if (err.name === 'AbortError') return;
@@ -147,6 +162,86 @@ export async function fetchResults(entityType) {
                     ...s.tabs[entityType],
                     isLoading: false,
                     error: err.message,
+                },
+            },
+        }));
+    }
+}
+
+export async function fetchSearchNetwork(entityType) {
+    if (!isPeopleType(entityType)) return;
+
+    const state = get(unifiedStore);
+    const tab = state.tabs[entityType];
+    if (!tab) return;
+
+    const signal = abortPrevious(`network:${entityType}`);
+
+    unifiedStore.update(s => ({
+        ...s,
+        tabs: {
+            ...s.tabs,
+            [entityType]: {
+                ...s.tabs[entityType],
+                network: {
+                    ...s.tabs[entityType].network,
+                    isLoading: true,
+                    error: null,
+                },
+            },
+        },
+    }));
+
+    try {
+        const params = {
+            type: entityType,
+            scope_mode: tab.network.scopeMode || 'strict',
+        };
+
+        if (state.query) {
+            const q = state.exactSearch
+                ? `"${state.query.replace(/^"|"$/g, '')}"`
+                : state.query.replace(/^"|"$/g, '');
+            params.q = q;
+        }
+
+        for (const [key, value] of Object.entries(tab.filters)) {
+            if (!value) continue;
+            params[key] = value;
+        }
+
+        const data = await searchNetwork(params, { signal });
+
+        unifiedStore.update(s => ({
+            ...s,
+            tabs: {
+                ...s.tabs,
+                [entityType]: {
+                    ...s.tabs[entityType],
+                    network: {
+                        ...s.tabs[entityType].network,
+                        graphData: data,
+                        isLoading: false,
+                        error: null,
+                    },
+                },
+            },
+        }));
+    } catch (err) {
+        if (err.name === 'AbortError') return;
+
+        log.error(`Error fetching network for ${entityType}: ${err.message}`);
+        unifiedStore.update(s => ({
+            ...s,
+            tabs: {
+                ...s.tabs,
+                [entityType]: {
+                    ...s.tabs[entityType],
+                    network: {
+                        ...s.tabs[entityType].network,
+                        isLoading: false,
+                        error: err.message,
+                    },
                 },
             },
         }));
@@ -173,10 +268,17 @@ export function setActiveTab(entityType) {
     if (state.tabs[entityType].results.length === 0 && !state.tabs[entityType].isLoading) {
         fetchResults(entityType);
     }
+    if (state.viewMode === 'network' && isPeopleType(entityType)) {
+        fetchSearchNetwork(entityType);
+    }
 }
 
 export function setViewMode(mode) {
     unifiedStore.update(s => ({ ...s, viewMode: mode }));
+    const state = get(unifiedStore);
+    if (mode === 'network' && isPeopleType(state.activeTab)) {
+        fetchSearchNetwork(state.activeTab);
+    }
 }
 
 export function setQuery(query, exactSearch = false) {
@@ -263,6 +365,24 @@ export function clearFilters(entityType) {
         },
     }));
     fetchResults(entityType);
+}
+
+export function setNetworkScope(entityType, scopeMode) {
+    if (!isPeopleType(entityType)) return;
+    unifiedStore.update(s => ({
+        ...s,
+        tabs: {
+            ...s.tabs,
+            [entityType]: {
+                ...s.tabs[entityType],
+                network: {
+                    ...s.tabs[entityType].network,
+                    scopeMode,
+                },
+            },
+        },
+    }));
+    fetchSearchNetwork(entityType);
 }
 
 export function toggleColumn(entityType, columnKey) {

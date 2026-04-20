@@ -4,7 +4,7 @@
 		unifiedStore, fetchResults, setActiveTab, setViewMode,
 		setPageSize, setPage, performSearch, clearSearch,
 		loadCounts, PAGE_SIZES, ENTITY_TYPES, abortAll,
-		fetchCrosstab, setCrosstabConfig,
+		fetchCrosstab, setCrosstabConfig, fetchSearchNetwork, setNetworkScope,
 	} from '$lib/unified-store';
 	import { exportCsv } from '$lib/api';
 	import { entityTabConfig } from '$conf/columns';
@@ -16,6 +16,7 @@
 	import ColumnConfigModal from './ColumnConfigModal.svelte';
 	import TrajectoryMap from './TrajectoryMap.svelte';
 	import CrosstabView from './CrosstabView.svelte';
+	import SearchNetwork from './SearchNetwork.svelte';
 
 	export let data;
 	let { searchQuery, archivoId, tab: initialTab, view: initialView } = data;
@@ -33,6 +34,8 @@
 	$: counts = $unifiedStore.counts;
 	$: typeCounts = $unifiedStore.typeCounts || {};
 	$: isSearch = !!$unifiedStore.query;
+	$: isPeopleTab = activeTab === 'personaesclavizada' || activeTab === 'personanoesclavizada';
+	$: networkState = tabState?.network;
 
 	// Tab badge: in search mode use typeCounts (all types returned by API);
 	// for the active tab prefer totalResults (reflects applied filters).
@@ -87,6 +90,10 @@
 
 	function handlePageSizeChange(e) {
 		setPageSize(activeTab, parseInt(e.target.value));
+	}
+
+	function handleNetworkScopeChange(event) {
+		setNetworkScope(activeTab, event.detail.scopeMode);
 	}
 
 	function handleExport() {
@@ -249,6 +256,18 @@
 					>
 						<i class="bi bi-layout-three-columns me-1" aria-hidden="true"></i>Tabla
 					</button>
+					<button
+						class="btn btn-sm"
+						class:btn-primary={viewMode === 'network'}
+						class:btn-outline-secondary={viewMode !== 'network'}
+						on:click={() => {
+							setViewMode('network');
+							fetchSearchNetwork(activeTab);
+						}}
+						aria-pressed={viewMode === 'network'}
+					>
+						<i class="bi bi-diagram-3 me-1" aria-hidden="true"></i>Red
+					</button>
 					{/if}
 				</div>
 			</div>
@@ -295,8 +314,16 @@
 						<span class="visually-hidden">Cargando...</span>
 					</div>
 				</div>
-			{:else if viewMode === 'crosstab' && (activeTab === 'personaesclavizada' || activeTab === 'personanoesclavizada')}
+			{:else if viewMode === 'crosstab' && isPeopleTab}
 				<CrosstabView entityType={activeTab} />
+			{:else if viewMode === 'network' && isPeopleTab}
+				<SearchNetwork
+					graphData={networkState?.graphData}
+					isLoading={networkState?.isLoading}
+					error={networkState?.error}
+					scopeMode={networkState?.scopeMode || 'strict'}
+					on:scopechange={handleNetworkScopeChange}
+				/>
 			{:else if tabState?.results?.length > 0}
 				<!-- Results -->
 				{#if viewMode === 'table'}
