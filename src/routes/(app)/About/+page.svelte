@@ -19,7 +19,7 @@
       <!-- Main Description -->
       <div class="description-section mb-5">
         <p class="lead">
-          El sitio web Trayectorias Afro es el resultado de colaboración entre investigadores de varias instituciones de México y Estados Unidos desde 2022, para la construcción de una base de datos de personas esclavizadas en la Nueva España en la que, a través del análisis pormenorizado de fuentes documentales se dé cuenta de su movilidad geográfica en el territorio novohispano.
+          El sitio web Trayectorias Afro es el resultado de colaboración entre investigadores de varias instituciones de México y Estados Unidos desde 2022, para la construcción de una base de datos de personas esclavizadas en la Nueva España en la que, a través del análisis pormenorizado de fuentes documentales se dé cuenta de su <b>movilidad geográfica</b> en el territorio novohispano.
         </p>
         <p>
           Este proyecto también busca democratizar la información poniendo la documentación histórica al alcance de amplios sectores de la sociedad mexicana y del mundo académico.

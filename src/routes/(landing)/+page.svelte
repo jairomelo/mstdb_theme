@@ -186,7 +186,7 @@
       <div class="band-content">
         <p>
           Esta base de datos recopila información sobre la circulación de personas afrodescendientes, 
-          tanto esclavizadas como libres, en la Nueva España. Explore los registros históricos para 
+          tanto esclavizadas como libres, en la Nueva España. Explore este sitio para 
           conocer más sobre sus vidas, movimientos y relaciones.
         </p>
       </div>
