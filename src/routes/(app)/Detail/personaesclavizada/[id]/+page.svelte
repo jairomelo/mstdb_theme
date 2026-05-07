@@ -217,6 +217,32 @@
 			const isCurrentPerson = node.data('id') === currentPersonId;
 			node.style({ 'border-width': isCurrentPerson ? 3 : 2, 'overlay-opacity': 0 });
 		});
+
+		const edgeTooltip = document.getElementById('relations-edge-tooltip');
+
+		relationsCy.on('mouseover', 'edge', function(event) {
+			const desc = event.target.data('descripcion');
+			if (!desc || !edgeTooltip) return;
+			const pos = event.renderedPosition;
+			edgeTooltip.textContent = desc;
+			edgeTooltip.style.display = 'block';
+			edgeTooltip.style.left = `${pos.x + 10}px`;
+			edgeTooltip.style.top = `${pos.y - 30}px`;
+			event.target.style({ 'width': 3, 'line-opacity': 1 });
+		});
+
+		relationsCy.on('mousemove', 'edge', function(event) {
+			const desc = event.target.data('descripcion');
+			if (!desc || !edgeTooltip) return;
+			const pos = event.renderedPosition;
+			edgeTooltip.style.left = `${pos.x + 10}px`;
+			edgeTooltip.style.top = `${pos.y - 30}px`;
+		});
+
+		relationsCy.on('mouseout', 'edge', function(event) {
+			if (edgeTooltip) edgeTooltip.style.display = 'none';
+			event.target.style({ 'width': null, 'line-opacity': null });
+		});
 	}
 
 	async function initializeMap() {
@@ -700,7 +726,10 @@
 					</div>
 				</div>
 				<div class="card-body pt-0">
-					<div id="relations-network" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
+					<div style="position: relative;">
+						<div id="relations-network" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
+						<div id="relations-edge-tooltip" class="network-edge-tooltip" aria-hidden="true"></div>
+					</div>
 				</div>
 				<div class="card-footer">
 					<div class="row text-center">
