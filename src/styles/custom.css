@@ -1801,3 +1801,109 @@ p, ol, ul, li {
 .shape-legend.circle {
   border-radius: 50%;
 }
+
+/* ── Trajectory Editor (/User/trayectoria) ─────────────────────────────── */
+.traj-point-card {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e9ecef;
+  transition: background 0.15s;
+}
+
+.traj-point-card:hover {
+  background: #f8f9fa;
+}
+
+.traj-point-card.traj-locked {
+  background: #fff9e6;
+}
+
+.traj-point-card.traj-swap-selected {
+  background: #fff3cd;
+  border-left: 3px solid #ffc107;
+}
+
+.traj-ordinal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.traj-ordinal.traj-ordinal-locked {
+  background: #f39c12;
+}
+
+/* SlideOver panel */
+.slideover-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1040;
+}
+
+.slideover {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(420px, 100vw);
+  height: 100vh;
+  background: #fff;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
+}
+
+.slideover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.slideover-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+}
+
+.slideover-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* Delete confirm overlay */
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1060;
+}
+
+.modal-dialog-custom {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1070;
+  width: min(480px, 90vw);
+}
+
+/* Dashboard trajectory card */
+.cataloguer-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}

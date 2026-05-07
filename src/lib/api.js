@@ -275,6 +275,15 @@ export const lugarProcedencia = (lugarId, page = 1) =>
 export const documentoPersonas = (documentoId, page = 1) =>
     fetchWithBaseUrl(`documentos/${documentoId}/personas/?page=${page}`);
 export const personaLugarRel = (personaxlugarId) => fetchWithBaseUrl(`relaciones-lugares/${personaxlugarId}/`);
+export const personaLugarRelByPersona = (personaId) => fetchWithBaseUrl(`relaciones-lugares/?personas__persona_id=${personaId}&page_size=100`);
+export const createPersonaLugarRel = (payload) => postWithBaseUrl('relaciones-lugares/', payload);
+export const updatePersonaLugarRel = (id, payload) => patchWithBaseUrl(`relaciones-lugares/${id}/`, payload);
+export const deletePersonaLugarRel = (id) => deleteWithBaseUrl(`relaciones-lugares/${id}/`);
+export const bulkUpdateOrdinal = (items) => patchWithBaseUrl('relaciones-lugares/bulk-ordinal/', items);
+export const updateLugar = (id, payload) => patchWithBaseUrl(`lugares/${id}/`, payload);
+export const searchLugares = (q) => fetchWithBaseUrl(`lugares/search/?q=${encodeURIComponent(q)}&page_size=10`);
+export const searchPersonasEsclavizadas = (q) => fetchWithBaseUrl(`personas-esclavizadas/?search=${encodeURIComponent(q)}&page_size=10`);
+export const situacionesLugar = () => fetchWithBaseUrl('vocabularios/situaciones-lugar/?page_size=100');
 export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`relaciones-personas/${personaxpersonaId}/`);
 
 // Visualization endpoints for detail views

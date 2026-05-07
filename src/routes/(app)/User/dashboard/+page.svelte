@@ -69,9 +69,14 @@
     <section class="mb-5">
         <div class="cataloguer-section-header">
             <h2 class="h5 mb-0"><i class="bi bi-pencil-square me-2"></i>Catalogar</h2>
-            <a href="/User/catalogar/evento/nuevo" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-lg me-1"></i>Nuevo evento
-            </a>
+            <div class="d-flex gap-2">
+                <a href="/User/catalogar/evento/nuevo" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-lg me-1"></i>Nuevo evento
+                </a>
+                <a href="/User/trayectoria" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-map me-1"></i>Editar trayectorias
+                </a>
+            </div>
         </div>
 
         <div class="mb-3">

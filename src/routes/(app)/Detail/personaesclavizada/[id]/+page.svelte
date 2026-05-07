@@ -1,6 +1,6 @@
 <script>
 	import { onMount, tick, onDestroy } from 'svelte';
-	import { peresclavizadas, personaNetwork, personaTrajectory } from '$lib/api';
+	import { peresclavizadas, personaNetwork, personaTrajectory, whoami } from '$lib/api';
 	import cytoscape from 'cytoscape';
 	import fcose from 'cytoscape-fcose';
 	import { browser } from '$app/environment';
@@ -16,6 +16,7 @@
 	let trajectoryData = null;
 	let L = null;
 	let map = null;
+	let canEdit = false;
 
 	// Network visualization variables
 	let relationsCy = null;
@@ -31,6 +32,7 @@
 	}
 
 	onMount(async () => {
+		whoami().then(u => { canEdit = u.is_staff || u.groups?.includes('colectores'); }).catch(() => {});
 		try {
 			peresc = await peresclavizadas(data.id);
 			
@@ -615,9 +617,16 @@
 						<h2 class="card-title h5 mb-0"><i class="bi bi-geo-alt me-2"></i>Trayectoria</h2>
 						<small class="text-white-50">Lugares conocidos y trayectoria de la persona</small>
 					</div>
-					<button class="btn btn-sm btn-outline-light" on:click={exportMap} title="Guardar imagen del mapa">
-						<i class="bi bi-download me-1"></i>PNG
-					</button>
+					<div class="d-flex gap-2">
+						<button class="btn btn-sm btn-outline-light" on:click={exportMap} title="Guardar imagen del mapa">
+							<i class="bi bi-download me-1"></i>PNG
+						</button>
+						{#if canEdit}
+							<a href="/User/trayectoria?persona_id={data.id}" class="btn btn-sm btn-outline-light">
+								<i class="bi bi-pencil-square me-1"></i>Editar trayectoria
+							</a>
+						{/if}
+					</div>
 				</div>
 				<div class="card-body">
 					<div id="places-map" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
