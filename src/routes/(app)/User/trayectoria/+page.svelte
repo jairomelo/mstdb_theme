@@ -55,10 +55,17 @@
     let addLugarResults = [];
     let addLugarTimer;
     let addSelectedLugar = null;
+    let addDocumento = '';
     let addOrdinal = '';
     let addSituacion = '';
     let addFecha = '';
     let addSaving = false;
+
+    // Normalise document list regardless of which serializer returned selectedPersona
+    $: personaDocs = selectedPersona
+        ? (selectedPersona.documentos ?? selectedPersona.documento_list ?? [])
+        : [];
+    $: if (personaDocs.length === 1) addDocumento = personaDocs[0].documento_id;
 
     // ── Delete confirm ────────────────────────────────────────────────────────
     let deletingPoint = null;
@@ -377,15 +384,15 @@
     }
 
     async function saveAddPoint() {
-        if (!addSelectedLugar || !addOrdinal || addOrdinal == 0) {
-            saveError = 'Lugar y ordinal (distinto de 0) son obligatorios.';
+        if (!addSelectedLugar || !addOrdinal || addOrdinal == 0 || !addDocumento) {
+            saveError = 'Lugar, documento y ordinal (distinto de 0) son obligatorios.';
             return;
         }
         addSaving = true;
         saveError = null;
         try {
             const payload = {
-                documento: selectedPersona.documentos?.[0]?.documento_id ?? selectedPersona.documentos?.[0],
+                documento: addDocumento,
                 lugar: addSelectedLugar.lugar_id,
                 ordinal: parseInt(addOrdinal),
                 personas: [selectedPersona.persona_id],
@@ -394,7 +401,7 @@
             if (addFecha) payload.fecha_inicial_lugar = addFecha;
             await createPersonaLugarRel(payload);
             addPanelOpen = false;
-            addLugarQuery = ''; addSelectedLugar = null; addOrdinal = ''; addSituacion = ''; addFecha = '';
+            addLugarQuery = ''; addSelectedLugar = null; addDocumento = ''; addOrdinal = ''; addSituacion = ''; addFecha = '';
             await loadTrajectory(selectedPersona.persona_id);
             saveSuccess = 'Punto añadido.';
         } catch (e) {
@@ -674,6 +681,22 @@
             <button class="btn-close" on:click={() => addPanelOpen = false}></button>
         </div>
         <div class="slideover-body">
+            <!-- Documento selector -->
+            <div class="mb-3">
+                <label class="form-label" for="add-documento">Documento <span class="text-danger">*</span></label>
+                {#if personaDocs.length === 0}
+                    <p class="text-muted small">No hay documentos asociados a esta persona.</p>
+                {:else if personaDocs.length === 1}
+                    <p class="form-control-plaintext small">{personaDocs[0].titulo}</p>
+                {:else}
+                    <select id="add-documento" class="form-select" bind:value={addDocumento}>
+                        <option value="">— Selecciona un documento —</option>
+                        {#each personaDocs as d}
+                            <option value={d.documento_id}>{d.titulo}</option>
+                        {/each}
+                    </select>
+                {/if}
+            </div>
             <!-- Lugar search -->
             <div class="mb-3">
                 <label class="form-label" for="add-lugar">Lugar <span class="text-danger">*</span></label>
