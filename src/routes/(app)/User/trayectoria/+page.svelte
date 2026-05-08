@@ -130,15 +130,42 @@
     }
 
     async function selectPersona(pe) {
-        selectedPersona = pe;
         personaResults = [];
         personaQuery = '';
+        // Upgrade to full detail so FK place fields (procedencia etc.) include lat/lon
+        try { selectedPersona = await peresclavizadas(pe.persona_id); }
+        catch { selectedPersona = pe; }
         await loadTrajectory(pe.persona_id);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     // Trajectory load
     // ─────────────────────────────────────────────────────────────────────────
+    function buildFkPoints(persona, relPoints) {
+        const ordinals = relPoints.map(p => p.ordinal);
+        const minOrd = ordinals.length ? Math.min(...ordinals) : 1;
+        const maxOrd = ordinals.length ? Math.max(...ordinals) : 0;
+        const pts = [];
+
+        function fkPoint(situacion, lugar, ordinal) {
+            if (!lugar || typeof lugar !== 'object' || !lugar.lat) return;
+            pts.push({
+                persona_x_lugares: null,
+                _fk: true,
+                ordinal,
+                lugar: { lugar_id: lugar.lugar_id, nombre_lugar: lugar.nombre_lugar, tipo: lugar.tipo, lat: lugar.lat, lon: lugar.lon },
+                situacion_lugar: situacion,
+                fecha_inicial_lugar: null,
+                documento: null,
+            });
+        }
+
+        fkPoint('Nacimiento',  persona.lugar_nacimiento, minOrd - 2);
+        fkPoint('Procedencia', persona.procedencia,      minOrd - 1);
+        fkPoint('Defunción',   persona.lugar_defuncion,  maxOrd + 1);
+        return pts;
+    }
+
     async function loadTrajectory(personaId) {
         loading = true;
         saveError = null;
@@ -147,7 +174,9 @@
         try {
             const res = await personaLugarRelByPersona(personaId);
             const raw = res.results ?? res ?? [];
-            trajectoryPoints = raw.sort((a, b) => a.ordinal - b.ordinal);
+            const relPoints = raw.sort((a, b) => a.ordinal - b.ordinal);
+            const fkPoints = buildFkPoints(selectedPersona, relPoints);
+            trajectoryPoints = [...fkPoints, ...relPoints].sort((a, b) => a.ordinal - b.ordinal);
         } catch (e) {
             saveError = 'No se pudo cargar la trayectoria.';
         } finally {
@@ -519,17 +548,19 @@
                             <p class="text-muted text-center py-4">No hay puntos de trayectoria registrados.</p>
                         {:else}
                             {#each trajectoryPoints as point, i}
+                                {@const isFk = !!point._fk}
                                 {@const isLocked = point.ordinal === 0}
+                                {@const isReadOnly = isFk || isLocked}
                                 {@const isSwapA = swapA === point.persona_x_lugares}
                                 <div
                                     class="traj-point-card"
-                                    class:traj-locked={isLocked}
+                                    class:traj-locked={isReadOnly}
                                     class:traj-swap-selected={isSwapA}
                                 >
                                     <div class="d-flex align-items-start gap-2">
                                         <!-- Ordinal badge -->
-                                        <div class="traj-ordinal" class:traj-ordinal-locked={isLocked}>
-                                            {isLocked ? '⚓' : point.ordinal}
+                                        <div class="traj-ordinal" class:traj-ordinal-locked={isReadOnly}>
+                                            {isFk ? '🔗' : isLocked ? '⚓' : point.ordinal}
                                         </div>
                                         <div class="flex-grow-1 min-width-0">
                                             <div class="fw-semibold text-truncate">
@@ -539,7 +570,9 @@
                                                 {point.situacion_lugar ?? '—'}
                                                 {#if point.fecha_inicial_lugar} · {point.fecha_inicial_lugar}{/if}
                                             </small>
-                                            {#if point.documento}
+                                            {#if isFk}
+                                                <small class="text-muted d-block fst-italic">Campo del registro de persona</small>
+                                            {:else if point.documento}
                                                 <small class="text-muted d-block text-truncate">
                                                     <i class="bi bi-file-text me-1"></i>{point.documento.titulo ?? point.documento}
                                                 </small>
@@ -547,7 +580,11 @@
                                         </div>
                                         <!-- Actions -->
                                         <div class="d-flex flex-column gap-1">
-                                            {#if !isLocked}
+                                            {#if isReadOnly}
+                                                <span class="btn btn-sm btn-outline-secondary disabled" title={isFk ? 'Campo del registro de persona' : 'Punto de evento (no intercambiable)'}>
+                                                    <i class="bi bi-lock"></i>
+                                                </span>
+                                            {:else}
                                                 <button
                                                     class="btn btn-sm"
                                                     class:btn-outline-warning={!isSwapA}
@@ -557,20 +594,29 @@
                                                 >
                                                     <i class="bi bi-arrow-left-right"></i>
                                                 </button>
-                                            {:else}
-                                                <span class="btn btn-sm btn-outline-secondary disabled" title="Punto de evento (no intercambiable)">
-                                                    <i class="bi bi-lock"></i>
-                                                </span>
                                             {/if}
-                                            <button class="btn btn-sm btn-outline-primary" title="Editar fecha y situación" on:click={() => openEditPoint(point)}>
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-secondary" title="Editar coordenadas del lugar" on:click={() => openEditCoords(point)}>
-                                                <i class="bi bi-geo"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Eliminar punto" on:click={() => openDelete(point)}>
-                                                <i class="bi bi-trash"></i>
-                                            </button>
+                                            {#if isFk}
+                                                <a href="/Update/personaesclavizada/{selectedPersona.persona_id}" target="_blank"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   title="Editar registro de persona para cambiar este lugar">
+                                                    <i class="bi bi-person-gear"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-secondary" title="Editar coordenadas del lugar" on:click={() => openEditCoords(point)}>
+                                                    <i class="bi bi-geo"></i>
+                                                </button>
+                                            {:else}
+                                                <button class="btn btn-sm btn-outline-primary" title="Editar fecha y situación" on:click={() => openEditPoint(point)}>
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary" title="Editar coordenadas del lugar" on:click={() => openEditCoords(point)}>
+                                                    <i class="bi bi-geo"></i>
+                                                </button>
+                                            {/if}
+                                            {#if !isReadOnly}
+                                                <button class="btn btn-sm btn-outline-danger" title="Eliminar punto" on:click={() => openDelete(point)}>
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            {/if}
                                         </div>
                                     </div>
                                 </div>
