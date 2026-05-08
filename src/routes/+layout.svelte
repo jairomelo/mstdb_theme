@@ -1,16 +1,21 @@
 <script>
+	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import '@fontsource/aleo';
 	import '@fontsource/eb-garamond';
 	import { dropdown, collapse } from '$lib/bootstrap-actions.js';
+	import { whoami } from '$lib/api';
 
 	import { goto } from '$app/navigation';
 
 	import { user } from '$lib/stores/user';
 	import { logout } from '$lib/api';
 
+	const appVersion = __APP_VERSION__;
+
 	let query = '';
 	let formElement;
+	let canEdit = false;
 
 	function handleNavSearch() {
 		if (query) {
@@ -24,6 +29,10 @@
 		localStorage.removeItem('user');
 		window.location.href = '/';
 	}
+
+	onMount(async () => {
+		whoami().then(u => { canEdit = u.is_staff || u.groups?.includes('colectores'); }).catch(() => {});
+	});
 </script>
 
 {#if $page.url.pathname === '/'}
@@ -136,4 +145,55 @@
 	<div id="main-content" class="content-container" tabindex="-1">
 		<slot />
 	</div>
+
+	<!-- Footer -->
+	<footer class="footer mt-5">
+	<div class="container">
+		<div class="row">
+		<div class="col-md-4">
+			<h5>Financiamiento</h5>
+			<p>
+			Partes de este proyecto han sido financiadas por el University of California MRPI 
+			<a href="https://www.humanities.uci.edu/routes-enslavement-americas" target="_blank" rel="noopener">
+				Routes of Enslavement in the Americas
+			</a>
+			y la Universidad de California
+			<a href="https://alianzamx.universityofcalifornia.edu/research-and-innovation/latino-studies-projects/" target="_blank" rel="noopener">
+				Alianza MX — Latino Studies Projects
+			</a>
+			</p>
+		</div>
+		<div class="col-md-4">
+			<h5>Agradecimientos</h5>
+			<p>
+			Agradecemos el hospedaje web de este proyecto a la 
+			<a href="https://neogranadina.org/" target="_blank" rel="noopener">Fundación Neogranadina</a>, 
+			y el asesoramiento para esto de Juan Cobo de la 
+			<a href="https://www.history.ucsb.edu/faculty/juan-cobo/" target="_blank" rel="noopener">
+				Universidad de California, Santa Bárbara
+			</a>.
+			</p>
+		</div>
+		<div class="col-md-4">
+			<h5>Acerca de Trayectorias Afro</h5>
+			<ul class="list-unstyled">
+			<li><a href="/About">Sobre Nosotros</a></li>
+			<li><a href="/Accessibility">Accesibilidad</a></li>
+			{#if !canEdit}
+				<li><a href="/User/login">Entrar [login]</a></li>
+			{:else}
+				<li><a href="/User/dashboard/">Panel de control</a></li>
+				<li><a href="https://db.trayectoriasafro.org">Sistema anterior</a></li>
+			{/if}
+			</ul>
+		</div>
+		</div>
+		<div class="row mt-3 border-top pt-2">
+		<div class="col text-center text-muted small">
+			v{appVersion}
+		</div>
+		</div>
+	</div>
+	</footer>
+
 {/if}

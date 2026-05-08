@@ -4,12 +4,14 @@
   import { unifiedStore, loadCounts } from '$lib/unified-store';
   import { animateSuffix } from '$lib/textanimation';
   import { setRandomHeroImage } from '$lib/heroBackground'; // Updated import path
+  import { whoami } from '$lib/api';
 
   /* global __APP_VERSION__ */
   const appVersion = __APP_VERSION__;
 
   let suffixElement;
   let heroSectionElement;
+  let canEdit = false;
 
   $: if ($currentSuffix) {
     animateSuffix(suffixElement, updateSuffix);
@@ -62,6 +64,7 @@
   }
 
   onMount(() => {
+    whoami().then(u => { canEdit = u.is_staff || u.groups?.includes('colectores'); }).catch(() => {});
     updateSuffix();
     setRandomHeroImage(heroSectionElement); // Pass heroSectionElement here
     loadCounts();
@@ -293,8 +296,14 @@
       <div class="col-md-4">
         <h5>Acerca de Trayectorias Afro</h5>
         <ul class="list-unstyled">
-          <li><a href="/About">Sobre Nosotros</a></li>
-          <li><a href="/Accessibility">Accesibilidad</a></li>
+        <li><a href="/About">Sobre Nosotros</a></li>
+        <li><a href="/Accessibility">Accesibilidad</a></li>
+        {#if !canEdit}
+          <li><a href="/User/login">Entrar [login]</a></li>
+        {:else}
+          <li><a href="/User/dashboard/">Panel de control</a></li>
+          <li><a href="https://db.trayectoriasafro.org">Sistema anterior</a></li>
+        {/if}
         </ul>
       </div>
     </div>
