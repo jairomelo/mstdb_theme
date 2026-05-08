@@ -374,6 +374,16 @@
         deleteConfirmOpen = true;
     }
 
+    function openAddPanelWithLugar(point) {
+        addSelectedLugar = point.lugar;
+        addLugarQuery = point.lugar?.nombre_lugar ?? '';
+        addLugarResults = [];
+        addOrdinal = '';
+        addSituacion = '';
+        addFecha = '';
+        addPanelOpen = true;
+    }
+
     function cancelDelete() { deleteConfirmOpen = false; deletingPoint = null; }
 
     async function confirmDelete() {
@@ -596,6 +606,9 @@
                                                 </button>
                                             {/if}
                                             {#if isFk}
+                                                <button class="btn btn-sm btn-outline-success" title="Agregar como punto de trayectoria" on:click={() => openAddPanelWithLugar(point)}>
+                                                    <i class="bi bi-plus-circle"></i>
+                                                </button>
                                                 <a href="/Update/personaesclavizada/{selectedPersona.persona_id}" target="_blank"
                                                    class="btn btn-sm btn-outline-primary"
                                                    title="Editar registro de persona para cambiar este lugar">
