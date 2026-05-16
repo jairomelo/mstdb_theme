@@ -171,6 +171,10 @@ export const whoami = async () => {
     }
 };
 
+export const updateProfile = (data) => patchWithBaseUrl("whoami/", data);
+
+export const fetchUsersProgress = () => fetchWithBaseUrl("users/progress/");
+
 
 
 // Search endpoints
