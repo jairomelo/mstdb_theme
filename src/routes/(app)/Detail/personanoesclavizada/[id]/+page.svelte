@@ -1,6 +1,7 @@
 <script>
 	import { onMount, tick, onDestroy } from 'svelte';
 	import { pernoesclavizadas, personaNoEsclavizadaNetwork } from '$lib/api';
+	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
 	import cytoscape from 'cytoscape';
 	import fcose from 'cytoscape-fcose';
 	import { browser } from '$app/environment';
@@ -466,7 +467,10 @@
 
 	<div class="entity-banner persona-no-esclavizada">
 		<h1>{pernoesc.nombre_normalizado || 'Persona No Esclavizada'}</h1>
-		<span class="entity-type">Persona No Esclavizada</span>
+		<div class="d-flex align-items-center gap-2 flex-wrap mt-1">
+			<span class="entity-type">Persona No Esclavizada</span>
+			<SuggestMerge entity="pn" currentId={pernoesc.persona_id} currentLabel={pernoesc.nombre_normalizado} />
+		</div>
 	</div>
 
 		<div class="detailwrap">

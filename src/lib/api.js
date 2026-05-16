@@ -340,3 +340,17 @@ export const createPersonaNoEsclavizada = (data) => postWithBaseUrl('personas-no
 export const createDocumento           = (data) => postWithBaseUrl('documentos/', data);
 export const createLugar               = (data) => postWithBaseUrl('lugares/', data);
 export const createCorporacion         = (data) => postWithBaseUrl('corporaciones/', data);
+// ── PersonaRelaciones (P×P) helpers ──────────────────────────────────────────
+export const relacionesByPersona = (personaId) => fetchWithBaseUrl(`relaciones-personas/?personas__persona_id=${personaId}&page_size=100`);
+export const createPersonaRelacion  = (payload) => postWithBaseUrl('relaciones-personas/', payload);
+export const updatePersonaRelacion  = (id, payload) => patchWithBaseUrl(`relaciones-personas/${id}/`, payload);
+export const deletePersonaRelacion  = (id) => deleteWithBaseUrl(`relaciones-personas/${id}/`);
+
+// ── Merge helpers ─────────────────────────────────────────────────────────────
+export const mergeCandidates = (entity, q) => fetchWithBaseUrl(`merge/candidates/?entity=${entity}&q=${encodeURIComponent(q)}`);
+export const mergeExecute    = (payload) => postWithBaseUrl('merge/execute/', payload);
+export const mergeSuggest    = (payload) => postWithBaseUrl('merge/suggest/', payload);
+
+// ── General entity update helpers ─────────────────────────────────────────────
+export const updateLugarById      = (id, data) => patchWithBaseUrl(`lugares/${id}/`, data);
+export const updatePersonaEscById = (id, data) => patchWithBaseUrl(`personas-esclavizadas/${id}/`, data);

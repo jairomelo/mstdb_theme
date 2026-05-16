@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { tooltip } from '$lib/bootstrap-actions.js';
 	import { corporaciones } from '$lib/api';
+	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
 	import { formatDate } from '$lib/utils';
 
 	export let data;
@@ -34,8 +35,9 @@
 		<h1 class="text-primary"><img src="/icons/i_institucion.webp" alt="Persona Esclavizada"> Corporación</h1>
 	</div>
 		<div class="card mb-4">
-			<div class="card-header bg-primary text-white">
+			<div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
 				<h1 class="card-title mb-0">{corp.nombre_institucion}</h1>
+				<SuggestMerge entity="cor" currentId={corp.corporacion_id} currentLabel={corp.nombre_institucion} />
 			</div>
 			<div class="card-body">
 				<div class="row">

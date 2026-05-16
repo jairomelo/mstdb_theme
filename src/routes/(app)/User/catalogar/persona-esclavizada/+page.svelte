@@ -112,9 +112,19 @@
     <h1 class="h3 mb-4">Nueva Persona Esclavizada</h1>
 
     {#if created}
-        <div class="alert alert-success d-flex align-items-center justify-content-between" role="alert">
-            <span>Persona creada: <strong>{created.short_id ?? created.persona_idno}</strong> — {created.nombre_normalizado ?? nombres}</span>
-            <button class="btn btn-sm btn-outline-success" on:click={reset}>Crear otra</button>
+        <div class="alert alert-success" role="alert">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <span>Persona creada: <strong>{created.short_id ?? created.persona_idno}</strong> — {created.nombre_normalizado ?? nombres}</span>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="/User/trayectoria?persona_id={created.persona_id}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-map me-1"></i>Editar trayectoria
+                    </a>
+                    <a href="/User/catalogar/relaciones?persona_id={created.persona_id}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-people me-1"></i>Editar relaciones
+                    </a>
+                    <button class="btn btn-sm btn-outline-success" on:click={reset}>Crear otra</button>
+                </div>
+            </div>
         </div>
     {/if}
 

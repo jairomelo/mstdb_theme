@@ -16,6 +16,7 @@
         situacionesLugar,
         peresclavizadas,
     } from '$lib/api';
+    import Tooltip from '$lib/components/Tooltip.svelte';
 
     // ── Auth ─────────────────────────────────────────────────────────────────
     let currentUser = null;
@@ -540,6 +541,7 @@
                         <span class="fw-semibold">
                             <i class="bi bi-list-ol me-1"></i>
                             Puntos ({trajectoryPoints.length})
+                            <Tooltip text="Cada punto representa un lugar donde apareció esta persona en los documentos. Los puntos con 🔗 vienen de campos del perfil (nacimiento, procedencia, defunción) y no se pueden editar aquí." />
                         </span>
                         <div class="d-flex gap-2 align-items-center">
                             {#if swapA}
@@ -548,7 +550,8 @@
                                 </span>
                                 <button class="btn btn-sm btn-outline-secondary" on:click={() => swapA = null}>Cancelar</button>
                             {/if}
-                            <button class="btn btn-sm btn-success" on:click={() => addPanelOpen = true}>
+                            <button class="btn btn-sm btn-success" on:click={() => addPanelOpen = true}
+                                    title="Añadir un nuevo punto de trayectoria">
                                 <i class="bi bi-plus-lg me-1"></i>Añadir
                             </button>
                         </div>

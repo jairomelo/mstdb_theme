@@ -2,7 +2,8 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 	import { tooltip } from '$lib/bootstrap-actions.js';
-	import { lugares, lugarPersonasRelacionadas, lugarProcedencia } from '$lib/api';
+	import { lugares, lugarPersonasRelacionadas, lugarProcedencia, whoami } from '$lib/api';
+	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
 
 
 	export let data;
@@ -20,8 +21,10 @@
 
 	let L = null;
 	let map = null;
+	let canEdit = false;
 
 	onMount(async () => {
+		whoami().then(u => { canEdit = u.is_staff || u.groups?.includes('colectores'); }).catch(() => {});
 		try {
 			lugar = await lugares(data.id);
             await loadPersonas(1);
@@ -126,8 +129,16 @@
 		</div>
 	{:else if lugar}
 		<div class="card mb-4">
-			<div class="card-header bg-primary text-white">
+			<div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
 				<h1 class="card-title mb-0">{lugar.nombre_lugar} ({lugar.tipo})</h1>
+				<div class="d-flex gap-2 align-items-center">
+					{#if canEdit}
+						<a href="/User/catalogar/lugar/edit/{data.id}" class="btn btn-sm btn-outline-light">
+							<i class="bi bi-pencil-square me-1"></i>Editar lugar
+						</a>
+					{/if}
+					<SuggestMerge entity="lug" currentId={lugar.lugar_id} currentLabel={lugar.nombre_lugar} />
+				</div>
 			</div>
 			<div class="card-body">
 				<div class="row">

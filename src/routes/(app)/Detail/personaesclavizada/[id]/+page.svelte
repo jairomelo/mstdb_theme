@@ -1,6 +1,8 @@
 <script>
 	import { onMount, tick, onDestroy } from 'svelte';
 	import { peresclavizadas, personaNetwork, personaTrajectory, whoami } from '$lib/api';
+	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
+	import Tooltip from '$lib/components/Tooltip.svelte';
 	import cytoscape from 'cytoscape';
 	import fcose from 'cytoscape-fcose';
 	import { browser } from '$app/environment';
@@ -569,7 +571,10 @@
 
 	<div class="entity-banner persona-esclavizada">
 		<h1>{peresc.nombre_normalizado || 'Persona Esclavizada'}</h1>
-		<span class="entity-type">Persona Esclavizada</span>
+		<div class="d-flex align-items-center gap-2 flex-wrap mt-1">
+			<span class="entity-type">Persona Esclavizada</span>
+			<SuggestMerge entity="pe" currentId={peresc.persona_id} currentLabel={peresc.nombre_normalizado} />
+		</div>
 	</div>
 
 		<div class="detailwrap">
@@ -634,7 +639,9 @@
 			<div class="card mb-4">
 				<div class="card-header bg-success text-white d-flex justify-content-between align-items-start">
 					<div>
-						<h2 class="card-title h5 mb-0"><i class="bi bi-geo-alt me-2"></i>Trayectoria</h2>
+								<h2 class="card-title h5 mb-0"><i class="bi bi-geo-alt me-2"></i>Trayectoria
+									<Tooltip text="Mapa de los lugares donde esta persona fue documentada. Los puntos naranjas son datos del perfil (nacimiento, procedencia); los rojos son puntos de trayectoria registrados en documentos." placement="bottom" />
+								</h2>
 						<small class="text-white-50">Lugares conocidos y trayectoria de la persona</small>
 					</div>
 					<div class="d-flex gap-2">
@@ -699,7 +706,9 @@
 			<div class="card mb-4">
 				<div class="card-header bg-info text-white d-flex justify-content-between align-items-start">
 					<div>
-						<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones</h2>
+								<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones
+									<Tooltip text="Visualiza las relaciones documentadas entre esta persona y otras. Cada nodo es una persona; los colores distinguen el tipo de relación (familiar, temporal, subordinación)." placement="bottom" />
+								</h2>
 						<small class="text-white-50">Haz clic en un nodo para ver los detalles de esa persona</small>
 					</div>
 					<button class="btn btn-sm btn-outline-light" on:click={exportNetwork} title="Guardar imagen de la red">

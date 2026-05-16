@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { tooltip } from '$lib/bootstrap-actions.js';
 	import { documentos, documentoPersonas } from '$lib/api';
+	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
 	import { generateDocumentTree } from '$lib/documentTree.js';
 
 	export let data;
@@ -89,8 +90,9 @@
 		</div>
 	{:else if documento}
 		<div class="card">
-			<div class="card-header bg-primary text-white">
+			<div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
 				<h1 class="card-title mb-0">{documento.titulo}</h1>
+				<SuggestMerge entity="doc" currentId={documento.documento_id} currentLabel={documento.titulo} />
 			</div>
 			<div class="card-body">
 				<div class="row">
