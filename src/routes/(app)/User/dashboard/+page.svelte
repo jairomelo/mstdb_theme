@@ -364,28 +364,3 @@
     <p class="text-muted" aria-live="polite">Cargando…</p>
 {/if}
 </div>
-                        <div>
-                            <strong>{doc.titulo}</strong>
-                            {#if doc.documento_idno}
-                                <span class="badge bg-secondary ms-2">{doc.documento_idno}</span>
-                            {/if}
-                            <div class="text-muted small mt-1">
-                                {doc.fecha_inicial_raw ?? doc.fecha_inicial ?? ''}
-                                {#if doc.archivo?.nombre_archivo} — {doc.archivo.nombre_archivo}{/if}
-                            </div>
-                        </div>
-                        <i class="bi bi-chevron-right text-muted"></i>
-                    </div>
-                </a>
-                {/each}
-            </div>
-        {/if}
-    </section>
-    {/if}
-
-{:else if error}
-    <p class="text-danger">{error}</p>
-{:else}
-    <p class="text-muted">Cargando…</p>
-{/if}
-</div>
