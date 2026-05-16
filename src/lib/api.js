@@ -36,7 +36,7 @@ export const postWithBaseUrl = async (endpoint, payload = {}) => {
 
 	if (!response.ok) {
 		const errorData = await response.json().catch(() => ({}));
-		throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+		throw Object.assign(new Error(errorData.error || `HTTP error! status: ${response.status}`), { data: errorData });
 	}
 
 	return await response.json();
@@ -333,3 +333,10 @@ export const placePeopleDistribution = async () => {
         throw error;
     }
 };
+
+// ── Ingestion capture helpers ──────────────────────────────────────────────────
+export const createPersonaEsclavizada  = (data) => postWithBaseUrl('personas-esclavizadas/', data);
+export const createPersonaNoEsclavizada = (data) => postWithBaseUrl('personas-no-esclavizadas/', data);
+export const createDocumento           = (data) => postWithBaseUrl('documentos/', data);
+export const createLugar               = (data) => postWithBaseUrl('lugares/', data);
+export const createCorporacion         = (data) => postWithBaseUrl('corporaciones/', data);

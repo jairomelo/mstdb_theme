@@ -7,7 +7,9 @@
         try {
             const me = await whoami();
             user.set(me);
-            if (!me?.is_staff) window.location.href = '/User/login';
+            const groups = me?.groups ?? [];
+            const allowed = me?.is_staff || groups.includes('colectores');
+            if (!allowed) window.location.href = '/User/login';
         } catch {
             window.location.href = '/User/login';
         }
