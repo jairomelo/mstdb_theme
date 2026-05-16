@@ -11,6 +11,7 @@
 
 export const columnsConfig = {
     personaesclavizada: [
+        { key: 'short_id', label: 'ID corto', sortable: false, visible: true },
         { key: 'persona_idno', label: 'ID', sortable: true, visible: false },
         { key: 'nombre_normalizado', label: 'Nombre', sortable: true, visible: true },
         { key: 'sexo', label: 'Sexo', sortable: true, visible: true },
@@ -37,6 +38,7 @@ export const columnsConfig = {
         { key: 'updated_at', label: 'Actualizado', sortable: true, visible: false },
     ],
     personanoesclavizada: [
+        { key: 'short_id', label: 'ID corto', sortable: false, visible: true },
         { key: 'persona_idno', label: 'ID', sortable: true, visible: false },
         { key: 'nombre_normalizado', label: 'Nombre', sortable: true, visible: true },
         { key: 'sexo', label: 'Sexo', sortable: true, visible: true },
@@ -50,6 +52,7 @@ export const columnsConfig = {
         { key: 'updated_at', label: 'Actualizado', sortable: true, visible: false },
     ],
     documento: [
+        { key: 'short_id', label: 'ID corto', sortable: false, visible: false },
         { key: 'documento_idno', label: 'ID', sortable: false, visible: true },
         { key: 'titulo', label: 'Título', sortable: true, visible: true },
         { key: 'tipo_documento', label: 'Tipo', sortable: false, visible: true },
@@ -59,6 +62,7 @@ export const columnsConfig = {
         { key: 'created_at', label: 'Creado', sortable: true, visible: false },
     ],
     lugar: [
+        { key: 'short_id', label: 'ID corto', sortable: false, visible: false },
         { key: 'nombre_lugar', label: 'Nombre', sortable: true, visible: true },
         { key: 'tipo', label: 'Tipo', sortable: true, visible: true },
         { key: 'otros_nombres', label: 'Otros nombres', sortable: false, visible: true },
@@ -67,6 +71,7 @@ export const columnsConfig = {
         { key: 'lon', label: 'Longitud', sortable: false, visible: false },
     ],
     corporacion: [
+        { key: 'short_id', label: 'ID corto', sortable: false, visible: false },
         { key: 'nombre_institucion', label: 'Nombre', sortable: true, visible: true },
         { key: 'tipo_institucion', label: 'Tipo', sortable: false, visible: true },
         { key: 'lugar_corporacion', label: 'Lugar', sortable: false, visible: true },
