@@ -163,13 +163,6 @@
 					}
 				},
 				{
-					selector: 'edge[relation = "aso"]', // Association relations
-					style: {
-						'line-color': '#3498DB', // Blue
-						width: 2
-					}
-				},
-				{
 					selector: 'edge[relation = "fam"]', // Family relations
 					style: {
 						'line-color': '#E74C3C', // Red

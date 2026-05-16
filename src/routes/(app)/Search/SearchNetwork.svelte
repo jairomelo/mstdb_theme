@@ -168,12 +168,6 @@
 					},
 				},
 				{
-					selector: 'edge[relation = "aso"]',
-					style: {
-						'line-color': '#7BA7BC',
-					},
-				},
-				{
 					selector: 'edge[relation = "tmp"]',
 					style: {
 						'line-color': '#B8C99A',

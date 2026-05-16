@@ -157,12 +157,6 @@
 					}
 				},
 				{
-					selector: 'edge[relation = "aso"]',
-					style: {
-						'line-color': '#7BA7BC'
-					}
-				},
-				{
 					selector: 'edge[relation = "tmp"]',
 					style: {
 						'line-color': '#B8C99A'
@@ -716,7 +710,7 @@
 					<div class="d-flex flex-wrap gap-1 align-items-center mb-2">
 						<small class="text-muted me-1">Filtrar:</small>
 						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'fam'} style="--fc: #D4A27F;" on:click={() => filterByRelation('fam')}>Parentesco</button>
-						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'aso'} style="--fc: #7BA7BC;" on:click={() => filterByRelation('aso')}>Asociación</button>
+
 						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'tmp'} style="--fc: #B8C99A;" on:click={() => filterByRelation('tmp')}>Temporal</button>
 						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'sub'} style="--fc: #9B8EC4;" on:click={() => filterByRelation('sub')}>Subordinación</button>
 						<span class="mx-1 text-muted">|</span>
