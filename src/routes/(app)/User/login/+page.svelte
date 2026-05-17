@@ -36,7 +36,7 @@
 			const u = await whoami();
 			user.set(u);
 
-			window.location.href = '/User/dashboard';
+			window.location.href = '/User';
 		} catch (err) {
 			console.error(err);
 			error = 'An error occurred during login';
