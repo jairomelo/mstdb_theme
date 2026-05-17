@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
     import { fetchWithBaseUrl, postWithBaseUrl, patchWithBaseUrl, deleteWithBaseUrl } from '$lib/api';
     import { hasPerm } from '$lib/stores/user';
     import FormField from '$lib/components/forms/FormField.svelte';
@@ -18,6 +19,14 @@
     let peList = [];
     let pneList = [];
     let corpList = [];
+
+    let editMode = false;
+    let confirmDocDelete = false;
+    let docDeleting = false;
+
+    const TIPO_UDC_LABELS = {
+        exp: 'Expediente', caj: 'Caja', vol: 'Volumen', lib: 'Libro', leg: 'Legajo'
+    };
 
     let metaForm = {};
     let metaDirty = false;
@@ -113,10 +122,24 @@
         try {
             doc = await patchWithBaseUrl(`documentos/${docId}/`, metaForm);
             metaDirty = false;
+            editMode = false;
         } catch (e) {
             metaErrors = e?.data ?? { non_field_errors: [e?.message ?? 'Error desconocido.'] };
         } finally {
             metaSaving = false;
+        }
+    }
+
+    async function deleteDocument() {
+        docDeleting = true;
+        try {
+            await deleteWithBaseUrl(`documentos/${docId}/`);
+            goto('/User/catalogar/documento');
+        } catch (e) {
+            console.error('Error al eliminar documento', e);
+        } finally {
+            docDeleting = false;
+            confirmDocDelete = false;
         }
     }
 
@@ -218,34 +241,105 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb small">
             <li class="breadcrumb-item"><a href="/User/dashboard">Dashboard</a></li>
-            <li class="breadcrumb-item active">Evento #{docId}</li>
+            <li class="breadcrumb-item"><a href="/User/catalogar/documento">Documentos</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{doc.titulo || `Evento #${docId}`}</li>
         </ol>
     </nav>
 
-    <!-- 1. Datos del evento -->
+    <!-- 1. Document summary card -->
     <div class="card mb-4">
-        <div
-            class="card-header cataloguer-section-header py-2"
-            role="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#metaCollapse"
-            aria-expanded="true"
-            aria-controls="metaCollapse"
-        >
-            <span class="fw-semibold"><i class="bi bi-file-text me-1"></i>Datos del evento</span>
+        <div class="card-header d-flex justify-content-between align-items-start gap-2">
+            <div>
+                <h5 class="mb-0 fw-semibold lh-sm">
+                    {doc.titulo}
+                    {#if doc.deteriorado}
+                        <span class="badge bg-warning text-dark ms-2 align-middle" style="font-size:.7rem">Deteriorado</span>
+                    {/if}
+                </h5>
+                <small class="text-muted">{doc.documento_idno}</small>
+            </div>
+            <div class="d-flex gap-2 flex-shrink-0">
+                {#if $hasPerm('dbgestor.change_documento')}
+                    <button class="btn btn-sm btn-outline-primary" on:click={() => editMode = !editMode}
+                        aria-expanded={editMode} aria-controls="metaEditPanel">
+                        <i class="bi {editMode ? 'bi-x-lg' : 'bi-pencil'} me-1" aria-hidden="true"></i>{editMode ? 'Cerrar' : 'Editar'}
+                    </button>
+                {/if}
+                {#if $hasPerm('dbgestor.delete_documento')}
+                    <button class="btn btn-sm btn-outline-danger" on:click={() => confirmDocDelete = true}>
+                        <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
+                    </button>
+                {/if}
+            </div>
+        </div>
+        <div class="card-body pb-2">
+            <dl class="row g-0 mb-0">
+                {#if doc.archivo}
+                    <dt class="col-sm-3 text-muted fw-normal small py-1 border-bottom">Archivo</dt>
+                    <dd class="col-sm-9 small py-1 border-bottom mb-0">
+                        [{doc.archivo.archivo_idno}] {doc.archivo.nombre}
+                    </dd>
+                {/if}
+                {#if doc.fondo}
+                    <dt class="col-sm-3 text-muted fw-normal small py-1 border-bottom">Fondo</dt>
+                    <dd class="col-sm-9 small py-1 border-bottom mb-0">
+                        {doc.fondo}{doc.subfondo ? ` / ${doc.subfondo}` : ''}{doc.serie ? ` / ${doc.serie}` : ''}{doc.subserie ? ` / ${doc.subserie}` : ''}
+                    </dd>
+                {/if}
+                {#if doc.unidad_documental_compuesta}
+                    <dt class="col-sm-3 text-muted fw-normal small py-1 border-bottom">Unidad doc.</dt>
+                    <dd class="col-sm-9 small py-1 border-bottom mb-0">
+                        {TIPO_UDC_LABELS[doc.tipo_udc] ?? doc.tipo_udc} {doc.unidad_documental_compuesta}
+                        {#if doc.sigla_documento}<span class="text-muted ms-2">· {doc.sigla_documento}</span>{/if}
+                    </dd>
+                {/if}
+                {#if doc.tipo_documento}
+                    <dt class="col-sm-3 text-muted fw-normal small py-1 border-bottom">Tipo de doc.</dt>
+                    <dd class="col-sm-9 small py-1 border-bottom mb-0">{doc.tipo_documento}</dd>
+                {/if}
+                <dt class="col-sm-3 text-muted fw-normal small py-1 border-bottom">Fechas</dt>
+                <dd class="col-sm-9 small py-1 border-bottom mb-0">
+                    {doc.fecha_inicial_raw ?? '—'}{#if doc.fecha_final_raw}&nbsp;→ {doc.fecha_final_raw}{/if}
+                </dd>
+                {#if doc.folio_inicial}
+                    <dt class="col-sm-3 text-muted fw-normal small py-1 border-bottom">Folios</dt>
+                    <dd class="col-sm-9 small py-1 border-bottom mb-0">
+                        f.&nbsp;{doc.folio_inicial}{doc.folio_final ? `–${doc.folio_final}` : ''}
+                    </dd>
+                {/if}
+                {#if doc.lugar_de_produccion}
+                    <dt class="col-sm-3 text-muted fw-normal small py-1 border-bottom">Lugar de producción</dt>
+                    <dd class="col-sm-9 small py-1 border-bottom mb-0">{doc.lugar_de_produccion.nombre_lugar}</dd>
+                {/if}
+                {#if doc.descripcion}
+                    <dt class="col-sm-3 text-muted fw-normal small py-1 border-bottom">Descripción</dt>
+                    <dd class="col-sm-9 small py-1 border-bottom mb-0">{doc.descripcion}</dd>
+                {/if}
+                {#if doc.notas}
+                    <dt class="col-sm-3 text-muted fw-normal small py-1 border-bottom">Notas</dt>
+                    <dd class="col-sm-9 small py-1 border-bottom mb-0" style="white-space:pre-line">{doc.notas}</dd>
+                {/if}
+                <dt class="col-sm-3 text-muted fw-normal small py-1">Actualizado</dt>
+                <dd class="col-sm-9 small py-1 mb-0 text-muted">
+                    {new Date(doc.updated_at).toLocaleDateString('es-MX', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })}
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- 2. Edit panel (toggled) -->
+    {#if editMode}
+    <div class="card mb-4" id="metaEditPanel">
+        <div class="card-header cataloguer-section-header py-2">
+            <span class="fw-semibold"><i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar datos del documento</span>
             {#if $hasPerm('dbgestor.change_documento')}
-            <button
-                class="btn btn-primary btn-sm"
-                disabled={metaSaving || !metaDirty}
-                on:click|stopPropagation={saveMetadata}
-            >
-                {#if metaSaving}<span class="spinner-border spinner-border-sm me-1"></span>{/if}
-                Guardar
+            <button class="btn btn-primary btn-sm" disabled={metaSaving || !metaDirty} on:click={saveMetadata}>
+                {#if metaSaving}<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>{/if}
+                Guardar cambios
             </button>
             {/if}
         </div>
-        <div class="collapse show" id="metaCollapse">
-            <div class="card-body">
+        <div class="card-body">
                 {#if metaErrors.non_field_errors}
                     <div class="alert alert-danger small py-2">{metaErrors.non_field_errors.join(' ')}</div>
                 {/if}
@@ -335,8 +429,8 @@
                     </div>
                 </div>
             </div>
-        </div>
     </div>
+    {/if}
 
     <!-- 2. Personas Esclavizadas -->
     <EntitySection
@@ -542,4 +636,13 @@
     loading={confirmLoading}
     on:confirm={executeUnlink}
     on:cancel={() => confirmOpen = false}
+/>
+
+<ConfirmDelete
+    bind:open={confirmDocDelete}
+    message={`¿Eliminar el documento "${doc?.titulo}"? Esta acción no se puede deshacer y eliminará también todas las asociaciones del evento.`}
+    confirmLabel="Eliminar documento"
+    loading={docDeleting}
+    on:confirm={deleteDocument}
+    on:cancel={() => confirmDocDelete = false}
 />

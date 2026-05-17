@@ -116,7 +116,7 @@
         <h1 class="h3 mb-0">
             {#if user.is_staff}<i class="bi bi-person-badge me-2" aria-hidden="true"></i>{/if}
             {user.username} <a href='/User/profile' class="btn btn-link btn-sm ps-0 text-secondary" role="button"><i class="bi bi-person-fill-gear me-1" aria-hidden="true"></i>[perfil]</a>
-            
+
         </h1>
         <button class="btn btn-outline-secondary btn-sm" on:click={handleLogout}>
             <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i>Cerrar sesión
@@ -171,7 +171,7 @@
                 <i class="bi bi-pencil-square me-2" aria-hidden="true"></i>Catalogar
             </h2>
             <div class="d-flex gap-2">
-                <a href="/User/catalogar/evento/nuevo" class="btn btn-primary btn-sm">
+                <a href="/User/catalogar/documento" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nuevo evento
                 </a>
                 <a href="/User/trayectoria" class="btn btn-outline-danger btn-sm">

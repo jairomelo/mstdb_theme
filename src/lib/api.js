@@ -341,7 +341,8 @@ export const placePeopleDistribution = async () => {
 };
 
 // ── Ingestion capture helpers ──────────────────────────────────────────────────
-export const createPersonaEsclavizada  = (data) => postWithBaseUrl('personas-esclavizadas/', data);
+export const createArchivo              = (data) => postWithBaseUrl('archivos/', data);
+export const createPersonaEsclavizada   = (data) => postWithBaseUrl('personas-esclavizadas/', data);
 export const createPersonaNoEsclavizada = (data) => postWithBaseUrl('personas-no-esclavizadas/', data);
 export const createDocumento           = (data) => postWithBaseUrl('documentos/', data);
 export const createLugar               = (data) => postWithBaseUrl('lugares/', data);

@@ -1,5 +1,6 @@
 <script>
-    import { createDocumento } from '$lib/api.js';
+    import { createDocumento, createArchivo } from '$lib/api.js';
+    import { goto } from '$app/navigation';
     import FormField from '$lib/components/forms/FormField.svelte';
     import SearchableSelect from '$lib/components/forms/SearchableSelect.svelte';
     import FlexDateInput from '$lib/components/forms/FlexDateInput.svelte';
@@ -11,6 +12,36 @@
     ];
 
     let archivo = null;
+
+    // New-archivo mini-form
+    let showNewArchivo = false;
+    let newArchivo = { nombre: '', nombre_abreviado: '', ubicacion_archivo: null };
+    let newArchivoSaving = false;
+    let newArchivoErrors = {};
+
+    async function saveNewArchivo() {
+        newArchivoErrors = {};
+        if (!newArchivo.nombre.trim()) {
+            newArchivoErrors.nombre = 'El nombre es obligatorio.';
+            return;
+        }
+        newArchivoSaving = true;
+        try {
+            const payload = {
+                nombre: newArchivo.nombre.trim(),
+                ...(newArchivo.nombre_abreviado.trim() && { nombre_abreviado: newArchivo.nombre_abreviado.trim() }),
+                ...(newArchivo.ubicacion_archivo && { ubicacion_archivo: newArchivo.ubicacion_archivo.value }),
+            };
+            const result = await createArchivo(payload);
+            archivo = { value: result.archivo_id, label: `[${result.nombre_abreviado}] ${result.nombre}` };
+            newArchivo = { nombre: '', nombre_abreviado: '', ubicacion_archivo: null };
+            showNewArchivo = false;
+        } catch (e) {
+            newArchivoErrors = e?.data ?? { nombre: e.message };
+        } finally {
+            newArchivoSaving = false;
+        }
+    }
     let fondo = '';
     let subfondo = '';
     let serie = '';
@@ -73,7 +104,8 @@
                 ...(evento_total && { evento_total }),
                 ...(notas && { notas }),
             };
-            created = await createDocumento(payload);
+            const doc = await createDocumento(payload);
+            goto(`/User/catalogar/evento/${doc.documento_id}`);
         } catch (e) {
             errors = e.data ?? { __all__: [e.message] };
         } finally {
@@ -125,6 +157,51 @@
                     <FormField label="Archivo" id="archivo" required error={fieldError('archivo')}>
                         <SearchableSelect id="archivo" bind:value={archivo} endpoint="archivos/" placeholder="Buscar archivo…" />
                     </FormField>
+                    <div class="mt-1">
+                        <button type="button" class="btn btn-link btn-sm ps-0 text-secondary"
+                            on:click={() => { showNewArchivo = !showNewArchivo; newArchivoErrors = {}; }}>
+                            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>
+                            {showNewArchivo ? 'Cancelar' : 'Crear nuevo archivo'}
+                        </button>
+                    </div>
+
+                    {#if showNewArchivo}
+                        <div class="border rounded p-3 mt-2 bg-light">
+                            <p class="fw-semibold small mb-3">Nuevo archivo</p>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label for="na-nombre" class="form-label form-label-sm">Nombre <span aria-hidden="true">*</span></label>
+                                    <input id="na-nombre" type="text" class="form-control form-control-sm"
+                                        class:is-invalid={newArchivoErrors.nombre}
+                                        bind:value={newArchivo.nombre}
+                                        placeholder="Nombre completo del archivo" />
+                                    {#if newArchivoErrors.nombre}
+                                        <div class="invalid-feedback">{newArchivoErrors.nombre}</div>
+                                    {/if}
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="na-abrev" class="form-label form-label-sm">Abreviatura</label>
+                                    <input id="na-abrev" type="text" class="form-control form-control-sm"
+                                        bind:value={newArchivo.nombre_abreviado}
+                                        placeholder="Se genera automáticamente" maxlength="50" />
+                                </div>
+                                <div class="col-md-8">
+                                    <label for="na-lugar" class="form-label form-label-sm">Ciudad / Ubicación</label>
+                                    <SearchableSelect id="na-lugar" bind:value={newArchivo.ubicacion_archivo}
+                                        endpoint="lugares/" placeholder="Buscar lugar…" />
+                                </div>
+                            </div>
+                            {#if newArchivoErrors.non_field_errors}
+                                <p class="text-danger small mt-2">{newArchivoErrors.non_field_errors}</p>
+                            {/if}
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-primary btn-sm" on:click={saveNewArchivo} disabled={newArchivoSaving}>
+                                    {#if newArchivoSaving}<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>{/if}
+                                    Guardar archivo
+                                </button>
+                            </div>
+                        </div>
+                    {/if}
                 </div>
                 <div class="col-md-6">
                     <FormField label="Fondo" id="fondo" required error={fieldError('fondo')}>
