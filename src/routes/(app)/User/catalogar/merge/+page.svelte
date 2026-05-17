@@ -30,7 +30,7 @@
         try {
             me = await whoami();
             isStaff = me?.is_staff ?? false;
-            if (!isStaff) { window.location.href = '/User/dashboard'; }
+            if (!isStaff) { window.location.href = '/User/'; }
         } catch {
             window.location.href = '/User/login';
         }
@@ -124,7 +124,7 @@
 <div class="container-fluid mt-3" style="max-width: 900px;">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h1 class="h4 mb-0"><i class="bi bi-git me-2"></i>Fusionar registros duplicados</h1>
-        <a href="/User/dashboard" class="btn btn-sm btn-outline-secondary">
+        <a href="/User/" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Dashboard
         </a>
     </div>

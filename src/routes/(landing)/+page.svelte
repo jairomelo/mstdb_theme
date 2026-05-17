@@ -301,7 +301,7 @@
         {#if !canEdit}
           <li><a href="/User/login">Entrar [login]</a></li>
         {:else}
-          <li><a href="/User/dashboard/">Panel de control</a></li>
+          <li><a href="/User/">Panel de control</a></li>
           <li><a href="https://db.trayectoriasafro.org">Sistema anterior</a></li>
         {/if}
         </ul>

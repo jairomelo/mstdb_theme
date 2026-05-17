@@ -85,7 +85,7 @@
 <div class="container mt-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/User/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/User/">Dashboard</a></li>
             <li class="breadcrumb-item active" aria-current="page">Nueva Persona No Esclavizada</li>
         </ol>
     </nav>

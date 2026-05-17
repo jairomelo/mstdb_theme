@@ -258,7 +258,7 @@
 <div class="container-fluid mt-3">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h1 class="h4 mb-0"><i class="bi bi-people me-2"></i>Editar relaciones entre personas</h1>
-        <a href="/User/dashboard" class="btn btn-sm btn-outline-secondary">
+        <a href="/User/" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Dashboard
         </a>
     </div>

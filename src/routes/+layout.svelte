@@ -124,7 +124,7 @@
 									</li>
 								{:else}
 									<li>
-										<a class="dropdown-item" href="/User/dashboard/">Panel de control</a>
+										<a class="dropdown-item" href="/User/">Panel de control</a>
 									</li>
 									<li><hr class="dropdown-divider" /></li>
 									<li>
@@ -182,7 +182,7 @@
 			{#if !canEdit}
 				<li><a href="/User/login">Entrar [login]</a></li>
 			{:else}
-				<li><a href="/User/dashboard/">Panel de control</a></li>
+				<li><a href="/User/">Panel de control</a></li>
 				<li><a href="https://db.trayectoriasafro.org">Sistema anterior</a></li>
 			{/if}
 			</ul>

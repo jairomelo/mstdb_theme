@@ -240,7 +240,7 @@
 
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb small">
-            <li class="breadcrumb-item"><a href="/User/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/User/">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="/User/catalogar/documento">Documentos</a></li>
             <li class="breadcrumb-item active" aria-current="page">{doc.titulo || `Evento #${docId}`}</li>
         </ol>
