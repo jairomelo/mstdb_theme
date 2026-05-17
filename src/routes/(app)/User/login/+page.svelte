@@ -1,5 +1,6 @@
 <script>
-	import { login, whoami, setCsrfCookie, register } from '$lib/api';
+	import { onMount, tick } from 'svelte';
+	import { login, whoami, setCsrfCookie, register, fetchPublicConfig } from '$lib/api';
 	import { getCookie } from '$lib/csrf';
 	import { user } from '$lib/stores/user';
 
@@ -15,11 +16,45 @@
 	let regSuccess = null;
 	let regLoading = false;
 
-	function switchMode(m) {
+	// --- Turnstile ---
+	let turnstileSiteKey = '';
+	let turnstileToken = '';
+	let turnstileWidgetId = null;
+
+	async function switchMode(m) {
 		mode = m;
 		error = null;
 		regErrors = {};
 		regSuccess = null;
+		if (m === 'register') {
+			await tick();
+			renderTurnstile();
+		}
+	}
+
+	function renderTurnstile() {
+		if (!turnstileSiteKey) return;
+		const container = document.getElementById('turnstile-widget');
+		if (!container) return;
+
+		const render = () => {
+			if (turnstileWidgetId !== null) {
+				window.turnstile.reset(turnstileWidgetId);
+				return;
+			}
+			turnstileWidgetId = window.turnstile.render(container, {
+				sitekey: turnstileSiteKey,
+				callback: (token) => { turnstileToken = token; },
+				'expired-callback': () => { turnstileToken = ''; },
+				'error-callback': () => { turnstileToken = ''; },
+			});
+		};
+
+		if (window.turnstile) {
+			render();
+		} else {
+			window._onTurnstileLoad = render;
+		}
 	}
 
 	async function handleLogin() {
@@ -52,6 +87,11 @@
 			return;
 		}
 
+		if (turnstileSiteKey && !turnstileToken) {
+			regErrors.turnstile = 'Por favor completa la verificación.';
+			return;
+		}
+
 		regLoading = true;
 		try {
 			const res = await register({
@@ -60,20 +100,42 @@
 				email: reg.email,
 				first_name: reg.first_name,
 				last_name: reg.last_name,
+				turnstile_token: turnstileToken,
 			});
 			regSuccess = res.detail;
 			reg = { username: '', first_name: '', last_name: '', email: '', password: '', confirm_password: '' };
+			turnstileToken = '';
+			turnstileWidgetId = null;
 		} catch (err) {
-			// DRF validation errors come back as { errors: { field: msg } }
-			if (err?.errors) {
-				regErrors = err.errors;
+			if (err?.data?.errors) {
+				regErrors = err.data.errors;
 			} else {
-				regErrors._general = err?.detail || 'Error al crear la cuenta. Intenta nuevamente.';
+				regErrors._general = err?.data?.detail || 'Error al crear la cuenta. Intenta nuevamente.';
+			}
+			if (window.turnstile && turnstileWidgetId !== null) {
+				window.turnstile.reset(turnstileWidgetId);
+				turnstileToken = '';
 			}
 		} finally {
 			regLoading = false;
 		}
 	}
+
+	onMount(async () => {
+		try {
+			const cfg = await fetchPublicConfig();
+			turnstileSiteKey = cfg.turnstile_site_key || '';
+		} catch { /* non-critical */ }
+
+		if (turnstileSiteKey) {
+			window._onTurnstileLoad = () => {};
+			const script = document.createElement('script');
+			script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=_onTurnstileLoad&render=explicit';
+			script.async = true;
+			script.defer = true;
+			document.head.appendChild(script);
+		}
+	});
 </script>
 
 <svelte:head>
@@ -230,7 +292,14 @@
 						</div>
 					{/if}
 
-					<button type="submit" class="login-btn" disabled={regLoading}>
+					{#if turnstileSiteKey}
+						<div id="turnstile-widget" class="my-2" aria-label="Verificación humana"></div>
+						{#if regErrors.turnstile}
+							<span class="error-message" role="alert">{regErrors.turnstile}</span>
+						{/if}
+					{/if}
+
+					<button type="submit" class="login-btn" disabled={regLoading || (turnstileSiteKey && !turnstileToken)}>
 						{#if regLoading}
 							<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
 						{/if}
