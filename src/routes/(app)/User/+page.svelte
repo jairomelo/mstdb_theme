@@ -115,7 +115,7 @@
     <div class="d-flex align-items-center justify-content-between mb-1">
         <h1 class="h3 mb-0">
             {#if user.is_staff}<i class="bi bi-person-badge me-2" aria-hidden="true"></i>{/if}
-            {user.username}
+            {user.username} [editar el perfil]
         </h1>
         <button class="btn btn-outline-secondary btn-sm" on:click={handleLogout}>
             <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i>Cerrar sesión
@@ -299,64 +299,6 @@
     </section>
     {/if}
 
-    <!-- Edit personal information (all authenticated users) -->
-    <section class="mb-5" aria-labelledby="profile-heading">
-        <div class="cataloguer-section-header">
-            <h2 class="h5 mb-0" id="profile-heading">
-                <i class="bi bi-person-gear me-2" aria-hidden="true"></i>Información personal
-            </h2>
-        </div>
-        <form on:submit|preventDefault={saveProfile} novalidate>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="profile-institution" class="form-label">Institución</label>
-                    <input
-                        id="profile-institution"
-                        type="text"
-                        class="form-control"
-                        bind:value={profileForm.institution}
-                        maxlength="255"
-                    />
-                </div>
-                <div class="col-md-6">
-                    <label for="profile-institution-url" class="form-label">URL de la institución</label>
-                    <input
-                        id="profile-institution-url"
-                        type="url"
-                        class="form-control"
-                        bind:value={profileForm.institution_url}
-                        placeholder="https://"
-                    />
-                </div>
-                <div class="col-12">
-                    <label for="profile-bio" class="form-label">Semblanza</label>
-                    <textarea
-                        id="profile-bio"
-                        class="form-control"
-                        rows="4"
-                        bind:value={profileForm.bio}
-                    ></textarea>
-                </div>
-            </div>
-
-            <div class="mt-3 d-flex align-items-center gap-2">
-                <button type="submit" class="btn btn-primary btn-sm" disabled={profileSaving}>
-                    {#if profileSaving}
-                        <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
-                    {/if}
-                    Guardar
-                </button>
-                {#if profileSaved}
-                    <span class="text-success small" role="status">
-                        <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Guardado
-                    </span>
-                {/if}
-                {#if profileError}
-                    <span class="text-danger small" role="alert">{profileError}</span>
-                {/if}
-            </div>
-        </form>
-    </section>
 
 {:else if error}
     <p class="text-danger" role="alert">{error}</p>
