@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
-    import { fetchWithBaseUrl, postWithBaseUrl, patchWithBaseUrl, deleteWithBaseUrl } from '$lib/api';
+    import { fetchWithBaseUrl, postWithBaseUrl, patchWithBaseUrl, deleteWithBaseUrl, createTipoDocumental } from '$lib/api';
     import { hasPerm } from '$lib/stores/user';
     import FormField from '$lib/components/forms/FormField.svelte';
     import FlexDateInput from '$lib/components/forms/FlexDateInput.svelte';
@@ -32,6 +32,11 @@
     let metaDirty = false;
     let metaSaving = false;
     let metaErrors = {};
+
+    let showNewTipo = false;
+    let newTipoNombre = '';
+    let newTipoSaving = false;
+    let newTipoError = null;
 
     let activeSection = null;
     let slideOpen = false;
@@ -71,7 +76,8 @@
             folio_final: d.folio_final ?? '',
             notas: d.notas ?? '',
             archivo: d.archivo?.archivo_id ?? null,
-            tipo_documento: null,
+            tipo_documento: d.tipo_documento_id ?? null,
+            _tipoDoc: d.tipo_documento ? { value: d.tipo_documento_id, label: d.tipo_documento } : null,
             lugar_de_produccion: d.lugar_de_produccion?.lugar_id ?? null,
         };
     }
@@ -120,7 +126,10 @@
         metaSaving = true;
         metaErrors = {};
         try {
-            doc = await patchWithBaseUrl(`documentos/${docId}/`, metaForm);
+            const { _tipoDoc, ...payload } = metaForm;
+            await patchWithBaseUrl(`documentos/${docId}/`, payload);
+            doc = await fetchWithBaseUrl(`documentos/${docId}/`);
+            metaForm = buildMetaForm(doc);
             metaDirty = false;
             editMode = false;
         } catch (e) {
@@ -277,7 +286,7 @@
                 {#if doc.archivo}
                     <dt class="col-sm-3 text-muted fw-normal small py-1 border-bottom">Archivo</dt>
                     <dd class="col-sm-9 small py-1 border-bottom mb-0">
-                        [{doc.archivo.archivo_idno}] {doc.archivo.nombre}
+                        [{doc.archivo.nombre_abreviado ?? doc.archivo.archivo_idno}] {doc.archivo.nombre}
                     </dd>
                 {/if}
                 {#if doc.fondo}
@@ -380,13 +389,59 @@
                     </div>
                     <div class="col-md-6">
                         <FormField label="Tipo de documento" error={metaErrors.tipo_documento?.[0]}>
-                            <SearchableSelect
-                                endpoint="vocabularios/tipos-documentales/"
-                                searchParam="search"
-                                placeholder="Buscar tipo documental..."
-                                value={doc.tipo_documento ? { value: null, label: doc.tipo_documento } : null}
-                                on:change={e => { metaForm.tipo_documento = e.detail?.value ?? null; metaDirty = true; }}
-                            />
+                            <div class="d-flex gap-2 align-items-center">
+                                <div class="flex-grow-1">
+                                    <SearchableSelect
+                                        endpoint="vocabularios/tipos-documentales/"
+                                        searchParam="search"
+                                        placeholder="Buscar tipo documental..."
+                                        value={metaForm._tipoDoc}
+                                        on:change={e => {
+                                            metaForm.tipo_documento = e.detail?.value ?? null;
+                                            metaForm._tipoDoc = e.detail ?? null;
+                                            metaDirty = true;
+                                        }}
+                                    />
+                                </div>
+                                <button type="button" class="btn btn-outline-secondary btn-sm flex-shrink-0"
+                                    title={showNewTipo ? 'Cancelar' : 'Crear nuevo tipo'}
+                                    aria-label={showNewTipo ? 'Cancelar nuevo tipo' : 'Crear nuevo tipo documental'}
+                                    on:click={() => { showNewTipo = !showNewTipo; newTipoNombre = ''; newTipoError = null; }}>
+                                    <i class="bi {showNewTipo ? 'bi-x-lg' : 'bi-plus-lg'}" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            {#if showNewTipo}
+                            <div class="border rounded p-2 mt-2 bg-light">
+                                {#if newTipoError}
+                                    <div class="alert alert-danger py-1 small mb-2">{newTipoError}</div>
+                                {/if}
+                                <div class="d-flex gap-2">
+                                    <input class="form-control form-control-sm" placeholder="Nombre del tipo (ej. Escritura de venta)"
+                                        bind:value={newTipoNombre} />
+                                    <button type="button" class="btn btn-primary btn-sm flex-shrink-0"
+                                        disabled={newTipoSaving || !newTipoNombre.trim()}
+                                        on:click={async () => {
+                                            newTipoSaving = true;
+                                            newTipoError = null;
+                                            try {
+                                                const result = await createTipoDocumental({ tipo_documental: newTipoNombre.trim() });
+                                                metaForm.tipo_documento = result.id;
+                                                metaForm._tipoDoc = { value: result.id, label: result.tipo_documental };
+                                                metaDirty = true;
+                                                showNewTipo = false;
+                                                newTipoNombre = '';
+                                            } catch (err) {
+                                                newTipoError = err?.data?.tipo_documental?.[0] ?? err?.message ?? 'Error al crear el tipo.';
+                                            } finally {
+                                                newTipoSaving = false;
+                                            }
+                                        }}>
+                                        {#if newTipoSaving}<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>{/if}
+                                        Crear
+                                    </button>
+                                </div>
+                            </div>
+                            {/if}
                         </FormField>
                     </div>
                     <div class="col-md-6">
@@ -395,7 +450,7 @@
                                 endpoint="archivos/"
                                 searchParam="search"
                                 placeholder="Buscar archivo..."
-                                value={doc.archivo ? { value: doc.archivo.archivo_id, label: doc.archivo.nombre_archivo } : null}
+                                value={doc.archivo ? { value: doc.archivo.archivo_id, label: `[${doc.archivo.nombre_abreviado ?? doc.archivo.archivo_idno}] ${doc.archivo.nombre}` } : null}
                                 on:change={e => { metaForm.archivo = e.detail?.value ?? null; metaDirty = true; }}
                             />
                         </FormField>

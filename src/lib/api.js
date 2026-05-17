@@ -346,6 +346,7 @@ export const createPersonaEsclavizada   = (data) => postWithBaseUrl('personas-es
 export const createPersonaNoEsclavizada = (data) => postWithBaseUrl('personas-no-esclavizadas/', data);
 export const createDocumento           = (data) => postWithBaseUrl('documentos/', data);
 export const createLugar               = (data) => postWithBaseUrl('lugares/', data);
+export const createTipoDocumental      = (data) => postWithBaseUrl('vocabularios/tipos-documentales/', data);
 export const createCorporacion         = (data) => postWithBaseUrl('corporaciones/', data);
 // ── PersonaRelaciones (P×P) helpers ──────────────────────────────────────────
 export const relacionesByPersona = (personaId) => fetchWithBaseUrl(`relaciones-personas/?personas__persona_id=${personaId}&page_size=100`);
