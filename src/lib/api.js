@@ -175,6 +175,8 @@ export const updateProfile = (data) => patchWithBaseUrl("whoami/", data);
 
 export const changePassword = (data) => postWithBaseUrl("whoami/change-password/", data);
 
+export const register = (data) => postWithBaseUrl("register/", data);
+
 export const fetchUsersProgress = () => fetchWithBaseUrl("users/progress/");
 
 
