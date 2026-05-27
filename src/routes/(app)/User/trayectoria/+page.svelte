@@ -565,17 +565,18 @@
                                 {@const isLocked = point.ordinal === 0}
                                 {@const isReadOnly = isFk || isLocked}
                                 {@const isSwapA = swapA === point.persona_x_lugares}
+                                {@const documentoLabel = point.documento?.titulo ?? point.documento}
                                 <div
                                     class="traj-point-card"
                                     class:traj-locked={isReadOnly}
                                     class:traj-swap-selected={isSwapA}
                                 >
-                                    <div class="d-flex align-items-start gap-2">
+                                    <div class="d-flex align-items-start gap-2 traj-point-row">
                                         <!-- Ordinal badge -->
                                         <div class="traj-ordinal" class:traj-ordinal-locked={isReadOnly}>
                                             {isFk ? '🔗' : isLocked ? '⚓' : point.ordinal}
                                         </div>
-                                        <div class="flex-grow-1 min-width-0">
+                                        <div class="flex-grow-1 min-width-0 traj-point-content">
                                             <div class="fw-semibold text-truncate">
                                                 {point.lugar?.nombre_lugar ?? '—'}
                                             </div>
@@ -586,13 +587,14 @@
                                             {#if isFk}
                                                 <small class="text-muted d-block fst-italic">Campo del registro de persona</small>
                                             {:else if point.documento}
-                                                <small class="text-muted d-block text-truncate">
-                                                    <i class="bi bi-file-text me-1"></i>{point.documento.titulo ?? point.documento}
+                                                <small class="text-muted d-flex align-items-start gap-1 traj-documento-line">
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="traj-documento-title" title={documentoLabel}>{documentoLabel}</span>
                                                 </small>
                                             {/if}
                                         </div>
                                         <!-- Actions -->
-                                        <div class="d-flex flex-column gap-1">
+                                        <div class="d-flex flex-column gap-1 traj-point-actions">
                                             {#if isReadOnly}
                                                 <span class="btn btn-sm btn-outline-secondary disabled" title={isFk ? 'Campo del registro de persona' : 'Punto de evento (no intercambiable)'}>
                                                     <i class="bi bi-lock"></i>
