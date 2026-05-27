@@ -617,8 +617,8 @@
                                 <span
                                     class="small text-truncate me-1"
                                     style="max-width: 160px;"
-                                    title={cp.nombre_normalizado}
-                                >{cp.nombre_normalizado}</span>
+                                    title={`${cp.nombre_normalizado} [${cp.persona_id}]`}
+                                >{`[${cp.persona_id}] - ${cp.nombre_normalizado}`}</span>
                                 <button
                                     class="btn btn-link btn-sm p-0 text-muted flex-shrink-0"
                                     aria-label="Quitar {cp.nombre_normalizado} del canvas"
