@@ -10,6 +10,8 @@
         createPersonaRelacion,
         updatePersonaRelacion,
         deletePersonaRelacion,
+        mergeExecute,
+        mergeSuggest,
     } from '$lib/api';
     import cytoscape from 'cytoscape';
     import fcose from 'cytoscape-fcose';
@@ -66,6 +68,15 @@
     let deleteConfirmOpen = false;
     let deletingRel = null;
     let deleteInProgress = false;
+
+    // Merge
+    let mergeMode = false;
+    let mergeCanonical = null;   // { cyId, persona_id, label, type }
+    let mergeDuplicate = null;   // { cyId, persona_id, label, type }
+    let mergeConfirmOpen = false;
+    let mergeInProgress = false;
+    let mergeError = null;
+    let mergeSessionCount = 0;
 
     const NATURALEZA_OPTIONS = [
         { value: 'fam', label: 'Familiar' },
@@ -138,6 +149,11 @@
         cy.on('ehcomplete', (_ev, sourceNode, targetNode, addedEdge) => {
             addedEdge.remove();
             openAdd(sourceNode.data(), targetNode.data());
+        });
+
+        cy.on('tap', 'node', (event) => {
+            if (!mergeMode) return;
+            handleNodeTapInMergeMode(event.target);
         });
 
         cy.on('tap', 'edge', async (event) => {
@@ -229,11 +245,31 @@
                     'target-arrow-color': '#9B8EC4',
                 },
             },
+            // Merge selection highlights
+            {
+                selector: '.merge-canonical',
+                style: {
+                    'border-width': 5,
+                    'border-color': '#27ae60',
+                    'overlay-opacity': 0.15,
+                    'overlay-color': '#27ae60',
+                },
+            },
+            {
+                selector: '.merge-duplicate',
+                style: {
+                    'border-width': 5,
+                    'border-color': '#e74c3c',
+                    'overlay-opacity': 0.15,
+                    'overlay-color': '#e74c3c',
+                },
+            },
         ];
     }
 
     // ── Draw mode toggle ──────────────────────────────────────────────────────
     function toggleDrawMode() {
+        if (mergeMode) { mergeMode = false; clearMergeState(); }
         drawMode = !drawMode;
         if (drawMode) {
             eh.enableDrawMode();
@@ -520,6 +556,127 @@
 
     function dismissAlert() { saveError = null; saveSuccess = null; }
     function naturalezaLabel(val) { return NATURALEZA_OPTIONS.find(o => o.value === val)?.label ?? val; }
+
+    // ── Merge mode ────────────────────────────────────────────────────────────
+    function toggleMergeMode() {
+        // Draw mode and merge mode are mutually exclusive
+        if (drawMode) {
+            eh.disableDrawMode();
+            cy.userPanningEnabled(true);
+            drawMode = false;
+        }
+        mergeMode = !mergeMode;
+        if (!mergeMode) clearMergeState();
+    }
+
+    function clearMergeState() {
+        if (cy) cy.$('.merge-canonical, .merge-duplicate').removeClass('merge-canonical merge-duplicate');
+        mergeCanonical = null;
+        mergeDuplicate = null;
+        mergeConfirmOpen = false;
+        mergeError = null;
+    }
+
+    function handleNodeTapInMergeMode(node) {
+        const d = node.data();
+        const info = {
+            cyId: d.id,
+            persona_id: parseInt(d.id.replace('p', '')),
+            label: d.label,
+            type: d.type,
+        };
+
+        // Tap already-selected canonical → deselect
+        if (mergeCanonical?.cyId === d.id) {
+            node.removeClass('merge-canonical');
+            mergeCanonical = null;
+            return;
+        }
+        // Tap already-selected duplicate → deselect
+        if (mergeDuplicate?.cyId === d.id) {
+            node.removeClass('merge-duplicate');
+            mergeDuplicate = null;
+            return;
+        }
+
+        if (!mergeCanonical) {
+            node.addClass('merge-canonical');
+            mergeCanonical = info;
+        } else if (!mergeDuplicate) {
+            if (info.type !== mergeCanonical.type) {
+                saveError = 'Ambos nodos deben ser del mismo tipo de persona para fusionarse.';
+                return;
+            }
+            node.addClass('merge-duplicate');
+            mergeDuplicate = info;
+            mergeConfirmOpen = true;
+        }
+    }
+
+    function cancelMerge() {
+        clearMergeState();
+        mergeMode = false;
+    }
+
+    async function executeMergeOnCanvas() {
+        if (!mergeCanonical || !mergeDuplicate) return;
+        mergeInProgress = true;
+        mergeError = null;
+        try {
+            const entity = mergeCanonical.type === 'esclavizada' ? 'pe' : 'pn';
+            await mergeExecute({
+                entity,
+                canonical_id: mergeCanonical.persona_id,
+                duplicate_id: mergeDuplicate.persona_id,
+            });
+            // Transfer duplicate's edges to canonical in cy, then remove duplicate node
+            const dupNode = cy.$id(mergeDuplicate.cyId);
+            dupNode.connectedEdges().forEach(e => {
+                const ed = e.data();
+                const newSrc = ed.source === mergeDuplicate.cyId ? mergeCanonical.cyId : ed.source;
+                const newTgt = ed.target === mergeDuplicate.cyId ? mergeCanonical.cyId : ed.target;
+                if (newSrc !== newTgt) {
+                    const edgeId = `merged_${ed.id}`;
+                    if (!cy.$id(edgeId).length) {
+                        cy.add({ data: { ...ed, id: edgeId, source: newSrc, target: newTgt } });
+                    }
+                }
+            });
+            dupNode.remove();
+            canvasPersonaIds.delete(String(mergeDuplicate.persona_id));
+            canvasPersonas = canvasPersonas.filter(p => p.persona_id !== String(mergeDuplicate.persona_id));
+            mergeSessionCount += 1;
+            saveSuccess = `Fusión completada: "${mergeDuplicate.label}" → "${mergeCanonical.label}". (${mergeSessionCount} esta sesión)`;
+            clearMergeState();
+            mergeMode = false;
+        } catch (e) {
+            mergeError = e.data?.error ?? 'Error ejecutando la fusión. Verifica que tienes permisos de staff.';
+        } finally {
+            mergeInProgress = false;
+        }
+    }
+
+    async function suggestMergeOnCanvas() {
+        if (!mergeCanonical || !mergeDuplicate) return;
+        mergeInProgress = true;
+        mergeError = null;
+        try {
+            const entity = mergeCanonical.type === 'esclavizada' ? 'pe' : 'pn';
+            await mergeSuggest({
+                entity,
+                canonical_id: mergeCanonical.persona_id,
+                duplicate_id: mergeDuplicate.persona_id,
+            });
+            mergeSessionCount += 1;
+            saveSuccess = `Sugerencia enviada: "${mergeDuplicate.label}" como posible duplicado de "${mergeCanonical.label}". (${mergeSessionCount} sugerencias esta sesión)`;
+            clearMergeState();
+            mergeMode = false;
+        } catch (e) {
+            mergeError = e.data?.error ?? 'Error al enviar la sugerencia.';
+        } finally {
+            mergeInProgress = false;
+        }
+    }
 </script>
 
 <svelte:head>
@@ -684,6 +841,25 @@
                 <button class="btn btn-sm btn-success" on:click={() => openAdd()}>
                     <i class="bi bi-plus-lg me-1"></i>Nueva relación
                 </button>
+
+                <div class="vr" aria-hidden="true"></div>
+
+                <button
+                    class="btn btn-sm position-relative {mergeMode ? 'btn-warning' : 'btn-outline-warning'}"
+                    on:click={toggleMergeMode}
+                    aria-pressed={mergeMode}
+                    disabled={canvasPersonas.length < 2}
+                    title={mergeMode ? 'Salir del modo fusión' : 'Activar modo fusión: toca dos nodos para unirlos'}
+                >
+                    <i class="bi bi-git me-1"></i>{mergeMode ? 'Fusionando...' : 'Fusionar nodos'}
+                    {#if mergeSessionCount > 0}
+                        <span
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success"
+                            style="font-size: 0.6rem;"
+                            aria-label="{mergeSessionCount} fusiones esta sesión"
+                        >{mergeSessionCount}</span>
+                    {/if}
+                </button>
             </div>
 
             <!-- Canvas -->
@@ -703,6 +879,20 @@
                     >
                         <i class="bi bi-pencil me-1"></i>
                         Modo dibujo activo — arrastra desde un nodo hasta otro para crear una relación
+                    </div>
+                {:else if mergeMode}
+                    <div
+                        class="position-absolute top-0 start-0 w-100 text-center py-1"
+                        style="background: rgba(243,156,18,0.12); pointer-events: none; font-size: 0.75rem; color: #b7770d; font-weight: 600; border-radius: 4px 4px 0 0;"
+                        aria-live="polite"
+                    >
+                        <i class="bi bi-git me-1"></i>
+                        {#if !mergeCanonical}
+                            Modo fusión — toca el nodo canónico (el que se conservará)
+                        {:else}
+                            <span style="color:#27ae60;">&#x2713; Canónico: {mergeCanonical.label}</span>
+                            &nbsp;— ahora toca el duplicado (se eliminará)
+                        {/if}
                     </div>
                 {/if}
 
@@ -896,6 +1086,80 @@
                 <button type="button" class="btn btn-outline-secondary" on:click={closePanel}>Cancelar</button>
             </div>
         </form>
+    {/if}
+</SlideOver>
+
+<!-- Merge confirmation SlideOver -->
+<SlideOver
+    bind:open={mergeConfirmOpen}
+    title="Confirmar fusión de registros"
+    on:close={cancelMerge}
+>
+    {#if mergeCanonical && mergeDuplicate}
+        <div class="alert alert-warning py-2 mb-3" role="note">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Operación destructiva.</strong> El registro duplicado se eliminará y todos sus vínculos pasarán al canónico.
+        </div>
+
+        <dl class="row mb-3">
+            <dt class="col-4 text-success small">Canónico</dt>
+            <dd class="col-8">
+                <span class="fw-semibold">{mergeCanonical.label}</span>
+                <code class="ms-2 small text-muted">ID {mergeCanonical.persona_id}</code>
+                <span class="badge bg-success ms-1" style="font-size:0.6rem;">se conserva</span>
+            </dd>
+            <dt class="col-4 text-danger small">Duplicado</dt>
+            <dd class="col-8">
+                <span class="fw-semibold">{mergeDuplicate.label}</span>
+                <code class="ms-2 small text-muted">ID {mergeDuplicate.persona_id}</code>
+                <span class="badge bg-danger ms-1" style="font-size:0.6rem;">se elimina</span>
+            </dd>
+        </dl>
+
+        {#if mergeError}
+            <div class="alert alert-danger py-2 mb-3" role="alert">
+                <small>{mergeError}</small>
+            </div>
+        {/if}
+
+        <div class="d-flex gap-2 flex-wrap">
+            {#if me?.is_staff}
+                <button
+                    class="btn btn-danger"
+                    on:click={executeMergeOnCanvas}
+                    disabled={mergeInProgress}
+                >
+                    {#if mergeInProgress}
+                        <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                    {/if}
+                    <i class="bi bi-git me-1"></i>Fusionar definitivamente
+                </button>
+            {:else}
+                <button
+                    class="btn btn-warning"
+                    on:click={suggestMergeOnCanvas}
+                    disabled={mergeInProgress}
+                >
+                    {#if mergeInProgress}
+                        <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                    {/if}
+                    <i class="bi bi-flag me-1"></i>Sugerir fusión
+                </button>
+            {/if}
+            <button
+                type="button"
+                class="btn btn-outline-secondary"
+                on:click={cancelMerge}
+                disabled={mergeInProgress}
+            >Cancelar</button>
+        </div>
+
+        {#if !me?.is_staff}
+            <p class="text-muted small mt-3 mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                Como colector puedes sugerir fusiones; el personal las revisará y ejecutará.
+            </p>
+        {/if}
     {/if}
 </SlideOver>
 
