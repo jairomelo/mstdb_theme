@@ -1,52 +1,66 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy, tick } from 'svelte';
+    import { browser } from '$app/environment';
     import { page } from '$app/stores';
     import {
         whoami,
         searchPersonasEsclavizadas,
-        peresclavizadas,
-        relacionesByPersona,
+        personaNetwork,
+        personaPersonasRel,
         createPersonaRelacion,
         updatePersonaRelacion,
         deletePersonaRelacion,
-        documentos as fetchDocumentos,
     } from '$lib/api';
+    import cytoscape from 'cytoscape';
+    import fcose from 'cytoscape-fcose';
+    import edgehandles from 'cytoscape-edgehandles';
     import SlideOver from '$lib/components/hub/SlideOver.svelte';
     import ConfirmDelete from '$lib/components/hub/ConfirmDelete.svelte';
     import FlexDateInput from '$lib/components/forms/FlexDateInput.svelte';
 
-    // ── State ──────────────────────────────────────────────────────────────────
-    let me = null;
-    let allowed = false;
+    // Guard against double-registration (HMR / multiple imports)
+    try { cytoscape.use(fcose); } catch {}
+    try { cytoscape.use(edgehandles); } catch {}
 
+    // ── State ─────────────────────────────────────────────────────────────────
+    let me = null;
+
+    // Sidebar search
     let personaQuery = '';
     let personaResults = [];
     let personaTimer = null;
-    let selectedPersona = null;
 
-    let relaciones = [];
-    let loading = false;
-    let saveError = null;
-    let saveSuccess = null;
+    // Canvas
+    let cy = null;
+    let eh = null;
+    let canvasContainer;
+    let canvasPersonaIds = new Set();
+    let canvasPersonas = [];
+    let drawMode = false;
+    let loadingPersona = false;
 
-    // SlideOver state
+    // Filter
+    let activeRelFilter = null;
+
+    // SlideOver / form
     let panelOpen = false;
-    let editingRel = null;  // null = adding new
-
-    // Form fields
+    let editingRel = null;
     let formNaturaleza = '';
     let formDescripcion = '';
     let formDocumento = '';
     let formFechaIni = '';
     let formFechaFin = '';
     let formNotas = '';
-    // "otras personas" in the relation
+    let formPersonas = [];
     let formPersonaQuery = '';
     let formPersonaResults = [];
     let formPersonaTimer = null;
-    let formPersonas = [];  // array of { persona_id, nombre_normalizado }
-
     let formSaving = false;
+    let formLoadingRel = false;
+
+    // Alerts
+    let saveError = null;
+    let saveSuccess = null;
 
     // Delete
     let deleteConfirmOpen = false;
@@ -59,28 +73,272 @@
         { value: 'sub', label: 'Subordinación' },
     ];
 
-    // ── Auth ───────────────────────────────────────────────────────────────────
+    const FCOSE_OPTS = {
+        name: 'fcose',
+        animate: true,
+        animationDuration: 500,
+        fit: true,
+        padding: 40,
+        nodeSeparation: 120,
+        idealEdgeLength: 130,
+        edgeElasticity: 0.45,
+        nodeRepulsion: 6500,
+        gravity: 0.25,
+        gravityRange: 1.5,
+        numIter: 2500,
+        randomize: false,
+    };
+
+    // ── Auth ──────────────────────────────────────────────────────────────────
     onMount(async () => {
+        if (!browser) return;
         try {
             me = await whoami();
             const groups = me?.groups ?? [];
-            allowed = me?.is_staff || groups.includes('colectores');
+            const allowed = me?.is_staff || groups.includes('colectores');
             if (!allowed) { window.location.href = '/User/login'; return; }
         } catch {
             window.location.href = '/User/login';
             return;
         }
-
+        await tick();
+        initCy();
         const preloadId = $page.url.searchParams.get('persona_id');
         if (preloadId) {
-            try {
-                const pe = await peresclavizadas(preloadId);
-                await selectPersona(pe);
-            } catch { /* user can search manually */ }
+            try { await addPersonaToCanvas(preloadId, null); } catch {}
         }
     });
 
-    // ── Persona search ─────────────────────────────────────────────────────────
+    onDestroy(() => {
+        if (eh) { try { eh.destroy(); } catch {} }
+        if (cy) { try { cy.destroy(); } catch {} }
+    });
+
+    // ── Cytoscape init ────────────────────────────────────────────────────────
+    function initCy() {
+        cy = cytoscape({
+            container: canvasContainer,
+            elements: [],
+            style: getCyStyle(),
+            layout: { name: 'preset' },
+            userZoomingEnabled: true,
+            userPanningEnabled: true,
+            boxSelectionEnabled: false,
+        });
+
+        eh = cy.edgehandles({
+            canConnect: (src, tgt) => !src.same(tgt),
+            edgeParams: () => ({}),
+            hoverDelay: 120,
+            snap: false,
+            noEdgeEventsInDraw: true,
+            disableBrowserGestures: true,
+        });
+
+        cy.on('ehcomplete', (_ev, sourceNode, targetNode, addedEdge) => {
+            addedEdge.remove();
+            openAdd(sourceNode.data(), targetNode.data());
+        });
+
+        cy.on('tap', 'edge', async (event) => {
+            if (drawMode) return;
+            const d = event.target.data();
+            if (d.persona_relacion_id) {
+                await openEditFromEdge(d);
+            }
+        });
+
+        cy.on('mouseover', 'node', ev => { if (!drawMode) ev.target.style({ 'border-width': 4, 'overlay-opacity': 0.08 }); });
+        cy.on('mouseout',  'node', ev => ev.target.style({ 'border-width': 2, 'overlay-opacity': 0 }));
+        cy.on('mouseover', 'edge', ev => ev.target.style({ 'width': 4, 'line-opacity': 1 }));
+        cy.on('mouseout',  'edge', ev => ev.target.style({ 'width': null, 'line-opacity': null }));
+    }
+
+    function getCyStyle() {
+        return [
+            {
+                selector: 'node',
+                style: {
+                    'background-color': '#9DB5B2',
+                    'border-width': 2,
+                    'border-color': '#7A9E9A',
+                    'label': 'data(label)',
+                    'text-valign': 'bottom',
+                    'text-halign': 'center',
+                    'text-margin-y': 6,
+                    'color': '#3d4f5f',
+                    'font-size': '9px',
+                    'text-wrap': 'wrap',
+                    'text-max-width': '80px',
+                    'width': 30,
+                    'height': 30,
+                    'text-outline-width': 1.5,
+                    'text-outline-color': '#fff',
+                    'text-outline-opacity': 0.8,
+                    'cursor': 'grab',
+                },
+            },
+            {
+                selector: 'node[type = "esclavizada"]',
+                style: { 'background-color': '#C9735B', 'border-color': '#A85A44' },
+            },
+            {
+                selector: 'node[type = "no_esclavizada"]',
+                style: { 'background-color': '#1ABC9C', 'border-color': '#17A589' },
+            },
+            {
+                selector: '.eh-source',
+                style: { 'border-width': 4, 'border-color': '#e74c3c', 'overlay-opacity': 0.1 },
+            },
+            {
+                selector: '.eh-hover',
+                style: { 'border-width': 4, 'border-color': '#3498db', 'overlay-opacity': 0.12 },
+            },
+            {
+                selector: '.eh-ghost-node',
+                style: { 'opacity': 0 },
+            },
+            {
+                selector: '.eh-preview, .eh-ghost-edge',
+                style: { 'line-color': '#3498db', 'line-style': 'dashed', 'width': 2 },
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'width': 2,
+                    'line-color': '#C8D1D9',
+                    'line-opacity': 0.85,
+                    'curve-style': 'bezier',
+                    'target-arrow-shape': 'none',
+                    'cursor': 'pointer',
+                },
+            },
+            {
+                selector: 'edge[relation = "fam"]',
+                style: { 'line-color': '#D4A27F', 'width': 2.5 },
+            },
+            {
+                selector: 'edge[relation = "tmp"]',
+                style: { 'line-color': '#7BB97B' },
+            },
+            {
+                selector: 'edge[relation = "sub"]',
+                style: {
+                    'line-color': '#9B8EC4',
+                    'target-arrow-shape': 'triangle',
+                    'target-arrow-color': '#9B8EC4',
+                },
+            },
+        ];
+    }
+
+    // ── Draw mode toggle ──────────────────────────────────────────────────────
+    function toggleDrawMode() {
+        drawMode = !drawMode;
+        if (drawMode) {
+            eh.enableDrawMode();
+            cy.userPanningEnabled(false);
+        } else {
+            eh.disableDrawMode();
+            cy.userPanningEnabled(true);
+        }
+    }
+
+    // ── Add persona to canvas ─────────────────────────────────────────────────
+    async function addPersonaToCanvas(personaId, personaObj) {
+        const pid = String(personaId);
+        if (canvasPersonaIds.has(pid)) { personaQuery = ''; personaResults = []; return; }
+        loadingPersona = true;
+        personaResults = [];
+        personaQuery = '';
+        try {
+            const netData = await personaNetwork(pid);
+            const { nodes = [], edges = [] } = netData;
+            const toAdd = [];
+
+            if (nodes.length === 0 && personaObj) {
+                const nodeId = `p${pid}`;
+                if (!cy.$id(nodeId).length) {
+                    toAdd.push({ data: { id: nodeId, label: personaObj.nombre_normalizado, type: 'esclavizada' } });
+                }
+                if (!canvasPersonaIds.has(pid)) {
+                    canvasPersonaIds.add(pid);
+                    canvasPersonas = [...canvasPersonas, { persona_id: pid, nombre_normalizado: personaObj.nombre_normalizado }];
+                }
+            }
+
+            for (const n of nodes) {
+                if (!cy.$id(n.data.id).length) toAdd.push(n);
+                const npid = String(n.data.id.replace('p', ''));
+                if (!canvasPersonaIds.has(npid)) {
+                    canvasPersonaIds.add(npid);
+                    const label = n.data.label ?? `ID ${npid}`;
+                    if (!canvasPersonas.find(p => p.persona_id === npid)) {
+                        canvasPersonas = [...canvasPersonas, { persona_id: npid, nombre_normalizado: label }];
+                    }
+                }
+            }
+
+            for (const e of edges) {
+                if (e.data.id && !cy.$id(e.data.id).length) toAdd.push(e);
+            }
+
+            if (toAdd.length) cy.add(toAdd);
+            applyRelFilter(activeRelFilter);
+            if (toAdd.length) cy.layout(FCOSE_OPTS).run();
+        } catch {
+            if (personaObj) {
+                const nodeId = `p${pid}`;
+                if (!cy.$id(nodeId).length) {
+                    cy.add({ data: { id: nodeId, label: personaObj.nombre_normalizado, type: 'esclavizada' } });
+                }
+                if (!canvasPersonaIds.has(pid)) {
+                    canvasPersonaIds.add(pid);
+                    canvasPersonas = [...canvasPersonas, { persona_id: pid, nombre_normalizado: personaObj.nombre_normalizado }];
+                }
+            }
+        } finally {
+            loadingPersona = false;
+        }
+    }
+
+    function removePersonaFromCanvas(personaId) {
+        const pid = String(personaId);
+        cy.$id(`p${pid}`).remove();
+        canvasPersonaIds.delete(pid);
+        canvasPersonas = canvasPersonas.filter(p => p.persona_id !== pid);
+    }
+
+    // ── Layout / zoom / export ────────────────────────────────────────────────
+    function zoomFit() { cy?.fit(undefined, 40); }
+
+    function exportNetwork() {
+        if (!cy) return;
+        const png = cy.png({ scale: 2, full: true, bg: '#ffffff' });
+        const a = document.createElement('a');
+        a.href = png;
+        a.download = 'relaciones.png';
+        a.click();
+    }
+
+    // ── Relation filter ───────────────────────────────────────────────────────
+    function filterByRelation(relType) {
+        activeRelFilter = activeRelFilter === relType ? null : relType;
+        applyRelFilter(activeRelFilter);
+    }
+
+    function applyRelFilter(relType) {
+        if (!cy) return;
+        if (!relType) {
+            cy.edges().style({ display: 'element' });
+        } else {
+            cy.edges().forEach(e => {
+                e.style({ display: e.data('relation') === relType ? 'element' : 'none' });
+            });
+        }
+    }
+
+    // ── Sidebar search ────────────────────────────────────────────────────────
     function onPersonaInput() {
         clearTimeout(personaTimer);
         if (personaQuery.trim().length < 2) { personaResults = []; return; }
@@ -92,30 +350,7 @@
         }, 300);
     }
 
-    async function selectPersona(pe) {
-        personaResults = [];
-        personaQuery = '';
-        try { selectedPersona = await peresclavizadas(pe.persona_id); }
-        catch { selectedPersona = pe; }
-        await loadRelaciones(selectedPersona.persona_id);
-    }
-
-    // ── Load relaciones ────────────────────────────────────────────────────────
-    async function loadRelaciones(personaId) {
-        loading = true;
-        saveError = null;
-        saveSuccess = null;
-        try {
-            const res = await relacionesByPersona(personaId);
-            relaciones = res.results ?? res ?? [];
-        } catch {
-            saveError = 'No se pudieron cargar las relaciones.';
-        } finally {
-            loading = false;
-        }
-    }
-
-    // ── "Otras personas" search inside the form ────────────────────────────────
+    // ── Form persona search ───────────────────────────────────────────────────
     function onFormPersonaInput() {
         clearTimeout(formPersonaTimer);
         if (formPersonaQuery.trim().length < 2) { formPersonaResults = []; return; }
@@ -139,8 +374,8 @@
         formPersonas = formPersonas.filter(p => p.persona_id !== id);
     }
 
-    // ── Open panel ─────────────────────────────────────────────────────────────
-    function openAdd() {
+    // ── Open panel (new relation) ─────────────────────────────────────────────
+    function openAdd(sourceData = null, targetData = null) {
         editingRel = null;
         formNaturaleza = '';
         formDescripcion = '';
@@ -148,45 +383,59 @@
         formFechaIni = '';
         formFechaFin = '';
         formNotas = '';
-        formPersonas = selectedPersona ? [{ persona_id: selectedPersona.persona_id, nombre_normalizado: selectedPersona.nombre_normalizado }] : [];
+        formPersonas = [];
+        if (sourceData) formPersonas.push({ persona_id: parseInt(sourceData.id.replace('p', '')), nombre_normalizado: sourceData.label });
+        if (targetData) formPersonas.push({ persona_id: parseInt(targetData.id.replace('p', '')), nombre_normalizado: targetData.label });
         formPersonaQuery = '';
+        formPersonaResults = [];
+        saveError = null;
         panelOpen = true;
     }
 
-    function openEdit(rel) {
-        editingRel = rel;
-        formNaturaleza = rel.naturaleza_relacion ?? '';
-        formDescripcion = rel.descripcion_relacion ?? '';
-        formDocumento = rel.documento?.documento_id ?? '';
-        formFechaIni = '';
-        formFechaFin = '';
-        formNotas = rel.notas ?? '';
-        // Build personas list from the relation (persona_ids)
-        formPersonas = (rel.persona_ids ?? []).map(id => ({ persona_id: id, nombre_normalizado: `ID ${id}` }));
-        formPersonaQuery = '';
+    // ── Open panel (edit from edge tap) ──────────────────────────────────────
+    async function openEditFromEdge(edgeData) {
+        saveError = null;
+        formLoadingRel = true;
         panelOpen = true;
+        try {
+            const rel = await personaPersonasRel(edgeData.persona_relacion_id);
+            editingRel = rel;
+            formNaturaleza = rel.naturaleza_relacion ?? '';
+            formDescripcion = rel.descripcion_relacion ?? '';
+            formDocumento = rel.documento?.documento_id ?? '';
+            formFechaIni = '';
+            formFechaFin = '';
+            formNotas = rel.notas ?? '';
+            const ids = rel.persona_ids ?? [
+                parseInt(edgeData.source.replace('p', '')),
+                parseInt(edgeData.target.replace('p', '')),
+            ];
+            formPersonas = ids.map(id => {
+                const nodeEl = cy?.$id(`p${id}`);
+                const label = (nodeEl?.length ? nodeEl.data('label') : null) ?? `ID ${id}`;
+                return { persona_id: id, nombre_normalizado: label };
+            });
+            formPersonaQuery = '';
+            formPersonaResults = [];
+        } catch {
+            saveError = 'No se pudo cargar la relación para editar.';
+        } finally {
+            formLoadingRel = false;
+        }
     }
 
     function closePanel() {
         panelOpen = false;
         editingRel = null;
+        saveError = null;
+        formLoadingRel = false;
     }
 
-    // ── Save (create/update) ───────────────────────────────────────────────────
+    // ── Save (create / update) ────────────────────────────────────────────────
     async function saveRelacion() {
-        if (!formNaturaleza) {
-            saveError = 'Naturaleza de la relación es obligatoria.';
-            return;
-        }
-        if (formPersonas.length < 1) {
-            saveError = 'Debe incluir al menos una persona en la relación.';
-            return;
-        }
-        if (!formDocumento) {
-            saveError = 'El documento de referencia es obligatorio.';
-            return;
-        }
-
+        if (!formNaturaleza) { saveError = 'Naturaleza es obligatoria.'; return; }
+        if (formPersonas.length < 2) { saveError = 'Se necesitan al menos 2 personas.'; return; }
+        if (!formDocumento) { saveError = 'El documento es obligatorio.'; return; }
         formSaving = true;
         saveError = null;
         try {
@@ -202,15 +451,18 @@
 
             if (editingRel) {
                 await updatePersonaRelacion(editingRel.persona_relacion_id, payload);
+                cy?.edges(`[persona_relacion_id = ${editingRel.persona_relacion_id}]`).forEach(e => {
+                    e.data('relation', payload.naturaleza_relacion);
+                    e.data('descripcion', payload.descripcion_relacion ?? '');
+                });
                 saveSuccess = 'Relación actualizada.';
             } else {
-                // persona_fuente is the currently selected persona
-                if (selectedPersona) payload.persona_fuente = selectedPersona.persona_id;
-                await createPersonaRelacion(payload);
+                const created = await createPersonaRelacion(payload);
+                addCreatedEdgeToCy(created, payload);
                 saveSuccess = 'Relación creada.';
             }
             closePanel();
-            await loadRelaciones(selectedPersona.persona_id);
+            applyRelFilter(activeRelFilter);
         } catch (e) {
             saveError = e.data ? JSON.stringify(e.data) : 'Error al guardar la relación.';
         } finally {
@@ -218,25 +470,47 @@
         }
     }
 
-    // ── Delete ─────────────────────────────────────────────────────────────────
-    function askDelete(rel) {
-        deletingRel = rel;
+    function addCreatedEdgeToCy(created, payload) {
+        const relId = created?.persona_relacion_id;
+        if (!relId || formPersonas.length < 2) return;
+        for (let i = 0; i < formPersonas.length; i++) {
+            for (let j = i + 1; j < formPersonas.length; j++) {
+                const src = `p${formPersonas[i].persona_id}`;
+                const tgt = `p${formPersonas[j].persona_id}`;
+                const edgeId = `r${relId}_${formPersonas[i].persona_id}_${formPersonas[j].persona_id}`;
+                if (!cy.$id(edgeId).length && cy.$id(src).length && cy.$id(tgt).length) {
+                    cy.add({
+                        data: {
+                            id: edgeId,
+                            source: src,
+                            target: tgt,
+                            relation: payload.naturaleza_relacion,
+                            descripcion: payload.descripcion_relacion ?? '',
+                            persona_relacion_id: relId,
+                            documento_id: payload.documento,
+                        },
+                    });
+                }
+            }
+        }
+    }
+
+    // ── Delete ────────────────────────────────────────────────────────────────
+    function askDeleteFromEdge(relId) {
+        deletingRel = { persona_relacion_id: relId };
         deleteConfirmOpen = true;
     }
 
-    function cancelDelete() {
-        deleteConfirmOpen = false;
-        deletingRel = null;
-    }
+    function cancelDelete() { deleteConfirmOpen = false; deletingRel = null; }
 
     async function confirmDelete() {
         deleteInProgress = true;
         saveError = null;
         try {
             await deletePersonaRelacion(deletingRel.persona_relacion_id);
-            cancelDelete();
-            await loadRelaciones(selectedPersona.persona_id);
+            cy?.elements(`edge[persona_relacion_id = ${deletingRel.persona_relacion_id}]`).remove();
             saveSuccess = 'Relación eliminada.';
+            cancelDelete();
         } catch {
             saveError = 'Error al eliminar la relación.';
         } finally {
@@ -245,273 +519,384 @@
     }
 
     function dismissAlert() { saveError = null; saveSuccess = null; }
-
-    function naturalezaLabel(val) {
-        return NATURALEZA_OPTIONS.find(o => o.value === val)?.label ?? val;
-    }
+    function naturalezaLabel(val) { return NATURALEZA_OPTIONS.find(o => o.value === val)?.label ?? val; }
 </script>
 
 <svelte:head>
-    <title>Relaciones — Trayectorias Afro</title>
+    <title>Red de Relaciones — Trayectorias Afro</title>
 </svelte:head>
 
-<div class="container-fluid mt-3">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h1 class="h4 mb-0"><i class="bi bi-people me-2"></i>Editar relaciones entre personas</h1>
+<div class="container-fluid mt-3 d-flex flex-column" style="height: calc(100vh - 80px);">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h1 class="h4 mb-0"><i class="bi bi-diagram-3 me-2"></i>Red de relaciones entre personas</h1>
         <a href="/User/" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Dashboard
         </a>
     </div>
 
+    <!-- Alerts -->
     {#if saveError}
-        <div class="alert alert-danger alert-dismissible" role="alert">
+        <div class="alert alert-danger alert-dismissible py-2 mb-2" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>{saveError}
-            <button type="button" class="btn-close" on:click={dismissAlert}></button>
+            <button type="button" class="btn-close" on:click={dismissAlert} aria-label="Cerrar"></button>
         </div>
     {/if}
     {#if saveSuccess}
-        <div class="alert alert-success alert-dismissible" role="alert">
+        <div class="alert alert-success alert-dismissible py-2 mb-2" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>{saveSuccess}
-            <button type="button" class="btn-close" on:click={dismissAlert}></button>
+            <button type="button" class="btn-close" on:click={dismissAlert} aria-label="Cerrar"></button>
         </div>
     {/if}
 
-    <!-- Persona search -->
-    <div class="card mb-3">
-        <div class="card-body pb-2">
-            <label class="form-label fw-semibold mb-1" for="persona-search">
-                Buscar persona esclavizada
-            </label>
-            <div class="position-relative">
-                <input
-                    id="persona-search"
-                    type="search"
-                    class="form-control"
-                    placeholder="Buscar por nombre…"
-                    bind:value={personaQuery}
-                    on:input={onPersonaInput}
-                    autocomplete="off"
-                    aria-autocomplete="list"
-                    aria-controls="persona-results"
-                />
-                {#if personaResults.length}
-                    <ul id="persona-results" class="list-group position-absolute w-100 shadow-sm" style="z-index:1050; top:100%;" role="listbox">
-                        {#each personaResults as pe}
-                            <li class="list-group-item list-group-item-action"
-                                style="cursor:pointer;"
-                                role="option"
-                                tabindex="0"
-                                on:click={() => selectPersona(pe)}
-                                on:keydown={(e) => e.key === 'Enter' && selectPersona(pe)}>
-                                <span class="fw-semibold">{pe.nombre_normalizado}</span>
-                                <small class="text-muted ms-2">{pe.persona_idno}</small>
+    <!-- Main two-column layout -->
+    <div class="row g-2 flex-grow-1" style="min-height: 0;">
+
+        <!-- Sidebar -->
+        <div class="col-lg-3 d-flex flex-column" style="overflow-y: auto; min-height: 0;">
+
+            <div class="card mb-2 flex-shrink-0">
+                <div class="card-header py-2 fw-semibold small">
+                    <i class="bi bi-person-plus me-1"></i>Agregar persona al canvas
+                </div>
+                <div class="card-body p-2">
+                    <div class="position-relative">
+                        <input
+                            type="search"
+                            class="form-control form-control-sm"
+                            placeholder="Buscar por nombre..."
+                            bind:value={personaQuery}
+                            on:input={onPersonaInput}
+                            autocomplete="off"
+                            aria-autocomplete="list"
+                            aria-controls="sidebar-persona-results"
+                            aria-label="Buscar persona esclavizada"
+                            disabled={loadingPersona}
+                        />
+                        {#if loadingPersona}
+                            <div class="position-absolute top-50 end-0 translate-middle-y pe-2" style="pointer-events: none;">
+                                <span class="spinner-border spinner-border-sm text-danger" role="status" aria-label="Cargando"></span>
+                            </div>
+                        {/if}
+                        {#if personaResults.length}
+                            <ul
+                                id="sidebar-persona-results"
+                                class="list-group position-absolute w-100 shadow"
+                                style="z-index: 1050; top: 100%;"
+                                role="listbox"
+                            >
+                                {#each personaResults as pe}
+                                    <li
+                                        class="list-group-item list-group-item-action py-1 px-2"
+                                        role="option"
+                                        aria-selected="false"
+                                        tabindex="0"
+                                        on:click={() => addPersonaToCanvas(pe.persona_id, pe)}
+                                        on:keydown={(e) => e.key === 'Enter' && addPersonaToCanvas(pe.persona_id, pe)}
+                                        style="cursor: pointer;"
+                                    >
+                                        <div class="fw-semibold small">{pe.nombre_normalizado}</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">{pe.persona_idno}</div>
+                                    </li>
+                                {/each}
+                            </ul>
+                        {/if}
+                    </div>
+                </div>
+            </div>
+
+            {#if canvasPersonas.length}
+                <div class="card flex-grow-1" style="overflow-y: auto; min-height: 0;">
+                    <div class="card-header py-2 fw-semibold small">
+                        <i class="bi bi-people me-1"></i>En el canvas ({canvasPersonas.length})
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {#each canvasPersonas as cp}
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2">
+                                <span
+                                    class="small text-truncate me-1"
+                                    style="max-width: 160px;"
+                                    title={cp.nombre_normalizado}
+                                >{cp.nombre_normalizado}</span>
+                                <button
+                                    class="btn btn-link btn-sm p-0 text-muted flex-shrink-0"
+                                    aria-label="Quitar {cp.nombre_normalizado} del canvas"
+                                    title="Quitar del canvas"
+                                    on:click={() => removePersonaFromCanvas(cp.persona_id)}
+                                >
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
                             </li>
                         {/each}
                     </ul>
-                {/if}
-            </div>
-            {#if selectedPersona}
-                <div class="mt-2 d-flex align-items-center gap-2">
-                    <span class="badge bg-danger">{selectedPersona.nombre_normalizado}</span>
-                    <small class="text-muted">{selectedPersona.persona_idno}</small>
-                    <button class="btn btn-link btn-sm p-0 text-muted" on:click={() => { selectedPersona = null; relaciones = []; }}>
-                        <i class="bi bi-x-circle"></i> Cambiar
-                    </button>
+                </div>
+            {:else}
+                <div class="text-muted text-center py-4 small px-2">
+                    <i class="bi bi-person-plus d-block mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                    Busca personas para visualizar su red de relaciones.
                 </div>
             {/if}
         </div>
-    </div>
 
-    {#if loading}
-        <div class="d-flex justify-content-center py-5">
-            <div class="spinner-border text-danger" role="status">
-                <span class="visually-hidden">Cargando…</span>
-            </div>
-        </div>
-    {:else if selectedPersona}
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="fw-semibold">
-                    <i class="bi bi-diagram-3 me-1"></i>
-                    Relaciones ({relaciones.length})
-                </span>
-                <button class="btn btn-sm btn-success" on:click={openAdd}>
+        <!-- Canvas area -->
+        <div class="col-lg-9 d-flex flex-column" style="min-height: 0;">
+
+            <!-- Toolbar -->
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                <button
+                    class="btn btn-sm {drawMode ? 'btn-danger' : 'btn-outline-danger'}"
+                    on:click={toggleDrawMode}
+                    aria-pressed={drawMode}
+                    title={drawMode ? 'Salir del modo dibujo' : 'Activar modo dibujo: arrastra de un nodo a otro para crear una relación'}
+                >
+                    <i class="bi bi-bezier2 me-1"></i>{drawMode ? 'Dibujando...' : 'Dibujar relación'}
+                </button>
+
+                <div class="vr" aria-hidden="true"></div>
+
+                <span class="small text-muted" id="filter-label">Filtrar:</span>
+                {#each NATURALEZA_OPTIONS as opt}
+                    <button
+                        class="btn btn-sm {activeRelFilter === opt.value ? 'btn-secondary' : 'btn-outline-secondary'}"
+                        on:click={() => filterByRelation(opt.value)}
+                        aria-pressed={activeRelFilter === opt.value}
+                        aria-describedby="filter-label"
+                    >{opt.label}</button>
+                {/each}
+
+                <div class="vr ms-auto" aria-hidden="true"></div>
+
+                <button
+                    class="btn btn-sm btn-outline-secondary"
+                    on:click={zoomFit}
+                    title="Centrar vista"
+                    aria-label="Centrar vista"
+                ><i class="bi bi-fullscreen"></i></button>
+
+                <button
+                    class="btn btn-sm btn-outline-secondary"
+                    on:click={exportNetwork}
+                    title="Exportar imagen PNG"
+                    aria-label="Exportar imagen PNG"
+                ><i class="bi bi-download"></i></button>
+
+                <button class="btn btn-sm btn-success" on:click={() => openAdd()}>
                     <i class="bi bi-plus-lg me-1"></i>Nueva relación
                 </button>
             </div>
 
-            {#if relaciones.length === 0}
-                <div class="card-body text-muted text-center py-4">
-                    No hay relaciones registradas para esta persona.
-                </div>
-            {:else}
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col">Naturaleza</th>
-                                <th scope="col">Personas</th>
-                                <th scope="col">Descripción</th>
-                                <th scope="col">Documento</th>
-                                <th scope="col" class="text-end">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {#each relaciones as rel}
-                                <tr>
-                                    <td>
-                                        <span class="badge {rel.naturaleza_relacion === 'fam' ? 'bg-success' : rel.naturaleza_relacion === 'tmp' ? 'bg-warning text-dark' : 'bg-info text-dark'}">
-                                            {naturalezaLabel(rel.naturaleza_relacion)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        {#if rel.persona_ids?.length}
-                                            <small class="text-muted">{rel.persona_ids.length} persona(s)</small>
-                                        {/if}
-                                    </td>
-                                    <td>
-                                        <small>{rel.descripcion_relacion ?? '—'}</small>
-                                    </td>
-                                    <td>
-                                        {#if rel.documento}
-                                            <small class="text-muted">{rel.documento.documento_idno ?? rel.documento.documento_id}</small>
-                                        {:else}
-                                            <small class="text-muted">—</small>
-                                        {/if}
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="d-flex gap-1 justify-content-end">
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                    aria-label="Editar relación"
-                                                    on:click={() => openEdit(rel)}>
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                    aria-label="Eliminar relación"
-                                                    on:click={() => askDelete(rel)}>
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {/each}
-                        </tbody>
-                    </table>
-                </div>
-            {/if}
+            <!-- Canvas -->
+            <div
+                class="border rounded position-relative flex-grow-1"
+                style="background: #f8f9fa; min-height: 0;"
+                role="application"
+                aria-label="Canvas de red de relaciones"
+            >
+                <div bind:this={canvasContainer} style="width: 100%; height: 100%;"></div>
+
+                {#if drawMode}
+                    <div
+                        class="position-absolute top-0 start-0 w-100 text-center py-1"
+                        style="background: rgba(231,76,60,0.1); pointer-events: none; font-size: 0.75rem; color: #c0392b; font-weight: 600; border-radius: 4px 4px 0 0;"
+                        aria-live="polite"
+                    >
+                        <i class="bi bi-pencil me-1"></i>
+                        Modo dibujo activo — arrastra desde un nodo hasta otro para crear una relación
+                    </div>
+                {/if}
+
+                {#if canvasPersonas.length === 0}
+                    <div
+                        class="position-absolute top-50 start-50 translate-middle text-center text-muted"
+                        style="pointer-events: none;"
+                        aria-hidden="true"
+                    >
+                        <i class="bi bi-diagram-3 d-block mb-2" style="font-size: 3.5rem; opacity: 0.15;"></i>
+                        <p class="mb-0 small">Canvas vacío.<br>Busca personas en el panel izquierdo.</p>
+                    </div>
+                {/if}
+            </div>
+
+            <!-- Legend -->
+            <div class="d-flex align-items-center gap-3 mt-2 flex-wrap" style="font-size: 0.75rem;" aria-label="Leyenda">
+                <span class="d-flex align-items-center gap-1">
+                    <span class="rounded-circle d-inline-block flex-shrink-0" style="width:12px;height:12px;background:#C9735B;border:2px solid #A85A44;" aria-hidden="true"></span>
+                    Esclavizada
+                </span>
+                <span class="d-flex align-items-center gap-1">
+                    <span class="rounded-circle d-inline-block flex-shrink-0" style="width:12px;height:12px;background:#1ABC9C;border:2px solid #17A589;" aria-hidden="true"></span>
+                    No esclavizada
+                </span>
+                <span class="d-flex align-items-center gap-1">
+                    <span class="d-inline-block flex-shrink-0" style="width:20px;height:3px;background:#D4A27F;border-radius:2px;" aria-hidden="true"></span>
+                    Familiar
+                </span>
+                <span class="d-flex align-items-center gap-1">
+                    <span class="d-inline-block flex-shrink-0" style="width:20px;height:3px;background:#7BB97B;border-radius:2px;" aria-hidden="true"></span>
+                    Temporal
+                </span>
+                <span class="d-flex align-items-center gap-1">
+                    <span class="d-inline-block flex-shrink-0" style="width:20px;height:3px;background:#9B8EC4;border-radius:2px;" aria-hidden="true"></span>
+                    Subordinación
+                </span>
+                <span class="d-flex align-items-center gap-1 ms-auto text-muted">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    Clic en un arco para editar o eliminar
+                </span>
+            </div>
         </div>
-    {:else}
-        <div class="text-muted text-center py-5">
-            <i class="bi bi-search fs-3 d-block mb-2"></i>
-            Busca una persona para gestionar sus relaciones.
-        </div>
-    {/if}
+    </div>
 </div>
 
 <!-- Add / Edit SlideOver -->
-<SlideOver bind:open={panelOpen} title={editingRel ? 'Editar relación' : 'Nueva relación'} on:close={closePanel}>
-    <form on:submit|preventDefault={saveRelacion} novalidate>
-        <!-- Naturaleza -->
-        <div class="mb-3">
-            <label class="form-label fw-semibold" for="naturaleza">
-                Naturaleza de la relación <span class="text-danger" aria-hidden="true">*</span>
-            </label>
-            <select id="naturaleza" class="form-select" bind:value={formNaturaleza} required>
-                <option value="">— Seleccionar —</option>
-                {#each NATURALEZA_OPTIONS as opt}
-                    <option value={opt.value}>{opt.label}</option>
-                {/each}
-            </select>
+<SlideOver
+    bind:open={panelOpen}
+    title={editingRel ? 'Editar relación' : 'Nueva relación'}
+    on:close={closePanel}
+>
+    {#if formLoadingRel}
+        <div class="d-flex justify-content-center py-5">
+            <span class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </span>
         </div>
+    {:else}
+        <form on:submit|preventDefault={saveRelacion} novalidate>
 
-        <!-- Documento -->
-        <div class="mb-3">
-            <label class="form-label fw-semibold" for="rel-documento">
-                Documento (ID) <span class="text-danger" aria-hidden="true">*</span>
-            </label>
-            <input id="rel-documento" type="number" class="form-control" bind:value={formDocumento} placeholder="ID del documento" required />
-        </div>
-
-        <!-- Descripción -->
-        <div class="mb-3">
-            <label class="form-label fw-semibold" for="rel-descripcion">Descripción</label>
-            <input id="rel-descripcion" type="text" class="form-control" bind:value={formDescripcion} maxlength="250" />
-        </div>
-
-        <!-- Personas involucradas -->
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Personas involucradas</label>
-            <div class="d-flex flex-wrap gap-1 mb-2">
-                {#each formPersonas as fp}
-                    <span class="badge bg-secondary d-flex align-items-center gap-1">
-                        {fp.nombre_normalizado}
-                        <button type="button" class="btn-close btn-close-white" style="font-size:0.6rem;" aria-label="Quitar persona" on:click={() => removeFormPersona(fp.persona_id)}></button>
-                    </span>
-                {/each}
+            <div class="mb-3">
+                <label class="form-label fw-semibold" for="naturaleza">
+                    Naturaleza <span class="text-danger" aria-hidden="true">*</span>
+                </label>
+                <select id="naturaleza" class="form-select" bind:value={formNaturaleza} required>
+                    <option value="">— Seleccionar —</option>
+                    {#each NATURALEZA_OPTIONS as opt}
+                        <option value={opt.value}>{opt.label}</option>
+                    {/each}
+                </select>
             </div>
-            <div class="position-relative">
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold" for="rel-documento">
+                    Documento (ID) <span class="text-danger" aria-hidden="true">*</span>
+                </label>
                 <input
-                    type="search"
-                    class="form-control form-control-sm"
-                    placeholder="Buscar y añadir persona…"
-                    bind:value={formPersonaQuery}
-                    on:input={onFormPersonaInput}
-                    autocomplete="off"
-                    aria-autocomplete="list"
-                    aria-controls="form-persona-results"
+                    id="rel-documento"
+                    type="number"
+                    class="form-control"
+                    bind:value={formDocumento}
+                    placeholder="ID del documento"
+                    required
                 />
-                {#if formPersonaResults.length}
-                    <ul id="form-persona-results" class="list-group position-absolute w-100 shadow-sm" style="z-index:1100; top:100%;" role="listbox">
-                        {#each formPersonaResults as pe}
-                            <li class="list-group-item list-group-item-action py-1"
-                                style="cursor:pointer;"
-                                role="option"
-                                tabindex="0"
-                                on:click={() => addFormPersona(pe)}
-                                on:keydown={(e) => e.key === 'Enter' && addFormPersona(pe)}>
-                                <small>{pe.nombre_normalizado}</small>
-                                <small class="text-muted ms-1">{pe.persona_idno}</small>
-                            </li>
-                        {/each}
-                    </ul>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold" for="rel-descripcion">Descripción</label>
+                <input
+                    id="rel-descripcion"
+                    type="text"
+                    class="form-control"
+                    bind:value={formDescripcion}
+                    maxlength="250"
+                />
+            </div>
+
+            <div class="mb-3">
+                <p class="form-label fw-semibold mb-1" id="form-personas-label">Personas involucradas</p>
+                <div class="d-flex flex-wrap gap-1 mb-2" role="group" aria-labelledby="form-personas-label">
+                    {#each formPersonas as fp}
+                        <span class="badge bg-secondary d-flex align-items-center gap-1">
+                            {fp.nombre_normalizado}
+                            <button
+                                type="button"
+                                class="btn-close btn-close-white"
+                                style="font-size: 0.6rem;"
+                                aria-label="Quitar {fp.nombre_normalizado}"
+                                on:click={() => removeFormPersona(fp.persona_id)}
+                            ></button>
+                        </span>
+                    {/each}
+                </div>
+                <div class="position-relative">
+                    <input
+                        type="search"
+                        class="form-control form-control-sm"
+                        placeholder="Buscar y añadir persona..."
+                        bind:value={formPersonaQuery}
+                        on:input={onFormPersonaInput}
+                        autocomplete="off"
+                        aria-autocomplete="list"
+                        aria-controls="form-persona-results"
+                        aria-label="Buscar persona para añadir"
+                    />
+                    {#if formPersonaResults.length}
+                        <ul
+                            id="form-persona-results"
+                            class="list-group position-absolute w-100 shadow-sm"
+                            style="z-index: 1100; top: 100%;"
+                            role="listbox"
+                        >
+                            {#each formPersonaResults as pe}
+                                <li
+                                    class="list-group-item list-group-item-action py-1"
+                                    role="option"
+                                    aria-selected="false"
+                                    tabindex="0"
+                                    on:click={() => addFormPersona(pe)}
+                                    on:keydown={(e) => e.key === 'Enter' && addFormPersona(pe)}
+                                    style="cursor: pointer;"
+                                >
+                                    <small>{pe.nombre_normalizado}</small>
+                                    <small class="text-muted ms-1">{pe.persona_idno}</small>
+                                </li>
+                            {/each}
+                        </ul>
+                    {/if}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col">
+                    <label class="form-label fw-semibold" for="rel-fecha-ini">Fecha inicial</label>
+                    <FlexDateInput id="rel-fecha-ini" bind:value={formFechaIni} />
+                </div>
+                <div class="col">
+                    <label class="form-label fw-semibold" for="rel-fecha-fin">Fecha final</label>
+                    <FlexDateInput id="rel-fecha-fin" bind:value={formFechaFin} />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold" for="rel-notas">Notas</label>
+                <textarea id="rel-notas" class="form-control" rows="2" bind:value={formNotas} maxlength="500"></textarea>
+            </div>
+
+            {#if saveError}
+                <div class="alert alert-danger py-2 mb-3" role="alert">
+                    <small>{saveError}</small>
+                </div>
+            {/if}
+
+            <div class="d-flex gap-2 flex-wrap">
+                <button type="submit" class="btn btn-primary" disabled={formSaving}>
+                    {#if formSaving}
+                        <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                    {/if}
+                    {editingRel ? 'Guardar cambios' : 'Crear relación'}
+                </button>
+                {#if editingRel}
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger"
+                        on:click={() => { closePanel(); askDeleteFromEdge(editingRel.persona_relacion_id); }}
+                    >
+                        <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
+                    </button>
                 {/if}
+                <button type="button" class="btn btn-outline-secondary" on:click={closePanel}>Cancelar</button>
             </div>
-        </div>
-
-        <!-- Fechas -->
-        <div class="row mb-3">
-            <div class="col">
-                <label class="form-label fw-semibold" for="rel-fecha-ini">Fecha inicial</label>
-                <FlexDateInput id="rel-fecha-ini" bind:value={formFechaIni} />
-            </div>
-            <div class="col">
-                <label class="form-label fw-semibold" for="rel-fecha-fin">Fecha final</label>
-                <FlexDateInput id="rel-fecha-fin" bind:value={formFechaFin} />
-            </div>
-        </div>
-
-        <!-- Notas -->
-        <div class="mb-3">
-            <label class="form-label fw-semibold" for="rel-notas">Notas</label>
-            <textarea id="rel-notas" class="form-control" rows="2" bind:value={formNotas} maxlength="500"></textarea>
-        </div>
-
-        {#if saveError}
-            <div class="alert alert-danger py-2 mb-3" role="alert">
-                <small>{saveError}</small>
-            </div>
-        {/if}
-
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary" disabled={formSaving}>
-                {#if formSaving}
-                    <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
-                {/if}
-                {editingRel ? 'Guardar cambios' : 'Crear relación'}
-            </button>
-            <button type="button" class="btn btn-outline-secondary" on:click={closePanel}>Cancelar</button>
-        </div>
-    </form>
+        </form>
+    {/if}
 </SlideOver>
 
 <!-- Confirm delete -->
