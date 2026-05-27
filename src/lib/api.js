@@ -293,6 +293,7 @@ export const bulkUpdateOrdinal = (items) => patchWithBaseUrl('relaciones-lugares
 export const updateLugar = (id, payload) => patchWithBaseUrl(`lugares/${id}/`, payload);
 export const searchLugares = (q) => fetchWithBaseUrl(`lugares/search/?q=${encodeURIComponent(q)}&page_size=10`);
 export const searchPersonasEsclavizadas = (q) => fetchWithBaseUrl(`personas-esclavizadas/?search=${encodeURIComponent(q)}&page_size=10`);
+export const searchDocumentos = (q) => fetchWithBaseUrl(`documentos/?search=${encodeURIComponent(q)}&page_size=10`);
 export const situacionesLugar = () => fetchWithBaseUrl('vocabularios/situaciones-lugar/?page_size=100');
 export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`relaciones-personas/${personaxpersonaId}/`);
 

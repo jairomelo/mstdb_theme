@@ -5,6 +5,7 @@
     import {
         whoami,
         searchPersonasEsclavizadas,
+        searchDocumentos,
         personaNetwork,
         personaPersonasRel,
         createPersonaRelacion,
@@ -49,7 +50,11 @@
     let editingRel = null;
     let formNaturaleza = '';
     let formDescripcion = '';
-    let formDocumento = '';
+    let formDocumento = '';       // stores the selected documento_id (number)
+    let formDocumentoQuery = '';  // typeahead input text
+    let formDocumentoResults = []; // [{documento_id, documento_idno, titulo}]
+    let formDocumentoLabel = '';  // display label for the selected doc
+    let formDocumentoTimer = null;
     let formFechaIni = '';
     let formFechaFin = '';
     let formNotas = '';
@@ -59,6 +64,25 @@
     let formPersonaTimer = null;
     let formSaving = false;
     let formLoadingRel = false;
+
+    // Derived: unique docs from cy edges connected to the current formPersonas
+    $: relatedDocs = (() => {
+        if (!cy || formPersonas.length === 0) return [];
+        const seen = new Set();
+        const docs = [];
+        for (const fp of formPersonas) {
+            const node = cy.$id(`p${fp.persona_id}`);
+            if (!node.length) continue;
+            node.connectedEdges().forEach(e => {
+                const d = e.data();
+                if (d.documento_id && !seen.has(d.documento_id)) {
+                    seen.add(d.documento_id);
+                    docs.push({ documento_id: d.documento_id, titulo: d.documento_titulo ?? '' });
+                }
+            });
+        }
+        return docs;
+    })();
 
     // Alerts
     let saveError = null;
@@ -430,12 +454,38 @@
         formPersonas = formPersonas.filter(p => p.persona_id !== id);
     }
 
+    // ── Document typeahead ────────────────────────────────────────────────────
+    function onFormDocumentoInput() {
+        clearTimeout(formDocumentoTimer);
+        if (formDocumentoQuery.trim().length < 2) { formDocumentoResults = []; return; }
+        formDocumentoTimer = setTimeout(async () => {
+            try {
+                const res = await searchDocumentos(formDocumentoQuery);
+                formDocumentoResults = res.results ?? res ?? [];
+            } catch { formDocumentoResults = []; }
+        }, 300);
+    }
+
+    function selectFormDocumento(doc) {
+        formDocumento = doc.documento_id;
+        formDocumentoLabel = [doc.documento_idno, doc.titulo].filter(Boolean).join(' — ');
+        formDocumentoQuery = '';
+        formDocumentoResults = [];
+    }
+
+    function clearFormDocumento() {
+        formDocumento = '';
+        formDocumentoLabel = '';
+        formDocumentoQuery = '';
+        formDocumentoResults = [];
+    }
+
     // ── Open panel (new relation) ─────────────────────────────────────────────
     function openAdd(sourceData = null, targetData = null) {
         editingRel = null;
         formNaturaleza = '';
         formDescripcion = '';
-        formDocumento = '';
+        clearFormDocumento();
         formFechaIni = '';
         formFechaFin = '';
         formNotas = '';
@@ -459,6 +509,11 @@
             formNaturaleza = rel.naturaleza_relacion ?? '';
             formDescripcion = rel.descripcion_relacion ?? '';
             formDocumento = rel.documento?.documento_id ?? '';
+            formDocumentoLabel = rel.documento
+                ? [rel.documento.documento_idno, rel.documento.titulo].filter(Boolean).join(' — ')
+                : '';
+            formDocumentoQuery = '';
+            formDocumentoResults = [];
             formFechaIni = '';
             formFechaFin = '';
             formNotas = rel.notas ?? '';
@@ -485,6 +540,7 @@
         editingRel = null;
         saveError = null;
         formLoadingRel = false;
+        clearFormDocumento();
         ctxMenu = null;
     }
 
@@ -1051,16 +1107,64 @@
 
             <div class="mb-3">
                 <label class="form-label fw-semibold" for="rel-documento">
-                    Documento (ID) <span class="text-danger" aria-hidden="true">*</span>
+                    Documento <span class="text-danger" aria-hidden="true">*</span>
                 </label>
-                <input
-                    id="rel-documento"
-                    type="number"
-                    class="form-control"
-                    bind:value={formDocumento}
-                    placeholder="ID del documento"
-                    required
-                />
+
+                {#if formDocumento && formDocumentoLabel}
+                    <!-- Selected doc badge -->
+                    <div class="d-flex align-items-center gap-2 p-2 border rounded bg-light">
+                        <i class="bi bi-file-earmark-text text-primary flex-shrink-0" aria-hidden="true"></i>
+                        <span class="small text-truncate flex-grow-1">{formDocumentoLabel}</span>
+                        <button
+                            type="button"
+                            class="btn-close flex-shrink-0"
+                            style="font-size: 0.6rem;"
+                            aria-label="Cambiar documento"
+                            on:click={clearFormDocumento}
+                        ></button>
+                    </div>
+                {:else}
+                    <!-- Typeahead search -->
+                    <div class="position-relative">
+                        <input
+                            id="rel-documento"
+                            type="search"
+                            class="form-control"
+                            placeholder="Buscar por título o signatura…"
+                            bind:value={formDocumentoQuery}
+                            on:input={onFormDocumentoInput}
+                            autocomplete="off"
+                            aria-autocomplete="list"
+                            aria-controls="doc-search-results"
+                            aria-label="Buscar documento"
+                            required
+                        />
+                        {#if formDocumentoResults.length}
+                            <ul
+                                id="doc-search-results"
+                                class="list-group position-absolute w-100 shadow-sm"
+                                style="z-index: 1100; top: 100%; max-height: 220px; overflow-y: auto;"
+                                role="listbox"
+                                aria-label="Resultados de búsqueda de documentos"
+                            >
+                                {#each formDocumentoResults as doc}
+                                    <li
+                                        class="list-group-item list-group-item-action py-2 px-3"
+                                        role="option"
+                                        aria-selected="false"
+                                        tabindex="0"
+                                        on:click={() => selectFormDocumento(doc)}
+                                        on:keydown={(e) => e.key === 'Enter' && selectFormDocumento(doc)}
+                                        style="cursor: pointer;"
+                                    >
+                                        <div class="fw-semibold small">{doc.documento_idno ?? ''}</div>
+                                        <div class="text-muted small text-truncate">{doc.titulo ?? ''}</div>
+                                    </li>
+                                {/each}
+                            </ul>
+                        {/if}
+                    </div>
+                {/if}
             </div>
 
             <div class="mb-3">
@@ -1138,6 +1242,32 @@
                     <FlexDateInput id="rel-fecha-fin" bind:value={formFechaFin} />
                 </div>
             </div>
+
+            <!-- Docs from canvas (bonus: quick-select related documents) -->
+            {#if relatedDocs.length && !formDocumento}
+                <div class="mb-3 p-2 border rounded" style="background: #f0f7ff;">
+                    <p class="fw-semibold mb-1 small">
+                        <i class="bi bi-diagram-3 me-1 text-primary" aria-hidden="true"></i>
+                        Documentos en el canvas
+                    </p>
+                    <div class="d-flex flex-wrap gap-1">
+                        {#each relatedDocs as doc}
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-primary py-0 px-2"
+                                style="font-size: 0.7rem;"
+                                title="{doc.titulo}"
+                                on:click={() => selectFormDocumento(doc)}
+                            >
+                                <i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>{doc.titulo || `ID ${doc.documento_id}`}
+                            </button>
+                        {/each}
+                    </div>
+                    <p class="text-muted mb-0 mt-1" style="font-size: 0.68rem;">
+                        Documentos vinculados a las personas del canvas. Clic para seleccionar.
+                    </p>
+                </div>
+            {/if}
 
             <div class="mb-3">
                 <label class="form-label fw-semibold" for="rel-notas">Notas</label>
