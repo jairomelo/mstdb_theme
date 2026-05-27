@@ -78,6 +78,9 @@
     let mergeError = null;
     let mergeSessionCount = 0;
 
+    // Context menu
+    let ctxMenu = null; // { type: 'edge'|'node', x, y, data }
+
     const NATURALEZA_OPTIONS = [
         { value: 'fam', label: 'Familiar' },
         { value: 'tmp', label: 'Temporal' },
@@ -168,6 +171,23 @@
         cy.on('mouseout',  'node', ev => ev.target.style({ 'border-width': 2, 'overlay-opacity': 0 }));
         cy.on('mouseover', 'edge', ev => ev.target.style({ 'width': 4, 'line-opacity': 1 }));
         cy.on('mouseout',  'edge', ev => ev.target.style({ 'width': null, 'line-opacity': null }));
+
+        // Right-click context menu
+        cy.on('cxttap', 'edge', (event) => {
+            if (drawMode || mergeMode) return;
+            const pos = event.renderedPosition;
+            ctxMenu = { type: 'edge', x: pos.x, y: pos.y, data: event.target.data() };
+        });
+
+        cy.on('cxttap', 'node', (event) => {
+            if (drawMode || mergeMode) return;
+            const pos = event.renderedPosition;
+            ctxMenu = { type: 'node', x: pos.x, y: pos.y, data: event.target.data() };
+        });
+
+        cy.on('tap', (event) => {
+            if (event.target === cy) ctxMenu = null;
+        });
     }
 
     function getCyStyle() {
@@ -465,6 +485,7 @@
         editingRel = null;
         saveError = null;
         formLoadingRel = false;
+        ctxMenu = null;
     }
 
     // ── Save (create / update) ────────────────────────────────────────────────
@@ -682,6 +703,8 @@
 <svelte:head>
     <title>Red de Relaciones — Trayectorias Afro</title>
 </svelte:head>
+
+<svelte:window on:keydown={(e) => { if (e.key === 'Escape') { ctxMenu = null; if (mergeMode) cancelMerge(); } }} />
 
 <div class="container-fluid mt-3 d-flex flex-column" style="height: calc(100vh - 80px);">
 
@@ -906,6 +929,66 @@
                         <p class="mb-0 small">Canvas vacío.<br>Busca personas en el panel izquierdo.</p>
                     </div>
                 {/if}
+
+                <!-- Right-click context menu -->
+                {#if ctxMenu}
+                    <ul
+                        class="position-absolute bg-white border rounded shadow-sm py-1 m-0 list-unstyled"
+                        style="left: {ctxMenu.x}px; top: {ctxMenu.y}px; z-index: 2000; min-width: 170px;"
+                        role="menu"
+                        aria-label="Menú contextual"
+                    >
+                        {#if ctxMenu.type === 'edge'}
+                            {#if ctxMenu.data.persona_relacion_id}
+                                <li role="none">
+                                    <button
+                                        class="dropdown-item d-flex align-items-center gap-2 py-1 px-3 small"
+                                        role="menuitem"
+                                        on:click={async () => { const d = ctxMenu.data; ctxMenu = null; await openEditFromEdge(d); }}
+                                    >
+                                        <i class="bi bi-pencil" aria-hidden="true"></i>Editar relación
+                                    </button>
+                                </li>
+                                <li role="none"><hr class="dropdown-divider my-1"></li>
+                                <li role="none">
+                                    <button
+                                        class="dropdown-item d-flex align-items-center gap-2 py-1 px-3 small text-danger"
+                                        role="menuitem"
+                                        on:click={() => { const id = ctxMenu.data.persona_relacion_id; ctxMenu = null; askDeleteFromEdge(id); }}
+                                    >
+                                        <i class="bi bi-trash" aria-hidden="true"></i>Eliminar relación
+                                    </button>
+                                </li>
+                            {:else}
+                                <li role="none">
+                                    <span class="dropdown-item-text py-1 px-3 small text-muted">
+                                        Sin acciones disponibles
+                                    </span>
+                                </li>
+                            {/if}
+                        {:else if ctxMenu.type === 'node'}
+                            <li role="none">
+                                <button
+                                    class="dropdown-item d-flex align-items-center gap-2 py-1 px-3 small"
+                                    role="menuitem"
+                                    on:click={() => { const d = ctxMenu.data; ctxMenu = null; openAdd(d, null); }}
+                                >
+                                    <i class="bi bi-plus-circle" aria-hidden="true"></i>Nueva relación
+                                </button>
+                            </li>
+                            <li role="none"><hr class="dropdown-divider my-1"></li>
+                            <li role="none">
+                                <button
+                                    class="dropdown-item d-flex align-items-center gap-2 py-1 px-3 small text-muted"
+                                    role="menuitem"
+                                    on:click={() => { const pid = parseInt(ctxMenu.data.id.replace('p', '')); ctxMenu = null; removePersonaFromCanvas(pid); }}
+                                >
+                                    <i class="bi bi-x-circle" aria-hidden="true"></i>Quitar del canvas
+                                </button>
+                            </li>
+                        {/if}
+                    </ul>
+                {/if}
             </div>
 
             <!-- Legend -->
@@ -932,7 +1015,7 @@
                 </span>
                 <span class="d-flex align-items-center gap-1 ms-auto text-muted">
                     <i class="bi bi-info-circle" aria-hidden="true"></i>
-                    Clic en un arco para editar o eliminar
+                    Clic en arco/nodo para editar &bull; clic derecho para más opciones
                 </span>
             </div>
         </div>
@@ -1078,7 +1161,7 @@
                     <button
                         type="button"
                         class="btn btn-outline-danger"
-                        on:click={() => { closePanel(); askDeleteFromEdge(editingRel.persona_relacion_id); }}
+                        on:click={() => { const id = editingRel.persona_relacion_id; closePanel(); askDeleteFromEdge(id); }}
                     >
                         <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
                     </button>
