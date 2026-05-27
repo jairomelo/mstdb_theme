@@ -194,7 +194,6 @@ export const searchAll = (params) => {
     }
 
     const querystring = queryString.stringify(filteredParams);
-    console.log('Final Query String:', querystring);
     return fetchWithBaseUrl(`search/?${querystring}`);
 };
 
@@ -265,7 +264,6 @@ export const personasescfull = (params) => {
     }
 
     const querystring = queryString.stringify(filteredParams);
-    console.log('personasescfull query string:', querystring);
     return fetchWithBaseUrl(`personas-esclavizadas/?${querystring}`);
 };
 
