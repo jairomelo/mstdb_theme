@@ -1,6 +1,6 @@
 <script>
 	import { onMount, tick, onDestroy } from 'svelte';
-	import { pernoesclavizadas, personaNoEsclavizadaNetwork } from '$lib/api';
+	import { pernoesclavizadas, personaNoEsclavizadaNetwork, whoami } from '$lib/api';
 	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
 	import cytoscape from 'cytoscape';
 	import fcose from 'cytoscape-fcose';
@@ -14,6 +14,7 @@
 	let pernoesc = null;
 	let error = null;
 	let networkData = null;
+	let canEdit = false;
 	let L = null;
 	let map = null;
 
@@ -23,6 +24,7 @@
 	let showSexo = false;
 
 	onMount(async () => {
+		whoami().then(u => { canEdit = u.is_staff || u.groups?.includes('colectores'); }).catch(() => {});
 		try {
 			pernoesc = await pernoesclavizadas(data.id);
 			
@@ -554,9 +556,16 @@
 						<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones</h2>
 						<small class="text-white-50">Haz clic en un nodo para ver los detalles de esa persona</small>
 					</div>
+				<div class="d-flex gap-2">
 					<button class="btn btn-sm btn-outline-light" on:click={exportNetwork} title="Guardar imagen de la red">
 						<i class="bi bi-download me-1"></i>PNG
 					</button>
+					{#if canEdit}
+						<a href="/User/catalogar/relaciones?persona_id={data.id}" class="btn btn-sm btn-outline-light">
+							<i class="bi bi-pencil-square me-1"></i>Editar relaciones
+						</a>
+					{/if}
+				</div>
 				</div>
 				<div class="card-body p-2 pb-0">
 					<div class="d-flex flex-wrap gap-1 align-items-center mb-2">

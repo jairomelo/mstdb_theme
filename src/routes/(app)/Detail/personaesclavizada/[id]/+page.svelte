@@ -711,9 +711,16 @@
 								</h2>
 						<small class="text-white-50">Haz clic en un nodo para ver los detalles de esa persona</small>
 					</div>
-					<button class="btn btn-sm btn-outline-light" on:click={exportNetwork} title="Guardar imagen de la red">
-						<i class="bi bi-download me-1"></i>PNG
-					</button>
+					<div class="d-flex gap-2">
+						<button class="btn btn-sm btn-outline-light" on:click={exportNetwork} title="Guardar imagen de la red">
+							<i class="bi bi-download me-1"></i>PNG
+						</button>
+						{#if canEdit}
+							<a href="/User/catalogar/relaciones?persona_id={data.id}" class="btn btn-sm btn-outline-light">
+								<i class="bi bi-pencil-square me-1"></i>Editar relaciones
+							</a>
+						{/if}
+					</div>
 				</div>
 				<div class="card-body p-2 pb-0">
 					<div class="d-flex flex-wrap gap-1 align-items-center mb-2">
