@@ -81,7 +81,37 @@ export const contributors = {
       institution: "Universidad de California, Irvine",
       institutionurl: "https://www.humanities.uci.edu/students/berenice-tepozano",
       role: "Ayudante de Investigación",
-    }
+    },
+    {
+      name: "Camila Sanhueza",
+      institution: "Universidad de California, Irvine",
+      institutionurl: "",
+      role: "Ayudante de Investigación"
+    },
+    {
+      name: "Arielle D. Steimer-Barragan",
+      institution: "Universidad de California, Irvine",
+      institutionurl: "",
+      role: "Ayudante de Investigación"
+    },
+    {
+      name: "Carlo Acevedo Malo",
+      institution: "Universidad de California, Merced",
+      institutionurl: "",
+      role: "Ayudante de Investigación"
+    },
+    {
+      name: "Thomas Paniagua",
+      institution: "Universidad de California, Merced",
+      institutionurl: "",
+      role: "Ayudante de Investigación"
+    },
+    {
+      name: "Yulissa Torres",
+      institution: "Universidad de California, Merced",
+      institutionurl: "",
+      role: "Ayudante de Investigación"
+    },
   ],
   developers: [
     {
