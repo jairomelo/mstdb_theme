@@ -208,7 +208,7 @@
     <!-- Features Section -->
     <div class="row features-section mt-5 justify-content-center" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
       <div class="col-md-4">
-        <a href="/lessons" class="feature-card">
+        <a href="/Archivos" class="feature-card">
           <i class="bi bi-bank feature-icon"></i>
           <h3>Archivos</h3>
           <p>Repositorios documentales utilizados para la reconstrucción de la circulación de afrodescendientes esclavizados y libres en la Nueva España</p>
