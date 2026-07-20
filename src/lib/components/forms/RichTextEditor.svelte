@@ -26,6 +26,8 @@
 			element,
 			extensions: [StarterKit.configure({ link: { openOnClick: false } }), Image],
 			content,
+			editable: true,
+			autofocus: 'end',
 			onUpdate: ({ editor: ed }) => {
 				content = ed.getHTML();
 				dispatch('change', content);
@@ -215,6 +217,7 @@
 		bind:this={element}
 		on:drop={onDrop}
 		on:dragover={onDragOver}
+		on:click={() => editor?.chain().focus('end').run()}
 		role="textbox"
 		aria-multiline="true"
 		aria-label={placeholder}
