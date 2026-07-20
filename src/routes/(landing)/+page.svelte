@@ -175,36 +175,13 @@
 </main>
 
 <section id="landing-body">
-  <div class="row database-band" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
-    <div class="col-md-12 band-story">
-      <div class="band-header">
-        <div class="icon-wrapper">
-          <img src="/icons/i_peresc.webp" alt="Ícono Personas Esclavizadas" class="section-icon">
-        </div>
-        <div class="title-group">
-          <h2>Base de datos</h2>
-          <h2 class="accent-title">Afrodescendientes en Nueva España</h2>
-        </div>
-      </div>
-      <div class="band-content">
-        <p>
-          Esta base de datos recopila información sobre la circulación de personas afrodescendientes, 
-          tanto esclavizadas como libres, en la Nueva España. Explore este sitio para 
-          conocer más sobre sus vidas, movimientos y relaciones.
-        </p>
-      </div>
-      <div class="band-buttons">
-        <a href="/Dashboard" class="btn btn-outline-primary me-3">
-          <i class="bi bi-people-fill me-2"></i>Visualizaciones
-        </a>
-      </div>
-    </div>
-  </div>
-
   <!-- About Section -->
   <div class="container mt-5">
     <div class="row about-section" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
       <div class="col-md-12">
+        <div class="icon-wrapper">
+          <img src="/icons/i_peresc.webp" alt="Ícono Personas Esclavizadas" class="section-icon">
+        </div>
         <h2 class="section-title">Sobre el Proyecto</h2>
         <div class="about-content">
           <p class="lead">
