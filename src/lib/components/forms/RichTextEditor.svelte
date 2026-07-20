@@ -3,7 +3,6 @@
 	import { Editor } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
 	import Image from '@tiptap/extension-image';
-	import Link from '@tiptap/extension-link';
 
 	/** Two-way bindable HTML content (`bind:content`) */
 	export let content = '';
@@ -25,7 +24,7 @@
 	onMount(() => {
 		editor = new Editor({
 			element,
-			extensions: [StarterKit, Image, Link.configure({ openOnClick: false })],
+			extensions: [StarterKit.configure({ link: { openOnClick: false } }), Image],
 			content,
 			onUpdate: ({ editor: ed }) => {
 				content = ed.getHTML();

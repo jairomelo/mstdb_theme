@@ -35,7 +35,6 @@
 		"@sveltestrap/sveltestrap": "^6.2.7",
 		"@tiptap/core": "^3.28.0",
 		"@tiptap/extension-image": "^3.28.0",
-		"@tiptap/extension-link": "^3.28.0",
 		"@tiptap/starter-kit": "^3.28.0",
 		"animejs": "^3.2.2",
 		"bootstrap": "^5.3.3",
