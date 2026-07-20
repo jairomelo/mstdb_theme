@@ -275,6 +275,17 @@ export const documentos = (params) => fetchWithBaseUrl(`documentos/${params}/`);
 export const peresclavizadas = (params) => fetchWithBaseUrl(`personas-esclavizadas/${params}/`);
 export const pernoesclavizadas =  (params) => fetchWithBaseUrl(`personas-no-esclavizadas/${params}/`);
 export const corporaciones = (params) => fetchWithBaseUrl(`corporaciones/${params}/`);
+
+// ── Lecciones Educativas ───────────────────────────────────────────────────────
+export const fetchLecciones = (params = {}) => {
+    const qs = new URLSearchParams(
+        Object.fromEntries(Object.entries(params).filter(([, v]) => v !== null && v !== '' && v !== undefined))
+    ).toString();
+    return fetchWithBaseUrl(`lecciones/${qs ? '?' + qs : ''}`);
+};
+export const fetchLeccion = (id) => fetchWithBaseUrl(`lecciones/${id}/`);
+export const leccionNiveles = () => fetchWithBaseUrl('vocabularios/niveles-leccion/');
+export const leccionPalabrasClave = () => fetchWithBaseUrl('vocabularios/palabras-clave-leccion/');
 export const lugares = (params) => fetchWithBaseUrl(`lugares/${params}/`);
 export const lugarPersonasRelacionadas = (lugarId, page = 1) => 
     fetchWithBaseUrl(`lugares/${lugarId}/personas/?page=${page}`);
@@ -346,8 +357,7 @@ export const createPersonaNoEsclavizada = (data) => postWithBaseUrl('personas-no
 export const createDocumento           = (data) => postWithBaseUrl('documentos/', data);
 export const createLugar               = (data) => postWithBaseUrl('lugares/', data);
 export const createTipoDocumental      = (data) => postWithBaseUrl('vocabularios/tipos-documentales/', data);
-export const createCorporacion         = (data) => postWithBaseUrl('corporaciones/', data);
-// ── PersonaRelaciones (P×P) helpers ──────────────────────────────────────────
+export const createCorporacion         = (data) => postWithBaseUrl('corporaciones/', data);// ── PersonaRelaciones (P×P) helpers ──────────────────────────────────────────
 export const relacionesByPersona = (personaId) => fetchWithBaseUrl(`relaciones-personas/?personas__persona_id=${personaId}&page_size=100`);
 export const createPersonaRelacion  = (payload) => postWithBaseUrl('relaciones-personas/', payload);
 export const updatePersonaRelacion  = (id, payload) => patchWithBaseUrl(`relaciones-personas/${id}/`, payload);
