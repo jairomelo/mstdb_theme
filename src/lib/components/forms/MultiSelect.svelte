@@ -16,6 +16,7 @@
     let loading = false;
     let debounceTimer;
     let container;
+    let isFocused = false;
 
     function formatOption(item) {
         const label = item.nombre_lugar ?? item.nombre ?? item.nombre_institucion ??
@@ -29,7 +30,6 @@
     }
 
     async function search(q) {
-        if (!q) { options = []; return; }
         loading = true;
         try {
             const params = new URLSearchParams({ [searchParam]: q, page_size: 30 });
@@ -62,6 +62,19 @@
         debounceTimer = setTimeout(() => search(query), 300);
     }
 
+    function onFocus() {
+        isFocused = true;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => search(query), 300);
+    }
+
+    function onBlur() {
+        // Delay to allow click on options to register
+        setTimeout(() => {
+            isFocused = false;
+        }, 200);
+    }
+
     function onWindowClick(e) {
         if (container && !container.contains(e.target)) options = [];
     }
@@ -87,9 +100,11 @@
         {disabled}
         bind:value={query}
         on:input={onInput}
+        on:focus={onFocus}
+        on:blur={onBlur}
         autocomplete="off"
     />
-    {#if options.length > 0 || loading}
+    {#if (options.length > 0 || loading) && isFocused}
         <ul class="searchable-select-dropdown list-group">
             {#if loading}
                 <li class="list-group-item text-muted small">Buscando…</li>
