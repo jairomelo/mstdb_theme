@@ -1647,6 +1647,13 @@ p, ol, ul, li {
   outline-offset: 2px;
 }
 
+/* Exception for ProseMirror editor - no focus ring */
+.ProseMirror:focus-visible,
+.ProseMirror-focused:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .btn:focus-visible,
 .nav-link:focus-visible,
 .dropdown-item:focus-visible,

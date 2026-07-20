@@ -213,7 +213,7 @@
 
 	<div
 		{id}
-		class="rich-text-content form-control"
+		class="rich-text-content"
 		bind:this={element}
 		on:drop={onDrop}
 		on:dragover={onDragOver}
