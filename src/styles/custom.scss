@@ -363,4 +363,36 @@ $theme-colors: (
         color: map-get($theme-colors, "accent2");
     }
 }
+
+// Rich-text editor (Leccion body, catalogar/leccion)
+.rich-text-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-bottom: none;
+    border-radius: 0.375rem 0.375rem 0 0;
+    background: map-get($theme-colors, "light");
+
+    .btn.active {
+        background: map-get($theme-colors, "primary");
+        color: #fff;
+    }
+}
+
+.rich-text-content {
+    min-height: 200px;
+    border-radius: 0 0 0.375rem 0.375rem;
+
+    :global(.ProseMirror) {
+        outline: none;
+        min-height: 180px;
+    }
+
+    :global(img) {
+        max-width: 100%;
+        border-radius: 0.375rem;
+    }
+}
 @import "./custom.css";

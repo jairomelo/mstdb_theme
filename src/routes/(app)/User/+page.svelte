@@ -174,6 +174,9 @@
                 <a href="/User/catalogar/documento" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nuevo evento
                 </a>
+                <a href="/User/catalogar/leccion" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-mortarboard me-1" aria-hidden="true"></i>Nueva lección
+                </a>
                 <a href="/User/trayectoria" class="btn btn-outline-danger btn-sm">
                     <i class="bi bi-map me-1" aria-hidden="true"></i>Editar trayectorias
                 </a>

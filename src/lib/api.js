@@ -286,6 +286,25 @@ export const fetchLecciones = (params = {}) => {
 export const fetchLeccion = (id) => fetchWithBaseUrl(`lecciones/${id}/`);
 export const leccionNiveles = () => fetchWithBaseUrl('vocabularios/niveles-leccion/');
 export const leccionPalabrasClave = () => fetchWithBaseUrl('vocabularios/palabras-clave-leccion/');
+export const createLeccion = (data) => postWithBaseUrl('lecciones/', data);
+export const updateLeccion = (id, data) => patchWithBaseUrl(`lecciones/${id}/`, data);
+export const uploadLeccionImagen = async (leccionId, file) => {
+    const url = `${config.apiBaseUrl}lecciones/${leccionId}/imagenes/`;
+    const csrfToken = getCookie("csrftoken");
+    const formData = new FormData();
+    formData.append('imagen', file);
+    const response = await fetch(url, {
+        method: "POST",
+        headers: { "X-CSRFToken": csrfToken || "" },
+        credentials: "include",
+        body: formData,
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw Object.assign(new Error(`HTTP error! status: ${response.status}`), { data: errorData });
+    }
+    return await response.json();
+};
 export const lugares = (params) => fetchWithBaseUrl(`lugares/${params}/`);
 export const lugarPersonasRelacionadas = (lugarId, page = 1) => 
     fetchWithBaseUrl(`lugares/${lugarId}/personas/?page=${page}`);
