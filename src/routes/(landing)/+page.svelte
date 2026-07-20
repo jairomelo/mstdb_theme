@@ -244,6 +244,13 @@
           <p>Visualice los movimientos y rutas en el territorio novohispano</p>
         </a>
       </div>
+      <div class="col-md-4">
+        <a href="/lessons" class="feature-card">
+          <i class="bi bi-mortarboard feature-icon"></i>
+          <h3>Lecciones Educativas</h3>
+          <p>Recursos educativos elaborados a partir de la investigación en Trayectorias Afro</p>
+        </a>
+      </div>
     </div>
   </div>
 
