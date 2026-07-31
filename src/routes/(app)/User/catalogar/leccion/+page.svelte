@@ -86,6 +86,9 @@
 					>Lección guardada: <strong>{created.title}</strong></span
 				>
 				<div class="d-flex gap-2 flex-wrap">
+					<a href="/User/catalogar/leccion/{created.leccion_id}" class="btn btn-sm btn-outline-success">
+						<i class="bi bi-gear me-1"></i>Gestionar
+					</a>
 					<a href="/lessons/{created.leccion_id}" class="btn btn-sm btn-outline-success">
 						<i class="bi bi-eye me-1"></i>Ver lección
 					</a>

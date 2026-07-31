@@ -1,14 +1,16 @@
 <script>
 	import { onMount } from 'svelte';
-	import { fetchLeccion } from '$lib/api.js';
+	import { fetchLeccion, whoami } from '$lib/api.js';
 
 	export let data;
 
 	let leccion = null;
 	let error = null;
 	let loading = true;
+	let canEdit = false;
 
 	onMount(async () => {
+		whoami().then((u) => { canEdit = u?.is_staff || u?.groups?.includes('colectores'); }).catch(() => {});
 		try {
 			leccion = await fetchLeccion(data.id);
 		} catch (e) {
@@ -55,7 +57,14 @@
 		</div>
 	{:else if leccion}
 		<article class="lesson-detail">
-			<h1 class="mb-3">{leccion.title}</h1>
+			<div class="d-flex align-items-start justify-content-between gap-2 mb-3">
+				<h1 class="mb-0">{leccion.title}</h1>
+				{#if canEdit}
+					<a href="/User/catalogar/leccion/{data.id}/edit" class="btn btn-sm btn-outline-primary flex-shrink-0">
+						<i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
+					</a>
+				{/if}
+			</div>
 
 			<p class="lesson-detail-date text-muted">
 				<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Publicada el {formatDate(leccion.created_at)}

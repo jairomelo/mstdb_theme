@@ -288,6 +288,7 @@ export const leccionNiveles = () => fetchWithBaseUrl('vocabularios/niveles-lecci
 export const leccionPalabrasClave = () => fetchWithBaseUrl('vocabularios/palabras-clave-leccion/');
 export const createLeccion = (data) => postWithBaseUrl('lecciones/', data);
 export const updateLeccion = (id, data) => patchWithBaseUrl(`lecciones/${id}/`, data);
+export const deleteLeccion = (id) => deleteWithBaseUrl(`lecciones/${id}/`);
 export const uploadLeccionImagen = async (leccionId, file) => {
     const url = `${config.apiBaseUrl}lecciones/${leccionId}/imagenes/`;
     const csrfToken = getCookie("csrftoken");
