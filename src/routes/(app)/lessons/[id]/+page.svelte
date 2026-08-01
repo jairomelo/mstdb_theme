@@ -9,6 +9,12 @@
 	let loading = true;
 	let canEdit = false;
 
+	let showAllPersonas = false;
+	let showAllDocumentos = false;
+	let showAllCorporaciones = false;
+
+	const COLLAPSE_LIMIT = 10;
+
 	onMount(async () => {
 		whoami().then((u) => { canEdit = u?.is_staff || u?.groups?.includes('colectores'); }).catch(() => {});
 		try {
@@ -31,6 +37,11 @@
 		if (!iso) return '';
 		return new Date(iso).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
 	}
+
+	$: hasSidebar = leccion?.personas?.length || leccion?.documentos?.length || leccion?.corporaciones?.length;
+	$: visiblePersonas = showAllPersonas ? leccion?.personas : leccion?.personas?.slice(0, COLLAPSE_LIMIT);
+	$: visibleDocumentos = showAllDocumentos ? leccion?.documentos : leccion?.documentos?.slice(0, COLLAPSE_LIMIT);
+	$: visibleCorporaciones = showAllCorporaciones ? leccion?.corporaciones : leccion?.corporaciones?.slice(0, COLLAPSE_LIMIT);
 </script>
 
 <svelte:head>
@@ -56,89 +67,131 @@
 			</div>
 		</div>
 	{:else if leccion}
-		<article class="lesson-detail">
-			<div class="d-flex align-items-start justify-content-between gap-2 mb-3">
-				<h1 class="mb-0">{leccion.title}</h1>
-				{#if canEdit}
-					<a href="/User/catalogar/leccion/{data.id}/edit" class="btn btn-sm btn-outline-primary flex-shrink-0">
-						<i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
-					</a>
-				{/if}
-			</div>
-
-			<p class="lesson-detail-date text-muted">
-				<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Publicada el {formatDate(leccion.created_at)}
-			</p>
-
-			{#if leccion.levels?.length || leccion.keywords?.length}
-				<div class="lesson-detail-badges mb-4">
-					{#each leccion.levels as nivel}
-						<span class="badge bg-primary me-1">{nivel.nivel}</span>
-					{/each}
-					{#each leccion.keywords as palabra}
-						<span class="badge bg-secondary me-1">{palabra.palabra_clave}</span>
-					{/each}
-				</div>
-			{/if}
-
-			<div class="lesson-detail-body">
-				{@html leccion.body}
-			</div>
-
-			{#if leccion.imagenes?.length}
-				<section class="lesson-detail-gallery mt-4" aria-label="Galería de imágenes de la lección">
-					<h2 class="h5">Imágenes</h2>
-					<div class="row g-3">
-						{#each leccion.imagenes as imagen}
-							<div class="col-sm-4">
-								<img src={imagen.imagen} alt="Imagen de la lección {leccion.title}" class="img-fluid rounded" />
-							</div>
-						{/each}
+		<div class="row">
+			<!-- Main content -->
+			<div class={hasSidebar ? 'col-lg-8' : 'col-12'}>
+				<article class="lesson-detail">
+					<div class="d-flex align-items-start justify-content-between gap-2 mb-3">
+						<h1 class="mb-0">{leccion.title}</h1>
+						{#if canEdit}
+							<a href="/User/catalogar/leccion/{data.id}/edit" class="btn btn-sm btn-outline-primary flex-shrink-0">
+								<i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
+							</a>
+						{/if}
 					</div>
-				</section>
-			{/if}
 
-			{#if leccion.personas?.length || leccion.documentos?.length || leccion.corporaciones?.length}
-				<section class="lesson-detail-related mt-4">
-					<h2 class="h5">Entidades relacionadas</h2>
-					{#if leccion.personas?.length}
-						<h3 class="h6">Personas</h3>
-						<ul>
-							{#each leccion.personas as persona}
-								<li>
-									<a href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}">
-										{persona.nombre_normalizado ?? persona.persona_idno}
-									</a>
-								</li>
+					<p class="lesson-detail-date text-muted">
+						<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Publicada el {formatDate(leccion.created_at)}
+					</p>
+
+					{#if leccion.levels?.length || leccion.keywords?.length}
+						<div class="lesson-detail-badges mb-4">
+							{#each leccion.levels as nivel}
+								<span class="badge bg-primary me-1">{nivel.nivel}</span>
 							{/each}
-						</ul>
-					{/if}
-					{#if leccion.documentos?.length}
-						<h3 class="h6">Documentos</h3>
-						<ul>
-							{#each leccion.documentos as documento}
-								<li>
-									<a href="/Detail/documento/{documento.documento_id}">
-										{documento.titulo ?? documento.documento_idno}
-									</a>
-								</li>
+							{#each leccion.keywords as palabra}
+								<span class="badge bg-secondary me-1">{palabra.palabra_clave}</span>
 							{/each}
-						</ul>
+						</div>
 					{/if}
-					{#if leccion.corporaciones?.length}
-						<h3 class="h6">Corporaciones</h3>
-						<ul>
-							{#each leccion.corporaciones as corporacion}
-								<li>
-									<a href="/Detail/corporacion/{corporacion.corporacion_id}">
-										{corporacion.nombre_institucion}
-									</a>
-								</li>
-							{/each}
-						</ul>
+
+					<div class="lesson-detail-body">
+						{@html leccion.body}
+					</div>
+
+					{#if leccion.imagenes?.length}
+						<section class="lesson-detail-gallery mt-4" aria-label="Galería de imágenes de la lección">
+							<h2 class="h5">Imágenes</h2>
+							<div class="row g-3">
+								{#each leccion.imagenes as imagen}
+									<div class="col-sm-4">
+										<img src={imagen.imagen} alt="Imagen de la lección {leccion.title}" class="img-fluid rounded" />
+									</div>
+								{/each}
+							</div>
+						</section>
 					{/if}
-				</section>
+				</article>
+			</div>
+
+			<!-- Right sidebar: related entities -->
+			{#if hasSidebar}
+				<aside class="col-lg-4">
+					<div class="lesson-sidebar">
+						{#if leccion.personas?.length}
+							<div class="sidebar-section mb-4">
+								<h6 class="sidebar-section-title">
+									<i class="bi bi-people me-1" aria-hidden="true"></i>Personas
+									<span class="sidebar-section-count sidebar-section-count--persona">{leccion.personas.length}</span>
+								</h6>
+								<div class="sidebar-chips">
+									{#each visiblePersonas as persona}
+										<a href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}"
+										   class="sidebar-chip sidebar-chip--persona"
+										   title={persona.nombre_normalizado ?? persona.persona_idno}>
+											{persona.nombre_normalizado ?? persona.persona_idno}
+										</a>
+									{/each}
+								</div>
+								{#if leccion.personas.length > COLLAPSE_LIMIT}
+									<button class="btn btn-sm btn-link sidebar-toggle"
+											on:click={() => showAllPersonas = !showAllPersonas}>
+										{showAllPersonas ? 'Ver menos' : `Ver todos (${leccion.personas.length})`}
+									</button>
+								{/if}
+							</div>
+						{/if}
+
+						{#if leccion.documentos?.length}
+							<div class="sidebar-section mb-4">
+								<h6 class="sidebar-section-title">
+									<i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>Documentos
+									<span class="sidebar-section-count sidebar-section-count--documento">{leccion.documentos.length}</span>
+								</h6>
+								<div class="sidebar-chips">
+									{#each visibleDocumentos as documento}
+										<a href="/Detail/documento/{documento.documento_id}"
+										   class="sidebar-chip sidebar-chip--documento"
+										   title={documento.titulo ?? documento.documento_idno}>
+											{documento.titulo ?? documento.documento_idno}
+										</a>
+									{/each}
+								</div>
+								{#if leccion.documentos.length > COLLAPSE_LIMIT}
+									<button class="btn btn-sm btn-link sidebar-toggle"
+											on:click={() => showAllDocumentos = !showAllDocumentos}>
+										{showAllDocumentos ? 'Ver menos' : `Ver todos (${leccion.documentos.length})`}
+									</button>
+								{/if}
+							</div>
+						{/if}
+
+						{#if leccion.corporaciones?.length}
+							<div class="sidebar-section mb-4">
+								<h6 class="sidebar-section-title">
+									<i class="bi bi-building me-1" aria-hidden="true"></i>Corporaciones
+									<span class="sidebar-section-count sidebar-section-count--corporacion">{leccion.corporaciones.length}</span>
+								</h6>
+								<div class="sidebar-chips">
+									{#each visibleCorporaciones as corporacion}
+										<a href="/Detail/corporacion/{corporacion.corporacion_id}"
+										   class="sidebar-chip sidebar-chip--corporacion"
+										   title={corporacion.nombre_institucion}>
+											{corporacion.nombre_institucion}
+										</a>
+									{/each}
+								</div>
+								{#if leccion.corporaciones.length > COLLAPSE_LIMIT}
+									<button class="btn btn-sm btn-link sidebar-toggle"
+											on:click={() => showAllCorporaciones = !showAllCorporaciones}>
+										{showAllCorporaciones ? 'Ver menos' : `Ver todos (${leccion.corporaciones.length})`}
+									</button>
+								{/if}
+							</div>
+						{/if}
+					</div>
+				</aside>
 			{/if}
-		</article>
+		</div>
 	{/if}
 </div>
