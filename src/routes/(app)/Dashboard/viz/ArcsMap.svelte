@@ -34,8 +34,16 @@
 	let routeLimit = 100;
 	let origin = '';
 	let destination = '';
-	let startDate = '';
-	let endDate = '';
+	let startYear = '';
+	let endYear = '';
+
+	function yearToDate(year, day) {
+		const y = String(year ?? '').trim();
+		return /^\d{4}$/.test(y) ? `${y}-${day}` : '';
+	}
+
+	$: startDate = yearToDate(startYear, '01-01');
+	$: endDate = yearToDate(endYear, '12-31');
 
 	let mode = 'timeline';
 	let granularity = 5;
@@ -714,10 +722,30 @@
 					</select>
 				</div>
 				<div class="col-md-3">
-					<label class="form-label" for="start-date">Fecha inicial</label>
+					<label class="form-label" for="start-year">Año inicial</label>
 					<div class="input-group">
-						<input id="start-date" class="form-control" type="date" bind:value={startDate} />
-						<input class="form-control" type="date" aria-label="Fecha final" bind:value={endDate} />
+						<input
+							id="start-year"
+							class="form-control"
+							type="number"
+							inputmode="numeric"
+							min={meta.min_year ?? undefined}
+							max={meta.max_year ?? undefined}
+							step="1"
+							placeholder={meta.min_year != null ? String(meta.min_year) : 'Año'}
+							bind:value={startYear}
+						/>
+						<input
+							class="form-control"
+							type="number"
+							inputmode="numeric"
+							min={meta.min_year ?? undefined}
+							max={meta.max_year ?? undefined}
+							step="1"
+							placeholder={meta.max_year != null ? String(meta.max_year) : 'Año'}
+							aria-label="Año final"
+							bind:value={endYear}
+						/>
 						<button class="btn btn-outline-secondary" type="button" on:click={loadData}
 							>Aplicar</button
 						>
