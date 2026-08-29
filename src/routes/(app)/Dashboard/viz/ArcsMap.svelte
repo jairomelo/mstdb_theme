@@ -31,7 +31,7 @@
 	let places = [];
 	let meta = { min_year: null, max_year: null, undated_count: 0 };
 
-	let routeLimit = 100;
+	let routeLimit = 250;
 	let origin = '';
 	let destination = '';
 	let startYear = '';
@@ -722,7 +722,7 @@
 					</select>
 				</div>
 				<div class="col-md-3">
-					<label class="form-label" for="start-year">Año inicial</label>
+					<label class="form-label" for="start-year">Rango de fechas</label>
 					<div class="input-group">
 						<input
 							id="start-year"
@@ -733,6 +733,7 @@
 							max={meta.max_year ?? undefined}
 							step="1"
 							placeholder={meta.min_year != null ? String(meta.min_year) : 'Año'}
+							aria-label="Año inicial"
 							bind:value={startYear}
 						/>
 						<input
