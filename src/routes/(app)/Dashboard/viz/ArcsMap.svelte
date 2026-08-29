@@ -37,7 +37,7 @@
 	let startDate = '';
 	let endDate = '';
 
-	let mode = 'static';
+	let mode = 'timeline';
 	let granularity = 1;
 	let speed = 1;
 	let playing = false;
@@ -736,8 +736,8 @@
 						<span class="small text-muted">Sin movimientos con fecha disponibles.</span>
 					{/if}
 				{:else}
-					<button class="btn btn-outline-secondary" type="button" on:click={exitTimeline}>
-						<i class="bi bi-map me-1" aria-hidden="true"></i>Volver a vista estática
+					<button class="btn btn-outline-primary" type="button" on:click={exitTimeline}>
+						<i class="bi bi-map me-1" aria-hidden="true"></i>Vista estática
 					</button>
 				{/if}
 			</div>
