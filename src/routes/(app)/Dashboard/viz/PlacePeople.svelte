@@ -30,7 +30,8 @@
             const years = items.map(d => d.year);
             const total = d3.sum(items, d => d.count);
             const periodo = `${Math.min(...years)} - ${Math.max(...years)}`;
-            return { lugar, total, periodo, tipo: items[0].tipo };
+            const lugar_id = items[0].lugar_id; // All items in group have same lugar_id
+            return { lugar, lugar_id, total, periodo, tipo: items[0].tipo };
         });
     };
 
@@ -119,10 +120,10 @@
         updateFilteredData();
     };
 
-    const navigateToSearch = (lugar, year) => {
+    const navigateToSearch = (lugar, lugar_id, year) => {
         const searchParams = new URLSearchParams({
             tab: 'personaesclavizada',
-            trayectoria_lugar: lugar,
+            procedencia: lugar_id,
             fecha_documento__gte: year,
             fecha_documento__lte: year + 1
         });
@@ -212,7 +213,7 @@
             .style('cursor', 'pointer')
             .attr('role', 'button')
             .attr('tabindex', 0)
-            .attr('aria-label', d => `${d.lugar}, ${d.year}: ${d.count} personas`)
+            .attr('aria-label', d => `${d.lugar}, ${d.year}: ${d.count} personas. Presione Enter para filtrar por este lugar y año.`)
             .on('mouseover', function(event, d) {
                 d3.select(this)
                     .attr('opacity', 1)
@@ -230,12 +231,12 @@
                 tooltip.style('display', 'none');
             })
             .on('click', (event, d) => {
-                navigateToSearch(d.lugar, d.year);
+                navigateToSearch(d.lugar, d.lugar_id, d.year);
             })
             .on('keydown', (event, d) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    navigateToSearch(d.lugar, d.year);
+                    navigateToSearch(d.lugar, d.lugar_id, d.year);
                 }
             });
     };
