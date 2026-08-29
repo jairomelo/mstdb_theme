@@ -117,12 +117,19 @@
 		const visited = new Set();
 		let clusterId = 0;
 
-		// Build adjacency list
+		// Build adjacency list (use node IDs from data)
 		const adj = new Map();
-		nodes.forEach(n => adj.set(n.data.id, []));
+		nodes.forEach(n => {
+			const nodeId = n.data?.id || n.id;
+			if (nodeId) adj.set(nodeId, []);
+		});
 		edges.forEach(e => {
-			adj.get(e.data.source)?.push(e.data.target);
-			adj.get(e.data.target)?.push(e.data.source);
+			const source = e.data?.source || e.source;
+			const target = e.data?.target || e.target;
+			if (source && target) {
+				adj.get(source)?.push(target);
+				adj.get(target)?.push(source);
+			}
 		});
 
 		// BFS to find connected components
@@ -178,6 +185,14 @@
 		if (cy) {
 			cy.destroy();
 			cy = null;
+		}
+
+		// Ensure container has computed dimensions
+		await tick();
+		const rect = container.getBoundingClientRect();
+		if (rect.width === 0 || rect.height === 0) {
+			console.warn('Container has zero dimensions, retrying...');
+			await new Promise(resolve => setTimeout(resolve, 100));
 		}
 
 		// Compute cluster sizes and annotate nodes
@@ -322,6 +337,20 @@
 			tooltip = { ...tooltip, visible: false };
 		});
 
+		// Ensure layout runs after graph is created
+		cy.layout({
+			name: layoutType,
+			animate: true,
+			fit: true,
+			padding: 25,
+			nodeSeparation: 100,
+			nodeRepulsion: 4500,
+			idealEdgeLength: 130,
+			edgeElasticity: 0.2,
+			gravity: 0.25,
+			numIter: 2000,
+		}).run();
+
 		applyFilter();
 	}
 
@@ -438,31 +467,35 @@
 		</div>
 
 		<div class="mb-3">
-			<label class="form-label">Rango de años (documento)</label>
-			<div class="d-flex gap-2 align-items-center">
-				<input
-					type="number"
-					class="form-control form-control-sm"
-					style="max-width: 100px;"
-					placeholder="Año inicio"
-					bind:value={yearStart}
-					min={yearMin}
-					max={yearMax}
-					on:change={fetchNetworkData}
-				>
-				<span>—</span>
-				<input
-					type="number"
-					class="form-control form-control-sm"
-					style="max-width: 100px;"
-					placeholder="Año fin"
-					bind:value={yearEnd}
-					min={yearMin}
-					max={yearMax}
-					on:change={fetchNetworkData}
-				>
-				<small class="text-muted ms-2">({yearMin}–{yearMax})</small>
-			</div>
+			<fieldset class="border-0 p-0 m-0">
+				<legend class="form-label mb-2">Rango de años (documento)</legend>
+				<div class="d-flex gap-2 align-items-center">
+					<input
+						type="number"
+						class="form-control form-control-sm"
+						style="max-width: 100px;"
+						placeholder="Año inicio"
+						bind:value={yearStart}
+						min={yearMin}
+						max={yearMax}
+						on:change={fetchNetworkData}
+						aria-label="Año de inicio"
+					>
+					<span>—</span>
+					<input
+						type="number"
+						class="form-control form-control-sm"
+						style="max-width: 100px;"
+						placeholder="Año fin"
+						bind:value={yearEnd}
+						min={yearMin}
+						max={yearMax}
+						on:change={fetchNetworkData}
+						aria-label="Año de fin"
+					>
+					<small class="text-muted ms-2">({yearMin}–{yearMax})</small>
+				</div>
+			</fieldset>
 		</div>
 
 		<div class="d-flex flex-wrap gap-3 align-items-center mb-2 small text-muted">
@@ -489,7 +522,7 @@
 				<i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>{error}
 			</div>
 		{:else}
-			<div bind:this={container} class="border rounded" style="height: 560px;"></div>
+			<div bind:this={container} class="border rounded" style="width: 100%; height: 560px; display: block;"></div>
 
 			{#if graphData && (graphData.nodes || []).length === 0}
 				<div class="alert alert-info mt-3">
