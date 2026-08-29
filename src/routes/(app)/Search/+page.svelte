@@ -5,6 +5,7 @@
 		setPageSize, setPage, performSearch, clearSearch,
 		loadCounts, PAGE_SIZES, ENTITY_TYPES, abortAll,
 		fetchCrosstab, setCrosstabConfig, fetchSearchNetwork, setNetworkScope,
+		setFilters,
 	} from '$lib/unified-store';
 	import { exportCsv } from '$lib/api';
 	import { entityTabConfig } from '$conf/columns';
@@ -19,7 +20,7 @@
 	import SearchNetwork from './SearchNetwork.svelte';
 
 	export let data;
-	let { searchQuery, archivoId, tab: initialTab, view: initialView } = data;
+	let { searchQuery, archivoId, tab: initialTab, view: initialView, filters: initialFilters = {} } = data;
 
 	let query = searchQuery || '';
 	let exactSearch = searchQuery?.startsWith('"') && searchQuery?.endsWith('"');
@@ -64,10 +65,14 @@
 
 		await loadCounts();
 
-		if (query) {
+		// Apply URL-based filters before fetching
+		const targetTab = initialTab || $unifiedStore.activeTab;
+		if (Object.keys(initialFilters).length > 0) {
+			setFilters(targetTab, initialFilters);
+		} else if (query) {
 			performSearch(query, exactSearch);
 		} else {
-			fetchResults($unifiedStore.activeTab);
+			fetchResults(targetTab);
 		}
 	});
 
