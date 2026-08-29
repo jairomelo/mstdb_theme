@@ -38,7 +38,7 @@
 	let endDate = '';
 
 	let mode = 'timeline';
-	let granularity = 1;
+	let granularity = 5;
 	let speed = 1;
 	let playing = false;
 	let playhead = 0;
