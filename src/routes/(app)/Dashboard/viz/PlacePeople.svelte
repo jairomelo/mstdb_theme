@@ -424,7 +424,7 @@
         display: flex;
         gap: 1.5rem;
         flex-wrap: wrap;
-        align-items: flex-end;
+        align-items: center;
         background: #f8f5f2;
         padding: 1rem;
         border-radius: 4px;
