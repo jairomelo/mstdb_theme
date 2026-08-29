@@ -363,7 +363,6 @@
 		try {
 			const params = {};
 
-			// Add year filter if specified
 			if (yearStart !== null || yearEnd !== null) {
 				const start = yearStart !== null ? yearStart : yearMin;
 				const end = yearEnd !== null ? yearEnd : yearMax;
@@ -372,11 +371,13 @@
 
 			const data = await searchNetwork(params);
 			graphData = data;
+			// Container is gated behind loading=false, so reveal it before rendering
+			loading = false;
+			await tick();
 			await renderGraph(data);
 		} catch (e) {
 			error = e.message || 'Failed to load network data';
 			console.error('Network fetch error:', e);
-		} finally {
 			loading = false;
 		}
 	}
