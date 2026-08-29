@@ -1,200 +1,245 @@
 <script>
-  import { onMount } from 'svelte';
-  import { browser } from '$app/environment';
-  import * as d3 from 'd3';
+	import { onMount, onDestroy } from 'svelte';
+	import { browser } from '$app/environment';
+	import * as d3 from 'd3';
+	import { aggregatedTrajectories } from '$lib/api';
 
-  let L;
-  let map;
-  let loading = true;
-  let error = null;
-  let datasetType = 'arcs';
-  let arcs = [];
+	let L;
+	let map;
+	let loading = true;
+	let error = null;
+	let routes = [];
+	let places = [];
+	let routeLimit = 100;
+	let origin = '';
+	let destination = '';
+	let startDate = '';
+	let endDate = '';
+	let mapContainer;
 
-  let svg, g;
+	let svg, g;
 
-  function getDataUrl() {
-    return datasetType === 'arcs'
-      ? '/temp/trayectorias_arcs.json'
-      : '/temp/trayectorias_aggregated.json';
-  }
+	async function loadData() {
+		try {
+			loading = true;
+			error = null;
+			const params = {};
+			if (startDate) params.fecha_inicial__gte = startDate;
+			if (endDate) params.fecha_inicial__lte = endDate;
+			const data = await aggregatedTrajectories(params);
+			routes = data.routes || [];
+			places = data.places || [];
+			update();
+			loading = false;
+		} catch (e) {
+			console.error(e);
+			error = e.message;
+			loading = false;
+		}
+	}
 
-  async function loadData() {
-    try {
-      loading = true;
-      const url = getDataUrl();
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Failed to load ${datasetType} data`);
-      arcs = await res.json();
-      update();
-      loading = false;
-    } catch (e) {
-      console.error(e);
-      error = e.message;
-      loading = false;
-    }
-  }
+	onMount(async () => {
+		if (!browser) return;
 
-  onMount(async () => {
-    if (!browser) return;
+		try {
+			const leaflet = await import('leaflet');
+			L = leaflet.default;
 
-    try {
-      const leaflet = await import('leaflet');
-      L = leaflet.default;
+			map = L.map(mapContainer).setView([17.5, -96], 6);
+			L.tileLayer(
+				'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
+				{
+					attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
+					maxZoom: 8
+				}
+			).addTo(map);
 
-      map = L.map('map').setView([17.5, -96], 6);
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
-						attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
-						maxZoom: 8
-      }).addTo(map);
+			svg = d3.select(map.getPanes().overlayPane).append('svg');
 
-      svg = d3.select(map.getPanes().overlayPane).append("svg");
+			const defs = svg.append('defs');
+			defs
+				.append('marker')
+				.attr('id', 'arrowhead')
+				.attr('viewBox', '0 -5 10 10')
+				.attr('refX', 10)
+				.attr('refY', 0)
+				.attr('markerWidth', 6)
+				.attr('markerHeight', 6)
+				.attr('orient', 'auto')
+				.attr('fill', '#004080')
+				.append('path')
+				.attr('d', 'M0,-5L10,0L0,5');
 
-      const defs = svg.append("defs");
-      defs.append("marker")
-        .attr("id", "arrowhead")
-        .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 10)
-        .attr("refY", 0)
-        .attr("markerWidth", 6)
-        .attr("markerHeight", 6)
-        .attr("orient", "auto")
-        .attr("fill", "#004080")
-        .append("path")
-        .attr("d", "M0,-5L10,0L0,5");
+			g = svg.append('g').attr('class', 'leaflet-zoom-hide');
 
-      g = svg.append("g").attr("class", "leaflet-zoom-hide");
+			await loadData();
+			map.on('zoomend moveend', update);
+		} catch (e) {
+			console.error(e);
+			error = e.message;
+			loading = false;
+		}
+	});
 
-      await loadData();
-      map.on("zoomend moveend", update);
-    } catch (e) {
-      console.error(e);
-      error = e.message;
-      loading = false;
-    }
-  });
+	onDestroy(() => {
+		if (map) {
+			map.remove();
+			map = null;
+		}
+	});
 
-  function projectPoint(lat, lon) {
-    const point = map.latLngToLayerPoint([lat, lon]);
-    return [point.x, point.y];
-  }
+	function projectPoint(lat, lon) {
+		const point = map.latLngToLayerPoint([lat, lon]);
+		return [point.x, point.y];
+	}
 
-  function update() {
-    const bounds = map.getBounds();
-    const topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
-    const bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
+	function update() {
+		if (!map || !svg || !g) return;
+		const bounds = map.getBounds();
+		const topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
+		const bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
 
-    svg
-      .attr("width", bottomRight.x - topLeft.x)
-      .attr("height", bottomRight.y - topLeft.y)
-      .style("left", `${topLeft.x}px`)
-      .style("top", `${topLeft.y}px`);
+		svg
+			.attr('width', bottomRight.x - topLeft.x)
+			.attr('height', bottomRight.y - topLeft.y)
+			.style('left', `${topLeft.x}px`)
+			.style('top', `${topLeft.y}px`);
 
-    g.attr("transform", `translate(${-topLeft.x},${-topLeft.y})`);
+		g.attr('transform', `translate(${-topLeft.x},${-topLeft.y})`);
 
-    g.selectAll("path").remove();
+		const visibleRoutes = routes
+			.filter(
+				(route) =>
+					(!origin || route.from_lugar_id === Number(origin)) &&
+					(!destination || route.to_lugar_id === Number(destination))
+			)
+			.sort((a, b) => b.count - a.count)
+			.slice(0, routeLimit);
+		const maxCount = Math.max(...visibleRoutes.map((route) => route.count), 1);
 
-    g.selectAll("path")
-      .data(arcs)
-      .enter()
-      .append("path")
-      .attr("d", d => {
-        const from = d.from;
-        const to = d.to;
-        const [x1, y1] = projectPoint(from.lat, from.lon);
-        const [x2, y2] = projectPoint(to.lat, to.lon);
-        const dx = x2 - x1;
-        const dy = y2 - y1;
+		g.selectAll('path').remove();
 
-        if (datasetType === 'aggregated') {
-          // Calculate the width of the path based on the count
-          const width = Math.log(d.count) * 3; // This value can be adjusted to control the width of the path
-          // Control points for the curve
-          const midX = (x1 + x2) / 2;
-          const midY = (y1 + y2) / 2;
-          
-          // Calculate perpendicular offset for width
-          const angle = Math.atan2(dy, dx);
-          const perpX = Math.sin(angle) * width;
-          const perpY = -Math.cos(angle) * width;
-          
-          // Create a path with width
-          return `M ${x1},${y1 - width/2}
-                  C ${midX},${y1 - width/2} ${midX},${y2 - width/2} ${x2},${y2 - width/2}
-                  L ${x2},${y2 + width/2}
-                  C ${midX},${y2 + width/2} ${midX},${y1 + width/2} ${x1},${y1 + width/2}
-                  Z`;
-        } else {
-          // Original arc path for individual trajectories
-          const dr = Math.sqrt(dx * dx + dy * dy) * 0.6;
-          return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`;
-        }
-      })
-      .attr("stroke", datasetType === 'aggregated' ? "#ff6600" : "#004080")
-      .attr("stroke-width", datasetType === 'aggregated' ? 0 : 1) // Remove stroke for aggregated
-      .attr("fill", datasetType === 'aggregated' ? "#ff6600" : "none")
-      .attr("opacity", datasetType === 'aggregated' ? 0.6 : 0.4)
-      .attr("marker-end", datasetType === 'arcs' ? "url(#arrowhead)" : null);
-  }
+		g.selectAll('path')
+			.data(visibleRoutes)
+			.enter()
+			.append('path')
+			.attr('d', (d) => {
+				const [x1, y1] = projectPoint(d.from_lat, d.from_lon);
+				const [x2, y2] = projectPoint(d.to_lat, d.to_lon);
+				const width = Math.max(2, Math.log(d.count + 1) * 3);
+				const midX = (x1 + x2) / 2;
+				return `M ${x1},${y1 - width / 2}
+                C ${midX},${y1 - width / 2} ${midX},${y2 - width / 2} ${x2},${y2 - width / 2}
+                L ${x2},${y2 + width / 2}
+                C ${midX},${y2 + width / 2} ${midX},${y1 + width / 2} ${x1},${y1 + width / 2}
+                Z`;
+			})
+			.attr('stroke', 'none')
+			.attr('fill', '#ff6600')
+			.attr('opacity', (d) => 0.3 + 0.5 * (d.count / maxCount))
+			.append('title')
+			.text((d) => `${d.from_nombre} → ${d.to_nombre}: ${d.count} persona(s)`);
+	}
+
+	$: if (map) update();
 </script>
 
+{#if browser}
+	<div class="map-container card">
+		<div class="card-body">
+			<div class="row g-3 mb-3">
+				<div class="col-md-3">
+					<label class="form-label" for="route-limit">Rutas mostradas: {routeLimit}</label>
+					<input
+						id="route-limit"
+						class="form-range"
+						type="range"
+						min="10"
+						max="500"
+						step="10"
+						bind:value={routeLimit}
+					/>
+				</div>
+				<div class="col-md-3">
+					<label class="form-label" for="origin">Origen</label>
+					<select id="origin" class="form-select" bind:value={origin}>
+						<option value="">Todos los lugares</option>
+						{#each places as place}
+							<option value={place.lugar_id}>{place.nombre}</option>
+						{/each}
+					</select>
+				</div>
+				<div class="col-md-3">
+					<label class="form-label" for="destination">Destino</label>
+					<select id="destination" class="form-select" bind:value={destination}>
+						<option value="">Todos los lugares</option>
+						{#each places as place}
+							<option value={place.lugar_id}>{place.nombre}</option>
+						{/each}
+					</select>
+				</div>
+				<div class="col-md-3">
+					<label class="form-label" for="start-date">Fecha inicial</label>
+					<div class="input-group">
+						<input id="start-date" class="form-control" type="date" bind:value={startDate} />
+						<input class="form-control" type="date" aria-label="Fecha final" bind:value={endDate} />
+						<button class="btn btn-outline-secondary" type="button" on:click={loadData}
+							>Aplicar</button
+						>
+					</div>
+				</div>
+			</div>
+			<p class="small text-muted mb-3">
+				{Math.min(
+					routeLimit,
+					routes.filter(
+						(route) =>
+							(!origin || route.from_lugar_id === Number(origin)) &&
+							(!destination || route.to_lugar_id === Number(destination))
+					).length
+				)} de {routes.length} rutas agregadas
+			</p>
+			<div bind:this={mapContainer} id="map"></div>
+			{#if loading}
+				<div class="text-center mt-3">
+					<div class="spinner-border text-primary" role="status">
+						<span class="visually-hidden">Cargando...</span>
+					</div>
+					<p class="text-muted mt-2">Cargando trayectorias...</p>
+				</div>
+			{:else if error}
+				<div class="alert alert-danger mt-3" role="alert">
+					<i class="bi bi-exclamation-triangle-fill me-2"></i>
+					Error cargando trayectorias: {error}
+				</div>
+			{/if}
+		</div>
+	</div>
+{/if}
 
 <style>
-  .map-container {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
+	.map-container {
+		background: white;
+		border-radius: 8px;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 
-  .form-select {
-    max-width: 300px;
-  }
+	.form-select {
+		max-width: 300px;
+	}
 
-  #map {
-    width: 100%;
-    height: 600px;
-    border-radius: 0.5rem;
-    border: 1px solid var(--bs-border-color);
-  }
+	#map {
+		width: 100%;
+		height: 600px;
+		border-radius: 0.5rem;
+		border: 1px solid var(--bs-border-color);
+	}
 
-  :global(svg path) {
-    transition: opacity 0.2s ease;
-  }
+	:global(svg path) {
+		transition: opacity 0.2s ease;
+	}
 
-  :global(svg path:hover) {
-    opacity: 0.8 !important;
-  }
+	:global(svg path:hover) {
+		opacity: 0.8 !important;
+	}
 </style>
-
-{#if browser}
-  <div class="map-container card">
-    <div class="card-body">
-      <div class="map-controls mb-3">
-        <label class="form-label d-flex align-items-center">
-          <span class="me-2">Grupo de datos:</span>
-          <select 
-            class="form-select" 
-            bind:value={datasetType} 
-            on:change={loadData}
-          >
-            <option value="arcs">Trayectorias individuales</option>
-            <option value="aggregated">Flujos agregados</option>
-          </select>
-        </label>
-      </div>
-      <div id="map"></div>
-      {#if loading}
-        <div class="text-center mt-3">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="text-muted mt-2">Cargando trayectorias...</p>
-        </div>
-      {:else if error}
-        <div class="alert alert-danger mt-3" role="alert">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          Error cargando trayectorias: {error}
-        </div>
-      {/if}
-    </div>
-  </div>
-{/if}
