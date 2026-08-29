@@ -31,6 +31,35 @@ function isPeopleType(entityType) {
     return entityType === 'personaesclavizada' || entityType === 'personanoesclavizada';
 }
 
+/**
+ * Update browser URL with current filter state
+ * Uses replaceState to avoid creating new history entries
+ */
+function updateUrlWithFilters() {
+    if (typeof window === 'undefined') return; // SSR guard
+    
+    const state = get(unifiedStore);
+    const currentTab = state.activeTab;
+    const filters = state.tabs[currentTab]?.filters || {};
+    
+    const params = new URLSearchParams();
+    
+    // Add tab if it's not the default
+    if (currentTab) {
+        params.set('tab', currentTab);
+    }
+    
+    // Add all active filters
+    for (const [key, value] of Object.entries(filters)) {
+        if (value !== null && value !== undefined && value !== '') {
+            params.set(key, value);
+        }
+    }
+    
+    const newUrl = `/Search${params.toString() ? `?${params.toString()}` : ''}`;
+    window.history.replaceState({}, '', newUrl);
+}
+
 // ── Per-tab state factory ────────────────────────────────────────────
 function createTabState(entityType) {
     const defaultCT = DEFAULT_CROSSTAB_CONFIG[entityType];
@@ -263,6 +292,7 @@ export async function loadCounts() {
 
 export function setActiveTab(entityType) {
     unifiedStore.update(s => ({ ...s, activeTab: entityType }));
+    updateUrlWithFilters();
     const state = get(unifiedStore);
     // Auto-fetch if tab has no results yet
     if (state.tabs[entityType].results.length === 0 && !state.tabs[entityType].isLoading) {
@@ -336,6 +366,7 @@ export function setFilter(entityType, key, value) {
             },
         },
     }));
+    updateUrlWithFilters();
     fetchResults(entityType);
 }
 
@@ -353,6 +384,7 @@ export function setFilters(entityType, entries) {
             },
         };
     });
+    updateUrlWithFilters();
     fetchResults(entityType);
 }
 
@@ -364,6 +396,7 @@ export function clearFilters(entityType) {
             [entityType]: { ...s.tabs[entityType], filters: {}, currentPage: 1 },
         },
     }));
+    updateUrlWithFilters();
     fetchResults(entityType);
 }
 
@@ -412,6 +445,15 @@ export function performSearch(query, exactSearch = false) {
         }
         return { ...s, query, exactSearch, tabs };
     });
+    
+    // Update URL with search query
+    if (typeof window !== 'undefined') {
+        const params = new URLSearchParams();
+        params.set('q', query);
+        const newUrl = `/Search?${params.toString()}`;
+        window.history.replaceState({}, '', newUrl);
+    }
+    
     const state = get(unifiedStore);
     fetchResults(state.activeTab);
 }
@@ -427,6 +469,12 @@ export function clearSearch() {
         }
         return { ...s, query: '', exactSearch: false, tabs };
     });
+    
+    // Update URL to clear search
+    if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', '/Search');
+    }
+    
     const state = get(unifiedStore);
     fetchResults(state.activeTab);
 }
