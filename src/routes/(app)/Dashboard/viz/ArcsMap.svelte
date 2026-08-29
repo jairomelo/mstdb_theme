@@ -202,6 +202,9 @@
 			error = e.message || 'Error desconocido';
 		} finally {
 			loading = false;
+			if (mode === 'timeline' && meta.min_year != null && !error) {
+				playing = true;
+			}
 		}
 	}
 
@@ -538,7 +541,7 @@
 		if (meta.min_year == null) return;
 		mode = 'timeline';
 		playhead = 0;
-		playing = false;
+		playing = !prefersReducedMotion;
 	}
 
 	function exitTimeline() {
