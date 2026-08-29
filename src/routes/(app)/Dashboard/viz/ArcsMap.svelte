@@ -4,6 +4,7 @@
 	import * as d3 from 'd3';
 	import { aggregatedTrajectories } from '$lib/api';
 	import RouteDetailPanel from '../../Search/RouteDetailPanel.svelte';
+	import config from '../../../../config';
 
 	const ARC_COLOR = '#ff6600';
 	const MARKER_FILL = '#2980b9';
@@ -212,13 +213,10 @@
 			L = leaflet.default;
 
 			map = L.map(mapContainer).setView([17.5, -96], 6);
-			L.tileLayer(
-				'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
-				{
-					attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
-					maxZoom: 8
-				}
-			).addTo(map);
+			L.tileLayer(`${config.apiBaseUrl}tiles/light_nolabels/{z}/{x}/{y}.png`, {
+				attribution: '©OpenStreetMap, ©CartoDB',
+				maxZoom: 8
+			}).addTo(map);
 
 			svg = d3.select(map.getPanes().overlayPane).append('svg');
 			gRoot = svg.append('g').attr('class', 'leaflet-zoom-hide');
