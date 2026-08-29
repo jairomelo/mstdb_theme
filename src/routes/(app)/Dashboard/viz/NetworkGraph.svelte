@@ -1,24 +1,39 @@
 <script>
-	import { onMount, tick } from 'svelte';
+	import { onMount, tick, onDestroy } from 'svelte';
 	import cytoscape from 'cytoscape';
 	import fcose from 'cytoscape-fcose';
 	cytoscape.use(fcose);
 	import { browser } from '$app/environment';
-	import { peresclavizadas, pernoesclavizadas } from '$lib/api.js';
+	import { peresclavizadas, pernoesclavizadas, searchNetwork } from '$lib/api.js';
 
 	let cy;
 	let loading = true;
 	let error = null;
+	let graphData = null;
+	let container;
 
 	let layoutType = 'fcose';
-	let personTypeFilter = 'all';
-
+	let relationFilter = {
+		fam: true,
+		aso: true,
+		tmp: true,
+		sub: true,
+	};
+	let showOrphans = false;
 	let centralityThreshold = 0;
 	let minCentrality = 0;
-	let maxCentrality = 0;
+	let maxCentrality = 1;
 
-	let relationOptions = [];
-	let selectedRelation = 'all';
+	let clusterSizeFilter = 0;
+	let clusterSizes = [];
+	let minClusterSize = 0;
+	let maxClusterSize = 0;
+
+	let yearStart = null;
+	let yearEnd = null;
+	let yearMin = 1500;
+	let yearMax = 1900;
+
 	let tooltip = {
 		visible: false,
 		x: 0,
@@ -31,295 +46,331 @@
 	};
 	let tooltipTimeout;
 
+	function edgeIsVisible(edge) {
+		const rel = edge.data('relation');
+		return relationFilter[rel] !== false;
+	}
+
+	function applyFilter() {
+		if (!cy) return;
+
+		cy.edges().forEach((edge) => {
+			edge.style('display', edgeIsVisible(edge) ? 'element' : 'none');
+		});
+
+		cy.nodes().forEach((node) => {
+			const centrality = Number(node.data('centrality') || 0);
+			const centralityMatch = centrality >= centralityThreshold;
+			const clusterMatch = (node.data('cluster_size') || 0) >= clusterSizeFilter;
+			const connectedToVisibleEdge = node.connectedEdges().some((e) => edgeIsVisible(e));
+			const shouldShow = centralityMatch && clusterMatch && (showOrphans || connectedToVisibleEdge);
+			node.style('display', shouldShow ? 'element' : 'none');
+		});
+	}
+
 	function applyLayout() {
 		if (!cy) return;
 		cy.layout({
 			name: layoutType,
 			animate: true,
 			fit: true,
-			padding: 30
+			padding: 25,
+			nodeSeparation: 100,
+			nodeRepulsion: 4500,
+			idealEdgeLength: 130,
+			edgeElasticity: 0.2,
+			gravity: 0.25,
+			numIter: 2000,
 		}).run();
 	}
 
-	function resetZoom() {
-		if (cy) {
-			cy.fit();
-		}
+	function resetView() {
+		if (!cy) return;
+		cy.fit();
+		cy.zoom(1);
 	}
 
-	function handleTooltipMouseEnter() {
-		// Cancel any pending hide timeout when hovering over tooltip
+	function clearTooltipTimeout() {
 		if (tooltipTimeout) {
 			clearTimeout(tooltipTimeout);
 			tooltipTimeout = null;
 		}
 	}
 
-	function handleTooltipMouseLeave() {
-		// Hide tooltip when leaving the tooltip area
+	function hideTooltipLater(delay = 180) {
+		clearTooltipTimeout();
 		tooltipTimeout = setTimeout(() => {
 			tooltip = { ...tooltip, visible: false };
-		}, 100); // Shorter delay when leaving tooltip
+		}, delay);
 	}
 
-	function applyFilter() {
-		if (!cy) return;
-
-        cy.nodes().forEach(node => node.style('display', 'element'));
-
-		cy.edges().forEach((edge) => {
-			const match = selectedRelation === 'all' || edge.data('relation') === selectedRelation;
-			edge.style('display', match ? 'element' : 'none');
-		});
-
-		cy.nodes().forEach((node) => {
-			const typeMatch =
-				personTypeFilter === 'all' || node.data('type').toString() === personTypeFilter;
-			const centralityMatch = node.data('centrality') >= centralityThreshold;
-			const connectedToVisibleEdge = node.connectedEdges().some((e) => e.visible());
-
-			const match = typeMatch && centralityMatch && connectedToVisibleEdge;
-			node.style('display', match ? 'element' : 'none');
-		});
+	function detailHref() {
+		if (!tooltip.id) return '#';
+		return tooltip.type === 'esclavizada'
+			? `/Detail/personaesclavizada/${tooltip.id}`
+			: `/Detail/personanoesclavizada/${tooltip.id}`;
 	}
 
-	onMount(async () => {
-		if (!browser) return;
-		try {
-			const res = await fetch('/temp/persona_network.json');
-			if (!res.ok) throw new Error('Failed to load network data');
-			const network = await res.json();
+	// Compute cluster sizes using connected components algorithm
+	function computeClusterSizes(nodes, edges) {
+		const clusterMap = new Map();
+		const visited = new Set();
+		let clusterId = 0;
 
-			await tick(); // Ensure DOM is ready before drawing
-			drawNetwork(network);
-			loading = false;
-		} catch (e) {
-			error = e.message;
-			loading = false;
+		// Build adjacency list
+		const adj = new Map();
+		nodes.forEach(n => adj.set(n.data.id, []));
+		edges.forEach(e => {
+			adj.get(e.data.source)?.push(e.data.target);
+			adj.get(e.data.target)?.push(e.data.source);
+		});
+
+		// BFS to find connected components
+		function bfs(startNodeId) {
+			const queue = [startNodeId];
+			const component = [];
+			visited.add(startNodeId);
+
+			while (queue.length > 0) {
+				const nodeId = queue.shift();
+				component.push(nodeId);
+
+				(adj.get(nodeId) || []).forEach(neighborId => {
+					if (!visited.has(neighborId)) {
+						visited.add(neighborId);
+						queue.push(neighborId);
+					}
+				});
+			}
+
+			return component;
 		}
-	});
 
-	function drawNetwork(data) {
-		const container = document.getElementById('network');
-		if (!container) {
-			console.error('❌ #network container not found!');
-			return;
+		// Find all clusters
+		nodes.forEach(n => {
+			const nodeId = n.data.id;
+			if (!visited.has(nodeId)) {
+				const component = bfs(nodeId);
+				component.forEach(id => clusterMap.set(id, clusterId));
+				clusterId++;
+			}
+		});
+
+		// Count sizes per cluster
+		const sizeCount = new Map();
+		clusterMap.forEach((cid, nodeId) => {
+			sizeCount.set(cid, (sizeCount.get(cid) || 0) + 1);
+		});
+
+		// Map node_id → cluster_size
+		const nodeSizes = new Map();
+		clusterMap.forEach((cid, nodeId) => {
+			nodeSizes.set(nodeId, sizeCount.get(cid));
+		});
+
+		return nodeSizes;
+	}
+
+	async function renderGraph(data) {
+		await tick();
+		if (!container || !data) return;
+
+		if (cy) {
+			cy.destroy();
+			cy = null;
 		}
 
-		console.log('✅ Drawing network in:', container);
+		// Compute cluster sizes and annotate nodes
+		const clusterSizes = computeClusterSizes(data.nodes, data.edges);
+		const annotatedNodes = data.nodes.map(n => ({
+			...n,
+			data: {
+				...n.data,
+				cluster_size: clusterSizes.get(n.data.id) || 1
+			}
+		}));
+
+		const elements = [...annotatedNodes, ...data.edges];
 
 		cy = cytoscape({
 			container,
-			elements: [...data.nodes, ...data.edges],
+			elements,
 			style: [
 				{
 					selector: 'node',
 					style: {
-						label: '', // Hide labels by default
-						'background-color': '#0074D9',
-						color: '#000',
-						'text-valign': 'center',
-						'text-halign': 'center',
-						width: 30, // Default size, will be updated dynamically
-						height: 30, // Default size, will be updated dynamically
-						'font-size': '12px',
-						'text-outline-width': 2,
-						'text-outline-color': '#fff'
-					}
-				},
-				{
-					selector: 'node:selected',
-					style: {
-						label: 'data(label)',
-						'border-width': 4,
-						'border-color': '#FFD700'
-					}
-				},
-				{
-					selector: 'node[type = 29]',
-					style: {
-						'background-color': '#FF6B6B',
+						label: '',
+						width: 'mapData(centrality, 0, 1, 16, 72)',
+						height: 'mapData(centrality, 0, 1, 16, 72)',
+						'background-color': '#9DB5B2',
 						'border-width': 2,
-						'border-color': '#FF4757'
-					}
+						'border-color': '#7A9E9A',
+					},
 				},
 				{
-					selector: 'node[type = 30]',
+					selector: 'node[type = "esclavizada"]',
 					style: {
-						'background-color': '#4ECDC4',
-						'border-width': 2,
-						'border-color': '#26D0CE'
-					}
+						'background-color': '#C9735B',
+						'border-color': '#A85A44',
+					},
+				},
+				{
+					selector: 'node[in_results = false]',
+					style: {
+						'background-opacity': 0.6,
+						'border-style': 'dashed',
+					},
 				},
 				{
 					selector: 'edge',
 					style: {
-						width: 2, 
-						'line-color': '#999', 
+						width: 2,
+						'line-color': '#9CA3AF',
 						'curve-style': 'bezier',
 						'target-arrow-shape': 'none',
-						'font-size': '8px',
-						color: '#666'
-					}
+						'opacity': 0.8,
+					},
 				},
 				{
-					selector: 'edge[relation = "fam"]', // Family relations
+					selector: 'edge[relation = "fam"]',
 					style: {
-						'line-color': '#E74C3C', // Red
-						width: 3 
-					}
+						'line-color': '#D4A27F',
+						width: 2.2,
+					},
 				},
 				{
-					selector: 'edge[relation = "tmp"]', // Temporal relations
+					selector: 'edge[relation = "tmp"]',
 					style: {
-						'line-color': '#F39C12', // Orange
-						width: 2
-					}
-				}
+						'line-color': '#B8C99A',
+					},
+				},
+				{
+					selector: 'edge[relation = "sub"]',
+					style: {
+						'line-color': '#9B8EC4',
+						'target-arrow-shape': 'triangle',
+						'target-arrow-color': '#9B8EC4',
+					},
+				},
 			],
 			layout: {
 				name: layoutType,
 				animate: true,
-				randomize: true,
 				fit: true,
-				padding: 30,
+				padding: 25,
 				nodeSeparation: 100,
 				nodeRepulsion: 4500,
-				idealEdgeLength: 150,
-				edgeElasticity: 0.1,
+				idealEdgeLength: 130,
+				edgeElasticity: 0.2,
 				gravity: 0.25,
-				initialEnergyOnIncremental: 0.5
-			}
+				numIter: 2000,
+			},
 		});
 
-		relationOptions = [...new Set(cy.edges().map((e) => e.data('relation')))].sort();
-		relationOptions.unshift('all');
+		const centralities = cy.nodes().map((n) => Number(n.data('centrality') || 0));
+		minCentrality = centralities.length ? Math.min(...centralities) : 0;
+		maxCentrality = centralities.length ? Math.max(...centralities) : 1;
+		if (centralityThreshold < minCentrality || centralityThreshold > maxCentrality) {
+			centralityThreshold = minCentrality;
+		}
 
-		const centralities = cy.nodes().map((n) => n.data('centrality'));
-		minCentrality = Math.min(...centralities);
-		maxCentrality = Math.max(...centralities);
-		centralityThreshold = minCentrality;
+		const clusterSizesArray = cy.nodes().map((n) => Number(n.data('cluster_size') || 1));
+		minClusterSize = clusterSizesArray.length ? Math.min(...clusterSizesArray) : 0;
+		maxClusterSize = clusterSizesArray.length ? Math.max(...clusterSizesArray) : 1;
+		if (clusterSizeFilter < minClusterSize || clusterSizeFilter > maxClusterSize) {
+			clusterSizeFilter = minClusterSize;
+		}
 
-		// Update node sizes based on actual centrality range
-		cy.style()
-			.selector('node')
-			.style({
-				width: `mapData(centrality, ${minCentrality}, ${maxCentrality}, 15, 80)`,
-				height: `mapData(centrality, ${minCentrality}, ${maxCentrality}, 15, 80)`
-			})
-			.update();
-
-		// Add hover events for tooltip
-		cy.on('mouseover', 'node', async function(event) {
+		cy.on('mouseover', 'node', async (event) => {
 			const node = event.target;
-			const renderedPosition = node.renderedPosition();
-			const containerRect = container.getBoundingClientRect();
-			
-			// Clear any existing timeout
-			if (tooltipTimeout) {
-				clearTimeout(tooltipTimeout);
-				tooltipTimeout = null;
-			}
-			
-			const nodeId = node.data('id').replace(/^\D+/g, '');
 			const nodeType = node.data('type');
-			
-			// Show tooltip immediately with basic info
+			const nodeId = String(node.data('persona_id') || node.data('id')).replace(/^\D+/g, '');
+			const pos = node.renderedPosition();
+			const rect = container.getBoundingClientRect();
+
+			clearTooltipTimeout();
 			tooltip = {
 				visible: true,
-				x: renderedPosition.x + containerRect.left,
-				y: renderedPosition.y + containerRect.top - 60,
-				name: node.data('label'),
+				x: pos.x + rect.left,
+				y: pos.y + rect.top - 65,
+				name: node.data('label') || '',
 				id: nodeId,
 				type: nodeType,
 				loading: true,
-				details: null
+				details: null,
 			};
 
-			// Fetch detailed person data
 			try {
-				let personDetails;
-				if (nodeType === 29) {
-					// Enslaved person
-					personDetails = await peresclavizadas(nodeId);
-				} else if (nodeType === 30) {
-					// Non-enslaved person
-					personDetails = await pernoesclavizadas(nodeId);
+				let details = null;
+				if (nodeType === 'esclavizada') {
+					details = await peresclavizadas(nodeId);
+				} else {
+					details = await pernoesclavizadas(nodeId);
 				}
-
-				// Update tooltip with fetched details (only if still visible and for same node)
 				if (tooltip.visible && tooltip.id === nodeId) {
-					tooltip = {
-						...tooltip,
-						loading: false,
-						details: personDetails
-					};
+					tooltip = { ...tooltip, loading: false, details };
 				}
-			} catch (error) {
-				console.warn('Failed to fetch person details:', error);
-				// Update tooltip to show loading finished even if failed
+			} catch (e) {
 				if (tooltip.visible && tooltip.id === nodeId) {
-					tooltip = {
-						...tooltip,
-						loading: false,
-						details: null
-					};
+					tooltip = { ...tooltip, loading: false };
 				}
 			}
 		});
 
-		cy.on('mouseout', 'node', function(event) {
-			// Add delay before hiding tooltip
-			tooltipTimeout = setTimeout(() => {
-				tooltip = { ...tooltip, visible: false };
-			}, 200); // 200ms delay
-		});
-
-		cy.on('pan zoom', function() {
+		cy.on('mouseout', 'node', () => hideTooltipLater());
+		cy.on('pan zoom', () => {
 			tooltip = { ...tooltip, visible: false };
 		});
 
-		cy.on('tap', 'node', function(event) {
-			const node = event.target;
-			// Hide tooltip on click
-			tooltip = { ...tooltip, visible: false };
-			// Unselect all other nodes
-			cy.nodes().unselect();
-			// Select this node
-			node.select();
-		});
-
-		// Add click on background to deselect
-		cy.on('tap', function(event) {
-			if (event.target === cy) {
-				tooltip = { ...tooltip, visible: false };
-				cy.nodes().unselect();
-			}
-		});
+		applyFilter();
 	}
+
+	async function fetchNetworkData() {
+		if (!browser) return;
+
+		loading = true;
+		error = null;
+
+		try {
+			const params = {};
+
+			// Add year filter if specified
+			if (yearStart !== null || yearEnd !== null) {
+				const start = yearStart !== null ? yearStart : yearMin;
+				const end = yearEnd !== null ? yearEnd : yearMax;
+				params.year = `${start},${end}`;
+			}
+
+			const data = await searchNetwork(params);
+			graphData = data;
+			await renderGraph(data);
+		} catch (e) {
+			error = e.message || 'Failed to load network data';
+			console.error('Network fetch error:', e);
+		} finally {
+			loading = false;
+		}
+	}
+
+	onMount(async () => {
+		await fetchNetworkData();
+	});
+
+	onDestroy(() => {
+		clearTooltipTimeout();
+		if (cy) {
+			cy.destroy();
+			cy = null;
+		}
+	});
 </script>
 
 <div class="card">
 	<div class="card-body">
 		<h5 class="card-title">Red de personas relacionadas</h5>
 
-		<div class="d-flex align-items-center mb-3 gap-3">
-			<label for="person-type-filter" class="form-label mb-0">Filtrar por tipo:</label>
-			<select id="person-type-filter" class="form-select w-auto" bind:value={personTypeFilter} on:change={applyFilter}>
-				<option value="all">Todos</option>
-				<option value="29">Esclavizada</option>
-				<option value="30">No esclavizada</option>
-			</select>
-
-			<label for="relation-filter" class="form-label mb-0">Filtrar relación:</label>
-			<select id="relation-filter" class="form-select w-auto" bind:value={selectedRelation} on:change={applyFilter}>
-				{#each relationOptions as rel}
-					<option value={rel}>{rel === 'all' ? 'Todas' : rel}</option>
-				{/each}
-			</select>
-
-			<label for="layout-type" class="form-label mb-0">Diseño:</label>
-			<select id="layout-type" class="form-select w-auto" bind:value={layoutType} on:change={applyLayout}>
+		<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+			<select class="form-select form-select-sm w-auto" bind:value={layoutType} on:change={applyLayout} aria-label="Tipo de diseño">
 				<option value="fcose">FCoSE</option>
 				<option value="cose">CoSE</option>
 				<option value="circle">Círculo</option>
@@ -327,353 +378,159 @@
 				<option value="grid">Cuadrícula</option>
 			</select>
 
-			<button class="btn btn-outline-primary btn-sm" on:click={resetZoom}>
-				<i class="bi bi-arrows-fullscreen me-1"></i> Reenfocar
+			<button class="btn btn-sm btn-outline-secondary" on:click={resetView}>
+				<i class="bi bi-arrows-fullscreen me-1" aria-hidden="true"></i>Reenfocar
 			</button>
 		</div>
 
-		<div class="mb-3">
-			<label for="centrality-slider" class="form-label">Filtrar por centralidad:</label>
-			<input
-				id="centrality-slider"
-				type="range"
-				min={minCentrality}
-				max={maxCentrality}
-				step="0.001"
-				bind:value={centralityThreshold}
-				on:input={applyFilter}
-				class="form-range"
-			/>
-			<small>Mostrando nodos con centralidad ≥ {centralityThreshold}</small>
+		<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+			<span class="form-label mb-0" aria-hidden="true">Relaciones:</span>
+			<label class="form-check form-check-inline mb-0">
+				<input class="form-check-input" type="checkbox" bind:checked={relationFilter.fam} on:change={applyFilter}>
+				<span class="form-check-label">Parentesco</span>
+			</label>
+			<label class="form-check form-check-inline mb-0">
+				<input class="form-check-input" type="checkbox" bind:checked={relationFilter.aso} on:change={applyFilter}>
+				<span class="form-check-label">Asociación</span>
+			</label>
+			<label class="form-check form-check-inline mb-0">
+				<input class="form-check-input" type="checkbox" bind:checked={relationFilter.tmp} on:change={applyFilter}>
+				<span class="form-check-label">Temporal</span>
+			</label>
+			<label class="form-check form-check-inline mb-0">
+				<input class="form-check-input" type="checkbox" bind:checked={relationFilter.sub} on:change={applyFilter}>
+				<span class="form-check-label">Subordinación</span>
+			</label>
+			<label class="form-check form-check-inline mb-0 ms-2">
+				<input class="form-check-input" type="checkbox" bind:checked={showOrphans} on:change={applyFilter}>
+				<span class="form-check-label">Mostrar nodos huérfanos</span>
+			</label>
 		</div>
 
-		<!-- Color Legend -->
 		<div class="mb-3">
-			<div class="fw-bold mb-2">Leyenda e interacciones:</div>
-			<div class="d-flex gap-4 align-items-start flex-wrap">
-				<div>
-					<div class="fw-semibold mb-2" style="font-size: 0.9rem;">Colores por tipo:</div>
-					<div class="d-flex gap-3 align-items-center">
-						<div class="d-flex align-items-center">
-							<div class="color-legend enslaved me-2"></div>
-							<small>Esclavizada</small>
-						</div>
-						<div class="d-flex align-items-center">
-							<div class="color-legend non-enslaved me-2"></div>
-							<small>No esclavizada</small>
-						</div>
-					</div>
-				</div>
-				<div>
-					<div class="fw-semibold mb-2" style="font-size: 0.9rem;">Tamaño por centralidad:</div>
-					<div class="d-flex gap-2 align-items-center">
-						<div class="size-legend small"></div>
-						<small>Baja</small>
-						<div class="size-legend medium"></div>
-						<small>Media</small>
-						<div class="size-legend large"></div>
-						<small>Alta</small>
-					</div>
-				</div>
-				<div>
-					<div class="fw-semibold mb-2" style="font-size: 0.9rem;">Conexiones por relación:</div>
-					<div class="d-flex flex-column gap-1">
-						<div class="d-flex align-items-center">
-							<div class="edge-legend aso me-2"></div>
-							<small>Asociación (aso)</small>
-						</div>
-						<div class="d-flex align-items-center">
-							<div class="edge-legend fam me-2"></div>
-							<small>Familiar (fam)</small>
-						</div>
-						<div class="d-flex align-items-center">
-							<div class="edge-legend tmp me-2"></div>
-							<small>Temporal (tmp)</small>
-						</div>
-					</div>
-				</div>
-				<div>
-					<div class="fw-semibold mb-2" style="font-size: 0.9rem;">Interacciones:</div>
-					<div class="d-flex flex-column gap-1">
-						<small><i class="bi bi-cursor me-1"></i>Hover: ver tarjeta info</small>
-						<small><i class="bi bi-hand-index me-1"></i>Click: seleccionar nodo</small>
-						<small><i class="bi bi-box-arrow-up-right me-1"></i>Botón: ir a detalles</small>
-					</div>
-				</div>
+			<label for="centrality-threshold" class="form-label">Centralidad mínima</label>
+			<input
+				id="centrality-threshold"
+				type="range"
+				class="form-range"
+				min={minCentrality}
+				max={maxCentrality}
+				step="0.01"
+				bind:value={centralityThreshold}
+				on:input={applyFilter}
+			>
+			<small class="text-muted">Mostrando nodos con centralidad mayor o igual a {Number(centralityThreshold).toFixed(2)}</small>
+		</div>
+
+		<div class="mb-3">
+			<label for="cluster-size-threshold" class="form-label">Tamaño mínimo de componente</label>
+			<input
+				id="cluster-size-threshold"
+				type="range"
+				class="form-range"
+				min={minClusterSize}
+				max={maxClusterSize}
+				step="1"
+				bind:value={clusterSizeFilter}
+				on:input={applyFilter}
+			>
+			<small class="text-muted">Mostrando nodos en componentes de tamaño ≥ {Math.round(clusterSizeFilter)}</small>
+		</div>
+
+		<div class="mb-3">
+			<label class="form-label">Rango de años (documento)</label>
+			<div class="d-flex gap-2 align-items-center">
+				<input
+					type="number"
+					class="form-control form-control-sm"
+					style="max-width: 100px;"
+					placeholder="Año inicio"
+					bind:value={yearStart}
+					min={yearMin}
+					max={yearMax}
+					on:change={fetchNetworkData}
+				>
+				<span>—</span>
+				<input
+					type="number"
+					class="form-control form-control-sm"
+					style="max-width: 100px;"
+					placeholder="Año fin"
+					bind:value={yearEnd}
+					min={yearMin}
+					max={yearMax}
+					on:change={fetchNetworkData}
+				>
+				<small class="text-muted ms-2">({yearMin}–{yearMax})</small>
 			</div>
 		</div>
 
-		<!-- Always render the container -->
-		<div id="network" class:hidden={loading || error}></div>
+		<div class="d-flex flex-wrap gap-3 align-items-center mb-2 small text-muted">
+			<span><span class="badge" style="background:#C9735B">&nbsp;</span> Persona esclavizada</span>
+			<span><span class="badge" style="background:#9DB5B2">&nbsp;</span> Persona no esclavizada</span>
+			<span><span class="badge bg-light text-dark border">&nbsp;</span> Vecino fuera de resultados</span>
+		</div>
 
-		<!-- Tooltip -->
-		{#if tooltip.visible}
-			<div 
-				class="node-tooltip" 
-				style="left: {tooltip.x}px; top: {tooltip.y}px;"
-				on:mouseenter={handleTooltipMouseEnter}
-				on:mouseleave={handleTooltipMouseLeave}
-				role="tooltip"
-			>
-				<div class="tooltip-header">
-					<strong>{tooltip.name}</strong>
-					<div class="tooltip-type" class:enslaved={tooltip.type === 29} class:non-enslaved={tooltip.type === 30}>
-						{tooltip.type === 29 ? 'Esclavizada' : 'No esclavizada'}
-					</div>
-				</div>
-				
-				<!-- Show loading spinner while fetching details -->
-				{#if tooltip.loading}
-					<div class="tooltip-loading">
-						<div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-							<span class="visually-hidden">Cargando...</span>
-						</div>
-						<small class="text-muted">Cargando detalles...</small>
-					</div>
-				{:else if tooltip.details}
-					<!-- Show fetched details -->
-					<div class="tooltip-details">
-						{#if tooltip.details.sexo}
-							<div class="detail-item">
-								<small class="text-muted">Sexo:</small>
-								<small class="fw-medium">{tooltip.details.sexo}</small>
-							</div>
-						{/if}
-						{#if tooltip.details.edad}
-							<div class="detail-item">
-								<small class="text-muted">Edad:</small>
-								<small class="fw-medium">{tooltip.details.edad} {#if tooltip.details.unidad_temporal_edad != undefined}{tooltip.details.unidad_temporal_edad}{/if}</small>
-							</div>
-						{/if}
-						{#if tooltip.details.hispanizacion && tooltip.details.hispanizacion.length > 0}
-						  <!-- iterate over the hispanizacion list -->
-							<div class="detail-item">
-								<small class="text-muted">Agencia / Adaptación:</small>
-								<small class="fw-medium">
-									{#each tooltip.details.hispanizacion as hisp, i}
-										{hisp}{#if i < tooltip.details.hispanizacion.length - 1}, {/if}
-									{/each}
-								</small>
-							</div>
-						{/if}
-						{#if tooltip.details.etnonimos && tooltip.details.etnonimos.length > 0}
-							<div class="detail-item">
-								<small class="text-muted">Etnónimos:</small>
-								<small class="fw-medium">
-									{#each tooltip.details.etnonimos as etno, i}
-										{etno}{#if i < tooltip.details.etnonimos.length - 1}, {/if}
-									{/each}
-								</small>
-							</div>
-						{/if}
-						{#if tooltip.details.ocupaciones && tooltip.details.ocupaciones.length > 0}
-							<div class="detail-item">
-								<small class="text-muted">Ocupación:</small>
-								<small class="fw-medium">
-									{#each tooltip.details.ocupaciones as ocup, i}
-										{ocup}{#if i < tooltip.details.ocupaciones.length - 1}, {/if}
-									{/each}
-								</small>
-							</div>
-						{/if}
-						<!-- Add more fields as needed -->
-					</div>
-				{/if}
-				
-				<div class="tooltip-actions">
-					<a 
-						href={"/Detail/" + (tooltip.type === 29 ? "personaesclavizada" : "personanoesclavizada") + "/" + tooltip.id}
-						class="btn btn-sm btn-primary"
-						on:click={() => tooltip = { ...tooltip, visible: false }}
-					>
-						<i class="bi bi-eye me-1"></i>Ver detalles
-					</a>
-				</div>
+		{#if graphData?.meta?.truncated}
+			<div class="alert alert-warning py-2">
+				<i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
+				La red fue truncada por tamaño. Ajuste filtros para una visualización más precisa.
 			</div>
 		{/if}
 
 		{#if loading}
-			<div class="text-center mt-3">
+			<div class="text-center py-3">
 				<div class="spinner-border text-primary" role="status">
 					<span class="visually-hidden">Cargando...</span>
 				</div>
-				<p class="text-muted mt-2">Cargando red...</p>
 			</div>
 		{:else if error}
-			<div class="alert alert-danger mt-3" role="alert">
-				<i class="bi bi-exclamation-triangle-fill me-2"></i>
-				Error cargando red: {error}
+			<div class="alert alert-danger mt-3">
+				<i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>{error}
+			</div>
+		{:else}
+			<div bind:this={container} class="border rounded" style="height: 560px;"></div>
+
+			{#if graphData && (graphData.nodes || []).length === 0}
+				<div class="alert alert-info mt-3">
+					<i class="bi bi-info-circle me-1" aria-hidden="true"></i>No hay relaciones para los filtros activos.
+				</div>
+			{:else if graphData?.meta}
+				<div class="text-muted small mt-2">
+					Nodos: {graphData.meta.node_count} · Aristas: {graphData.meta.edge_count} · Resultados base: {graphData.meta.result_count}
+				</div>
+			{/if}
+		{/if}
+
+		{#if tooltip.visible}
+			<div
+				class="card shadow position-fixed"
+				style="left: {tooltip.x + 12}px; top: {tooltip.y}px; z-index: 1200; max-width: 340px;"
+				role="tooltip"
+				on:mouseenter={clearTooltipTimeout}
+				on:mouseleave={() => hideTooltipLater(100)}
+			>
+				<div class="card-body py-2 px-3">
+					<div class="fw-semibold">{tooltip.name}</div>
+					<div class="small text-muted mb-1">ID: {tooltip.id}</div>
+					{#if tooltip.loading}
+						<div class="small text-muted">Cargando detalles...</div>
+					{:else if tooltip.details}
+						<div class="small">
+							{#if tooltip.details.sexo}<div><strong>Sexo:</strong> {tooltip.details.sexo}</div>{/if}
+							{#if tooltip.details.edad}<div><strong>Edad:</strong> {tooltip.details.edad}</div>{/if}
+							{#if tooltip.details.ocupaciones?.length}<div><strong>Ocupaciones:</strong> {tooltip.details.ocupaciones.join(', ')}</div>{/if}
+							{#if tooltip.details.etnonimos?.length}<div><strong>Etnónimos:</strong> {tooltip.details.etnonimos.join(', ')}</div>{/if}
+						</div>
+					{/if}
+					<a class="btn btn-sm btn-outline-primary mt-2" href={detailHref()}>
+						<i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Ver ficha
+					</a>
+				</div>
 			</div>
 		{/if}
 	</div>
 </div>
 
 <style>
-	#network {
-		width: 100%;
-		height: 600px;
-		border-radius: 0.5rem;
-		border: 1px solid var(--bs-border-color);
-		background: white;
-	}
-
-	.hidden {
-		display: none;
-	}
-
-	.form-select {
-		font-size: 0.875rem;
-		padding: 0.25rem 0.5rem;
-	}
-
-	.btn-sm {
-		font-size: 0.8rem;
-	}
-
-	.color-legend {
-		width: 16px;
-		height: 16px;
-		border-radius: 50%;
-		border: 2px solid;
-	}
-
-	.color-legend.enslaved {
-		background-color: #FF6B6B;
-		border-color: #FF4757;
-	}
-
-	.color-legend.non-enslaved {
-		background-color: #4ECDC4;
-		border-color: #26D0CE;
-	}
-
-	.size-legend {
-		border-radius: 50%;
-		background-color: #6c757d;
-		border: 2px solid #495057;
-	}
-
-	.size-legend.small {
-		width: 10px;
-		height: 10px;
-	}
-
-	.size-legend.medium {
-		width: 16px;
-		height: 16px;
-	}
-
-	.size-legend.large {
-		width: 24px;
-		height: 24px;
-	}
-
-	.edge-legend {
-		width: 30px;
-		height: 3px;
-		border-radius: 1px;
-	}
-
-	.edge-legend.aso {
-		background-color: #3498DB;
-	}
-
-	.edge-legend.fam {
-		background-color: #E74C3C;
-		height: 4px; /* Slightly thicker like the actual edges */
-	}
-
-	.edge-legend.tmp {
-		background-color: #F39C12;
-	}
-
-	.node-tooltip {
-		position: fixed;
-		background: white;
-		border: 1px solid #ddd;
-		border-radius: 8px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-		padding: 12px;
-		z-index: 1000;
-		min-width: 200px;
-		font-size: 0.9rem;
-		transform: translateX(-50%);
-		pointer-events: auto; /* Allow interactions with tooltip */
-		cursor: default;
-	}
-
-	.tooltip-header {
-		margin-bottom: 8px;
-	}
-
-	.tooltip-header strong {
-		display: block;
-		color: #2c3e50;
-		margin-bottom: 4px;
-		font-size: 1rem;
-	}
-
-	.tooltip-type {
-		font-size: 0.8rem;
-		padding: 2px 8px;
-		border-radius: 12px;
-		display: inline-block;
-		font-weight: 500;
-		background-color: #e9ecef;
-		color: #495057;
-	}
-
-	.tooltip-type.enslaved {
-		background-color: #FF6B6B;
-		color: white;
-	}
-
-	.tooltip-type.non-enslaved {
-		background-color: #4ECDC4;
-		color: white;
-	}
-
-	.tooltip-actions {
-		margin-top: 8px;
-	}
-
-	.tooltip-actions .btn {
-		font-size: 0.8rem;
-		padding: 4px 8px;
-	}
-
-	.tooltip-loading {
-		display: flex;
-		align-items: center;
-		margin: 8px 0;
-		padding: 4px 0;
-	}
-
-	.tooltip-details {
-		margin: 8px 0;
-		border-top: 1px solid #e9ecef;
-		padding-top: 8px;
-	}
-
-	.detail-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 4px;
-		gap: 8px;
-	}
-
-	.detail-item:last-child {
-		margin-bottom: 0;
-	}
-
-	.detail-item .text-muted {
-		flex-shrink: 0;
-		min-width: 50px;
-	}
-
-	.detail-item .fw-medium {
-		text-align: right;
-		word-break: break-word;
-	}
 </style>
