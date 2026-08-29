@@ -22,6 +22,7 @@
     let yearRangeMax = -Infinity;
 
     let sortConfig = { field: 'total', direction: 'desc' };
+    let tooltip; // Reusable tooltip
 
     const processPlaceSummary = (data) => {
         const grouped = d3.group(data, d => d.lugar);
@@ -41,6 +42,7 @@
         });
         updatePlaceSummary();
         renderVisualization();
+        renderTable();
     };
 
     const updatePlaceSummary = () => {
@@ -94,8 +96,26 @@
 
     const handleYearRangeChange = (event) => {
         const { name, value } = event.target;
-        if (name === 'yearMin') yearRangeMin = parseInt(value);
-        if (name === 'yearMax') yearRangeMax = parseInt(value);
+        const newValue = parseInt(value);
+        
+        if (name === 'yearMin') {
+            if (newValue <= yearRangeMax) {
+                yearRangeMin = newValue;
+            } else {
+                // Reset to previous valid value if invalid
+                event.target.value = yearRangeMin;
+                return;
+            }
+        }
+        if (name === 'yearMax') {
+            if (newValue >= yearRangeMin) {
+                yearRangeMax = newValue;
+            } else {
+                // Reset to previous valid value if invalid
+                event.target.value = yearRangeMax;
+                return;
+            }
+        }
         updateFilteredData();
     };
 
@@ -161,18 +181,21 @@
             .attr('fill', '#1d1916')
             .text('Número de Personas');
 
-        // Tooltip
-        const tooltip = d3.select('body')
-            .append('div')
-            .style('position', 'absolute')
-            .style('background', '#1d1916')
-            .style('color', '#f8f5f2')
-            .style('padding', '8px 12px')
-            .style('border-radius', '4px')
-            .style('pointer-events', 'none')
-            .style('display', 'none')
-            .style('z-index', 1000)
-            .style('font-size', '12px');
+        // Reuse or create tooltip (only once per app lifecycle)
+        if (!tooltip) {
+            tooltip = d3.select('body')
+                .append('div')
+                .attr('role', 'tooltip')
+                .style('position', 'absolute')
+                .style('background', '#1d1916')
+                .style('color', '#f8f5f2')
+                .style('padding', '8px 12px')
+                .style('border-radius', '4px')
+                .style('pointer-events', 'none')
+                .style('display', 'none')
+                .style('z-index', 1000)
+                .style('font-size', '12px');
+        }
 
         // Circles
         svg.selectAll('circle')
@@ -187,6 +210,9 @@
             .attr('stroke', '#2a5a8f')
             .attr('stroke-width', 1.5)
             .style('cursor', 'pointer')
+            .attr('role', 'button')
+            .attr('tabindex', 0)
+            .attr('aria-label', d => `${d.lugar}, ${d.year}: ${d.count} personas`)
             .on('mouseover', function(event, d) {
                 d3.select(this)
                     .attr('opacity', 1)
@@ -205,6 +231,12 @@
             })
             .on('click', (event, d) => {
                 navigateToSearch(d.lugar, d.year);
+            })
+            .on('keydown', (event, d) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    navigateToSearch(d.lugar, d.year);
+                }
             });
     };
 
@@ -215,6 +247,8 @@
 
         const table = document.createElement('table');
         table.className = 'summary-table';
+        table.setAttribute('role', 'table');
+        table.setAttribute('aria-label', 'Resumen de personas por lugar');
 
         // Header
         const thead = table.createTHead();
@@ -222,17 +256,31 @@
 
         ['Lugar', 'Total', 'Periodo'].forEach((text, idx) => {
             const th = document.createElement('th');
+            th.setAttribute('role', 'columnheader');
+            th.setAttribute('scope', 'col');
             th.textContent = text;
             th.style.cursor = 'pointer';
             th.style.userSelect = 'none';
             
             const field = ['lugar', 'total', 'periodo'][idx];
-            const indicator = sortConfig.field === field 
-                ? (sortConfig.direction === 'asc' ? ' ▲' : ' ▼')
+            const direction = sortConfig.field === field ? sortConfig.direction : 'none';
+            const indicator = direction !== 'none' 
+                ? (direction === 'asc' ? ' ▲' : ' ▼')
                 : '';
-            th.textContent = text + indicator;
             
-            th.onclick = () => toggleSort(field);
+            th.textContent = text + indicator;
+            th.setAttribute('aria-sort', direction);
+            th.setAttribute('tabindex', 0);
+            
+            const clickHandler = () => toggleSort(field);
+            th.onclick = clickHandler;
+            th.onkeydown = (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    clickHandler();
+                }
+            };
+            
             headerRow.appendChild(th);
         });
 
@@ -240,9 +288,14 @@
         const tbody = table.createTBody();
         placeSummary.forEach(row => {
             const tr = tbody.insertRow();
-            tr.insertCell().textContent = row.lugar;
-            tr.insertCell().textContent = row.total;
-            tr.insertCell().textContent = row.periodo;
+            tr.setAttribute('role', 'row');
+            
+            const cellData = [row.lugar, row.total, row.periodo];
+            cellData.forEach((value, idx) => {
+                const td = tr.insertCell();
+                td.setAttribute('role', 'cell');
+                td.textContent = value;
+            });
         });
 
         tableContainer.appendChild(table);
@@ -290,16 +343,21 @@
                     class="place-filter-input"
                     placeholder="Escribe para buscar..."
                     value={searchTerm}
+                    aria-label="Buscar lugar por nombre"
+                    aria-describedby="place-search-hint"
                     on:input={handleSearch}
                     on:focus={() => (showDropdown = true)}
                 />
+                <div id="place-search-hint" style="display: none;">Ingresa el nombre de un lugar para filtrar la visualización</div>
                 {#if showDropdown && filteredPlaces.length > 0}
-                    <div class="place-filter-list">
+                    <div class="place-filter-list" role="listbox">
                         {#each filteredPlaces as place}
                             <button
                                 type="button"
                                 class="place-filter-item"
                                 class:selected={place === selectedPlace}
+                                role="option"
+                                aria-selected={place === selectedPlace}
                                 on:click={() => handleSelect(place)}
                                 on:keydown={e => e.key === 'Enter' && handleSelect(place)}
                             >
@@ -320,6 +378,8 @@
                 min={minYear}
                 max={maxYear}
                 value={yearRangeMin}
+                aria-label="Año mínimo del rango de filtrado"
+                aria-describedby="year-range-hint"
                 on:change={handleYearRangeChange}
             />
         </div>
@@ -333,13 +393,16 @@
                 min={minYear}
                 max={maxYear}
                 value={yearRangeMax}
+                aria-label="Año máximo del rango de filtrado"
+                aria-describedby="year-range-hint"
                 on:change={handleYearRangeChange}
             />
+            <div id="year-range-hint" style="display: none;">Selecciona un rango de años válido</div>
         </div>
     </div>
 
     <div class="viz-wrapper">
-        <div class="plot-container" bind:this={plotContainer} style="height: 500px; width: 100%;"></div>
+        <div class="plot-container" bind:this={plotContainer} style="height: 500px; width: 100%;" role="img" aria-label="Gráfico de burbujas mostrando personas asociadas a lugares por año"></div>
     </div>
 
     <div class="summary-section">
@@ -384,6 +447,13 @@
         border-radius: 4px;
         font-size: 0.9rem;
         background: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .control-group input:focus {
+        outline: none;
+        border-color: #3780bf;
+        box-shadow: 0 0 0 2px rgba(55, 128, 191, 0.1);
     }
 
     .place-filter-container {
@@ -394,6 +464,12 @@
     .place-filter-input {
         width: 100% !important;
         padding: 0.5rem 0.75rem;
+    }
+
+    .place-filter-input:focus {
+        outline: none;
+        border-color: #3780bf !important;
+        box-shadow: 0 0 0 2px rgba(55, 128, 191, 0.1);
     }
 
     .place-filter-list {
@@ -425,10 +501,21 @@
         background: #f0ebe5;
     }
 
+    .place-filter-item:focus {
+        outline: 2px solid #3780bf;
+        outline-offset: -1px;
+        background: #f0ebe5;
+    }
+
     .place-filter-item.selected {
         background: #3780bf;
         color: #f8f5f2;
         font-weight: 600;
+    }
+
+    .place-filter-item.selected:focus {
+        outline: 2px solid #f8f5f2;
+        outline-offset: -1px;
     }
 
     .viz-wrapper {
@@ -472,6 +559,18 @@
         text-align: left;
         font-weight: 600;
         border: 1px solid #2a5a8f;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    :global(.summary-table th:hover) {
+        background: #2a5a8f;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    :global(.summary-table th:focus) {
+        outline: 2px solid #f8f5f2;
+        outline-offset: -2px;
     }
 
     :global(.summary-table td) {
@@ -486,5 +585,11 @@
 
     :global(.summary-table tbody tr:hover) {
         background: #ede7df;
+        transition: background 0.1s ease;
+    }
+
+    :global(.summary-table tbody tr:focus-within) {
+        outline: 2px solid #3780bf;
+        outline-offset: -1px;
     }
 </style>
