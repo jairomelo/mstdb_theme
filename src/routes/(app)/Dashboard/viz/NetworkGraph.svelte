@@ -34,6 +34,44 @@
 	let yearMin = 1500;
 	let yearMax = 1900;
 
+	let filtersCollapsed = false;
+
+	$: isFiltered =
+		!relationFilter.fam ||
+		!relationFilter.aso ||
+		!relationFilter.tmp ||
+		!relationFilter.sub ||
+		showOrphans ||
+		centralityThreshold > minCentrality ||
+		clusterSizeFilter > minClusterSize ||
+		yearStart !== null ||
+		yearEnd !== null;
+
+	function toggleFilters() {
+		filtersCollapsed = !filtersCollapsed;
+	}
+
+	function resetFilters() {
+		relationFilter = {
+			fam: true,
+			aso: true,
+			tmp: true,
+			sub: true,
+		};
+		showOrphans = false;
+		centralityThreshold = minCentrality;
+		clusterSizeFilter = minClusterSize;
+		const reloadRequired = yearStart !== null || yearEnd !== null;
+		yearStart = null;
+		yearEnd = null;
+
+		if (reloadRequired) {
+			fetchNetworkData();
+		} else {
+			applyFilter();
+		}
+	}
+
 	let tooltip = {
 		visible: false,
 		x: 0,
@@ -397,123 +435,264 @@
 
 <div class="card">
 	<div class="card-body">
-		<h5 class="card-title">Red de personas relacionadas</h5>
-
-		<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-			<select class="form-select form-select-sm w-auto" bind:value={layoutType} on:change={applyLayout} aria-label="Tipo de diseño">
-				<option value="fcose">FCoSE</option>
-				<option value="cose">CoSE</option>
-				<option value="circle">Círculo</option>
-				<option value="concentric">Concéntrico</option>
-				<option value="grid">Cuadrícula</option>
-			</select>
-
-			<button class="btn btn-sm btn-outline-secondary" on:click={resetView}>
-				<i class="bi bi-arrows-fullscreen me-1" aria-hidden="true"></i>Reenfocar
-			</button>
+		<div class="d-flex align-items-center justify-content-between mb-3">
+			<h5 class="card-title mb-0">Red de personas relacionadas</h5>
 		</div>
 
-		<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-			<span class="form-label mb-0" aria-hidden="true">Relaciones:</span>
-			<label class="form-check form-check-inline mb-0">
-				<input class="form-check-input" type="checkbox" bind:checked={relationFilter.fam} on:change={applyFilter}>
-				<span class="form-check-label">Parentesco</span>
-			</label>
-			<label class="form-check form-check-inline mb-0">
-				<input class="form-check-input" type="checkbox" bind:checked={relationFilter.aso} on:change={applyFilter}>
-				<span class="form-check-label">Asociación</span>
-			</label>
-			<label class="form-check form-check-inline mb-0">
-				<input class="form-check-input" type="checkbox" bind:checked={relationFilter.tmp} on:change={applyFilter}>
-				<span class="form-check-label">Temporal</span>
-			</label>
-			<label class="form-check form-check-inline mb-0">
-				<input class="form-check-input" type="checkbox" bind:checked={relationFilter.sub} on:change={applyFilter}>
-				<span class="form-check-label">Subordinación</span>
-			</label>
-			<label class="form-check form-check-inline mb-0 ms-2">
-				<input class="form-check-input" type="checkbox" bind:checked={showOrphans} on:change={applyFilter}>
-				<span class="form-check-label">Mostrar nodos huérfanos</span>
-			</label>
-		</div>
+		<!-- Unified Compact Network Controls Panel -->
+		<div class="network-controls-panel">
+			<div class="network-toolbar">
+				<div class="network-toolbar-group">
+					<!-- Design Layout dropdown -->
+					<div class="input-group input-group-sm w-auto">
+						<span class="input-group-text bg-white border-end-0 text-muted">
+							<i class="bi bi-diagram-3" aria-hidden="true"></i>
+						</span>
+						<select
+							class="form-select form-select-sm border-start-0 ps-1"
+							bind:value={layoutType}
+							on:change={applyLayout}
+							aria-label="Tipo de diseño"
+						>
+							<option value="fcose">FCoSE (Orgánico)</option>
+							<option value="cose">CoSE</option>
+							<option value="circle">Círculo</option>
+							<option value="concentric">Concéntrico</option>
+							<option value="grid">Cuadrícula</option>
+						</select>
+					</div>
 
-		<div class="mb-3">
-			<label for="centrality-threshold" class="form-label">Centralidad mínima</label>
-			<input
-				id="centrality-threshold"
-				type="range"
-				class="form-range"
-				min={minCentrality}
-				max={maxCentrality}
-				step="0.01"
-				bind:value={centralityThreshold}
-				on:input={applyFilter}
-			>
-			<small class="text-muted">Mostrando nodos con centralidad mayor o igual a {Number(centralityThreshold).toFixed(2)}</small>
-		</div>
-
-		<div class="mb-3">
-			<label for="cluster-size-threshold" class="form-label">Tamaño mínimo de componente</label>
-			<input
-				id="cluster-size-threshold"
-				type="range"
-				class="form-range"
-				min={minClusterSize}
-				max={maxClusterSize}
-				step="1"
-				bind:value={clusterSizeFilter}
-				on:input={applyFilter}
-			>
-			<small class="text-muted">Mostrando nodos en componentes de tamaño ≥ {Math.round(clusterSizeFilter)}</small>
-		</div>
-
-		<div class="mb-3">
-			<fieldset class="border-0 p-0 m-0">
-				<legend class="form-label mb-2">Rango de años (documento)</legend>
-				<div class="d-flex gap-2 align-items-center">
-					<input
-						type="number"
-						class="form-control form-control-sm"
-						style="max-width: 100px;"
-						placeholder="Año inicio"
-						bind:value={yearStart}
-						min={yearMin}
-						max={yearMax}
-						on:change={fetchNetworkData}
-						aria-label="Año de inicio"
+					<!-- Reenfocar button -->
+					<button
+						type="button"
+						class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+						on:click={resetView}
+						title="Reenfocar vista"
 					>
-					<span>—</span>
-					<input
-						type="number"
-						class="form-control form-control-sm"
-						style="max-width: 100px;"
-						placeholder="Año fin"
-						bind:value={yearEnd}
-						min={yearMin}
-						max={yearMax}
-						on:change={fetchNetworkData}
-						aria-label="Año de fin"
-					>
-					<small class="text-muted ms-2">({yearMin}–{yearMax})</small>
+						<i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
+						<span class="d-none d-sm-inline">Reenfocar</span>
+					</button>
 				</div>
-			</fieldset>
+
+				<div class="network-toolbar-group ms-auto">
+					<!-- Filter toggle button -->
+					<button
+						type="button"
+						class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+						class:active={!filtersCollapsed}
+						on:click={toggleFilters}
+						aria-expanded={!filtersCollapsed}
+						aria-label="Alternar filtros"
+					>
+						<i class="bi bi-funnel{isFiltered ? '-fill text-primary' : ''}" aria-hidden="true"></i>
+						<span>Filtros</span>
+						{#if isFiltered}
+							<span class="badge rounded-pill bg-primary" style="font-size: 0.6rem;">•</span>
+						{/if}
+					</button>
+
+					<!-- Reset filters button -->
+					{#if isFiltered}
+						<button
+							type="button"
+							class="btn btn-sm btn-link text-decoration-none text-muted p-0 ms-1 small d-inline-flex align-items-center gap-1"
+							on:click={resetFilters}
+							title="Restablecer filtros"
+						>
+							<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+							<span>Restablecer</span>
+						</button>
+					{/if}
+				</div>
+			</div>
+
+			<!-- Filter options (collapsible) -->
+			{#if !filtersCollapsed}
+				<div class="network-filter-section">
+					<!-- Relation Pills & Orphans Switch -->
+					<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+						<div class="network-relation-pills" role="group" aria-label="Filtros de relaciones">
+							<span class="small fw-semibold text-muted me-1">Relaciones:</span>
+
+							<label class="network-pill-btn" class:active={relationFilter.fam} class:inactive={!relationFilter.fam}>
+								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.fam} on:change={applyFilter} />
+								<span class="color-dot" style="background-color: #D4A27F;"></span>
+								<span>Parentesco</span>
+							</label>
+
+							<label class="network-pill-btn" class:active={relationFilter.aso} class:inactive={!relationFilter.aso}>
+								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.aso} on:change={applyFilter} />
+								<span class="color-dot" style="background-color: #9CA3AF;"></span>
+								<span>Asociación</span>
+							</label>
+
+							<label class="network-pill-btn" class:active={relationFilter.tmp} class:inactive={!relationFilter.tmp}>
+								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.tmp} on:change={applyFilter} />
+								<span class="color-dot" style="background-color: #B8C99A;"></span>
+								<span>Temporal</span>
+							</label>
+
+							<label class="network-pill-btn" class:active={relationFilter.sub} class:inactive={!relationFilter.sub}>
+								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.sub} on:change={applyFilter} />
+								<span class="color-dot" style="background-color: #9B8EC4;"></span>
+								<span>Subordinación</span>
+							</label>
+						</div>
+
+						<!-- Orphan Switch -->
+						<div class="form-check form-switch mb-0">
+							<input
+								class="form-check-input"
+								type="checkbox"
+								id="show-orphans-toggle"
+								bind:checked={showOrphans}
+								on:change={applyFilter}
+							/>
+							<label class="form-check-label small fw-semibold text-muted" for="show-orphans-toggle">
+								Mostrar huérfanos
+							</label>
+						</div>
+					</div>
+
+					<!-- Metrics and Range 3-column Grid -->
+					<div class="row row-cols-1 row-cols-md-3 g-2">
+						<!-- Centralidad -->
+						<div class="col">
+							<div class="network-metric-card">
+								<div class="metric-header">
+									<label for="centrality-threshold" class="metric-title">
+										<i class="bi bi-diagram-2" aria-hidden="true"></i>
+										Centralidad mín.
+									</label>
+									<span class="metric-badge">≥ {Number(centralityThreshold).toFixed(2)}</span>
+								</div>
+								<div class="metric-slider-wrapper">
+									<span class="slider-bound">{minCentrality.toFixed(1)}</span>
+									<input
+										id="centrality-threshold"
+										type="range"
+										class="form-range"
+										min={minCentrality}
+										max={maxCentrality}
+										step="0.01"
+										bind:value={centralityThreshold}
+										on:input={applyFilter}
+										aria-label="Centralidad mínima"
+									/>
+									<span class="slider-bound">{maxCentrality.toFixed(1)}</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Tamaño de componente -->
+						<div class="col">
+							<div class="network-metric-card">
+								<div class="metric-header">
+									<label for="cluster-size-threshold" class="metric-title">
+										<i class="bi bi-bounding-box-circles" aria-hidden="true"></i>
+										Tamaño componente
+									</label>
+									<span class="metric-badge">≥ {Math.round(clusterSizeFilter)}</span>
+								</div>
+								<div class="metric-slider-wrapper">
+									<span class="slider-bound">{minClusterSize}</span>
+									<input
+										id="cluster-size-threshold"
+										type="range"
+										class="form-range"
+										min={minClusterSize}
+										max={maxClusterSize}
+										step="1"
+										bind:value={clusterSizeFilter}
+										on:input={applyFilter}
+										aria-label="Tamaño mínimo de componente"
+									/>
+									<span class="slider-bound">{maxClusterSize}</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Rango de años -->
+						<div class="col">
+							<div class="network-metric-card">
+								<div class="metric-header">
+									<span class="metric-title">
+										<i class="bi bi-calendar-range" aria-hidden="true"></i>
+										Años (documento)
+									</span>
+									<span class="metric-badge">{yearMin} – {yearMax}</span>
+								</div>
+								<div class="d-flex gap-1 align-items-center">
+									<input
+										type="number"
+										class="form-control form-control-sm"
+										placeholder={String(yearMin)}
+										bind:value={yearStart}
+										min={yearMin}
+										max={yearMax}
+										on:change={fetchNetworkData}
+										aria-label="Año de inicio"
+									/>
+									<span class="text-muted small">—</span>
+									<input
+										type="number"
+										class="form-control form-control-sm"
+										placeholder={String(yearMax)}
+										bind:value={yearEnd}
+										min={yearMin}
+										max={yearMax}
+										on:change={fetchNetworkData}
+										aria-label="Año de fin"
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			{/if}
 		</div>
 
-		<div class="d-flex flex-wrap gap-3 align-items-center mb-2 small text-muted">
-			<span><span class="badge" style="background:#C9735B">&nbsp;</span> Persona esclavizada</span>
-			<span><span class="badge" style="background:#9DB5B2">&nbsp;</span> Persona no esclavizada</span>
-			<span><span class="badge bg-light text-dark border">&nbsp;</span> Vecino fuera de resultados</span>
+		<!-- Legend & Network Stats Bar -->
+		<div class="network-legend-bar mb-3">
+			<div class="d-flex flex-wrap align-items-center gap-3">
+				<span class="network-legend-item">
+					<span class="legend-color-chip" style="background:#C9735B;"></span>
+					Persona esclavizada
+				</span>
+				<span class="network-legend-item">
+					<span class="legend-color-chip" style="background:#9DB5B2;"></span>
+					Persona no esclavizada
+				</span>
+				{#if graphData?.meta?.result_count !== undefined}
+					<span class="network-legend-item">
+						<span class="legend-color-chip border bg-white"></span>
+						Vecino fuera de resultados
+					</span>
+				{/if}
+			</div>
+
+			{#if graphData?.meta}
+				<div class="text-muted small ms-auto fw-semibold">
+					<span>Nodos: <strong>{graphData.meta.node_count}</strong></span>
+					<span class="mx-1">·</span>
+					<span>Aristas: <strong>{graphData.meta.edge_count}</strong></span>
+					{#if graphData.meta.result_count !== undefined}
+						<span class="mx-1">·</span>
+						<span>Base: <strong>{graphData.meta.result_count}</strong></span>
+					{/if}
+				</div>
+			{/if}
 		</div>
 
 		{#if graphData?.meta?.truncated}
-			<div class="alert alert-warning py-2">
+			<div class="alert alert-warning py-2 mb-3">
 				<i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
 				La red fue truncada por tamaño. Ajuste filtros para una visualización más precisa.
 			</div>
 		{/if}
 
 		{#if loading}
-			<div class="text-center py-3">
+			<div class="text-center py-5">
 				<div class="spinner-border text-primary" role="status">
 					<span class="visually-hidden">Cargando...</span>
 				</div>
@@ -528,10 +707,6 @@
 			{#if graphData && (graphData.nodes || []).length === 0}
 				<div class="alert alert-info mt-3">
 					<i class="bi bi-info-circle me-1" aria-hidden="true"></i>No hay relaciones para los filtros activos.
-				</div>
-			{:else if graphData?.meta}
-				<div class="text-muted small mt-2">
-					Nodos: {graphData.meta.node_count} · Aristas: {graphData.meta.edge_count} · Resultados base: {graphData.meta.result_count}
 				</div>
 			{/if}
 		{/if}

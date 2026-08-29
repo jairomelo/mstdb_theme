@@ -530,4 +530,174 @@ $theme-colors: (
     }
 }
 
+// ── Network Graph Controls & Filters ──────────────────────────────────────────
+
+.network-controls-panel {
+    background-color: map-get($theme-colors, "light");
+    border: 1px solid map-get($theme-colors, "accent3");
+    border-radius: 0.5rem;
+    padding: 0.875rem 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.network-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.network-toolbar-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.network-filter-section {
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(map-get($theme-colors, "accent2"), 0.2);
+    margin-top: 0.75rem;
+}
+
+.network-relation-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.network-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: 2rem;
+    border: 1px solid #ced4da;
+    background-color: #ffffff;
+    color: map-get($theme-colors, "dark");
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease-in-out;
+
+    &:hover {
+        background-color: #f1f3f5;
+        border-color: #adb5bd;
+    }
+
+    &:focus-within,
+    &:focus-visible {
+        outline: 2px solid map-get($theme-colors, "primary");
+        outline-offset: 2px;
+    }
+
+    &.active {
+        background-color: #ffffff;
+        border-color: map-get($theme-colors, "primary");
+        box-shadow: 0 0 0 1px map-get($theme-colors, "primary");
+        font-weight: 600;
+    }
+
+    &.inactive {
+        opacity: 0.55;
+        background-color: #f8f9fa;
+        text-decoration: line-through;
+    }
+
+    .color-dot {
+        width: 0.65rem;
+        height: 0.65rem;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+}
+
+.network-metric-card {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 0.65rem 0.75rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .metric-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.35rem;
+
+        .metric-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: map-get($theme-colors, "dark");
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .metric-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.1rem 0.45rem;
+            border-radius: 0.25rem;
+            background-color: map-get($theme-colors, "light");
+            color: map-get($theme-colors, "primary");
+            border: 1px solid rgba(map-get($theme-colors, "primary"), 0.2);
+        }
+    }
+
+    .metric-slider-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .form-range {
+            height: 0.4rem;
+            padding: 0;
+        }
+
+        .slider-bound {
+            font-size: 0.7rem;
+            color: map-get($theme-colors, "accent2");
+            font-weight: 500;
+            min-width: 1.25rem;
+        }
+    }
+}
+
+.network-legend-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background-color: map-get($theme-colors, "light");
+    border-radius: 0.375rem;
+    border: 1px solid #e9ecef;
+    font-size: 0.8125rem;
+}
+
+.network-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 500;
+
+    .legend-color-chip {
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 0.2rem;
+        display: inline-block;
+    }
+}
+
 @import "./custom.css";
