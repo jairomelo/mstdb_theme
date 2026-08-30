@@ -2,7 +2,9 @@
 	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
 	import { Editor } from '@tiptap/core';
 	import StarterKit from '@tiptap/starter-kit';
-	import Image from '@tiptap/extension-image';
+	import Embed from '$lib/editor/embed-node.js';
+	import CaptionedImage from '$lib/editor/captioned-image.js';
+	import { detectEmbed, EMBED_KIND_LABELS } from '$lib/editor/embed.js';
 
 	/** Two-way bindable HTML content (`bind:content`) */
 	export let content = '';
@@ -21,10 +23,19 @@
 	let uploadError = null;
 	let active = {};
 
+	// Embed dialog state
+	let embedDialog;
+	let embedUrl = '';
+	$: embedPreview = detectEmbed(embedUrl);
+
 	onMount(() => {
 		editor = new Editor({
 			element,
-			extensions: [StarterKit.configure({ link: { openOnClick: false } }), Image],
+			extensions: [
+				StarterKit.configure({ link: { openOnClick: false } }),
+				CaptionedImage,
+				Embed,
+			],
 			content,
 			editable: true,
 			autofocus: 'end',
@@ -34,6 +45,20 @@
 			},
 			onSelectionUpdate: updateActiveStates,
 			onTransaction: updateActiveStates,
+			editorProps: {
+				handlePaste: (view, event) => {
+					const text = event.clipboardData?.getData('text/plain')?.trim();
+					if (!text || /\s/.test(text)) return false;
+					const detected = detectEmbed(text);
+					if (!detected) return false;
+					if (detected.kind === 'image') {
+						editor.chain().focus().setImage({ src: detected.src, alt: '' }).run();
+					} else {
+						editor.chain().focus().setEmbed({ src: detected.src, embedType: detected.kind }).run();
+					}
+					return true;
+				},
+			},
 		});
 		updateActiveStates();
 	});
@@ -45,10 +70,12 @@
 		active = {
 			bold: editor.isActive('bold'),
 			italic: editor.isActive('italic'),
+			strike: editor.isActive('strike'),
 			h2: editor.isActive('heading', { level: 2 }),
 			h3: editor.isActive('heading', { level: 3 }),
 			bulletList: editor.isActive('bulletList'),
 			orderedList: editor.isActive('orderedList'),
+			blockquote: editor.isActive('blockquote'),
 			link: editor.isActive('link'),
 		};
 	}
@@ -99,6 +126,25 @@
 		}
 		editor.chain().focus().setLink({ href: url }).run();
 	}
+
+	function openEmbedDialog() {
+		embedUrl = '';
+		if (typeof embedDialog?.showModal === 'function') embedDialog.showModal();
+	}
+
+	function closeEmbedDialog() {
+		embedDialog?.close();
+	}
+
+	function confirmEmbed() {
+		if (!embedPreview) return;
+		if (embedPreview.kind === 'image') {
+			editor.chain().focus().setImage({ src: embedPreview.src, alt: '' }).run();
+		} else {
+			editor.chain().focus().setEmbed({ src: embedPreview.src, embedType: embedPreview.kind }).run();
+		}
+		closeEmbedDialog();
+	}
 </script>
 
 <div class="rich-text-editor">
@@ -122,6 +168,16 @@
 			on:click={() => editor.chain().focus().toggleItalic().run()}
 		>
 			<i class="bi bi-type-italic" aria-hidden="true"></i>
+		</button>
+		<button
+			type="button"
+			class="btn btn-sm btn-outline-secondary"
+			class:active={active.strike}
+			aria-pressed={active.strike}
+			aria-label="Tachado"
+			on:click={() => editor.chain().focus().toggleStrike().run()}
+		>
+			<i class="bi bi-type-strikethrough" aria-hidden="true"></i>
 		</button>
 		<button
 			type="button"
@@ -176,6 +232,24 @@
 		<button
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
+			class:active={active.blockquote}
+			aria-pressed={active.blockquote}
+			aria-label="Cita"
+			on:click={() => editor.chain().focus().toggleBlockquote().run()}
+		>
+			<i class="bi bi-quote" aria-hidden="true"></i>
+		</button>
+		<button
+			type="button"
+			class="btn btn-sm btn-outline-secondary"
+			aria-label="Línea horizontal"
+			on:click={() => editor.chain().focus().setHorizontalRule().run()}
+		>
+			<i class="bi bi-hr" aria-hidden="true"></i>
+		</button>
+		<button
+			type="button"
+			class="btn btn-sm btn-outline-secondary"
 			aria-label="Insertar imagen"
 			disabled={!onUploadImage}
 			title={!onUploadImage ? disabledHint : 'Insertar imagen'}
@@ -193,6 +267,15 @@
 			aria-hidden="true"
 			tabindex="-1"
 		/>
+		<button
+			type="button"
+			class="btn btn-sm btn-outline-secondary"
+			aria-label="Insertar embed (YouTube, PDF, IIIF, iframe)"
+			title="Insertar embed (YouTube, PDF, IIIF, iframe)"
+			on:click={openEmbedDialog}
+		>
+			<i class="bi bi-collection-play" aria-hidden="true"></i>
+		</button>
 		<button
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
@@ -235,3 +318,38 @@
 		<p class="small text-danger mt-1" role="alert">{uploadError}</p>
 	{/if}
 </div>
+
+<dialog bind:this={embedDialog} class="embed-dialog" aria-label="Insertar embed">
+	<form method="dialog" on:submit|preventDefault={confirmEmbed}>
+		<h2 class="h5">Insertar embed</h2>
+		<p class="form-text mb-2">
+			Pega una URL de YouTube, un PDF, un manifiesto IIIF o cualquier página incrustable.
+		</p>
+		<label class="form-label" for="embed-url-input">URL</label>
+		<input
+			id="embed-url-input"
+			class="form-control"
+			type="url"
+			bind:value={embedUrl}
+			placeholder="https://…"
+			required
+		/>
+		<div class="form-text" aria-live="polite">
+			{#if embedUrl && embedPreview}
+				Se insertará como: <strong>{EMBED_KIND_LABELS[embedPreview.kind]}</strong>
+			{:else if embedUrl}
+				URL no reconocida o no válida.
+			{:else}
+				El tipo se detectará automáticamente.
+			{/if}
+		</div>
+		<div class="d-flex justify-content-end gap-2 mt-3">
+			<button type="button" class="btn btn-outline-secondary btn-sm" on:click={closeEmbedDialog}>
+				Cancelar
+			</button>
+			<button type="submit" class="btn btn-primary btn-sm" disabled={!embedPreview}>
+				Insertar
+			</button>
+		</div>
+	</form>
+</dialog>
