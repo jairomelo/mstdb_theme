@@ -1,6 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
 	import { fetchLecciones, leccionNiveles, leccionPalabrasClave } from '$lib/api.js';
+	import { user } from '$lib/stores/user';
+
+	$: canCreate = $user?.is_staff || $user?.groups?.includes('colectores');
 
 	const PAGE_SIZE = 12;
 
@@ -73,6 +76,14 @@
 		</p>
 	</div>
 
+	{#if canCreate}
+		<div class="d-flex justify-content-end mb-3">
+			<a href="/User/catalogar/leccion" class="btn btn-primary">
+				<i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nueva lección
+			</a>
+		</div>
+	{/if}
+
 	<form class="row g-3 align-items-end mb-4 lessons-filters" on:submit|preventDefault={applyFilters}>
 		<div class="col-sm-4">
 			<label class="form-label" for="filter-nivel">Nivel</label>
@@ -123,6 +134,9 @@
 						<a class="lesson-card-link" href="/lessons/{leccion.leccion_id}">
 							<h2 class="lesson-card-title">{leccion.title}</h2>
 						</a>
+						{#if !leccion.is_published}
+							<span class="badge lesson-draft-badge mb-2">Borrador</span>
+						{/if}
 						<p class="lesson-card-date">
 							<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>{formatDate(leccion.created_at)}
 						</p>

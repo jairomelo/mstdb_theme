@@ -15,7 +15,7 @@
 
 	let query = '';
 	let formElement;
-	let canEdit = false;
+	let welcome = null;
 
 	function handleNavSearch() {
 		if (query) {
@@ -31,10 +31,35 @@
 	}
 
 	onMount(async () => {
-		whoami().then(u => { canEdit = u.is_staff || u.groups?.includes('colectores'); }).catch(() => {});
+		try {
+			const u = await whoami();
+			user.set(u);
+		} catch {
+			user.set(null);
+		}
+		const w = sessionStorage.getItem('ta_welcome');
+		if (w) {
+			sessionStorage.removeItem('ta_welcome');
+			welcome = w;
+		}
 	});
 </script>
 
+{#if welcome}
+	<div
+		class="alert alert-success alert-dismissible fade show welcome-alert"
+		role="status"
+		aria-live="polite"
+	>
+		<i class="bi bi-check-circle me-2" aria-hidden="true"></i>Bienvenido/a, <strong>{welcome}</strong>
+		<button
+			type="button"
+			class="btn-close"
+			aria-label="Cerrar mensaje de bienvenida"
+			on:click={() => (welcome = null)}
+		></button>
+	</div>
+{/if}
 {#if $page.url.pathname === '/'}
 	<slot />
 {:else}
@@ -104,38 +129,42 @@
 						</li>
 					</ul>
 
-					<!-- Placeholder for authentication from the Frontend side -->
-					<!-- <ul class="navbar-nav">
-						<li class="nav-item dropdown">
-							<a
-								class="nav-link dropdown-toggle"
-								id="navbarDropdown"
-								role="button"
-								data-bs-toggle="dropdown"
-								aria-expanded="false"
-								use:dropdown
-							>
-								<i class="bi bi-person-circle"></i>
-							</a>
-							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-								{#if !$user}
-									<li>
-										<a class="dropdown-item" href="/User/login">Iniciar sesión</a>
-									</li>
-								{:else}
-									<li>
-										<a class="dropdown-item" href="/User/">Panel de control</a>
-									</li>
-									<li><hr class="dropdown-divider" /></li>
-									<li>
-										<a class="dropdown-item" href="#" on:click|preventDefault={handleLogout}>
-											Cerrar sesión
-										</a>
-									</li>
-								{/if}
-							</ul>
-						</li>
-					</ul> -->
+					<ul class="navbar-nav">
+					<li class="nav-item dropdown">
+						<button
+							type="button"
+							class="nav-link dropdown-toggle user-dropdown-toggle"
+							id="navbarDropdown"
+							data-bs-toggle="dropdown"
+							aria-expanded="false"
+							aria-label={$user ? `Menú de usuario: ${$user.username}` : 'Menú de usuario'}
+							use:dropdown
+						>
+							<i class="bi bi-person-circle" aria-hidden="true"></i>
+							<span class="user-dropdown-name">{#if $user}{$user.username}{:else}Entrar{/if}</span>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+							{#if !$user}
+								<li>
+									<a class="dropdown-item" href="/User/login">Iniciar sesión</a>
+								</li>
+							{:else}
+								<li>
+									<a class="dropdown-item" href="/User/">Panel de control</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="/User/profile">Perfil</a>
+								</li>
+								<li><hr class="dropdown-divider" /></li>
+								<li>
+									<a class="dropdown-item" href="#" on:click|preventDefault={handleLogout}>
+										Cerrar sesión
+									</a>
+								</li>
+							{/if}
+						</ul>
+					</li>
+				</ul>
 
 				</div>
 			</div>
@@ -179,7 +208,7 @@
 			<ul class="list-unstyled">
 			<li><a href="/About">Sobre Nosotros</a></li>
 			<li><a href="/Accessibility">Accesibilidad</a></li>
-			{#if !canEdit}
+			{#if !$user}
 				<li><a href="/User/login">Entrar [login]</a></li>
 			{:else}
 				<li><a href="/User/">Panel de control</a></li>
