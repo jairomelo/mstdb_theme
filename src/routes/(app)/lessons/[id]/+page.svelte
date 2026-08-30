@@ -1,13 +1,12 @@
 <script>
 	import { onMount } from 'svelte';
-	import { fetchLeccion, whoami } from '$lib/api.js';
+	import { fetchLeccion } from '$lib/api.js';
 
 	export let data;
 
 	let leccion = null;
 	let error = null;
 	let loading = true;
-	let canEdit = false;
 
 	let showAllPersonas = false;
 	let showAllDocumentos = false;
@@ -16,11 +15,12 @@
 	const COLLAPSE_LIMIT = 10;
 
 	onMount(async () => {
-		whoami().then((u) => { canEdit = u?.is_staff || u?.groups?.includes('colectores'); }).catch(() => {});
 		try {
 			leccion = await fetchLeccion(data.id);
 		} catch (e) {
-			error = e.message;
+			error = /40[34]/.test(e.message)
+				? 'Esta lección no está disponible. Puede ser un borrador sin acceso para tu cuenta.'
+				: e.message;
 			console.error('Failed to fetch leccion:', e);
 		} finally {
 			loading = false;
@@ -73,12 +73,24 @@
 				<article class="lesson-detail">
 					<div class="d-flex align-items-start justify-content-between gap-2 mb-3">
 						<h1 class="mb-0">{leccion.title}</h1>
-						{#if canEdit}
-							<a href="/User/catalogar/leccion/{data.id}/edit" class="btn btn-sm btn-outline-primary flex-shrink-0">
-								<i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
-							</a>
+						{#if leccion.can_edit}
+							<div class="d-flex gap-2 flex-shrink-0">
+								<a href="/User/catalogar/leccion/{data.id}" class="btn btn-sm btn-outline-secondary">
+									<i class="bi bi-gear me-1" aria-hidden="true"></i>Administrar
+								</a>
+								<a href="/User/catalogar/leccion/{data.id}/edit" class="btn btn-sm btn-outline-primary">
+									<i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
+								</a>
+							</div>
 						{/if}
 					</div>
+
+					{#if !leccion.is_published}
+						<div class="alert alert-warning py-2" role="status">
+							<i class="bi bi-pencil me-1" aria-hidden="true"></i>Esta lección es un borrador:
+							solo las personas con acceso pueden verla.
+						</div>
+					{/if}
 
 					<p class="lesson-detail-date text-muted">
 						<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Publicada el {formatDate(leccion.created_at)}
