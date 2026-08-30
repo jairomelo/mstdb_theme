@@ -9,6 +9,7 @@
 	const leccionId = data.id;
 
 	let leccion = null;
+	let accesos = [];
 	let loading = true;
 	let loadError = null;
 	let permissionDenied = false;
@@ -25,6 +26,7 @@
 		if (flash) sessionStorage.removeItem('ta_flash');
 		try {
 			leccion = await fetchLeccion(leccionId);
+			accesos = leccion.accesos ?? [];
 		} catch (e) {
 			if (/40[34]/.test(e.message)) {
 				permissionDenied = true;
@@ -151,7 +153,7 @@
 
 		{#if canPublish}
 			<div class="mt-4">
-				<LeccionColaboradores {leccionId} accesos={leccion.accesos ?? []} />
+				<LeccionColaboradores {leccionId} bind:accesos />
 			</div>
 		{/if}
 	{/if}
