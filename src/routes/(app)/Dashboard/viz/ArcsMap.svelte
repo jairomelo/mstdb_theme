@@ -188,6 +188,11 @@
 			: `Período: ${buckets[playhead].label}`
 		: '—';
 
+	function defaultRouteLimit(total) {
+		const max = Math.max(10, total);
+		return Math.min(Math.max(10, Math.round(total / 2 / 10) * 10), max);
+	}
+
 	async function loadData() {
 		loading = true;
 		error = null;
@@ -197,6 +202,7 @@
 			if (endDate) params.fecha_inicial__lte = endDate;
 			const data = await aggregatedTrajectories(params);
 			routes = data.routes || [];
+			routeLimit = defaultRouteLimit(routes.length);
 			places = data.places || [];
 			meta = {
 				min_year: data.min_year ?? null,
@@ -698,7 +704,7 @@
 						class="form-range"
 						type="range"
 						min="10"
-						max="500"
+						max={Math.max(10, routes.length)}
 						step="10"
 						bind:value={routeLimit}
 					/>
