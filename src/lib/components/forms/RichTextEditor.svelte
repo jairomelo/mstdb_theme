@@ -300,7 +300,12 @@
 		bind:this={element}
 		on:drop={onDrop}
 		on:dragover={onDragOver}
-		on:click={() => editor?.chain().focus('end').run()}
+		on:click={(e) => {
+			// Only force focus-to-end when clicking empty space below the content
+			// (i.e. the wrapper itself, not a child node). Clicks on text let
+			// ProseMirror place the cursor where clicked.
+			if (e.target === element) editor?.chain().focus('end').run();
+		}}
 		role="textbox"
 		aria-multiline="true"
 		aria-label={placeholder}
