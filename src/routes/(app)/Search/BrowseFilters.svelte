@@ -32,13 +32,13 @@
         return { ungrouped, groups };
     }
 
-    // Track which groups are expanded — all collapsed by default
+    // Track which groups are expanded — Trayectorias expanded by default, rest collapsed
     let expandedGroups = {};
     $: {
         // Reset on entity change, keep existing state
         const ng = {};
         for (const g of filterLayout.groups) {
-            ng[g.name] = expandedGroups[g.name] !== undefined ? expandedGroups[g.name] : false;
+            ng[g.name] = expandedGroups[g.name] !== undefined ? expandedGroups[g.name] : g.name === 'Trayectorias';
         }
         expandedGroups = ng;
     }
@@ -106,10 +106,14 @@
     </div>
 
     <div class="filter-scroll">
-        <!-- Ungrouped filters (e.g. Nombre search) -->
-        {#each filterLayout.ungrouped as filter}
-            <div class="mb-3">
-                {#if filter.type === 'text'}
+        <!-- Ungrouped filters (e.g. Nombre search, date range) -->
+        {#each filterLayout.ungrouped as filter, i}
+            {@const isYearGte = filter.type === 'year' && filter.key.endsWith('__gte')}
+            {@const isYearLte = filter.type === 'year' && filter.key.endsWith('__lte')}
+            {@const nextFilter = filterLayout.ungrouped[i + 1]}
+
+            {#if filter.type === 'text'}
+                <div class="mb-3">
                     <input
                         type="text"
                         class="form-control form-control-sm"
@@ -117,8 +121,45 @@
                         value={currentFilters[filter.key] || ''}
                         on:input={(e) => handleFilterChange(filter.key, e.target.value)}
                     />
-                {/if}
-            </div>
+                </div>
+            {:else if isYearGte && nextFilter?.type === 'year'}
+                <!-- Year range pair, always visible -->
+                <div class="mb-3">
+                    <label class="form-label small mb-1">Rango de fechas</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input
+                            type="number"
+                            class="form-control form-control-sm text-center"
+                            min={yearRange.min || ''}
+                            max={yearRange.max || ''}
+                            placeholder={yearRange.min || ''}
+                            bind:value={yearFrom}
+                            on:input={() => { yearDirty = true; }}
+                            on:keydown={(e) => { if (e.key === 'Enter') applyYearRange(filter.key, nextFilter.key); }}
+                        />
+                        <span class="text-muted">–</span>
+                        <input
+                            type="number"
+                            class="form-control form-control-sm text-center"
+                            min={yearRange.min || ''}
+                            max={yearRange.max || ''}
+                            placeholder={yearRange.max || ''}
+                            bind:value={yearTo}
+                            on:input={() => { yearDirty = true; }}
+                            on:keydown={(e) => { if (e.key === 'Enter') applyYearRange(filter.key, nextFilter.key); }}
+                        />
+                    </div>
+                    <button
+                        class="btn btn-sm btn-outline-primary w-100 mt-2"
+                        disabled={!yearDirty}
+                        on:click={() => applyYearRange(filter.key, nextFilter.key)}
+                    >
+                        Aplicar
+                    </button>
+                </div>
+            {:else if isYearLte && filterLayout.ungrouped[i - 1]?.type === 'year'}
+                <!-- skip: already rendered with gte -->
+            {/if}
         {/each}
 
         <!-- Grouped filters -->
@@ -135,50 +176,11 @@
                 {#if expandedGroups[group.name]}
                     <div class="filter-group-body">
                         {#each group.filters as filter, i}
-                            {@const isYearGte = filter.type === 'year' && filter.key.endsWith('__gte')}
-                            {@const isYearLte = filter.type === 'year' && filter.key.endsWith('__lte')}
                             {@const nextFilter = group.filters[i + 1]}
                             {@const isRangePair = filter.type === 'number' && nextFilter?.type === 'number'
                                 && filter.key.replace(/__(gte|lte)$/, '') === nextFilter.key.replace(/__(gte|lte)$/, '')}
 
-                            {#if isYearGte && nextFilter?.type === 'year'}
-                                <!-- Year range pair -->
-                                <div class="mb-2">
-                                    <label class="form-label small mb-1">Rango de fechas</label>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <input
-                                            type="number"
-                                            class="form-control form-control-sm text-center"
-                                            min={yearRange.min || ''}
-                                            max={yearRange.max || ''}
-                                            placeholder={yearRange.min || ''}
-                                            bind:value={yearFrom}
-                                            on:input={() => { yearDirty = true; }}
-                                            on:keydown={(e) => { if (e.key === 'Enter') applyYearRange(filter.key, nextFilter.key); }}
-                                        />
-                                        <span class="text-muted">–</span>
-                                        <input
-                                            type="number"
-                                            class="form-control form-control-sm text-center"
-                                            min={yearRange.min || ''}
-                                            max={yearRange.max || ''}
-                                            placeholder={yearRange.max || ''}
-                                            bind:value={yearTo}
-                                            on:input={() => { yearDirty = true; }}
-                                            on:keydown={(e) => { if (e.key === 'Enter') applyYearRange(filter.key, nextFilter.key); }}
-                                        />
-                                    </div>
-                                    <button
-                                        class="btn btn-sm btn-outline-primary w-100 mt-2"
-                                        disabled={!yearDirty}
-                                        on:click={() => applyYearRange(filter.key, nextFilter.key)}
-                                    >
-                                        Aplicar
-                                    </button>
-                                </div>
-                            {:else if isYearLte && group.filters[i - 1]?.type === 'year'}
-                                <!-- skip: already rendered with gte -->
-                            {:else if isRangePair}
+                            {#if isRangePair}
                                 <!-- Number range pair (e.g. edad min/max) -->
                                 <div class="mb-2">
                                     <label class="form-label small mb-1">{filter.key.replace(/__(gte|lte)$/, '').replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase())}</label>

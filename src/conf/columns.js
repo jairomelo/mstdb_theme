@@ -96,11 +96,13 @@ export const defaultVisibleColumns = Object.fromEntries(
 export const filtersDefinition = {
     personaesclavizada: [
         { key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
+        { key: 'fecha_documento__gte', label: 'Desde', type: 'year' },
+        { key: 'fecha_documento__lte', label: 'Hasta', type: 'year' },
+        { key: 'procedencia', label: 'Procedencia', type: 'id-searchable-select', facetKey: 'procedencias', group: 'Trayectorias' },
+        { key: 'trayectoria_lugar', label: 'Lugares (trayectoria)', type: 'id-searchable-select', facetKey: 'lugares', multi: true, group: 'Trayectorias' },
         { key: 'etnonimos__etonimo__icontains', label: 'Etnónimo', type: 'searchable-select', facetKey: 'etnonimos', group: 'Categorías socioétnicas' },
         { key: 'hispanizacion__hispanizacion__icontains', label: 'Agencia / Adaptación', type: 'searchable-select', facetKey: 'hispanizaciones', group: 'Categorías socioétnicas' },
         { key: 'calidades__calidad__icontains', label: 'Calidad', type: 'searchable-select', facetKey: 'calidades', group: 'Categorías socioétnicas' },
-        { key: 'procedencia', label: 'Procedencia', type: 'id-searchable-select', facetKey: 'procedencias', group: 'Trayectorias' },
-        { key: 'trayectoria_lugar', label: 'Lugares (trayectoria)', type: 'id-searchable-select', facetKey: 'lugares', multi: true, group: 'Trayectorias' },
         {
             key: 'sexo', label: 'Sexo', type: 'select', group: 'Biografía',
             options: [
@@ -133,14 +135,14 @@ export const filtersDefinition = {
         { key: 'salud__icontains', label: 'Salud', type: 'text', placeholder: 'Buscar salud...', group: 'Biografía' },
         { key: 'tipo_documental', label: 'Tipo documental', type: 'searchable-select', facetKey: 'tipos_documentales', group: 'Documento' },
         { key: 'archivo', label: 'Archivo', type: 'id-searchable-select', facetKey: 'archivos', group: 'Documento' },
-        { key: 'fecha_documento__gte', label: 'Desde', type: 'year', group: 'Documento' },
-        { key: 'fecha_documento__lte', label: 'Hasta', type: 'year', group: 'Documento' },
     ],
     personanoesclavizada: [
         { key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
+        { key: 'fecha_documento__gte', label: 'Desde', type: 'year' },
+        { key: 'fecha_documento__lte', label: 'Hasta', type: 'year' },
+        { key: 'trayectoria_lugar', label: 'Lugares (trayectoria)', type: 'id-searchable-select', facetKey: 'lugares', multi: true, group: 'Trayectorias' },
         { key: 'ocupaciones__actividad__icontains', label: 'Ocupación', type: 'searchable-select', facetKey: 'ocupaciones', group: 'Categorías socioétnicas' },
         { key: 'calidades__calidad__icontains', label: 'Calidad', type: 'searchable-select', facetKey: 'calidades', group: 'Categorías socioétnicas' },
-        { key: 'trayectoria_lugar', label: 'Lugares (trayectoria)', type: 'id-searchable-select', facetKey: 'lugares', multi: true, group: 'Trayectorias' },
         {
             key: 'sexo', label: 'Sexo', type: 'select', group: 'Biografía',
             options: [
@@ -176,8 +178,7 @@ export const filtersDefinition = {
         },
         { key: 'tipo_documental', label: 'Tipo documental', type: 'searchable-select', facetKey: 'tipos_documentales', group: 'Documento' },
         { key: 'archivo', label: 'Archivo', type: 'id-searchable-select', facetKey: 'archivos', group: 'Documento' },
-        { key: 'fecha_documento__gte', label: 'Desde', type: 'year', group: 'Documento' },
-        { key: 'fecha_documento__lte', label: 'Hasta', type: 'year', group: 'Documento' },
+        
     ],
     documento: [
         { key: 'search', label: 'Título', type: 'text', placeholder: 'Buscar por título...' },
