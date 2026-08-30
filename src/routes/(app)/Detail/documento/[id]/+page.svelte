@@ -4,6 +4,7 @@
 	import { documentos, documentoPersonas } from '$lib/api';
 	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
 	import { generateDocumentTree } from '$lib/documentTree.js';
+	import { formatDate } from '$lib/utils';
 
 	export let data;
 	let documento = null;
@@ -155,9 +156,7 @@
 				</div>
 				<div class="mt-3 text-muted">
 					<small data-bs-toggle="tooltip" data-bs-placement="top" title="Fecha de creación">
-						<i class="bi bi-clock-history me-1"></i>Creado: {new Date(
-							documento.created_at
-						).toLocaleString()}
+						<i class="bi bi-clock-history me-1"></i>Creado: {formatDate(documento.created_at)}
 					</small>
 					<small
 						class="ms-3"
@@ -165,9 +164,7 @@
 						data-bs-placement="top"
 						title="Última actualización"
 					>
-						<i class="bi bi-clock me-1"></i>Actualizado: {new Date(
-							documento.updated_at
-						).toLocaleString()}
+						<i class="bi bi-clock me-1"></i>Actualizado: {formatDate(documento.updated_at)}
 					</small>
 				</div>
 			</div>

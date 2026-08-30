@@ -2,6 +2,7 @@
 	import { onMount, tick, onDestroy } from 'svelte';
 	import { pernoesclavizadas, personaNoEsclavizadaNetwork, whoami } from '$lib/api';
 	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
+	import { formatDate } from '$lib/utils';
 	import cytoscape from 'cytoscape';
 	import fcose from 'cytoscape-fcose';
 	import { browser } from '$app/environment';
@@ -656,9 +657,7 @@
 
 		<div class="mt-3 text-muted">
 			<small data-bs-toggle="tooltip" data-bs-placement="top" title="Fecha de creación">
-				<i class="bi bi-clock-history me-1"></i>Creado: {new Date(
-					pernoesc.created_at
-				).toLocaleString()}
+				<i class="bi bi-clock-history me-1"></i>Creado: {formatDate(pernoesc.created_at)}
 			</small>
 			<small
 				class="ms-3"
@@ -666,7 +665,7 @@
 				data-bs-placement="top"
 				title="Última actualización"
 			>
-				<i class="bi bi-clock me-1"></i>Actualizado: {new Date(pernoesc.updated_at).toLocaleString()}
+				<i class="bi bi-clock me-1"></i>Actualizado: {formatDate(pernoesc.updated_at)}
 			</small>
 		</div>
 	{:else}

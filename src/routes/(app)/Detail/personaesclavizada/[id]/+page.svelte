@@ -3,6 +3,7 @@
 	import { peresclavizadas, personaNetwork, personaTrajectory, whoami } from '$lib/api';
 	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
 	import Tooltip from '$lib/components/Tooltip.svelte';
+	import { formatDate } from '$lib/utils';
 	import cytoscape from 'cytoscape';
 	import fcose from 'cytoscape-fcose';
 	import { browser } from '$app/environment';
@@ -811,9 +812,7 @@
 
 		<div class="mt-3 text-muted">
 			<small data-bs-toggle="tooltip" data-bs-placement="top" title="Fecha de creación">
-				<i class="bi bi-clock-history me-1"></i>Creado: {new Date(
-					peresc.created_at
-				).toLocaleString()}
+				<i class="bi bi-clock-history me-1"></i>Creado: {formatDate(peresc.created_at)}
 			</small>
 			<small
 				class="ms-3"
@@ -821,7 +820,7 @@
 				data-bs-placement="top"
 				title="Última actualización"
 			>
-				<i class="bi bi-clock me-1"></i>Actualizado: {new Date(peresc.updated_at).toLocaleString()}
+				<i class="bi bi-clock me-1"></i>Actualizado: {formatDate(peresc.updated_at)}
 			</small>
 		</div>
 	{:else}

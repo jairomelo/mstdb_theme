@@ -12,7 +12,6 @@
 	onMount(async () => {
 		try {
 			corp = await corporaciones(data.id);
-			console.log(corp);
 		} catch (e) {
 			error = e.message;
 			console.error('Failed to fetch corporacion:', e);
@@ -32,7 +31,7 @@
 	{:else if corp}
 
 	<div class="entity-banner">
-		<h1 class="text-primary"><img src="/icons/i_institucion.webp" alt="Persona Esclavizada"> Corporación</h1>
+		<h1 class="text-primary"><img src="/icons/i_institucion.webp" alt="Corporación"> Corporación</h1>
 	</div>
 		<div class="card mb-4">
 			<div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
@@ -89,26 +88,18 @@
 					</h2>
 				</div>
 				<ul class="list-group list-group-flush">
-					{#each corp.personas_asociadas as persona}
-						<li class="list-group-item">
-							<a href="/Detail/{persona.polymorphic_ctype == 29 ? 'personaesclavizada' : 'personanoesclavizada'}/{persona.persona_id}" 
-							   class="{persona.polymorphic_ctype == 29 ? 'text-primary' : 'text-secondary'}">
-								<h3 class="h6 mb-2">{persona.nombre_normalizado}</h3>
-							</a>
-						</li>
-					{/each}
+				{#each corp.personas_asociadas as persona}
+					<li class="list-group-item">
+						<a href="/Detail/{persona.persona_type === 'esclavizada' ? 'personaesclavizada' : 'personanoesclavizada'}/{persona.persona_id}"
+						   class="{persona.persona_type === 'esclavizada' ? 'text-primary' : 'text-secondary'}">
+							<h3 class="h6 mb-2">{persona.nombre_normalizado}</h3>
+						</a>
+					</li>
+				{/each}
 				</ul>
 			</div>
 		{/if}
 
-		<div class="mt-3 text-muted">
-			<small data-bs-toggle="tooltip" data-bs-placement="top" title="Fecha de creación">
-				<i class="bi bi-clock-history me-1"></i>Creado: {new Date(corp.created_at).toLocaleString()}
-			</small>
-			<small class="ms-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Última actualización">
-				<i class="bi bi-clock me-1"></i>Actualizado: {new Date(corp.updated_at).toLocaleString()}
-			</small>
-		</div>
 	{:else}
 		<div class="d-flex justify-content-center">
 			<div class="spinner-border text-primary" role="status">
