@@ -1,6 +1,7 @@
 <script>
     import { onMount } from "svelte";
     import { whoami, logout, fetchWithBaseUrl, updateProfile, fetchUsersProgress } from "$lib/api";
+    import { loginUrl } from '$lib/auth';
 
     let user = null;
     let error = null;
@@ -96,7 +97,7 @@
     onMount(async () => {
         try {
             user = await whoami();
-            if (!user) { window.location.href = "/User/login"; return; }
+            if (!user) { window.location.href = loginUrl(); return; }
             profileForm = { ...user.profile };
             if (canSeeDbSummary(user)) loadEntityCounts();
             if (user.is_staff) loadUsersProgress();
@@ -104,7 +105,7 @@
         } catch (err) {
             console.error(err);
             error = "You are not logged in";
-            window.location.href = "/User/login";
+            window.location.href = loginUrl();
         }
     });
 </script>

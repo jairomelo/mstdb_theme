@@ -7,6 +7,7 @@
     } from '$lib/api';
     import SearchableSelect from '$lib/components/forms/SearchableSelect.svelte';
     import FormField from '$lib/components/forms/FormField.svelte';
+    import { loginUrl } from '$lib/auth';
 
     export let data;
 
@@ -48,9 +49,9 @@
         try {
             me = await whoami();
             const allowed = me?.is_staff || me?.groups?.includes('colectores');
-            if (!allowed) { goto('/User/login'); return; }
+            if (!allowed) { goto(loginUrl()); return; }
         } catch {
-            goto('/User/login');
+            goto(loginUrl());
             return;
         }
         try {
