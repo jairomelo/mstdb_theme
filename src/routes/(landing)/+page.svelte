@@ -4,14 +4,13 @@
   import { unifiedStore, loadCounts } from '$lib/unified-store';
   import { animateSuffix } from '$lib/textanimation';
   import { setRandomHeroImage } from '$lib/heroBackground'; // Updated import path
-  import { whoami } from '$lib/api';
+  import { user } from '$lib/stores/user';
 
   /* global __APP_VERSION__ */
   const appVersion = __APP_VERSION__;
 
   let suffixElement;
   let heroSectionElement;
-  let canEdit = false;
 
   $: if ($currentSuffix) {
     animateSuffix(suffixElement, updateSuffix);
@@ -64,7 +63,6 @@
   }
 
   onMount(() => {
-    whoami().then(u => { canEdit = u.is_staff || u.groups?.includes('colectores'); }).catch(() => {});
     updateSuffix();
     setRandomHeroImage(heroSectionElement); // Pass heroSectionElement here
     loadCounts();
@@ -90,6 +88,10 @@
   bind:this={heroSectionElement}
 >
   <div class="overlay"></div>
+  <a class="hero-auth-link" href={$user ? '/User/' : '/User/login'}>
+    <i class="bi bi-person-circle" aria-hidden="true"></i>
+    {$user ? $user.username : 'Entrar'}
+  </a>
   <div class="hero-content text-center">
     <h1 class="display-4 dynamic-title" aria-label="{titleStem} {$currentSuffix}">
 		<span class="title-stem">{titleStem}</span>
@@ -282,7 +284,7 @@
         <ul class="list-unstyled">
         <li><a href="/About">Sobre Nosotros</a></li>
         <li><a href="/Accessibility">Accesibilidad</a></li>
-        {#if !canEdit}
+        {#if !$user}
           <li><a href="/User/login">Entrar [login]</a></li>
         {:else}
           <li><a href="/User/">Panel de control</a></li>

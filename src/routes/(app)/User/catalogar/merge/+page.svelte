@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { whoami, mergeCandidates, mergeExecute } from '$lib/api';
+    import { loginUrl } from '$lib/auth';
 
     let me = null;
     let isStaff = false;
@@ -32,7 +33,7 @@
             isStaff = me?.is_staff ?? false;
             if (!isStaff) { window.location.href = '/User/'; }
         } catch {
-            window.location.href = '/User/login';
+            window.location.href = loginUrl();
         }
     });
 

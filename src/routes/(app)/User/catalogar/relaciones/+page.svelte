@@ -20,6 +20,7 @@
     import SlideOver from '$lib/components/hub/SlideOver.svelte';
     import ConfirmDelete from '$lib/components/hub/ConfirmDelete.svelte';
     import FlexDateInput from '$lib/components/forms/FlexDateInput.svelte';
+    import { loginUrl } from '$lib/auth';
 
     // Guard against double-registration (HMR / multiple imports)
     try { cytoscape.use(fcose); } catch {}
@@ -134,9 +135,9 @@
             me = await whoami();
             const groups = me?.groups ?? [];
             const allowed = me?.is_staff || groups.includes('colectores');
-            if (!allowed) { window.location.href = '/User/login'; return; }
+            if (!allowed) { window.location.href = loginUrl(); return; }
         } catch {
-            window.location.href = '/User/login';
+            window.location.href = loginUrl();
             return;
         }
         await tick();
