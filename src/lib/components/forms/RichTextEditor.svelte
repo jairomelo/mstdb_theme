@@ -155,6 +155,7 @@
 			class:active={active.bold}
 			aria-pressed={active.bold}
 			aria-label="Negrita"
+			title="Negrita"
 			on:click={() => editor.chain().focus().toggleBold().run()}
 		>
 			<i class="bi bi-type-bold" aria-hidden="true"></i>
@@ -165,6 +166,7 @@
 			class:active={active.italic}
 			aria-pressed={active.italic}
 			aria-label="Cursiva"
+			title="Cursiva"
 			on:click={() => editor.chain().focus().toggleItalic().run()}
 		>
 			<i class="bi bi-type-italic" aria-hidden="true"></i>
@@ -175,6 +177,7 @@
 			class:active={active.strike}
 			aria-pressed={active.strike}
 			aria-label="Tachado"
+			title="Tachado"
 			on:click={() => editor.chain().focus().toggleStrike().run()}
 		>
 			<i class="bi bi-type-strikethrough" aria-hidden="true"></i>
@@ -185,6 +188,7 @@
 			class:active={active.h2}
 			aria-pressed={active.h2}
 			aria-label="Encabezado 2"
+			title="Encabezado 2"
 			on:click={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
 		>
 			<i class="bi bi-type-h2" aria-hidden="true"></i>
@@ -195,6 +199,7 @@
 			class:active={active.h3}
 			aria-pressed={active.h3}
 			aria-label="Encabezado 3"
+			title="Encabezado 3"
 			on:click={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
 		>
 			<i class="bi bi-type-h3" aria-hidden="true"></i>
@@ -205,6 +210,7 @@
 			class:active={active.bulletList}
 			aria-pressed={active.bulletList}
 			aria-label="Lista con viñetas"
+			title="Lista con viñetas"
 			on:click={() => editor.chain().focus().toggleBulletList().run()}
 		>
 			<i class="bi bi-list-ul" aria-hidden="true"></i>
@@ -215,6 +221,7 @@
 			class:active={active.orderedList}
 			aria-pressed={active.orderedList}
 			aria-label="Lista numerada"
+			title="Lista numerada"
 			on:click={() => editor.chain().focus().toggleOrderedList().run()}
 		>
 			<i class="bi bi-list-ol" aria-hidden="true"></i>
@@ -225,6 +232,7 @@
 			class:active={active.link}
 			aria-pressed={active.link}
 			aria-label="Insertar enlace"
+			title="Insertar enlace"
 			on:click={setLink}
 		>
 			<i class="bi bi-link-45deg" aria-hidden="true"></i>
@@ -235,6 +243,7 @@
 			class:active={active.blockquote}
 			aria-pressed={active.blockquote}
 			aria-label="Cita"
+			title="Cita"
 			on:click={() => editor.chain().focus().toggleBlockquote().run()}
 		>
 			<i class="bi bi-quote" aria-hidden="true"></i>
@@ -243,6 +252,7 @@
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
 			aria-label="Línea horizontal"
+			title="Línea horizontal"
 			on:click={() => editor.chain().focus().setHorizontalRule().run()}
 		>
 			<i class="bi bi-hr" aria-hidden="true"></i>
@@ -274,12 +284,13 @@
 			title="Insertar embed (YouTube, PDF, IIIF, iframe)"
 			on:click={openEmbedDialog}
 		>
-			<i class="bi bi-collection-play" aria-hidden="true"></i>
+			<i class="bi bi-code-square" aria-hidden="true"></i>
 		</button>
 		<button
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
 			aria-label="Deshacer"
+			title="Deshacer"
 			on:click={() => editor.chain().focus().undo().run()}
 		>
 			<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
@@ -288,6 +299,7 @@
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
 			aria-label="Rehacer"
+			title="Rehacer"
 			on:click={() => editor.chain().focus().redo().run()}
 		>
 			<i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
@@ -298,6 +310,7 @@
 		{id}
 		class="rich-text-content"
 		bind:this={element}
+		tabindex="0"
 		on:drop={onDrop}
 		on:dragover={onDragOver}
 		on:click={(e) => {
@@ -305,6 +318,9 @@
 			// (i.e. the wrapper itself, not a child node). Clicks on text let
 			// ProseMirror place the cursor where clicked.
 			if (e.target === element) editor?.chain().focus('end').run();
+		}}
+		on:keydown={(e) => {
+			if (e.key === 'Enter' && e.target === element) editor?.chain().focus('end').run();
 		}}
 		role="textbox"
 		aria-multiline="true"

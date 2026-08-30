@@ -788,6 +788,7 @@
 						type="button"
 						on:click={skipToStart}
 						aria-label="Ir al inicio de la línea de tiempo"
+						title="Ir al inicio de la línea de tiempo"
 						disabled={!buckets.length}
 					>
 						<i class="bi bi-skip-start-fill" aria-hidden="true"></i>
@@ -797,6 +798,7 @@
 						type="button"
 						on:click={togglePlay}
 						aria-label={playing ? 'Pausar animación' : 'Reproducir animación'}
+						title={playing ? 'Pausar animación' : 'Reproducir animación'}
 						disabled={!buckets.length}
 					>
 						<i class="bi {playing ? 'bi-pause-fill' : 'bi-play-fill'}" aria-hidden="true"></i>
@@ -806,6 +808,7 @@
 						type="button"
 						on:click={skipToEnd}
 						aria-label="Ir al final de la línea de tiempo"
+						title="Ir al final de la línea de tiempo"
 						disabled={!buckets.length}
 					>
 						<i class="bi bi-skip-end-fill" aria-hidden="true"></i>

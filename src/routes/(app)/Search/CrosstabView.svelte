@@ -257,6 +257,7 @@
 		<button
 			class="btn btn-sm btn-outline-secondary"
 			aria-label="Descargar tabla como CSV"
+			title="Descargar tabla como CSV"
 			on:click={downloadCsv}
 		>
 			<i class="bi bi-download me-1" aria-hidden="true"></i>CSV

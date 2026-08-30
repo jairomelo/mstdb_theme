@@ -103,7 +103,7 @@
             aria-expanded={open}
         />
         {#if value}
-            <button type="button" class="btn btn-outline-secondary" on:click={clear} aria-label="Limpiar">
+            <button type="button" class="btn btn-outline-secondary" on:click={clear} aria-label="Limpiar" title="Limpiar">
                 &times;
             </button>
         {/if}

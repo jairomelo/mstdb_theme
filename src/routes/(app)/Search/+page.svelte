@@ -345,22 +345,22 @@
 
 				<!-- Pagination -->
 				<nav class="d-flex justify-content-center align-items-center gap-2 my-3" aria-label="Paginación">
-<button class="btn btn-sm btn-outline-secondary" aria-label="Primera página" disabled={tabState.currentPage <= 1} on:click={goFirst}>
-					<i class="bi bi-chevron-double-left" aria-hidden="true"></i>
-				</button>
-				<button class="btn btn-sm btn-outline-secondary" aria-label="Página anterior" disabled={tabState.currentPage <= 1} on:click={goPrev}>
-					<i class="bi bi-chevron-left" aria-hidden="true"></i>
+					<button class="btn btn-sm btn-outline-secondary" aria-label="Primera página" title="Primera página" disabled={tabState.currentPage <= 1} on:click={goFirst}>
+						<i class="bi bi-chevron-double-left" aria-hidden="true"></i>
+					</button>
+					<button class="btn btn-sm btn-outline-secondary" aria-label="Página anterior" title="Página anterior" disabled={tabState.currentPage <= 1} on:click={goPrev}>
+						<i class="bi bi-chevron-left" aria-hidden="true"></i>
 					</button>
 
 					<span class="small text-muted">
 						Página {tabState.currentPage} de {totalPages}
 					</span>
 
-<button class="btn btn-sm btn-outline-secondary" aria-label="Página siguiente" disabled={tabState.currentPage >= totalPages} on:click={goNext}>
-					<i class="bi bi-chevron-right" aria-hidden="true"></i>
-				</button>
-				<button class="btn btn-sm btn-outline-secondary" aria-label="Última página" disabled={tabState.currentPage >= totalPages} on:click={goLast}>
-					<i class="bi bi-chevron-double-right" aria-hidden="true"></i>
+					<button class="btn btn-sm btn-outline-secondary" aria-label="Página siguiente" title="Página siguiente" disabled={tabState.currentPage >= totalPages} on:click={goNext}>
+						<i class="bi bi-chevron-right" aria-hidden="true"></i>
+					</button>
+					<button class="btn btn-sm btn-outline-secondary" aria-label="Última página" title="Última página" disabled={tabState.currentPage >= totalPages} on:click={goLast}>
+						<i class="bi bi-chevron-double-right" aria-hidden="true"></i>
 					</button>
 
 					<div class="input-group input-group-sm" style="width: 140px;">

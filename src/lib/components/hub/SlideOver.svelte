@@ -33,7 +33,7 @@
          transition:fly={{ x: 400, duration: 250 }}>
         <div class="slide-over-header">
             <h5 class="mb-0">{title}</h5>
-            <button type="button" class="btn-close" aria-label="Cerrar" on:click={close} />
+            <button type="button" class="btn-close" aria-label="Cerrar" title="Cerrar" on:click={close} />
         </div>
         <div class="slide-over-body">
             <slot />

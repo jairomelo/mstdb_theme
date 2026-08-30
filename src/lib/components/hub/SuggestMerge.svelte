@@ -86,7 +86,7 @@
                     <h5 class="modal-title" id="suggest-merge-title">
                         <i class="bi bi-git me-2"></i>Sugerir fusión — {ENTITY_LABELS[entity] ?? entity}
                     </h5>
-                    <button type="button" class="btn-close" aria-label="Cerrar" on:click={closeModal}></button>
+                    <button type="button" class="btn-close" aria-label="Cerrar" title="Cerrar" on:click={closeModal}></button>
                 </div>
                 <div class="modal-body">
                     {#if success}
