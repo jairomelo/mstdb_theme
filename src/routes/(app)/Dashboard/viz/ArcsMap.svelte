@@ -690,8 +690,8 @@
 {#if browser}
 	<div class="map-container card arcs-map">
 		<div class="card-body">
-			<div class="row g-3 mb-3">
-				<div class="col-md-3">
+			<div class="arcs-map-filters">
+				<div class="arcs-map-filter arcs-map-filter-limit">
 					<label class="form-label" for="route-limit">Rutas mostradas: {routeLimit}</label>
 					<input
 						id="route-limit"
@@ -703,7 +703,7 @@
 						bind:value={routeLimit}
 					/>
 				</div>
-				<div class="col-md-3">
+				<div class="arcs-map-filter">
 					<label class="form-label" for="origin">Origen</label>
 					<select id="origin" class="form-select" bind:value={origin}>
 						<option value="">Todos los lugares</option>
@@ -712,7 +712,7 @@
 						{/each}
 					</select>
 				</div>
-				<div class="col-md-3">
+				<div class="arcs-map-filter">
 					<label class="form-label" for="destination">Destino</label>
 					<select id="destination" class="form-select" bind:value={destination}>
 						<option value="">Todos los lugares</option>
@@ -721,7 +721,7 @@
 						{/each}
 					</select>
 				</div>
-				<div class="col-md-3">
+				<div class="arcs-map-filter arcs-map-filter-dates">
 					<label class="form-label" for="start-year">Rango de fechas</label>
 					<div class="input-group">
 						<input
@@ -737,6 +737,7 @@
 							bind:value={startYear}
 						/>
 						<input
+							id="end-year"
 							class="form-control"
 							type="number"
 							inputmode="numeric"
