@@ -335,29 +335,29 @@ $theme-colors: (
     max-width: 70ch;
     line-height: 1.7;
 
-    :global(h1),
-    :global(h2),
-    :global(h3),
-    :global(h4) {
+    h1,
+    h2,
+    h3,
+    h4 {
         margin-top: 1.5rem;
         margin-bottom: 0.75rem;
     }
 
-    :global(p) {
+    p {
         margin-bottom: 1rem;
     }
 
-    :global(img) {
+    img {
         max-width: 100%;
         border-radius: 0.375rem;
         margin: 1rem 0;
     }
 
-    :global(a) {
+    a {
         color: map-get($theme-colors, "primary");
     }
 
-    :global(blockquote) {
+    blockquote {
         border-left: 4px solid map-get($theme-colors, "accent3");
         padding-left: 1rem;
         color: map-get($theme-colors, "accent2");
@@ -392,7 +392,7 @@ $theme-colors: (
     cursor: text;
     transition: border-color 0.15s ease;
 
-    :global(.ProseMirror) {
+    .ProseMirror {
         outline: none !important;
         min-height: 200px;
         padding: 0.75rem;
@@ -401,33 +401,33 @@ $theme-colors: (
         border: none !important;
     }
 
-    :global(.ProseMirror:focus) {
+    .ProseMirror:focus {
         outline: none !important;
         border: none !important;
         box-shadow: none !important;
         padding: 0.75rem !important;
     }
 
-    :global(.ProseMirror:focus-visible) {
+    .ProseMirror:focus-visible {
         outline: none !important;
         border: 0px !important;
         box-shadow: none !important;
         padding: 0.75rem !important;
     }
 
-    :global(.ProseMirror-focused) {
+    .ProseMirror-focused {
         outline: none !important;
         border: none !important;
         box-shadow: none !important;
         padding: 0.75rem !important; 
     }
 
-    :global(img) {
+    img {
         max-width: 100%;
         border-radius: 0.375rem;
     }
 
-    :global(blockquote) {
+    blockquote {
         border-left: 4px solid map-get($theme-colors, "accent3");
         padding-left: 1rem;
         color: map-get($theme-colors, "accent2");
