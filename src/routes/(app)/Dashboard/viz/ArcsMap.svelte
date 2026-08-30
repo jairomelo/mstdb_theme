@@ -185,7 +185,7 @@
 	$: currentBucketLabel = buckets[playhead]
 		? granularity === 1
 			? `Año: ${buckets[playhead].label}`
-			: `Período: ${buckets[playhead].label}`
+			: `Periodo: ${buckets[playhead].label}`
 		: '—';
 
 	function defaultRouteLimit(total) {
@@ -900,10 +900,10 @@
 					</span>
 					<span class="legend-item">
 						<span class="legend-particle" aria-hidden="true"></span>
-						Puntos en movimiento: flujos del período mostrado
+						Puntos en movimiento: flujos del periodo mostrado
 					</span>
 					<span class="legend-note">
-						Los conteos por período cuentan movimientos (no personas únicas); la vista estática
+						Los conteos por periodo cuentan movimientos (no personas únicas); la vista estática
 						cuenta personas únicas por ruta.
 					</span>
 				{/if}
