@@ -108,6 +108,7 @@
 
     const NATURALEZA_OPTIONS = [
         { value: 'fam', label: 'Familiar' },
+        { value: 'aso', label: 'Asociativa' },
         { value: 'tmp', label: 'Temporal' },
         { value: 'sub', label: 'Subordinación' },
     ];
@@ -277,6 +278,10 @@
             {
                 selector: 'edge[relation = "fam"]',
                 style: { 'line-color': '#D4A27F', 'width': 2.5 },
+            },
+            {
+                selector: 'edge[relation = "aso"]',
+                style: { 'line-color': '#9CA3AF' },
             },
             {
                 selector: 'edge[relation = "tmp"]',
@@ -1061,6 +1066,10 @@
                 <span class="d-flex align-items-center gap-1">
                     <span class="d-inline-block flex-shrink-0" style="width:20px;height:3px;background:#D4A27F;border-radius:2px;" aria-hidden="true"></span>
                     Familiar
+                </span>
+                <span class="d-flex align-items-center gap-1">
+                    <span class="d-inline-block flex-shrink-0" style="width:20px;height:3px;background:#9CA3AF;border-radius:2px;" aria-hidden="true"></span>
+                    Asociativa
                 </span>
                 <span class="d-flex align-items-center gap-1">
                     <span class="d-inline-block flex-shrink-0" style="width:20px;height:3px;background:#7BB97B;border-radius:2px;" aria-hidden="true"></span>

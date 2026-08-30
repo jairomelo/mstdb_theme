@@ -405,7 +405,10 @@ export const createPersonaNoEsclavizada = (data) => postWithBaseUrl('personas-no
 export const createDocumento           = (data) => postWithBaseUrl('documentos/', data);
 export const createLugar               = (data) => postWithBaseUrl('lugares/', data);
 export const createTipoDocumental      = (data) => postWithBaseUrl('vocabularios/tipos-documentales/', data);
-export const createCorporacion         = (data) => postWithBaseUrl('corporaciones/', data);// ── PersonaRelaciones (P×P) helpers ──────────────────────────────────────────
+export const createCorporacion         = (data) => postWithBaseUrl('corporaciones/', data);
+export const updateCorporacion         = (id, data) => patchWithBaseUrl(`corporaciones/${id}/`, data);
+
+// ── PersonaRelaciones (P×P) helpers ──────────────────────────────────────────
 export const relacionesByPersona = (personaId) => fetchWithBaseUrl(`relaciones-personas/?personas__persona_id=${personaId}&page_size=100`);
 export const createPersonaRelacion  = (payload) => postWithBaseUrl('relaciones-personas/', payload);
 export const updatePersonaRelacion  = (id, payload) => patchWithBaseUrl(`relaciones-personas/${id}/`, payload);

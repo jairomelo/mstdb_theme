@@ -1,15 +1,17 @@
 <script>
 	import { onMount } from 'svelte';
 	import { tooltip } from '$lib/bootstrap-actions.js';
-	import { corporaciones } from '$lib/api';
+	import { corporaciones, whoami } from '$lib/api';
 	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
 	import { formatDate } from '$lib/utils';
 
 	export let data;
 	let corp = null;
 	let error = null;
+	let canEdit = false;
 
 	onMount(async () => {
+		whoami().then(u => { canEdit = u.is_staff || u.groups?.includes('colectores'); }).catch(() => {});
 		try {
 			corp = await corporaciones(data.id);
 		} catch (e) {
@@ -36,7 +38,14 @@
 		<div class="card mb-4">
 			<div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
 				<h1 class="card-title mb-0">{corp.nombre_institucion}</h1>
-				<SuggestMerge entity="cor" currentId={corp.corporacion_id} currentLabel={corp.nombre_institucion} />
+				<div class="d-flex gap-2 align-items-center">
+					{#if canEdit}
+						<a href="/User/catalogar/corporacion/edit/{data.id}" class="btn btn-sm btn-outline-light">
+							<i class="bi bi-pencil-square me-1"></i>Editar
+						</a>
+					{/if}
+					<SuggestMerge entity="cor" currentId={corp.corporacion_id} currentLabel={corp.nombre_institucion} />
+				</div>
 			</div>
 			<div class="card-body">
 				<div class="row">

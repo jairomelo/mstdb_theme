@@ -160,6 +160,12 @@
 					}
 				},
 				{
+					selector: 'edge[relation = "aso"]',
+					style: {
+						'line-color': '#9CA3AF'
+					}
+				},
+				{
 					selector: 'edge[relation = "tmp"]',
 					style: {
 						'line-color': '#B8C99A'
@@ -708,7 +714,7 @@
 				<div class="card-header bg-info text-white d-flex justify-content-between align-items-start">
 					<div>
 								<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones
-									<Tooltip text="Visualiza las relaciones documentadas entre esta persona y otras. Cada nodo es una persona; los colores distinguen el tipo de relación (familiar, temporal, subordinación)." placement="bottom" />
+									<Tooltip text="Visualiza las relaciones documentadas entre esta persona y otras. Cada nodo es una persona; los colores distinguen el tipo de relación (familiar, asociativa, temporal, subordinación)." placement="bottom" />
 								</h2>
 						<small class="text-white-50">Haz clic en un nodo para ver los detalles de esa persona</small>
 					</div>
@@ -728,6 +734,7 @@
 						<small class="text-muted me-1">Filtrar:</small>
 						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'fam'} style="--fc: #D4A27F;" on:click={() => filterByRelation('fam')}>Parentesco</button>
 
+						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'aso'} style="--fc: #9CA3AF;" on:click={() => filterByRelation('aso')}>Asociativa</button>
 						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'tmp'} style="--fc: #B8C99A;" on:click={() => filterByRelation('tmp')}>Temporal</button>
 						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'sub'} style="--fc: #9B8EC4;" on:click={() => filterByRelation('sub')}>Subordinación</button>
 						<span class="mx-1 text-muted">|</span>
