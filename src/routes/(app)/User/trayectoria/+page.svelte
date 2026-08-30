@@ -17,6 +17,7 @@
         peresclavizadas,
     } from '$lib/api';
     import Tooltip from '$lib/components/Tooltip.svelte';
+    import { loginUrl } from '$lib/auth';
 
     // ── Auth ─────────────────────────────────────────────────────────────────
     let currentUser = null;
@@ -87,11 +88,11 @@
             currentUser = await whoami();
             const canEdit = currentUser.is_staff || currentUser.groups?.includes('colectores');
             if (!canEdit) {
-                window.location.href = '/User/login';
+                window.location.href = loginUrl();
                 return;
             }
         } catch {
-            window.location.href = '/User/login';
+            window.location.href = loginUrl();
             return;
         }
 

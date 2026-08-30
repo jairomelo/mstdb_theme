@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { whoami, updateProfile, changePassword } from '$lib/api';
+    import { loginUrl } from '$lib/auth';
 
     let user = null;
     let error = null;
@@ -101,9 +102,9 @@
     onMount(async () => {
         try {
             user = await whoami();
-            if (!user) { window.location.href = '/User/login'; }
+            if (!user) { window.location.href = loginUrl(); }
         } catch {
-            window.location.href = '/User/login';
+            window.location.href = loginUrl();
         }
     });
 </script>
