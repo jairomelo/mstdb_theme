@@ -793,9 +793,12 @@
             <div class="mb-3">
                 <label class="form-label" for="add-ordinal">
                     Ordinal <span class="text-danger">*</span>
-                    <small class="text-muted ms-1">(no puede ser 0)</small>
                 </label>
                 <input id="add-ordinal" type="number" class="form-control" bind:value={addOrdinal} placeholder="e.g. 1, 2, -1…" />
+                <small class="form-text text-muted d-block">
+                    El 0 está reservado para el lugar del evento/transacción.
+                    Usa negativos para lugares previos al evento y positivos para los posteriores.
+                </small>
             </div>
             <!-- Situacion -->
             <div class="mb-3">

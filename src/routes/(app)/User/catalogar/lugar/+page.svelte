@@ -65,7 +65,15 @@
         </ol>
     </nav>
 
-    <h1 class="h3 mb-4">Nuevo Lugar</h1>
+    <h1 class="h3 mb-3">Nuevo Lugar</h1>
+
+    <div class="alert alert-info py-2" role="note">
+        <i class="bi bi-info-circle me-1"></i>
+        <small>
+            La georreferenciación se registra directamente aquí: crea el lugar con sus coordenadas
+            y jerarquía («Es parte de»). Los lugares existentes se editan desde su página de detalle.
+        </small>
+    </div>
 
     {#if created}
         <div class="alert alert-success d-flex align-items-center justify-content-between" role="alert">
