@@ -306,6 +306,17 @@ export const uploadLeccionImagen = async (leccionId, file) => {
     }
     return await response.json();
 };
+// ── Leccion accesos (owner/collaborator grants) ─────────────────────────────
+export const fetchLeccionAccesos = (leccionId) =>
+	fetchWithBaseUrl(`lecciones/${leccionId}/accesos/`);
+export const addLeccionAcceso = (leccionId, payload) =>
+	postWithBaseUrl(`lecciones/${leccionId}/accesos/agregar/`, payload);
+export const updateLeccionAcceso = (leccionId, accesoId, payload) =>
+	patchWithBaseUrl(`lecciones/${leccionId}/accesos/${accesoId}/`, payload);
+export const deleteLeccionAcceso = (leccionId, accesoId) =>
+	deleteWithBaseUrl(`lecciones/${leccionId}/accesos/${accesoId}/`);
+export const lookupUsers = (fragment) =>
+	fetchWithBaseUrl(`users/lookup/?username=${encodeURIComponent(fragment)}`);
 export const lugares = (params) => fetchWithBaseUrl(`lugares/${params}/`);
 export const lugarPersonasRelacionadas = (lugarId, page = 1) => 
     fetchWithBaseUrl(`lugares/${lugarId}/personas/?page=${page}`);
