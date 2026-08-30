@@ -125,19 +125,6 @@
 					<div class="lesson-detail-body">
 						{@html leccion.body}
 					</div>
-
-					{#if leccion.imagenes?.length}
-						<section class="lesson-detail-gallery mt-4" aria-label="Galería de imágenes de la lección">
-							<h2 class="h5">Imágenes</h2>
-							<div class="row g-3">
-								{#each leccion.imagenes as imagen}
-									<div class="col-sm-4">
-										<img src={imagen.imagen} alt="Imagen de la lección {leccion.title}" class="img-fluid rounded" />
-									</div>
-								{/each}
-							</div>
-						</section>
-					{/if}
 				</article>
 			</div>
 

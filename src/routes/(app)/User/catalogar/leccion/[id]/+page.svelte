@@ -153,23 +153,6 @@
 					{@html leccion.body}
 				</div>
 
-				{#if leccion.imagenes?.length}
-					<section class="mt-4" aria-label="Imágenes de la lección">
-						<h2 class="h6">Imágenes ({leccion.imagenes.length})</h2>
-						<div class="row g-3">
-							{#each leccion.imagenes as imagen}
-								<div class="col-sm-3">
-									<img
-										src={imagen.imagen}
-										alt="Imagen de la lección {leccion.title}"
-										class="img-fluid rounded"
-									/>
-								</div>
-							{/each}
-						</div>
-					</section>
-				{/if}
-
 				{#if leccion.personas?.length || leccion.documentos?.length || leccion.corporaciones?.length}
 					<section class="mt-4">
 						<h2 class="h6">Entidades relacionadas</h2>

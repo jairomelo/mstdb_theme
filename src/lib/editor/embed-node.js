@@ -42,7 +42,7 @@ export const Embed = Node.create({
 	parseHTML() {
 		return [
 			{
-				selector: 'figure.lesson-embed',
+				tag: 'figure.lesson-embed',
 				getAttrs: (dom) => {
 					const iframe = dom.querySelector('iframe');
 					const figcaption = dom.querySelector('figcaption');
