@@ -3,6 +3,7 @@
 	import { login, whoami, setCsrfCookie, register, fetchPublicConfig } from '$lib/api';
 	import { getCookie } from '$lib/csrf';
 	import { user } from '$lib/stores/user';
+	import { safeNext } from '$lib/auth';
 
 	// --- Login ---
 	let username = '';
@@ -68,10 +69,11 @@
 			if (!csrfToken) {
 				throw new Error("CSRF token not available. Please try again.");
 			}
-			await login(username, password, csrfToken);
-			const u = await whoami();
-			user.set(u);
-			window.location.href = '/User';
+		await login(username, password, csrfToken);
+		const u = await whoami();
+		user.set(u);
+		sessionStorage.setItem('ta_welcome', u.username);
+		window.location.href = safeNext(new URLSearchParams(window.location.search).get('next'));
 		} catch (err) {
 			console.error(err);
 			error = 'Usuario o contraseña incorrectos';

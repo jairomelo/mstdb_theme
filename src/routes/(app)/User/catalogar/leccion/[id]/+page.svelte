@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { fetchLeccion, deleteLeccion } from '$lib/api.js';
-	import { hasPerm } from '$lib/stores/user';
 	import ConfirmDelete from '$lib/components/hub/ConfirmDelete.svelte';
 
 	export let data;
@@ -11,6 +10,7 @@
 	let leccion = null;
 	let error = null;
 	let loading = true;
+	let permissionDenied = false;
 
 	let confirmOpen = false;
 	let deleting = false;
@@ -20,7 +20,11 @@
 		try {
 			leccion = await fetchLeccion(leccionId);
 		} catch (e) {
-			error = e.message;
+			if (/40[34]/.test(e.message)) {
+				permissionDenied = true;
+			} else {
+				error = e.message;
+			}
 			console.error('Failed to fetch leccion:', e);
 		} finally {
 			loading = false;
@@ -36,7 +40,11 @@
 
 	function formatDate(iso) {
 		if (!iso) return '';
-		return new Date(iso).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+		return new Date(iso).toLocaleDateString('es-MX', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		});
 	}
 
 	async function handleDelete() {
@@ -54,7 +62,11 @@
 </script>
 
 <svelte:head>
-	<title>{leccion ? `${leccion.title} — Panel — Trayectorias Afro` : 'Lección — Panel — Trayectorias Afro'}</title>
+	<title
+		>{leccion
+			? `${leccion.title} — Panel — Trayectorias Afro`
+			: 'Lección — Panel — Trayectorias Afro'}</title
+	>
 </svelte:head>
 
 <div class="container mt-4">
@@ -66,7 +78,13 @@
 		</ol>
 	</nav>
 
-	{#if error}
+	{#if permissionDenied}
+		<div class="alert alert-warning" role="alert">
+			<i class="bi bi-lock me-2" aria-hidden="true"></i>No tienes permiso para ver esta lección. Si
+			crees que deberías tener acceso, pide a una persona propietaria que te añada.
+		</div>
+		<a href="/lessons" class="btn btn-outline-secondary">Volver a lecciones</a>
+	{:else if error}
 		<div class="alert alert-danger" role="alert">
 			<i class="bi bi-exclamation-triangle-fill me-2"></i>Error: {error}
 		</div>
@@ -82,19 +100,25 @@
 		{/if}
 
 		<div class="card mb-4">
-			<div class="card-header bg-primary text-white d-flex align-items-center justify-content-between flex-wrap gap-2">
+			<div
+				class="card-header bg-primary text-white d-flex align-items-center justify-content-between flex-wrap gap-2"
+			>
 				<h1 class="card-title mb-0 h4">{leccion.title}</h1>
 				<div class="d-flex gap-2">
 					<a href="/lessons/{leccionId}" class="btn btn-sm btn-outline-light">
 						<i class="bi bi-eye me-1"></i>Ver página pública
 					</a>
-					{#if $hasPerm('dbgestor.change_leccion')}
+					{#if leccion.can_edit}
 						<a href="/User/catalogar/leccion/{leccionId}/edit" class="btn btn-sm btn-outline-light">
 							<i class="bi bi-pencil-square me-1"></i>Editar
 						</a>
 					{/if}
-					{#if $hasPerm('dbgestor.delete_leccion')}
-						<button type="button" class="btn btn-sm btn-outline-danger" on:click={() => (confirmOpen = true)}>
+					{#if leccion.can_delete}
+						<button
+							type="button"
+							class="btn btn-sm btn-outline-danger"
+							on:click={() => (confirmOpen = true)}
+						>
 							<i class="bi bi-trash me-1"></i>Eliminar
 						</button>
 					{/if}
@@ -102,14 +126,26 @@
 			</div>
 			<div class="card-body">
 				<p class="text-muted">
-					<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Creada el {formatDate(leccion.created_at)}
+					<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Creada el {formatDate(
+						leccion.created_at
+					)}
 					· Actualizada el {formatDate(leccion.updated_at)}
 				</p>
 
+				{#if !leccion.is_published}
+					<div class="alert alert-warning py-2" role="status">
+						<i class="bi bi-pencil me-1" aria-hidden="true"></i>Borrador: solo visible para personas
+						con acceso.
+					</div>
+				{/if}
+
 				{#if leccion.levels?.length || leccion.keywords?.length}
 					<div class="mb-3">
-						{#each leccion.levels as nivel}<span class="badge bg-primary me-1">{nivel.nivel}</span>{/each}
-						{#each leccion.keywords as palabra}<span class="badge bg-secondary me-1">{palabra.palabra_clave}</span>{/each}
+						{#each leccion.levels as nivel}<span class="badge bg-primary me-1">{nivel.nivel}</span
+							>{/each}
+						{#each leccion.keywords as palabra}<span class="badge bg-secondary me-1"
+								>{palabra.palabra_clave}</span
+							>{/each}
 					</div>
 				{/if}
 
@@ -123,7 +159,11 @@
 						<div class="row g-3">
 							{#each leccion.imagenes as imagen}
 								<div class="col-sm-3">
-									<img src={imagen.imagen} alt="Imagen de la lección {leccion.title}" class="img-fluid rounded" />
+									<img
+										src={imagen.imagen}
+										alt="Imagen de la lección {leccion.title}"
+										class="img-fluid rounded"
+									/>
 								</div>
 							{/each}
 						</div>
