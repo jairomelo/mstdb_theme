@@ -863,6 +863,44 @@ $theme-colors: (
 
 // Print-friendly fallback for embeds
 @media print {
+    .breadcrumb,
+    .lesson-detail-actions,
+    .sidebar-chips,
+    .sidebar-toggle {
+        display: none !important;
+    }
+
+    .lesson-detail-layout {
+        display: block;
+    }
+
+    .lesson-detail-layout > [class*='col-'] {
+        width: 100%;
+    }
+
+    .lesson-detail-body {
+        max-width: none;
+    }
+
+    .lesson-sidebar {
+        position: static;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #ccc;
+    }
+
+    .lesson-sidebar-print-links {
+        display: block;
+        padding-left: 1.25rem;
+        font-size: 0.85rem;
+        word-break: break-all;
+    }
+
+    .lesson-sidebar-print-links a {
+        color: #000;
+        text-decoration: underline;
+    }
+
     .lesson-embed__frame iframe {
         display: none;
     }
@@ -876,6 +914,10 @@ $theme-colors: (
         font-size: 0.8rem;
         text-align: center;
     }
+}
+
+.lesson-sidebar-print-links {
+    display: none;
 }
 
 @import "./custom.css";

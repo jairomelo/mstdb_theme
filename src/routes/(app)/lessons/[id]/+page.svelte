@@ -38,6 +38,14 @@
 		return new Date(iso).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
 	}
 
+	function detailUrl(path) {
+		return new URL(path, window.location.origin).href;
+	}
+
+	function downloadPdf() {
+		window.print();
+	}
+
 	$: hasSidebar = leccion?.personas?.length || leccion?.documentos?.length || leccion?.corporaciones?.length;
 	$: visiblePersonas = showAllPersonas ? leccion?.personas : leccion?.personas?.slice(0, COLLAPSE_LIMIT);
 	$: visibleDocumentos = showAllDocumentos ? leccion?.documentos : leccion?.documentos?.slice(0, COLLAPSE_LIMIT);
@@ -67,22 +75,29 @@
 			</div>
 		</div>
 	{:else if leccion}
-		<div class="row">
+		<div class="row lesson-detail-layout">
 			<!-- Main content -->
 			<div class={hasSidebar ? 'col-lg-8' : 'col-12'}>
 				<article class="lesson-detail">
 					<div class="d-flex align-items-start justify-content-between gap-2 mb-3">
 						<h1 class="mb-0">{leccion.title}</h1>
-						{#if leccion.can_edit}
-							<div class="d-flex gap-2 flex-shrink-0">
+						<div class="d-flex gap-2 flex-shrink-0 lesson-detail-actions">
+							<button
+								type="button"
+								class="btn btn-sm btn-outline-secondary"
+								on:click={downloadPdf}
+							>
+								<i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>Descargar PDF
+							</button>
+							{#if leccion.can_edit}
 								<a href="/User/catalogar/leccion/{data.id}" class="btn btn-sm btn-outline-secondary">
 									<i class="bi bi-gear me-1" aria-hidden="true"></i>Administrar
 								</a>
 								<a href="/User/catalogar/leccion/{data.id}/edit" class="btn btn-sm btn-outline-primary">
 									<i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
 								</a>
-							</div>
 						{/if}
+						</div>
 					</div>
 
 					{#if !leccion.is_published}
@@ -145,6 +160,15 @@
 										</a>
 									{/each}
 								</div>
+								<ul class="lesson-sidebar-print-links">
+									{#each leccion.personas as persona}
+										<li>
+											<a href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}">
+												{detailUrl(`/Detail/${personaDetailPath(persona)}/${persona.persona_id}`)}
+											</a>
+										</li>
+									{/each}
+								</ul>
 								{#if leccion.personas.length > COLLAPSE_LIMIT}
 									<button class="btn btn-sm btn-link sidebar-toggle"
 											on:click={() => showAllPersonas = !showAllPersonas}>
@@ -169,6 +193,11 @@
 										</a>
 									{/each}
 								</div>
+								<ul class="lesson-sidebar-print-links">
+									{#each leccion.documentos as documento}
+										<li><a href="/Detail/documento/{documento.documento_id}">{detailUrl(`/Detail/documento/${documento.documento_id}`)}</a></li>
+									{/each}
+								</ul>
 								{#if leccion.documentos.length > COLLAPSE_LIMIT}
 									<button class="btn btn-sm btn-link sidebar-toggle"
 											on:click={() => showAllDocumentos = !showAllDocumentos}>
@@ -193,6 +222,11 @@
 										</a>
 									{/each}
 								</div>
+								<ul class="lesson-sidebar-print-links">
+									{#each leccion.corporaciones as corporacion}
+										<li><a href="/Detail/corporacion/{corporacion.corporacion_id}">{detailUrl(`/Detail/corporacion/${corporacion.corporacion_id}`)}</a></li>
+									{/each}
+								</ul>
 								{#if leccion.corporaciones.length > COLLAPSE_LIMIT}
 									<button class="btn btn-sm btn-link sidebar-toggle"
 											on:click={() => showAllCorporaciones = !showAllCorporaciones}>
