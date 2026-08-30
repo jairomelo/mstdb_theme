@@ -6,10 +6,13 @@
 	import { dropdown, collapse } from '$lib/bootstrap-actions.js';
 	import { whoami } from '$lib/api';
 
-	import { goto } from '$app/navigation';
+	import { goto, afterNavigate } from '$app/navigation';
 
 	import { user } from '$lib/stores/user';
 	import { logout } from '$lib/api';
+	import { loginUrl } from '$lib/auth';
+
+	const WELCOME_DURATION_MS = 6000;
 
 	const appVersion = __APP_VERSION__;
 
@@ -30,6 +33,13 @@
 		window.location.href = '/';
 	}
 
+	let welcomeTimeout;
+
+	function dismissWelcome() {
+		welcome = null;
+		clearTimeout(welcomeTimeout);
+	}
+
 	onMount(async () => {
 		try {
 			const u = await whoami();
@@ -41,7 +51,13 @@
 		if (w) {
 			sessionStorage.removeItem('ta_welcome');
 			welcome = w;
+			welcomeTimeout = setTimeout(dismissWelcome, WELCOME_DURATION_MS);
 		}
+	});
+
+	// Dismiss the welcome banner as soon as the user moves to another page.
+	afterNavigate(({ from }) => {
+		if (from) dismissWelcome();
 	});
 </script>
 
@@ -56,7 +72,7 @@
 			type="button"
 			class="btn-close"
 			aria-label="Cerrar mensaje de bienvenida"
-			on:click={() => (welcome = null)}
+			on:click={dismissWelcome}
 		></button>
 	</div>
 {/if}
@@ -146,7 +162,7 @@
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							{#if !$user}
 								<li>
-									<a class="dropdown-item" href="/User/login">Iniciar sesión</a>
+									<a class="dropdown-item" href={loginUrl($page.url.pathname + $page.url.search)}>Iniciar sesión</a>
 								</li>
 							{:else}
 								<li>
@@ -209,7 +225,7 @@
 			<li><a href="/About">Sobre Nosotros</a></li>
 			<li><a href="/Accessibility">Accesibilidad</a></li>
 			{#if !$user}
-				<li><a href="/User/login">Entrar [login]</a></li>
+				<li><a href={loginUrl($page.url.pathname + $page.url.search)}>Entrar [login]</a></li>
 			{:else}
 				<li><a href="/User/">Panel de control</a></li>
 				<li><a href="https://db.trayectoriasafro.org">Sistema anterior</a></li>

@@ -5,6 +5,7 @@
   import { animateSuffix } from '$lib/textanimation';
   import { setRandomHeroImage } from '$lib/heroBackground'; // Updated import path
   import { user } from '$lib/stores/user';
+  import { loginUrl } from '$lib/auth';
 
   /* global __APP_VERSION__ */
   const appVersion = __APP_VERSION__;
@@ -88,7 +89,7 @@
   bind:this={heroSectionElement}
 >
   <div class="overlay"></div>
-  <a class="hero-auth-link" href={$user ? '/User/' : '/User/login'}>
+  <a class="hero-auth-link" href={$user ? '/User/' : loginUrl('/')}>
     <i class="bi bi-person-circle" aria-hidden="true"></i>
     {$user ? $user.username : 'Entrar'}
   </a>
@@ -285,7 +286,7 @@
         <li><a href="/About">Sobre Nosotros</a></li>
         <li><a href="/Accessibility">Accesibilidad</a></li>
         {#if !$user}
-          <li><a href="/User/login">Entrar [login]</a></li>
+          <li><a href={loginUrl('/')}>Entrar [login]</a></li>
         {:else}
           <li><a href="/User/">Panel de control</a></li>
           <li><a href="https://db.trayectoriasafro.org">Sistema anterior</a></li>
