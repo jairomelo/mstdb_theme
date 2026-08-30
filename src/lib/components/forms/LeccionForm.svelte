@@ -118,10 +118,8 @@
 						id="body"
 						bind:content={body}
 						placeholder="Escriba el contenido de la lección…"
-						onUploadImage={leccionId ? onUploadImage : null}
-						disabledHint={leccionId
-							? ''
-							: disabledHint || 'Guarde la lección primero para poder subir imágenes.'}
+						{onUploadImage}
+						{disabledHint}
 					/>
 				</FormField>
 			</div>

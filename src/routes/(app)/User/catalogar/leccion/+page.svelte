@@ -1,22 +1,44 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { createLeccion, uploadLeccionImagen } from '$lib/api.js';
+	import { createLeccion, updateLeccion, uploadLeccionImagen } from '$lib/api.js';
 	import LeccionForm from '$lib/components/forms/LeccionForm.svelte';
 
 	let submitting = false;
 	let errors = {};
 	let formRef;
+	// Set the moment an image upload silently creates the draft, so later
+	// saves update it instead of creating a duplicate lesson.
+	let leccionId = null;
+
+	// Lets users add images before the explicit "save" click: the first
+	// upload silently creates the draft lesson so it has an id to attach to.
+	async function handleImageUpload(file) {
+		if (!leccionId) {
+			const payload = formRef.buildPayload();
+			if (!payload.title?.trim()) {
+				throw new Error('Escribe un título antes de subir imágenes.');
+			}
+			const created = await createLeccion({ ...payload, is_published: false });
+			leccionId = created.leccion_id;
+		}
+		const imagen = await uploadLeccionImagen(leccionId, file);
+		return imagen.imagen;
+	}
 
 	async function handleSave(event) {
 		submitting = true;
 		errors = {};
 		try {
-			const created = await createLeccion({ ...event.detail, is_published: false });
+			const payload = { ...event.detail, is_published: false };
+			const result = leccionId
+				? await updateLeccion(leccionId, payload)
+				: await createLeccion(payload);
+			const id = leccionId ?? result.leccion_id;
 			sessionStorage.setItem(
 				'ta_flash',
 				'Borrador guardado. Continúa editando y publica cuando esté lista.'
 			);
-			goto(`/User/catalogar/leccion/${created.leccion_id}/edit`);
+			goto(`/User/catalogar/leccion/${id}/edit`);
 		} catch (e) {
 			errors = e.data ?? { __all__: [e.message] };
 		} finally {
@@ -46,6 +68,8 @@
 		submitLabel="Guardar borrador"
 		{submitting}
 		{errors}
+		{leccionId}
+		onUploadImage={handleImageUpload}
 		on:save={handleSave}
 	/>
 </div>
