@@ -52,7 +52,7 @@
 		deleteError = null;
 		try {
 			await deleteLeccion(leccionId);
-			goto('/User/catalogar/leccion');
+			goto('/lessons');
 		} catch (e) {
 			deleteError = e.message ?? 'No se pudo eliminar la lección.';
 			deleting = false;
