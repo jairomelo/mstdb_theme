@@ -15,6 +15,8 @@
 	export let submitLabel = 'Guardar lección';
 	/** async (file) => url; null disables image upload. */
 	export let onUploadImage = null;
+	/** async (file) => url; null disables PDF upload. */
+	export let onUploadPdf = null;
 	export let disabledHint = '';
 
 	const dispatch = createEventDispatcher();
@@ -119,6 +121,7 @@
 						bind:content={body}
 						placeholder="Escriba el contenido de la lección…"
 						{onUploadImage}
+						{onUploadPdf}
 						{disabledHint}
 					/>
 				</FormField>

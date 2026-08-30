@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { fetchLeccion, updateLeccion, uploadLeccionImagen } from '$lib/api.js';
+	import { fetchLeccion, updateLeccion, uploadLeccionImagen, uploadLeccionAdjunto } from '$lib/api.js';
 	import { user } from '$lib/stores/user';
 	import LeccionForm from '$lib/components/forms/LeccionForm.svelte';
 	import LeccionColaboradores from '$lib/components/leccion/LeccionColaboradores.svelte';
@@ -40,6 +40,11 @@
 	async function handleImageUpload(file) {
 		const imagen = await uploadLeccionImagen(leccionId, file);
 		return imagen.imagen;
+	}
+
+	async function handlePdfUpload(file) {
+		const adjunto = await uploadLeccionAdjunto(leccionId, file);
+		return adjunto.archivo;
 	}
 
 	async function handleSave(event) {
@@ -121,6 +126,7 @@
 			{submitting}
 			{errors}
 			onUploadImage={handleImageUpload}
+			onUploadPdf={handlePdfUpload}
 			on:save={handleSave}
 		>
 			<svelte:fragment slot="actions">

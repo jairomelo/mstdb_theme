@@ -306,6 +306,23 @@ export const uploadLeccionImagen = async (leccionId, file) => {
     }
     return await response.json();
 };
+export const uploadLeccionAdjunto = async (leccionId, file) => {
+    const url = `${config.apiBaseUrl}lecciones/${leccionId}/adjuntos/`;
+    const csrfToken = getCookie("csrftoken");
+    const formData = new FormData();
+    formData.append('archivo', file);
+    const response = await fetch(url, {
+        method: "POST",
+        headers: { "X-CSRFToken": csrfToken || "" },
+        credentials: "include",
+        body: formData,
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw Object.assign(new Error(`HTTP error! status: ${response.status}`), { data: errorData });
+    }
+    return await response.json();
+};
 // ── Leccion accesos (owner/collaborator grants) ─────────────────────────────
 export const fetchLeccionAccesos = (leccionId) =>
 	fetchWithBaseUrl(`lecciones/${leccionId}/accesos/`);

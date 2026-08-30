@@ -12,12 +12,15 @@
 	export let placeholder = 'Escriba el contenido…';
 	/** async (file: File) => url string. When null/undefined, image upload is disabled. */
 	export let onUploadImage = null;
+	/** async (file: File) => url string. When null/undefined, PDF upload is disabled. */
+	export let onUploadPdf = null;
 	export let disabledHint = '';
 
 	const dispatch = createEventDispatcher();
 
 	let element;
 	let fileInput;
+	let pdfFileInput;
 	let editor;
 	let uploading = false;
 	let uploadError = null;
@@ -105,6 +108,28 @@
 
 	function onFileInputChange(e) {
 		handleFiles(e.target.files);
+		e.target.value = '';
+	}
+
+	async function handlePdfFiles(files) {
+		if (!onUploadPdf || !files?.length) return;
+		uploading = true;
+		uploadError = null;
+		try {
+			for (const file of files) {
+				if (file.type !== 'application/pdf') continue;
+				const url = await onUploadPdf(file);
+				editor.chain().focus().setEmbed({ src: url, embedType: 'pdf', title: file.name }).run();
+			}
+		} catch (e) {
+			uploadError = e.message;
+		} finally {
+			uploading = false;
+		}
+	}
+
+	function onPdfFileInputChange(e) {
+		handlePdfFiles(e.target.files);
 		e.target.value = '';
 	}
 
@@ -274,6 +299,26 @@
 			class="visually-hidden"
 			bind:this={fileInput}
 			on:change={onFileInputChange}
+			aria-hidden="true"
+			tabindex="-1"
+		/>
+		<button
+			type="button"
+			class="btn btn-sm btn-outline-secondary"
+			aria-label="Insertar PDF"
+			disabled={!onUploadPdf}
+			title={!onUploadPdf ? disabledHint : 'Insertar PDF'}
+			on:click={() => pdfFileInput.click()}
+		>
+			<i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>
+		</button>
+		<input
+			type="file"
+			accept="application/pdf"
+			multiple
+			class="visually-hidden"
+			bind:this={pdfFileInput}
+			on:change={onPdfFileInputChange}
 			aria-hidden="true"
 			tabindex="-1"
 		/>
