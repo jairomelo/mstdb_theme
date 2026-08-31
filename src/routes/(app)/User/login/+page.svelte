@@ -198,7 +198,7 @@
 						required
 					/>
 				</div>
-				<button type="submit" class="login-btn">Entrar</button>
+				<button type="submit" class="login-btn">{m.keen_polite_bobcat_snip}</button>
 			</form>
 
 			{#if error}

@@ -93,7 +93,7 @@
 		<div class="overlay"></div>
 		<a class="hero-auth-link" href={$user ? '/User/' : loginUrl('/')}>
 			<i class="bi bi-person-circle" aria-hidden="true"></i>
-			{$user ? $user.username : m.keen_polite_bobcat_snip()}
+			{$user ? $user.username : m.equal_still_wallaby_praise()}
 		</a>
 		<div class="hero-content text-center">
 			<h1 class="display-4 dynamic-title" aria-label="{titleStem} {$currentSuffix}">
@@ -331,7 +331,7 @@
 					<li><a href="/About">{m.civil_awake_llama_treat()}</a></li>
 					<li><a href="/Accessibility">{m.royal_civil_hare_pride()}</a></li>
 					{#if !$user}
-						<li><a href={loginUrl('/')}>{m.equal_still_wallaby_praise()}</a></li>
+						<li><a href={loginUrl('/')}>{m.keen_polite_bobcat_snip()}</a></li>
 					{:else}
 						<li><a href="/User/">{m.weary_tame_peacock_expand()}</a></li>
 						<li><a href="https://db.trayectoriasafro.org">{m.bad_every_lemming_tap()}</a></li>
