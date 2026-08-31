@@ -175,7 +175,7 @@
 							>
 								<i class="bi bi-person-circle" aria-hidden="true"></i>
 								<span class="user-dropdown-name"
-									>{#if $user}{$user.username}{:else}{m.keen_polite_bobcat_snip}{/if}</span
+									>{#if $user}{$user.username}{:else}{m.keen_polite_bobcat_snip()}{/if}</span
 								>
 							</button>
 							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
