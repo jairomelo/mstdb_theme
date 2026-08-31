@@ -93,7 +93,7 @@
 		<div class="overlay"></div>
 		<a class="hero-auth-link" href={$user ? '/User/' : loginUrl('/')}>
 			<i class="bi bi-person-circle" aria-hidden="true"></i>
-			{$user ? $user.username : m.equal_still_wallaby_praise()}
+			{$user ? $user.username : m.fine_chunky_grizzly_bump()}
 		</a>
 		<div class="hero-content text-center">
 			<h1 class="display-4 dynamic-title" aria-label="{titleStem} {$currentSuffix}">

@@ -4,6 +4,7 @@
 	import { getCookie } from '$lib/csrf';
 	import { user } from '$lib/stores/user';
 	import { safeNext } from '$lib/auth';
+	import { m } from '$lib/paraglide/messages.js';
 
 	// --- Login ---
 	let username = '';
@@ -198,7 +199,7 @@
 						required
 					/>
 				</div>
-				<button type="submit" class="login-btn">{m.keen_polite_bobcat_snip}</button>
+				<button type="submit" class="login-btn">{m.keen_polite_bobcat_snip()}</button>
 			</form>
 
 			{#if error}
