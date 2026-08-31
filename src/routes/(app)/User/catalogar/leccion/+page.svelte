@@ -1,6 +1,11 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { createLeccion, updateLeccion, uploadLeccionImagen, uploadLeccionAdjunto } from '$lib/api.js';
+	import {
+		createLeccion,
+		updateLeccion,
+		uploadLeccionImagen,
+		uploadLeccionAdjunto
+	} from '$lib/api.js';
 	import LeccionForm from '$lib/components/forms/LeccionForm.svelte';
 
 	let submitting = false;

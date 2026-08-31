@@ -10,83 +10,88 @@
 // visible: included in default view
 
 export const columnsConfig = {
-    personaesclavizada: [
-        { key: 'short_id', label: 'ID corto', sortable: false, visible: true },
-        { key: 'persona_idno', label: 'ID', sortable: true, visible: false },
-        { key: 'nombre_normalizado', label: 'Nombre', sortable: true, visible: true },
-        { key: 'sexo', label: 'Sexo', sortable: true, visible: true },
-        { key: 'edad', label: 'Edad', sortable: true, visible: true },
-        { key: 'etnonimos', label: 'Etnónimos', sortable: true, visible: true },
-        { key: 'hispanizacion', label: 'Agencia / Adaptación', sortable: true, visible: true },
-        { key: 'calidades', label: 'Calidades', sortable: true, visible: true },
-        { key: 'has_relaciones', label: 'Relaciones', sortable: true, visible: true },
-        { key: 'has_lugares', label: 'Trayectoria', sortable: true, visible: true },
-        { key: 'procedencia', label: 'Procedencia', sortable: true, visible: true },
-        { key: 'estado_civil', label: 'Estado matrimonial', sortable: true, visible: true },
-        { key: 'documento_list', label: 'Documentos', sortable: true, visible: true },
-        { key: 'fecha_nacimiento', label: 'Nacimiento', sortable: true, visible: false },
-        { key: 'earliest_doc_date', label: 'Primer registro', sortable: true, visible: false },
-        { key: 'latest_doc_date', label: 'Último registro', sortable: true, visible: false },
-        { key: 'documented_span', label: 'Periodo (años)', sortable: true, visible: false },
-        { key: 'altura', label: 'Altura', sortable: true, visible: false },
-        { key: 'cabello', label: 'Cabello', sortable: true, visible: false },
-        { key: 'ojos', label: 'Ojos', sortable: true, visible: false },
-        { key: 'marcas_corporales', label: 'Marcas corporales', sortable: true, visible: false },
-        { key: 'conducta', label: 'Conducta', sortable: true, visible: false },
-        { key: 'salud', label: 'Salud', sortable: true, visible: false },
-        { key: 'evento_valor_sp_list', label: 'Evento Valor (SP)', sortable: true, visible: false },
-        { key: 'evento_forma_de_pago_list', label: 'Evento Forma de Pago', sortable: true, visible: false },
-        { key: 'evento_total_list', label: 'Evento Total', sortable: true, visible: false },
-        { key: 'created_at', label: 'Creado', sortable: true, visible: false },
-        { key: 'updated_at', label: 'Actualizado', sortable: true, visible: false },
-    ],
-    personanoesclavizada: [
-        { key: 'short_id', label: 'ID corto', sortable: false, visible: true },
-        { key: 'persona_idno', label: 'ID', sortable: true, visible: false },
-        { key: 'nombre_normalizado', label: 'Nombre', sortable: true, visible: true },
-        { key: 'sexo', label: 'Sexo', sortable: true, visible: true },
-        { key: 'ocupaciones', label: 'Ocupaciones', sortable: true, visible: true },
-        { key: 'calidades', label: 'Calidades', sortable: true, visible: true },
-        { key: 'has_relaciones', label: 'Relaciones', sortable: true, visible: true },
-        { key: 'has_lugares', label: 'Lugares', sortable: true, visible: true },
-        { key: 'estado_civil', label: 'Estado matrimonial', sortable: true, visible: true },
-        { key: 'documento_list', label: 'Documentos', sortable: true, visible: true },
-        { key: 'created_at', label: 'Creado', sortable: true, visible: false },
-        { key: 'updated_at', label: 'Actualizado', sortable: true, visible: false },
-    ],
-    documento: [
-        { key: 'short_id', label: 'ID corto', sortable: false, visible: false },
-        { key: 'documento_idno', label: 'ID', sortable: false, visible: true },
-        { key: 'titulo', label: 'Título', sortable: true, visible: true },
-        { key: 'tipo_documento', label: 'Tipo', sortable: false, visible: true },
-        { key: 'archivo', label: 'Archivo', sortable: false, visible: true },
-        { key: 'fecha_inicial', label: 'Fecha inicial', sortable: true, visible: true },
-        { key: 'fecha_final', label: 'Fecha final', sortable: true, visible: false },
-        { key: 'created_at', label: 'Creado', sortable: true, visible: false },
-    ],
-    lugar: [
-        { key: 'short_id', label: 'ID corto', sortable: false, visible: false },
-        { key: 'nombre_lugar', label: 'Nombre', sortable: true, visible: true },
-        { key: 'tipo', label: 'Tipo', sortable: true, visible: true },
-        { key: 'otros_nombres', label: 'Otros nombres', sortable: false, visible: true },
-        { key: 'persona_count', label: 'Personas', sortable: false, visible: true },
-        { key: 'lat', label: 'Latitud', sortable: false, visible: false },
-        { key: 'lon', label: 'Longitud', sortable: false, visible: false },
-    ],
-    corporacion: [
-        { key: 'short_id', label: 'ID corto', sortable: false, visible: false },
-        { key: 'nombre_institucion', label: 'Nombre', sortable: true, visible: true },
-        { key: 'tipo_institucion', label: 'Tipo', sortable: false, visible: true },
-        { key: 'lugar_corporacion', label: 'Lugar', sortable: false, visible: true },
-    ],
+	personaesclavizada: [
+		{ key: 'short_id', label: 'ID corto', sortable: false, visible: true },
+		{ key: 'persona_idno', label: 'ID', sortable: true, visible: false },
+		{ key: 'nombre_normalizado', label: 'Nombre', sortable: true, visible: true },
+		{ key: 'sexo', label: 'Sexo', sortable: true, visible: true },
+		{ key: 'edad', label: 'Edad', sortable: true, visible: true },
+		{ key: 'etnonimos', label: 'Etnónimos', sortable: true, visible: true },
+		{ key: 'hispanizacion', label: 'Agencia / Adaptación', sortable: true, visible: true },
+		{ key: 'calidades', label: 'Calidades', sortable: true, visible: true },
+		{ key: 'has_relaciones', label: 'Relaciones', sortable: true, visible: true },
+		{ key: 'has_lugares', label: 'Trayectoria', sortable: true, visible: true },
+		{ key: 'procedencia', label: 'Procedencia', sortable: true, visible: true },
+		{ key: 'estado_civil', label: 'Estado matrimonial', sortable: true, visible: true },
+		{ key: 'documento_list', label: 'Documentos', sortable: true, visible: true },
+		{ key: 'fecha_nacimiento', label: 'Nacimiento', sortable: true, visible: false },
+		{ key: 'earliest_doc_date', label: 'Primer registro', sortable: true, visible: false },
+		{ key: 'latest_doc_date', label: 'Último registro', sortable: true, visible: false },
+		{ key: 'documented_span', label: 'Periodo (años)', sortable: true, visible: false },
+		{ key: 'altura', label: 'Altura', sortable: true, visible: false },
+		{ key: 'cabello', label: 'Cabello', sortable: true, visible: false },
+		{ key: 'ojos', label: 'Ojos', sortable: true, visible: false },
+		{ key: 'marcas_corporales', label: 'Marcas corporales', sortable: true, visible: false },
+		{ key: 'conducta', label: 'Conducta', sortable: true, visible: false },
+		{ key: 'salud', label: 'Salud', sortable: true, visible: false },
+		{ key: 'evento_valor_sp_list', label: 'Evento Valor (SP)', sortable: true, visible: false },
+		{
+			key: 'evento_forma_de_pago_list',
+			label: 'Evento Forma de Pago',
+			sortable: true,
+			visible: false
+		},
+		{ key: 'evento_total_list', label: 'Evento Total', sortable: true, visible: false },
+		{ key: 'created_at', label: 'Creado', sortable: true, visible: false },
+		{ key: 'updated_at', label: 'Actualizado', sortable: true, visible: false }
+	],
+	personanoesclavizada: [
+		{ key: 'short_id', label: 'ID corto', sortable: false, visible: true },
+		{ key: 'persona_idno', label: 'ID', sortable: true, visible: false },
+		{ key: 'nombre_normalizado', label: 'Nombre', sortable: true, visible: true },
+		{ key: 'sexo', label: 'Sexo', sortable: true, visible: true },
+		{ key: 'ocupaciones', label: 'Ocupaciones', sortable: true, visible: true },
+		{ key: 'calidades', label: 'Calidades', sortable: true, visible: true },
+		{ key: 'has_relaciones', label: 'Relaciones', sortable: true, visible: true },
+		{ key: 'has_lugares', label: 'Lugares', sortable: true, visible: true },
+		{ key: 'estado_civil', label: 'Estado matrimonial', sortable: true, visible: true },
+		{ key: 'documento_list', label: 'Documentos', sortable: true, visible: true },
+		{ key: 'created_at', label: 'Creado', sortable: true, visible: false },
+		{ key: 'updated_at', label: 'Actualizado', sortable: true, visible: false }
+	],
+	documento: [
+		{ key: 'short_id', label: 'ID corto', sortable: false, visible: false },
+		{ key: 'documento_idno', label: 'ID', sortable: false, visible: true },
+		{ key: 'titulo', label: 'Título', sortable: true, visible: true },
+		{ key: 'tipo_documento', label: 'Tipo', sortable: false, visible: true },
+		{ key: 'archivo', label: 'Archivo', sortable: false, visible: true },
+		{ key: 'fecha_inicial', label: 'Fecha inicial', sortable: true, visible: true },
+		{ key: 'fecha_final', label: 'Fecha final', sortable: true, visible: false },
+		{ key: 'created_at', label: 'Creado', sortable: true, visible: false }
+	],
+	lugar: [
+		{ key: 'short_id', label: 'ID corto', sortable: false, visible: false },
+		{ key: 'nombre_lugar', label: 'Nombre', sortable: true, visible: true },
+		{ key: 'tipo', label: 'Tipo', sortable: true, visible: true },
+		{ key: 'otros_nombres', label: 'Otros nombres', sortable: false, visible: true },
+		{ key: 'persona_count', label: 'Personas', sortable: false, visible: true },
+		{ key: 'lat', label: 'Latitud', sortable: false, visible: false },
+		{ key: 'lon', label: 'Longitud', sortable: false, visible: false }
+	],
+	corporacion: [
+		{ key: 'short_id', label: 'ID corto', sortable: false, visible: false },
+		{ key: 'nombre_institucion', label: 'Nombre', sortable: true, visible: true },
+		{ key: 'tipo_institucion', label: 'Tipo', sortable: false, visible: true },
+		{ key: 'lugar_corporacion', label: 'Lugar', sortable: false, visible: true }
+	]
 };
 
 // ── Default visible columns (derived from columnsConfig) ─────────────
 export const defaultVisibleColumns = Object.fromEntries(
-    Object.entries(columnsConfig).map(([type, cols]) => [
-        type,
-        cols.filter(c => c.visible).map(c => c.key),
-    ])
+	Object.entries(columnsConfig).map(([type, cols]) => [
+		type,
+		cols.filter((c) => c.visible).map((c) => c.key)
+	])
 );
 
 // ── Advanced filter definitions per entity type ──────────────────────
@@ -94,185 +99,355 @@ export const defaultVisibleColumns = Object.fromEntries(
 // options: for 'select' type — array of {value, label}
 
 export const filtersDefinition = {
-    personaesclavizada: [
-        { key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
-        { key: 'fecha_documento__gte', label: 'Desde', type: 'year' },
-        { key: 'fecha_documento__lte', label: 'Hasta', type: 'year' },
-        { key: 'procedencia', label: 'Procedencia', type: 'id-searchable-select', facetKey: 'procedencias', group: 'Trayectorias' },
-        { key: 'trayectoria_lugar', label: 'Lugares (trayectoria)', type: 'id-searchable-select', facetKey: 'lugares', multi: true, group: 'Trayectorias' },
-        { key: 'etnonimos__etonimo__icontains', label: 'Etnónimo', type: 'searchable-select', facetKey: 'etnonimos', group: 'Categorías socioétnicas' },
-        { key: 'hispanizacion__hispanizacion__icontains', label: 'Agencia / Adaptación', type: 'searchable-select', facetKey: 'hispanizaciones', group: 'Categorías socioétnicas' },
-        { key: 'calidades__calidad__icontains', label: 'Calidad', type: 'searchable-select', facetKey: 'calidades', group: 'Categorías socioétnicas' },
-        {
-            key: 'sexo', label: 'Sexo', type: 'select', group: 'Biografía',
-            options: [
-                { value: '', label: 'Todos' },
-                { value: 'v', label: 'Varón' },
-                { value: 'm', label: 'Mujer' },
-                { value: 'i', label: 'Indeterminado' },
-            ],
-        },
-        {
-            key: 'estado_civil', label: 'Estado matrimonial', type: 'select', group: 'Biografía',
-            options: [
-                { value: '', label: 'Todos' },
-                { value: 'Casado', label: 'Casado' },
-                { value: 'Casada', label: 'Casada' },
-                { value: 'Soltero', label: 'Soltero' },
-                { value: 'Soltera', label: 'Soltera' },
-                { value: 'Viudo', label: 'Viudo' },
-                { value: 'Viuda', label: 'Viuda' },
-                { value: 'Doncella', label: 'Doncella' },
-            ],
-        },
-        { key: 'edad__gte', label: 'Edad mínima', type: 'number', placeholder: 'Min', group: 'Biografía' },
-        { key: 'edad__lte', label: 'Edad máxima', type: 'number', placeholder: 'Max', group: 'Biografía' },
-        { key: 'altura__icontains', label: 'Altura', type: 'text', placeholder: 'Buscar altura...', group: 'Biografía' },
-        { key: 'cabello__icontains', label: 'Cabello', type: 'text', placeholder: 'Buscar cabello...', group: 'Biografía' },
-        { key: 'ojos__icontains', label: 'Ojos', type: 'text', placeholder: 'Buscar ojos...', group: 'Biografía' },
-        { key: 'marcas_corporales__icontains', label: 'Marcas corporales', type: 'text', placeholder: 'Buscar marcas...', group: 'Biografía' },
-        { key: 'conducta__icontains', label: 'Conducta', type: 'text', placeholder: 'Buscar conducta...', group: 'Biografía' },
-        { key: 'salud__icontains', label: 'Salud', type: 'text', placeholder: 'Buscar salud...', group: 'Biografía' },
-        { key: 'tipo_documental', label: 'Tipo documental', type: 'searchable-select', facetKey: 'tipos_documentales', group: 'Documento' },
-        { key: 'archivo', label: 'Archivo', type: 'id-searchable-select', facetKey: 'archivos', group: 'Documento' },
-    ],
-    personanoesclavizada: [
-        { key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
-        { key: 'fecha_documento__gte', label: 'Desde', type: 'year' },
-        { key: 'fecha_documento__lte', label: 'Hasta', type: 'year' },
-        { key: 'trayectoria_lugar', label: 'Lugares (trayectoria)', type: 'id-searchable-select', facetKey: 'lugares', multi: true, group: 'Trayectorias' },
-        { key: 'ocupaciones__actividad__icontains', label: 'Ocupación', type: 'searchable-select', facetKey: 'ocupaciones', group: 'Categorías socioétnicas' },
-        { key: 'calidades__calidad__icontains', label: 'Calidad', type: 'searchable-select', facetKey: 'calidades', group: 'Categorías socioétnicas' },
-        {
-            key: 'sexo', label: 'Sexo', type: 'select', group: 'Biografía',
-            options: [
-                { value: '', label: 'Todos' },
-                { value: 'v', label: 'Varón' },
-                { value: 'm', label: 'Mujer' },
-                { value: 'i', label: 'Indeterminado' },
-            ],
-        },
-        {
-            key: 'honorifico', label: 'Honorífico', type: 'select', group: 'Biografía',
-            options: [
-                { value: '', label: 'Todos' },
-                { value: 'don', label: 'Don' },
-                { value: 'doña', label: 'Doña' },
-                { value: 'doctor', label: 'Doctor' },
-                { value: 'fray', label: 'Fray' },
-                { value: 'na', label: 'N/A' },
-            ],
-        },
-        {
-            key: 'estado_civil', label: 'Estado matrimonial', type: 'select', group: 'Biografía',
-            options: [
-                { value: '', label: 'Todos' },
-                { value: 'Casado', label: 'Casado' },
-                { value: 'Casada', label: 'Casada' },
-                { value: 'Soltero', label: 'Soltero' },
-                { value: 'Soltera', label: 'Soltera' },
-                { value: 'Viudo', label: 'Viudo' },
-                { value: 'Viuda', label: 'Viuda' },
-                { value: 'Doncella', label: 'Doncella' },
-            ],
-        },
-        { key: 'tipo_documental', label: 'Tipo documental', type: 'searchable-select', facetKey: 'tipos_documentales', group: 'Documento' },
-        { key: 'archivo', label: 'Archivo', type: 'id-searchable-select', facetKey: 'archivos', group: 'Documento' },
-        
-    ],
-    documento: [
-        { key: 'search', label: 'Título', type: 'text', placeholder: 'Buscar por título...' },
-        { key: 'tipo_documento__tipo_documental__icontains', label: 'Tipo documental', type: 'text', placeholder: 'Buscar tipo...' },
-        { key: 'fecha_inicial__gte', label: 'Fecha desde', type: 'date', placeholder: 'AAAA-MM-DD' },
-        { key: 'fecha_inicial__lte', label: 'Fecha hasta', type: 'date', placeholder: 'AAAA-MM-DD' },
-    ],
-    lugar: [
-        { key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
-        {
-            key: 'tipo', label: 'Tipo', type: 'select',
-            options: [
-                { value: '', label: 'Todos' },
-                { value: 'ciudad', label: 'Ciudad' },
-                { value: 'pueblo', label: 'Pueblo' },
-                { value: 'estado', label: 'Estado' },
-                { value: 'provincia/departamento', label: 'Provincia/Departamento' },
-                { value: 'pais', label: 'País' },
-                { value: 'region', label: 'Región' },
-                { value: 'rio', label: 'Río' },
-                { value: 'hacienda', label: 'Hacienda' },
-                { value: 'mina', label: 'Mina' },
-            ],
-        },
-    ],
-    corporacion: [
-        { key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
-        { key: 'tipo_institucion__tipo__icontains', label: 'Tipo institución', type: 'text', placeholder: 'Buscar tipo...' },
-        { key: 'lugar_corporacion__nombre_lugar__icontains', label: 'Lugar', type: 'text', placeholder: 'Nombre del lugar...' },
-    ],
+	personaesclavizada: [
+		{ key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
+		{ key: 'fecha_documento__gte', label: 'Desde', type: 'year' },
+		{ key: 'fecha_documento__lte', label: 'Hasta', type: 'year' },
+		{
+			key: 'procedencia',
+			label: 'Procedencia',
+			type: 'id-searchable-select',
+			facetKey: 'procedencias',
+			group: 'Trayectorias'
+		},
+		{
+			key: 'trayectoria_lugar',
+			label: 'Lugares (trayectoria)',
+			type: 'id-searchable-select',
+			facetKey: 'lugares',
+			multi: true,
+			group: 'Trayectorias'
+		},
+		{
+			key: 'etnonimos__etonimo__icontains',
+			label: 'Etnónimo',
+			type: 'searchable-select',
+			facetKey: 'etnonimos',
+			group: 'Categorías socioétnicas'
+		},
+		{
+			key: 'hispanizacion__hispanizacion__icontains',
+			label: 'Agencia / Adaptación',
+			type: 'searchable-select',
+			facetKey: 'hispanizaciones',
+			group: 'Categorías socioétnicas'
+		},
+		{
+			key: 'calidades__calidad__icontains',
+			label: 'Calidad',
+			type: 'searchable-select',
+			facetKey: 'calidades',
+			group: 'Categorías socioétnicas'
+		},
+		{
+			key: 'sexo',
+			label: 'Sexo',
+			type: 'select',
+			group: 'Biografía',
+			options: [
+				{ value: '', label: 'Todos' },
+				{ value: 'v', label: 'Varón' },
+				{ value: 'm', label: 'Mujer' },
+				{ value: 'i', label: 'Indeterminado' }
+			]
+		},
+		{
+			key: 'estado_civil',
+			label: 'Estado matrimonial',
+			type: 'select',
+			group: 'Biografía',
+			options: [
+				{ value: '', label: 'Todos' },
+				{ value: 'Casado', label: 'Casado' },
+				{ value: 'Casada', label: 'Casada' },
+				{ value: 'Soltero', label: 'Soltero' },
+				{ value: 'Soltera', label: 'Soltera' },
+				{ value: 'Viudo', label: 'Viudo' },
+				{ value: 'Viuda', label: 'Viuda' },
+				{ value: 'Doncella', label: 'Doncella' }
+			]
+		},
+		{
+			key: 'edad__gte',
+			label: 'Edad mínima',
+			type: 'number',
+			placeholder: 'Min',
+			group: 'Biografía'
+		},
+		{
+			key: 'edad__lte',
+			label: 'Edad máxima',
+			type: 'number',
+			placeholder: 'Max',
+			group: 'Biografía'
+		},
+		{
+			key: 'altura__icontains',
+			label: 'Altura',
+			type: 'text',
+			placeholder: 'Buscar altura...',
+			group: 'Biografía'
+		},
+		{
+			key: 'cabello__icontains',
+			label: 'Cabello',
+			type: 'text',
+			placeholder: 'Buscar cabello...',
+			group: 'Biografía'
+		},
+		{
+			key: 'ojos__icontains',
+			label: 'Ojos',
+			type: 'text',
+			placeholder: 'Buscar ojos...',
+			group: 'Biografía'
+		},
+		{
+			key: 'marcas_corporales__icontains',
+			label: 'Marcas corporales',
+			type: 'text',
+			placeholder: 'Buscar marcas...',
+			group: 'Biografía'
+		},
+		{
+			key: 'conducta__icontains',
+			label: 'Conducta',
+			type: 'text',
+			placeholder: 'Buscar conducta...',
+			group: 'Biografía'
+		},
+		{
+			key: 'salud__icontains',
+			label: 'Salud',
+			type: 'text',
+			placeholder: 'Buscar salud...',
+			group: 'Biografía'
+		},
+		{
+			key: 'tipo_documental',
+			label: 'Tipo documental',
+			type: 'searchable-select',
+			facetKey: 'tipos_documentales',
+			group: 'Documento'
+		},
+		{
+			key: 'archivo',
+			label: 'Archivo',
+			type: 'id-searchable-select',
+			facetKey: 'archivos',
+			group: 'Documento'
+		}
+	],
+	personanoesclavizada: [
+		{ key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
+		{ key: 'fecha_documento__gte', label: 'Desde', type: 'year' },
+		{ key: 'fecha_documento__lte', label: 'Hasta', type: 'year' },
+		{
+			key: 'trayectoria_lugar',
+			label: 'Lugares (trayectoria)',
+			type: 'id-searchable-select',
+			facetKey: 'lugares',
+			multi: true,
+			group: 'Trayectorias'
+		},
+		{
+			key: 'ocupaciones__actividad__icontains',
+			label: 'Ocupación',
+			type: 'searchable-select',
+			facetKey: 'ocupaciones',
+			group: 'Categorías socioétnicas'
+		},
+		{
+			key: 'calidades__calidad__icontains',
+			label: 'Calidad',
+			type: 'searchable-select',
+			facetKey: 'calidades',
+			group: 'Categorías socioétnicas'
+		},
+		{
+			key: 'sexo',
+			label: 'Sexo',
+			type: 'select',
+			group: 'Biografía',
+			options: [
+				{ value: '', label: 'Todos' },
+				{ value: 'v', label: 'Varón' },
+				{ value: 'm', label: 'Mujer' },
+				{ value: 'i', label: 'Indeterminado' }
+			]
+		},
+		{
+			key: 'honorifico',
+			label: 'Honorífico',
+			type: 'select',
+			group: 'Biografía',
+			options: [
+				{ value: '', label: 'Todos' },
+				{ value: 'don', label: 'Don' },
+				{ value: 'doña', label: 'Doña' },
+				{ value: 'doctor', label: 'Doctor' },
+				{ value: 'fray', label: 'Fray' },
+				{ value: 'na', label: 'N/A' }
+			]
+		},
+		{
+			key: 'estado_civil',
+			label: 'Estado matrimonial',
+			type: 'select',
+			group: 'Biografía',
+			options: [
+				{ value: '', label: 'Todos' },
+				{ value: 'Casado', label: 'Casado' },
+				{ value: 'Casada', label: 'Casada' },
+				{ value: 'Soltero', label: 'Soltero' },
+				{ value: 'Soltera', label: 'Soltera' },
+				{ value: 'Viudo', label: 'Viudo' },
+				{ value: 'Viuda', label: 'Viuda' },
+				{ value: 'Doncella', label: 'Doncella' }
+			]
+		},
+		{
+			key: 'tipo_documental',
+			label: 'Tipo documental',
+			type: 'searchable-select',
+			facetKey: 'tipos_documentales',
+			group: 'Documento'
+		},
+		{
+			key: 'archivo',
+			label: 'Archivo',
+			type: 'id-searchable-select',
+			facetKey: 'archivos',
+			group: 'Documento'
+		}
+	],
+	documento: [
+		{ key: 'search', label: 'Título', type: 'text', placeholder: 'Buscar por título...' },
+		{
+			key: 'tipo_documento__tipo_documental__icontains',
+			label: 'Tipo documental',
+			type: 'text',
+			placeholder: 'Buscar tipo...'
+		},
+		{ key: 'fecha_inicial__gte', label: 'Fecha desde', type: 'date', placeholder: 'AAAA-MM-DD' },
+		{ key: 'fecha_inicial__lte', label: 'Fecha hasta', type: 'date', placeholder: 'AAAA-MM-DD' }
+	],
+	lugar: [
+		{ key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
+		{
+			key: 'tipo',
+			label: 'Tipo',
+			type: 'select',
+			options: [
+				{ value: '', label: 'Todos' },
+				{ value: 'ciudad', label: 'Ciudad' },
+				{ value: 'pueblo', label: 'Pueblo' },
+				{ value: 'estado', label: 'Estado' },
+				{ value: 'provincia/departamento', label: 'Provincia/Departamento' },
+				{ value: 'pais', label: 'País' },
+				{ value: 'region', label: 'Región' },
+				{ value: 'rio', label: 'Río' },
+				{ value: 'hacienda', label: 'Hacienda' },
+				{ value: 'mina', label: 'Mina' }
+			]
+		}
+	],
+	corporacion: [
+		{ key: 'search', label: 'Nombre', type: 'text', placeholder: 'Buscar por nombre...' },
+		{
+			key: 'tipo_institucion__tipo__icontains',
+			label: 'Tipo institución',
+			type: 'text',
+			placeholder: 'Buscar tipo...'
+		},
+		{
+			key: 'lugar_corporacion__nombre_lugar__icontains',
+			label: 'Lugar',
+			type: 'text',
+			placeholder: 'Nombre del lugar...'
+		}
+	]
 };
 
 // ── Tab labels & icons ───────────────────────────────────────────────
 export const entityTabConfig = {
-    personaesclavizada: { label: 'Personas esclavizadas', icon: 'bi-person-lock', detailPath: '/Detail/personaesclavizada' },
-    personanoesclavizada: { label: 'Personas no esclavizadas', icon: 'bi-person', detailPath: '/Detail/personanoesclavizada' },
-    documento: { label: 'Documentos', icon: 'bi-file-text', detailPath: '/Detail/documento' },
-    lugar: { label: 'Lugares', icon: 'bi-geo-alt', detailPath: '/Detail/lugar' },
-    corporacion: { label: 'Corporaciones', icon: 'bi-building', detailPath: '/Detail/corporacion' },
+	personaesclavizada: {
+		label: 'Personas esclavizadas',
+		icon: 'bi-person-lock',
+		detailPath: '/Detail/personaesclavizada'
+	},
+	personanoesclavizada: {
+		label: 'Personas no esclavizadas',
+		icon: 'bi-person',
+		detailPath: '/Detail/personanoesclavizada'
+	},
+	documento: { label: 'Documentos', icon: 'bi-file-text', detailPath: '/Detail/documento' },
+	lugar: { label: 'Lugares', icon: 'bi-geo-alt', detailPath: '/Detail/lugar' },
+	corporacion: { label: 'Corporaciones', icon: 'bi-building', detailPath: '/Detail/corporacion' }
 };
 
 // ── ID field per entity type (for building detail links) ─────────────
 export const entityIdField = {
-    personaesclavizada: 'persona_id',
-    personanoesclavizada: 'persona_id',
-    documento: 'documento_id',
-    lugar: 'lugar_id',
-    corporacion: 'corporacion_id',
+	personaesclavizada: 'persona_id',
+	personanoesclavizada: 'persona_id',
+	documento: 'documento_id',
+	lugar: 'lugar_id',
+	corporacion: 'corporacion_id'
 };
 
 // ── Cell value renderer helpers ──────────────────────────────────────
 // Returns a display string for a given cell value based on column key
 
 export function renderCellValue(entityType, columnKey, row) {
-    const value = row[columnKey];
+	const value = row[columnKey];
 
-    if (value === null || value === undefined) return '—';
+	if (value === null || value === undefined) return '—';
 
-    // Handle nested objects
-    if (columnKey === 'archivo' && typeof value === 'object') {
-        return value.nombre || value.nombre_abreviado || '—';
-    }
-    if (columnKey === 'lugar_corporacion' && typeof value === 'object') {
-        return value.nombre_lugar ? `${value.nombre_lugar} (${value.tipo || ''})` : '—';
-    }
-    if (columnKey === 'tipo_institucion' && typeof value === 'object') {
-        return value.tipo || '—';
-    }
+	// Handle nested objects
+	if (columnKey === 'archivo' && typeof value === 'object') {
+		return value.nombre || value.nombre_abreviado || '—';
+	}
+	if (columnKey === 'lugar_corporacion' && typeof value === 'object') {
+		return value.nombre_lugar ? `${value.nombre_lugar} (${value.tipo || ''})` : '—';
+	}
+	if (columnKey === 'tipo_institucion' && typeof value === 'object') {
+		return value.tipo || '—';
+	}
 
-    // Handle arrays
-    if (Array.isArray(value)) {
-        return value.length > 0 ? value.join(', ') : '—';
-    }
+	// Handle arrays
+	if (Array.isArray(value)) {
+		return value.length > 0 ? value.join(', ') : '—';
+	}
 
-    // Edad with unit
-    if (columnKey === 'edad' && value) {
-        const unit = row.unidad_temporal_edad || 'años';
-        return `${value} ${unit}`;
-    }
+	// Edad with unit
+	if (columnKey === 'edad' && value) {
+		const unit = row.unidad_temporal_edad || 'años';
+		return `${value} ${unit}`;
+	}
 
-    // Date fields — show year or full date for colonial-era data
-    if (['fecha_nacimiento', 'earliest_doc_date', 'latest_doc_date', 'fecha_inicial', 'fecha_final'].includes(columnKey) && value) {
-        const d = new Date(value);
-        if (!isNaN(d)) {
-            // If day/month are Jan 1 (placeholder), show year only
-            if (d.getMonth() === 0 && d.getDate() === 1) return String(d.getFullYear());
-            return d.toLocaleDateString('es', { year: 'numeric', month: 'short', day: 'numeric' });
-        }
-    }
+	// Date fields — show year or full date for colonial-era data
+	if (
+		[
+			'fecha_nacimiento',
+			'earliest_doc_date',
+			'latest_doc_date',
+			'fecha_inicial',
+			'fecha_final'
+		].includes(columnKey) &&
+		value
+	) {
+		const d = new Date(value);
+		if (!isNaN(d)) {
+			// If day/month are Jan 1 (placeholder), show year only
+			if (d.getMonth() === 0 && d.getDate() === 1) return String(d.getFullYear());
+			return d.toLocaleDateString('es', { year: 'numeric', month: 'short', day: 'numeric' });
+		}
+	}
 
-    // Documented span
-    if (columnKey === 'documented_span' && value) {
-        return `${value} año${value !== 1 ? 's' : ''}`;
-    }
+	// Documented span
+	if (columnKey === 'documented_span' && value) {
+		return `${value} año${value !== 1 ? 's' : ''}`;
+	}
 
-    return String(value);
+	return String(value);
 }

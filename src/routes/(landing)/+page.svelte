@@ -1,303 +1,343 @@
 <script>
-  import { onMount } from 'svelte';
-  import { currentSuffix, currentColor, updateSuffix, titleStem } from '$lib/maintitle';
-  import { unifiedStore, loadCounts } from '$lib/unified-store';
-  import { animateSuffix } from '$lib/textanimation';
-  import { setRandomHeroImage } from '$lib/heroBackground'; // Updated import path
-  import { user } from '$lib/stores/user';
-  import { loginUrl } from '$lib/auth';
+	import { onMount } from 'svelte';
+	import { currentSuffix, currentColor, updateSuffix, titleStem } from '$lib/maintitle';
+	import { unifiedStore, loadCounts } from '$lib/unified-store';
+	import { animateSuffix } from '$lib/textanimation';
+	import { setRandomHeroImage } from '$lib/heroBackground'; // Updated import path
+	import { user } from '$lib/stores/user';
+	import { loginUrl } from '$lib/auth';
 
-  /* global __APP_VERSION__ */
-  const appVersion = __APP_VERSION__;
+	/* global __APP_VERSION__ */
+	const appVersion = __APP_VERSION__;
 
-  let suffixElement;
-  let heroSectionElement;
+	let suffixElement;
+	let heroSectionElement;
 
-  $: if ($currentSuffix) {
-    animateSuffix(suffixElement, updateSuffix);
-  }
+	$: if ($currentSuffix) {
+		animateSuffix(suffixElement, updateSuffix);
+	}
 
-  let query = '';
-  let exactSearch = false;
-  let currentFilter = ''; 
-  let formElement;
+	let query = '';
+	let exactSearch = false;
+	let currentFilter = '';
+	let formElement;
 
-  $: counts = $unifiedStore.counts;
+	$: counts = $unifiedStore.counts;
 
-  const quickBrowseItems = [
-    { label: 'Personas Esclavizadas',     tab: 'personaesclavizada',    icon: 'bi-person-fill' },
-    { label: 'Personas No Esclavizadas',  tab: 'personanoesclavizada',  icon: 'bi-person' },
-    { label: 'Lugares',                  tab: 'lugar',                 icon: 'bi-geo-alt-fill' },
-    { label: 'Corporaciones',            tab: 'corporacion',           icon: 'bi-building' },
-    { label: 'Documentos',               tab: 'documento',             icon: 'bi-file-text' },
-  ];
+	const quickBrowseItems = [
+		{ label: 'Personas Esclavizadas', tab: 'personaesclavizada', icon: 'bi-person-fill' },
+		{ label: 'Personas No Esclavizadas', tab: 'personanoesclavizada', icon: 'bi-person' },
+		{ label: 'Lugares', tab: 'lugar', icon: 'bi-geo-alt-fill' },
+		{ label: 'Corporaciones', tab: 'corporacion', icon: 'bi-building' },
+		{ label: 'Documentos', tab: 'documento', icon: 'bi-file-text' }
+	];
 
-  function handleHeroSearch() {
-    if (query) {
-      const filterParam = currentFilter !== '' ? `&filter=${currentFilter}` : '';
-      const searchQuery = exactSearch ? `"${query}"` : query;
-      window.location.href = `/Search/?q=${encodeURIComponent(searchQuery)}${filterParam}`;
-    }
-  }
+	function handleHeroSearch() {
+		if (query) {
+			const filterParam = currentFilter !== '' ? `&filter=${currentFilter}` : '';
+			const searchQuery = exactSearch ? `"${query}"` : query;
+			window.location.href = `/Search/?q=${encodeURIComponent(searchQuery)}${filterParam}`;
+		}
+	}
 
-  function handleClickOutside(event) {
-    if (formElement && !formElement.contains(event.target)) {
-      currentFilter = 'all';
-    }
-  }
+	function handleClickOutside(event) {
+		if (formElement && !formElement.contains(event.target)) {
+			currentFilter = 'all';
+		}
+	}
 
-  function handleKeydown(event) {
-    if (event.key === 'Escape') {
-      currentFilter = 'all';
-    }
-  }
+	function handleKeydown(event) {
+		if (event.key === 'Escape') {
+			currentFilter = 'all';
+		}
+	}
 
-  function scrollToBody() {
-    const element = document.getElementById('landing-body');
-    element.scrollIntoView({ behavior: 'smooth' });
-  }
+	function scrollToBody() {
+		const element = document.getElementById('landing-body');
+		element.scrollIntoView({ behavior: 'smooth' });
+	}
 
-  let showScrollButton = true;
+	let showScrollButton = true;
 
-  function handleScroll() {
-    showScrollButton = window.scrollY < 100;
-  }
+	function handleScroll() {
+		showScrollButton = window.scrollY < 100;
+	}
 
-  onMount(() => {
-    updateSuffix();
-    setRandomHeroImage(heroSectionElement); // Pass heroSectionElement here
-    loadCounts();
-    document.addEventListener('click', handleClickOutside);
-    document.addEventListener('keydown', handleKeydown);
-    document.addEventListener('scroll', handleScroll);
+	onMount(() => {
+		updateSuffix();
+		setRandomHeroImage(heroSectionElement); // Pass heroSectionElement here
+		loadCounts();
+		document.addEventListener('click', handleClickOutside);
+		document.addEventListener('keydown', handleKeydown);
+		document.addEventListener('scroll', handleScroll);
 
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-      document.removeEventListener('keydown', handleKeydown);
-      document.removeEventListener('scroll', handleScroll);
-    };
-  });
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+			document.removeEventListener('keydown', handleKeydown);
+			document.removeEventListener('scroll', handleScroll);
+		};
+	});
 </script>
 
 <svelte:head>
-  <title>Trayectorias Afro</title>
+	<title>Trayectorias Afro</title>
 </svelte:head>
 
 <main id="main-content">
-<section
-  class="hero-section d-flex align-items-center justify-content-center text-white"
-  bind:this={heroSectionElement}
->
-  <div class="overlay"></div>
-  <a class="hero-auth-link" href={$user ? '/User/' : loginUrl('/')}>
-    <i class="bi bi-person-circle" aria-hidden="true"></i>
-    {$user ? $user.username : 'Entrar'}
-  </a>
-  <div class="hero-content text-center">
-    <h1 class="display-4 dynamic-title" aria-label="{titleStem} {$currentSuffix}">
-		<span class="title-stem">{titleStem}</span>
-		<span
-		  class="title-suffix"
-		  style="color: {$currentColor};"
-		  bind:this={suffixElement}
-		>
-		  <span class="letters">
-			{#each $currentSuffix.split('') as letter, i (letter + i)}
-			  <span class="letter">{letter}</span>
-			{/each}
-		  </span>
-		  <span class="line"></span>
-		</span>
-	  </h1>
-    <p class="lead">La circulación de afrodescendientes esclavizados y libres en la Nueva España</p>
+	<section
+		class="hero-section d-flex align-items-center justify-content-center text-white"
+		bind:this={heroSectionElement}
+	>
+		<div class="overlay"></div>
+		<a class="hero-auth-link" href={$user ? '/User/' : loginUrl('/')}>
+			<i class="bi bi-person-circle" aria-hidden="true"></i>
+			{$user ? $user.username : 'Entrar'}
+		</a>
+		<div class="hero-content text-center">
+			<h1 class="display-4 dynamic-title" aria-label="{titleStem} {$currentSuffix}">
+				<span class="title-stem">{titleStem}</span>
+				<span class="title-suffix" style="color: {$currentColor};" bind:this={suffixElement}>
+					<span class="letters">
+						{#each $currentSuffix.split('') as letter, i (letter + i)}
+							<span class="letter">{letter}</span>
+						{/each}
+					</span>
+					<span class="line"></span>
+				</span>
+			</h1>
+			<p class="lead">
+				La circulación de afrodescendientes esclavizados y libres en la Nueva España
+			</p>
 
-    <form
-      on:submit|preventDefault={handleHeroSearch}
-      class="form-inline justify-content-center mt-4"
-      bind:this={formElement}
-    >
-      <!-- Search bar -->
-      <div class="input-group mb-2">
-        <label for="hero-search" class="visually-hidden">Buscar en la base de datos</label>
-        <input
-          id="hero-search"
-          type="text"
-          bind:value={query}
-          class="form-control form-control-lg"
-          placeholder="Busca por persona, lugar, documento, o palabra clave..."
-          aria-label="Buscar en la base de datos"
-        />
-        <button type="submit" class="btn btn-lg btn-primary search-btn" aria-label="Buscar">
-          <i class="bi bi-search" aria-hidden="true"></i>
-        </button>
-      </div>
+			<form
+				on:submit|preventDefault={handleHeroSearch}
+				class="form-inline justify-content-center mt-4"
+				bind:this={formElement}
+			>
+				<!-- Search bar -->
+				<div class="input-group mb-2">
+					<label for="hero-search" class="visually-hidden">Buscar en la base de datos</label>
+					<input
+						id="hero-search"
+						type="text"
+						bind:value={query}
+						class="form-control form-control-lg"
+						placeholder="Busca por persona, lugar, documento, o palabra clave..."
+						aria-label="Buscar en la base de datos"
+					/>
+					<button type="submit" class="btn btn-lg btn-primary search-btn" aria-label="Buscar">
+						<i class="bi bi-search" aria-hidden="true"></i>
+					</button>
+				</div>
 
-      <!-- Checkbox below and right-aligned -->
-      <div class="d-flex justify-content-end">
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            bind:checked={exactSearch}
-            id="exactSearchCheck"
-          />
-          <label class="form-check-label text-white" for="exactSearchCheck">
-            Búsqueda exacta
-          </label>
-        </div>
-      </div>
-    </form>
+				<!-- Checkbox below and right-aligned -->
+				<div class="d-flex justify-content-end">
+					<div class="form-check">
+						<input
+							class="form-check-input"
+							type="checkbox"
+							bind:checked={exactSearch}
+							id="exactSearchCheck"
+						/>
+						<label class="form-check-label text-white" for="exactSearchCheck">
+							Búsqueda exacta
+						</label>
+					</div>
+				</div>
+			</form>
 
-    <!-- Quick-browse entity links -->
-    <div class="hero-explore-row">
-      {#each quickBrowseItems as item}
-        <a class="hero-explore-link" href="/Search/?tab={item.tab}">
-          <i class="bi {item.icon} hero-explore-icon" aria-hidden="true"></i>
-          <span class="hero-explore-label">{item.label}</span>
-          {#if counts[item.tab] != null}
-            <span class="hero-explore-count" aria-label="{counts[item.tab].toLocaleString('es-MX')} registros">{counts[item.tab].toLocaleString('es-MX')}</span>
-          {/if}
-          <i class="bi bi-arrow-right hero-explore-arrow" aria-hidden="true"></i>
-        </a>
-      {/each}
-    </div>
-  </div>
+			<!-- Quick-browse entity links -->
+			<div class="hero-explore-row">
+				{#each quickBrowseItems as item}
+					<a class="hero-explore-link" href="/Search/?tab={item.tab}">
+						<i class="bi {item.icon} hero-explore-icon" aria-hidden="true"></i>
+						<span class="hero-explore-label">{item.label}</span>
+						{#if counts[item.tab] != null}
+							<span
+								class="hero-explore-count"
+								aria-label="{counts[item.tab].toLocaleString('es-MX')} registros"
+								>{counts[item.tab].toLocaleString('es-MX')}</span
+							>
+						{/if}
+						<i class="bi bi-arrow-right hero-explore-arrow" aria-hidden="true"></i>
+					</a>
+				{/each}
+			</div>
+		</div>
 
-  {#if showScrollButton}
-    <div class="go-to-body">
-      <button 
-        class="scroll-down-btn" 
-        on:click={scrollToBody}
-        aria-label="Desplazarse al contenido"
-      >
-        <i class="bi bi-chevron-double-down" aria-hidden="true"></i>
-      </button>
-    </div>
-  {/if}
-</section>
+		{#if showScrollButton}
+			<div class="go-to-body">
+				<button
+					class="scroll-down-btn"
+					on:click={scrollToBody}
+					aria-label="Desplazarse al contenido"
+				>
+					<i class="bi bi-chevron-double-down" aria-hidden="true"></i>
+				</button>
+			</div>
+		{/if}
+	</section>
 </main>
 
 <section id="landing-body">
-  <!-- About Section -->
-  <div class="container mt-5">
-    <div class="row about-section" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
-      <div class="col-md-12">
-        <div class="icon-wrapper">
-          <img src="/icons/i_peresc.webp" alt="Ícono Personas Esclavizadas" class="section-icon">
-        </div>
-        <h2 class="section-title">Sobre el Proyecto</h2>
-        <div class="about-content">
-          <p class="lead">
-            El sitio web Trayectorias Afro es el resultado de colaboración entre investigadores 
-            de varias instituciones de México y Estados Unidos desde 2022, para la construcción 
-            de una base de datos de personas esclavizadas en la Nueva España en la que, a través 
-            del análisis pormenorizado de fuentes documentales se dé cuenta de su movilidad 
-            geográfica en el territorio novohispano.
-          </p>
-          <p>
-            Este proyecto también busca democratizar la información poniendo la documentación 
-            histórica al alcance de amplios sectores de la sociedad mexicana y del mundo académico.
-          </p>
-          <!-- Added "Read More" button -->
-          <div class="text-end mt-4">
-            <a href="/About" class="btn btn-outline-primary">
-              <i class="bi bi-arrow-right me-2"></i>Leer más
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
+	<!-- About Section -->
+	<div class="container mt-5">
+		<div
+			class="row about-section"
+			data-aos="fade-up"
+			data-aos-easing="ease"
+			data-aos-duration="500"
+		>
+			<div class="col-md-12">
+				<div class="icon-wrapper">
+					<img src="/icons/i_peresc.webp" alt="Ícono Personas Esclavizadas" class="section-icon" />
+				</div>
+				<h2 class="section-title">Sobre el Proyecto</h2>
+				<div class="about-content">
+					<p class="lead">
+						El sitio web Trayectorias Afro es el resultado de colaboración entre investigadores de
+						varias instituciones de México y Estados Unidos desde 2022, para la construcción de una
+						base de datos de personas esclavizadas en la Nueva España en la que, a través del
+						análisis pormenorizado de fuentes documentales se dé cuenta de su movilidad geográfica
+						en el territorio novohispano.
+					</p>
+					<p>
+						Este proyecto también busca democratizar la información poniendo la documentación
+						histórica al alcance de amplios sectores de la sociedad mexicana y del mundo académico.
+					</p>
+					<!-- Added "Read More" button -->
+					<div class="text-end mt-4">
+						<a href="/About" class="btn btn-outline-primary">
+							<i class="bi bi-arrow-right me-2"></i>Leer más
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- Features Section -->
-    <div class="row features-section mt-5 justify-content-center" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
-      <div class="col-md-4">
-        <a href="/Archivos" class="feature-card">
-          <i class="bi bi-bank feature-icon"></i>
-          <h3>Archivos</h3>
-          <p>Repositorios documentales utilizados para la reconstrucción de la circulación de afrodescendientes esclavizados y libres en la Nueva España</p>
-        </a>
-      </div>
-      <div class="col-md-4">
-        <a href="/Dashboard" class="feature-card">
-          <i class="bi bi-geo-alt feature-icon"></i>
-          <h3>Visualizaciones</h3>
-          <p>Visualice los movimientos y rutas en el territorio novohispano</p>
-        </a>
-      </div>
-      <div class="col-md-4">
-        <a href="/lessons" class="feature-card">
-          <i class="bi bi-mortarboard feature-icon"></i>
-          <h3>Lecciones Educativas</h3>
-          <p>Recursos educativos elaborados a partir de la investigación en Trayectorias Afro</p>
-        </a>
-      </div>
-    </div>
-  </div>
+		<!-- Features Section -->
+		<div
+			class="row features-section mt-5 justify-content-center"
+			data-aos="fade-up"
+			data-aos-easing="ease"
+			data-aos-duration="500"
+		>
+			<div class="col-md-4">
+				<a href="/Archivos" class="feature-card">
+					<i class="bi bi-bank feature-icon"></i>
+					<h3>Archivos</h3>
+					<p>
+						Repositorios documentales utilizados para la reconstrucción de la circulación de
+						afrodescendientes esclavizados y libres en la Nueva España
+					</p>
+				</a>
+			</div>
+			<div class="col-md-4">
+				<a href="/Dashboard" class="feature-card">
+					<i class="bi bi-geo-alt feature-icon"></i>
+					<h3>Visualizaciones</h3>
+					<p>Visualice los movimientos y rutas en el territorio novohispano</p>
+				</a>
+			</div>
+			<div class="col-md-4">
+				<a href="/lessons" class="feature-card">
+					<i class="bi bi-mortarboard feature-icon"></i>
+					<h3>Lecciones Educativas</h3>
+					<p>Recursos educativos elaborados a partir de la investigación en Trayectorias Afro</p>
+				</a>
+			</div>
+		</div>
+	</div>
 
-  <!-- Brother Projects -->
-  <div class="container mt-5">
-    <h2 class="section-title" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">Proyectos Hermanos</h2>
-    <div class="row justify-content-center" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
-      <div class="col-lg-10">
-        <a href="https://memoricamexico.gob.mx/es/memorica/Memorias_afromexicanas" target="_blank" rel="noopener" class="showcase-card">
-          <img src="/media/memorica_afromexicanos.jpg" alt="Memorica – Memorias Afromexicanas" class="showcase-card-img" />
-          <div class="showcase-card-overlay">
-            <span class="showcase-card-badge">Memorica México</span>
-            <h3 class="showcase-card-title">Memorias Afromexicanas</h3>
-            <span class="showcase-card-cta">Visitar <i class="bi bi-arrow-right"></i></span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </div>
+	<!-- Brother Projects -->
+	<div class="container mt-5">
+		<h2 class="section-title" data-aos="fade-up" data-aos-easing="ease" data-aos-duration="500">
+			Proyectos Hermanos
+		</h2>
+		<div
+			class="row justify-content-center"
+			data-aos="fade-up"
+			data-aos-easing="ease"
+			data-aos-duration="500"
+		>
+			<div class="col-lg-10">
+				<a
+					href="https://memoricamexico.gob.mx/es/memorica/Memorias_afromexicanas"
+					target="_blank"
+					rel="noopener"
+					class="showcase-card"
+				>
+					<img
+						src="/media/memorica_afromexicanos.jpg"
+						alt="Memorica – Memorias Afromexicanas"
+						class="showcase-card-img"
+					/>
+					<div class="showcase-card-overlay">
+						<span class="showcase-card-badge">Memorica México</span>
+						<h3 class="showcase-card-title">Memorias Afromexicanas</h3>
+						<span class="showcase-card-cta">Visitar <i class="bi bi-arrow-right"></i></span>
+					</div>
+				</a>
+			</div>
+		</div>
+	</div>
 </section>
 
 <!-- Footer -->
 <footer class="footer mt-5">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4">
-        <h5>Financiamiento</h5>
-        <p>
-          Partes de este proyecto han sido financiadas por el University of California MRPI 
-          <a href="https://www.humanities.uci.edu/routes-enslavement-americas" target="_blank" rel="noopener">
-            Routes of Enslavement in the Americas
-          </a>
-          y la Universidad de California
-          <a href="https://alianzamx.universityofcalifornia.edu/research-and-innovation/latino-studies-projects/" target="_blank" rel="noopener">
-            Alianza MX — Latino Studies Projects
-          </a>
-        </p>
-      </div>
-      <div class="col-md-4">
-        <h5>Agradecimientos</h5>
-        <p>
-          Agradecemos el hospedaje web de este proyecto a la 
-          <a href="https://neogranadina.org/" target="_blank" rel="noopener">Fundación Neogranadina</a>, 
-          y el asesoramiento para esto de Juan Cobo de la 
-          <a href="https://www.history.ucsb.edu/faculty/juan-cobo/" target="_blank" rel="noopener">
-            Universidad de California, Santa Bárbara
-          </a>.
-        </p>
-      </div>
-      <div class="col-md-4">
-        <h5>Acerca de Trayectorias Afro</h5>
-        <ul class="list-unstyled">
-        <li><a href="/About">Sobre Nosotros</a></li>
-        <li><a href="/Accessibility">Accesibilidad</a></li>
-        {#if !$user}
-          <li><a href={loginUrl('/')}>Entrar [login]</a></li>
-        {:else}
-          <li><a href="/User/">Panel de control</a></li>
-          <li><a href="https://db.trayectoriasafro.org">Sistema anterior</a></li>
-        {/if}
-        </ul>
-      </div>
-    </div>
-    <div class="row mt-3 border-top pt-2">
-      <div class="col text-center text-muted small">
-        v{appVersion}
-      </div>
-    </div>
-  </div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-4">
+				<h5>Financiamiento</h5>
+				<p>
+					Partes de este proyecto han sido financiadas por el University of California MRPI
+					<a
+						href="https://www.humanities.uci.edu/routes-enslavement-americas"
+						target="_blank"
+						rel="noopener"
+					>
+						Routes of Enslavement in the Americas
+					</a>
+					y la Universidad de California
+					<a
+						href="https://alianzamx.universityofcalifornia.edu/research-and-innovation/latino-studies-projects/"
+						target="_blank"
+						rel="noopener"
+					>
+						Alianza MX — Latino Studies Projects
+					</a>
+				</p>
+			</div>
+			<div class="col-md-4">
+				<h5>Agradecimientos</h5>
+				<p>
+					Agradecemos el hospedaje web de este proyecto a la
+					<a href="https://neogranadina.org/" target="_blank" rel="noopener"
+						>Fundación Neogranadina</a
+					>, y el asesoramiento para esto de Juan Cobo de la
+					<a href="https://www.history.ucsb.edu/faculty/juan-cobo/" target="_blank" rel="noopener">
+						Universidad de California, Santa Bárbara
+					</a>.
+				</p>
+			</div>
+			<div class="col-md-4">
+				<h5>Acerca de Trayectorias Afro</h5>
+				<ul class="list-unstyled">
+					<li><a href="/About">Sobre Nosotros</a></li>
+					<li><a href="/Accessibility">Accesibilidad</a></li>
+					{#if !$user}
+						<li><a href={loginUrl('/')}>Entrar [login]</a></li>
+					{:else}
+						<li><a href="/User/">Panel de control</a></li>
+						<li><a href="https://db.trayectoriasafro.org">Sistema anterior</a></li>
+					{/if}
+				</ul>
+			</div>
+		</div>
+		<div class="row mt-3 border-top pt-2">
+			<div class="col text-center text-muted small">
+				v{appVersion}
+			</div>
+		</div>
+	</div>
 </footer>

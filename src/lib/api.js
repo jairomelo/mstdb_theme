@@ -5,19 +5,19 @@ import { getCookie } from './csrf';
 import config from '../config';
 
 const fetchWithBaseUrl = async (endpoint, options = {}) => {
-    const url = `${config.apiBaseUrl}${endpoint}`;
-    const response = await fetch(url, {...options, credentials: "include"});
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
+	const url = `${config.apiBaseUrl}${endpoint}`;
+	const response = await fetch(url, { ...options, credentials: 'include' });
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+	return await response.json();
 };
 
 export { fetchWithBaseUrl };
 
 export const postWithBaseUrl = async (endpoint, payload = {}) => {
 	const url = `${config.apiBaseUrl}${endpoint}`;
-	const csrfToken = getCookie("csrftoken");
+	const csrfToken = getCookie('csrftoken');
 
 	// For logging endpoint, fail silently if no CSRF token is available
 	if (endpoint === 'log/' && !csrfToken) {
@@ -25,18 +25,20 @@ export const postWithBaseUrl = async (endpoint, payload = {}) => {
 	}
 
 	const response = await fetch(url, {
-		method: "POST",
+		method: 'POST',
 		headers: {
-			"Content-Type": "application/json",
-			"X-CSRFToken": csrfToken || "",
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken || ''
 		},
-		credentials: "include",
+		credentials: 'include',
 		body: JSON.stringify(payload)
 	});
 
 	if (!response.ok) {
 		const errorData = await response.json().catch(() => ({}));
-		throw Object.assign(new Error(errorData.error || `HTTP error! status: ${response.status}`), { data: errorData });
+		throw Object.assign(new Error(errorData.error || `HTTP error! status: ${response.status}`), {
+			data: errorData
+		});
 	}
 
 	return await response.json();
@@ -44,15 +46,15 @@ export const postWithBaseUrl = async (endpoint, payload = {}) => {
 
 const _writeRequest = async (method, endpoint, payload = {}) => {
 	const url = `${config.apiBaseUrl}${endpoint}`;
-	const csrfToken = getCookie("csrftoken");
+	const csrfToken = getCookie('csrftoken');
 	const response = await fetch(url, {
 		method,
 		headers: {
-			"Content-Type": "application/json",
-			"X-CSRFToken": csrfToken || "",
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrfToken || ''
 		},
-		credentials: "include",
-		body: JSON.stringify(payload),
+		credentials: 'include',
+		body: JSON.stringify(payload)
 	});
 	if (!response.ok) {
 		const errorData = await response.json().catch(() => ({}));
@@ -63,15 +65,15 @@ const _writeRequest = async (method, endpoint, payload = {}) => {
 	return await response.json();
 };
 
-export const putWithBaseUrl   = (endpoint, payload) => _writeRequest('PUT',   endpoint, payload);
+export const putWithBaseUrl = (endpoint, payload) => _writeRequest('PUT', endpoint, payload);
 export const patchWithBaseUrl = (endpoint, payload) => _writeRequest('PATCH', endpoint, payload);
 export const deleteWithBaseUrl = async (endpoint) => {
 	const url = `${config.apiBaseUrl}${endpoint}`;
-	const csrfToken = getCookie("csrftoken");
+	const csrfToken = getCookie('csrftoken');
 	const response = await fetch(url, {
-		method: "DELETE",
-		headers: { "X-CSRFToken": csrfToken || "" },
-		credentials: "include",
+		method: 'DELETE',
+		headers: { 'X-CSRFToken': csrfToken || '' },
+		credentials: 'include'
 	});
 	if (!response.ok) {
 		const errorData = await response.json().catch(() => ({}));
@@ -98,173 +100,169 @@ export const initializeLogging = async () => {
 export const setCsrfCookie = async () => {
 	const url = `${config.apiBaseUrl}csrf/`;
 	const response = await fetch(url, {
-		method: "GET",
-		credentials: "include"
+		method: 'GET',
+		credentials: 'include'
 	});
 
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+
 	return await response.json();
 };
 
 // User admin endpoints
 export const login = async (username, password, csrfToken = null) => {
-    const token = csrfToken || getCookie("csrftoken") || "";
-    if (!token) {
-        throw new Error("CSRF token is required for login.");
-    }
-    
-    return await fetch(`${config.apiBaseUrl}login/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": token,
-        },
-        credentials: "include",
-        body: JSON.stringify({ username, password })
-    }).then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    });
+	const token = csrfToken || getCookie('csrftoken') || '';
+	if (!token) {
+		throw new Error('CSRF token is required for login.');
+	}
+
+	return await fetch(`${config.apiBaseUrl}login/`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': token
+		},
+		credentials: 'include',
+		body: JSON.stringify({ username, password })
+	}).then((response) => {
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		return response.json();
+	});
 };
 
 export const logout = async (csrfToken = null) => {
-    const token = csrfToken || getCookie("csrftoken") || "";
-    if (!token) {
-        throw new Error("CSRF token is required for logout.");
-    }
+	const token = csrfToken || getCookie('csrftoken') || '';
+	if (!token) {
+		throw new Error('CSRF token is required for logout.');
+	}
 
-    return await fetch(`${config.apiBaseUrl}logout/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": token,
-        },
-        credentials: "include",
-        body: JSON.stringify({})
-    }).then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    });
+	return await fetch(`${config.apiBaseUrl}logout/`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': token
+		},
+		credentials: 'include',
+		body: JSON.stringify({})
+	}).then((response) => {
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		return response.json();
+	});
 };
 
 /*
-* This function fetches the list of users from the API.
-* @returns {Promise<Array>} A promise that resolves to the list of users.
-*/
+ * This function fetches the list of users from the API.
+ * @returns {Promise<Array>} A promise that resolves to the list of users.
+ */
 export const whoami = async () => {
-    try {
-        const response = await fetchWithBaseUrl("whoami/");
-        return response;
-    } catch (error) {
-        if (error.message.includes("403")) {
-            console.log("User not authenticated. If there's a session, it might be expired.");
-            return null; 
-        }
-        throw error; 
-    }
+	try {
+		const response = await fetchWithBaseUrl('whoami/');
+		return response;
+	} catch (error) {
+		if (error.message.includes('403')) {
+			console.log("User not authenticated. If there's a session, it might be expired.");
+			return null;
+		}
+		throw error;
+	}
 };
 
-export const updateProfile = (data) => patchWithBaseUrl("whoami/", data);
+export const updateProfile = (data) => patchWithBaseUrl('whoami/', data);
 
-export const changePassword = (data) => postWithBaseUrl("whoami/change-password/", data);
+export const changePassword = (data) => postWithBaseUrl('whoami/change-password/', data);
 
-export const register = (data) => postWithBaseUrl("register/", data);
+export const register = (data) => postWithBaseUrl('register/', data);
 
-export const fetchPublicConfig = () => fetchWithBaseUrl("config/");
+export const fetchPublicConfig = () => fetchWithBaseUrl('config/');
 
-export const fetchUsersProgress = () => fetchWithBaseUrl("users/progress/");
-
-
+export const fetchUsersProgress = () => fetchWithBaseUrl('users/progress/');
 
 // Search endpoints
 export const searchAll = (params) => {
-    // Filter out empty or null parameters
-    const filteredParams = {};
-    for (const key in params) {
-        if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
-            filteredParams[key] = params[key];
-        }
-    }
+	// Filter out empty or null parameters
+	const filteredParams = {};
+	for (const key in params) {
+		if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
+			filteredParams[key] = params[key];
+		}
+	}
 
-    const querystring = queryString.stringify(filteredParams);
-    return fetchWithBaseUrl(`search/?${querystring}`);
+	const querystring = queryString.stringify(filteredParams);
+	return fetchWithBaseUrl(`search/?${querystring}`);
 };
 
 export const searchNetwork = (params, options = {}) => {
-    const filteredParams = {};
-    for (const key in params) {
-        if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
-            filteredParams[key] = params[key];
-        }
-    }
+	const filteredParams = {};
+	for (const key in params) {
+		if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
+			filteredParams[key] = params[key];
+		}
+	}
 
-    const querystring = queryString.stringify(filteredParams);
-    return fetchWithBaseUrl(`search/network/?${querystring}`, options);
+	const querystring = queryString.stringify(filteredParams);
+	return fetchWithBaseUrl(`search/network/?${querystring}`, options);
 };
 
 // Browse endpoints
 
 const ENTITY_ENDPOINT_MAP = {
-    personaesclavizada: 'personas-esclavizadas',
-    personanoesclavizada: 'personas-no-esclavizadas',
-    documento: 'documentos',
-    lugar: 'lugares',
-    corporacion: 'corporaciones',
+	personaesclavizada: 'personas-esclavizadas',
+	personanoesclavizada: 'personas-no-esclavizadas',
+	documento: 'documentos',
+	lugar: 'lugares',
+	corporacion: 'corporaciones'
 };
 
 export const browseEntities = (entityType, params) => {
-    const endpoint = ENTITY_ENDPOINT_MAP[entityType];
-    if (!endpoint) throw new Error(`Unknown entity type: ${entityType}`);
+	const endpoint = ENTITY_ENDPOINT_MAP[entityType];
+	if (!endpoint) throw new Error(`Unknown entity type: ${entityType}`);
 
-    const filteredParams = {};
-    for (const key in params) {
-        if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
-            filteredParams[key] = params[key];
-        }
-    }
-    const qs = queryString.stringify(filteredParams);
-    return fetchWithBaseUrl(`${endpoint}/?${qs}`);
+	const filteredParams = {};
+	for (const key in params) {
+		if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
+			filteredParams[key] = params[key];
+		}
+	}
+	const qs = queryString.stringify(filteredParams);
+	return fetchWithBaseUrl(`${endpoint}/?${qs}`);
 };
 
 export const fetchCounts = () => fetchWithBaseUrl('counts/');
 
 export const exportCsv = (entityType, { query, exactSearch, filters, ordering } = {}) => {
-    const params = { type: entityType, export_format: 'csv' };
-    if (query) {
-        params.q = exactSearch
-            ? `"${query.replace(/^"|"$/g, '')}"`
-            : query.replace(/^"|"$/g, '');
-    }
-    if (ordering) params.ordering = ordering;
-    if (filters) {
-        for (const [key, value] of Object.entries(filters)) {
-            if (value !== null && value !== '' && value !== undefined) {
-                params[key] = value;
-            }
-        }
-    }
-    const qs = queryString.stringify(params);
-    return `${config.apiBaseUrl}search/?${qs}`;
+	const params = { type: entityType, export_format: 'csv' };
+	if (query) {
+		params.q = exactSearch ? `"${query.replace(/^"|"$/g, '')}"` : query.replace(/^"|"$/g, '');
+	}
+	if (ordering) params.ordering = ordering;
+	if (filters) {
+		for (const [key, value] of Object.entries(filters)) {
+			if (value !== null && value !== '' && value !== undefined) {
+				params[key] = value;
+			}
+		}
+	}
+	const qs = queryString.stringify(params);
+	return `${config.apiBaseUrl}search/?${qs}`;
 };
 
 export const personasescfull = (params) => {
-    // Filter out empty or null parameters
-    const filteredParams = {};
-    for (const key in params) {
-        if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
-            filteredParams[key] = params[key];
-        }
-    }
+	// Filter out empty or null parameters
+	const filteredParams = {};
+	for (const key in params) {
+		if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
+			filteredParams[key] = params[key];
+		}
+	}
 
-    const querystring = queryString.stringify(filteredParams);
-    return fetchWithBaseUrl(`personas-esclavizadas/?${querystring}`);
+	const querystring = queryString.stringify(filteredParams);
+	return fetchWithBaseUrl(`personas-esclavizadas/?${querystring}`);
 };
 
 // Archivo list (with documento_count)
@@ -273,15 +271,18 @@ export const archivos = () => fetchWithBaseUrl('archivos/');
 // Detail endpoints
 export const documentos = (params) => fetchWithBaseUrl(`documentos/${params}/`);
 export const peresclavizadas = (params) => fetchWithBaseUrl(`personas-esclavizadas/${params}/`);
-export const pernoesclavizadas =  (params) => fetchWithBaseUrl(`personas-no-esclavizadas/${params}/`);
+export const pernoesclavizadas = (params) =>
+	fetchWithBaseUrl(`personas-no-esclavizadas/${params}/`);
 export const corporaciones = (params) => fetchWithBaseUrl(`corporaciones/${params}/`);
 
 // ── Lecciones Educativas ───────────────────────────────────────────────────────
 export const fetchLecciones = (params = {}) => {
-    const qs = new URLSearchParams(
-        Object.fromEntries(Object.entries(params).filter(([, v]) => v !== null && v !== '' && v !== undefined))
-    ).toString();
-    return fetchWithBaseUrl(`lecciones/${qs ? '?' + qs : ''}`);
+	const qs = new URLSearchParams(
+		Object.fromEntries(
+			Object.entries(params).filter(([, v]) => v !== null && v !== '' && v !== undefined)
+		)
+	).toString();
+	return fetchWithBaseUrl(`lecciones/${qs ? '?' + qs : ''}`);
 };
 export const fetchLeccion = (id) => fetchWithBaseUrl(`lecciones/${id}/`);
 export const leccionNiveles = () => fetchWithBaseUrl('vocabularios/niveles-leccion/');
@@ -290,38 +291,38 @@ export const createLeccion = (data) => postWithBaseUrl('lecciones/', data);
 export const updateLeccion = (id, data) => patchWithBaseUrl(`lecciones/${id}/`, data);
 export const deleteLeccion = (id) => deleteWithBaseUrl(`lecciones/${id}/`);
 export const uploadLeccionImagen = async (leccionId, file) => {
-    const url = `${config.apiBaseUrl}lecciones/${leccionId}/imagenes/`;
-    const csrfToken = getCookie("csrftoken");
-    const formData = new FormData();
-    formData.append('imagen', file);
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "X-CSRFToken": csrfToken || "" },
-        credentials: "include",
-        body: formData,
-    });
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw Object.assign(new Error(`HTTP error! status: ${response.status}`), { data: errorData });
-    }
-    return await response.json();
+	const url = `${config.apiBaseUrl}lecciones/${leccionId}/imagenes/`;
+	const csrfToken = getCookie('csrftoken');
+	const formData = new FormData();
+	formData.append('imagen', file);
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: { 'X-CSRFToken': csrfToken || '' },
+		credentials: 'include',
+		body: formData
+	});
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+		throw Object.assign(new Error(`HTTP error! status: ${response.status}`), { data: errorData });
+	}
+	return await response.json();
 };
 export const uploadLeccionAdjunto = async (leccionId, file) => {
-    const url = `${config.apiBaseUrl}lecciones/${leccionId}/adjuntos/`;
-    const csrfToken = getCookie("csrftoken");
-    const formData = new FormData();
-    formData.append('archivo', file);
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "X-CSRFToken": csrfToken || "" },
-        credentials: "include",
-        body: formData,
-    });
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw Object.assign(new Error(`HTTP error! status: ${response.status}`), { data: errorData });
-    }
-    return await response.json();
+	const url = `${config.apiBaseUrl}lecciones/${leccionId}/adjuntos/`;
+	const csrfToken = getCookie('csrftoken');
+	const formData = new FormData();
+	formData.append('archivo', file);
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: { 'X-CSRFToken': csrfToken || '' },
+		credentials: 'include',
+		body: formData
+	});
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+		throw Object.assign(new Error(`HTTP error! status: ${response.status}`), { data: errorData });
+	}
+	return await response.json();
 };
 // ── Leccion accesos (owner/collaborator grants) ─────────────────────────────
 export const fetchLeccionAccesos = (leccionId) =>
@@ -335,90 +336,107 @@ export const deleteLeccionAcceso = (leccionId, accesoId) =>
 export const lookupUsers = (fragment) =>
 	fetchWithBaseUrl(`users/lookup/?username=${encodeURIComponent(fragment)}`);
 export const lugares = (params) => fetchWithBaseUrl(`lugares/${params}/`);
-export const lugarPersonasRelacionadas = (lugarId, page = 1) => 
-    fetchWithBaseUrl(`lugares/${lugarId}/personas/?page=${page}`);
+export const lugarPersonasRelacionadas = (lugarId, page = 1) =>
+	fetchWithBaseUrl(`lugares/${lugarId}/personas/?page=${page}`);
 export const lugarProcedencia = (lugarId, page = 1) =>
-    fetchWithBaseUrl(`lugares/${lugarId}/procedencia/?page=${page}`);
+	fetchWithBaseUrl(`lugares/${lugarId}/procedencia/?page=${page}`);
 export const documentoPersonas = (documentoId, page = 1) =>
-    fetchWithBaseUrl(`documentos/${documentoId}/personas/?page=${page}`);
-export const personaLugarRel = (personaxlugarId) => fetchWithBaseUrl(`relaciones-lugares/${personaxlugarId}/`);
-export const personaLugarRelByPersona = (personaId) => fetchWithBaseUrl(`relaciones-lugares/?personas__persona_id=${personaId}&page_size=100`);
+	fetchWithBaseUrl(`documentos/${documentoId}/personas/?page=${page}`);
+export const personaLugarRel = (personaxlugarId) =>
+	fetchWithBaseUrl(`relaciones-lugares/${personaxlugarId}/`);
+export const personaLugarRelByPersona = (personaId) =>
+	fetchWithBaseUrl(`relaciones-lugares/?personas__persona_id=${personaId}&page_size=100`);
 export const createPersonaLugarRel = (payload) => postWithBaseUrl('relaciones-lugares/', payload);
-export const updatePersonaLugarRel = (id, payload) => patchWithBaseUrl(`relaciones-lugares/${id}/`, payload);
+export const updatePersonaLugarRel = (id, payload) =>
+	patchWithBaseUrl(`relaciones-lugares/${id}/`, payload);
 export const deletePersonaLugarRel = (id) => deleteWithBaseUrl(`relaciones-lugares/${id}/`);
-export const bulkUpdateOrdinal = (items) => patchWithBaseUrl('relaciones-lugares/bulk-ordinal/', items);
+export const bulkUpdateOrdinal = (items) =>
+	patchWithBaseUrl('relaciones-lugares/bulk-ordinal/', items);
 export const updateLugar = (id, payload) => patchWithBaseUrl(`lugares/${id}/`, payload);
-export const searchLugares = (q) => fetchWithBaseUrl(`lugares/search/?q=${encodeURIComponent(q)}&page_size=10`);
-export const searchPersonasEsclavizadas = (q) => fetchWithBaseUrl(`personas-esclavizadas/?search=${encodeURIComponent(q)}&page_size=10`);
-export const searchDocumentos = (q) => fetchWithBaseUrl(`documentos/?search=${encodeURIComponent(q)}&page_size=10`);
-export const situacionesLugar = () => fetchWithBaseUrl('vocabularios/situaciones-lugar/?page_size=100');
-export const personaPersonasRel = (personaxpersonaId) => fetchWithBaseUrl(`relaciones-personas/${personaxpersonaId}/`);
+export const searchLugares = (q) =>
+	fetchWithBaseUrl(`lugares/search/?q=${encodeURIComponent(q)}&page_size=10`);
+export const searchPersonasEsclavizadas = (q) =>
+	fetchWithBaseUrl(`personas-esclavizadas/?search=${encodeURIComponent(q)}&page_size=10`);
+export const searchDocumentos = (q) =>
+	fetchWithBaseUrl(`documentos/?search=${encodeURIComponent(q)}&page_size=10`);
+export const situacionesLugar = () =>
+	fetchWithBaseUrl('vocabularios/situaciones-lugar/?page_size=100');
+export const personaPersonasRel = (personaxpersonaId) =>
+	fetchWithBaseUrl(`relaciones-personas/${personaxpersonaId}/`);
 
 // Visualization endpoints for detail views
-export const personaNetwork = (personaId) => fetchWithBaseUrl(`personas-esclavizadas/${personaId}/network/`);
-export const personaNoEsclavizadaNetwork = (personaId) => fetchWithBaseUrl(`personas-no-esclavizadas/${personaId}/network/`);
-export const personaTrajectory = (personaId) => fetchWithBaseUrl(`personas-esclavizadas/${personaId}/trajectory/`);
+export const personaNetwork = (personaId) =>
+	fetchWithBaseUrl(`personas-esclavizadas/${personaId}/network/`);
+export const personaNoEsclavizadaNetwork = (personaId) =>
+	fetchWithBaseUrl(`personas-no-esclavizadas/${personaId}/network/`);
+export const personaTrajectory = (personaId) =>
+	fetchWithBaseUrl(`personas-esclavizadas/${personaId}/trajectory/`);
 
 // Aggregated trajectory endpoints
 export const aggregatedTrajectories = (params = {}) => {
-    const qs = new URLSearchParams(params).toString();
-    return fetchWithBaseUrl(`travel-trajectories/aggregated/${qs ? '?' + qs : ''}`);
+	const qs = new URLSearchParams(params).toString();
+	return fetchWithBaseUrl(`travel-trajectories/aggregated/${qs ? '?' + qs : ''}`);
 };
 export const routeDetail = (fromId, toId, page = 1, params = {}) => {
-    const extra = new URLSearchParams(params).toString();
-    const base = `travel-trajectories/route_detail/?from_lugar_id=${fromId}&to_lugar_id=${toId}&page=${page}`;
-    return fetchWithBaseUrl(extra ? `${base}&${extra}` : base);
+	const extra = new URLSearchParams(params).toString();
+	const base = `travel-trajectories/route_detail/?from_lugar_id=${fromId}&to_lugar_id=${toId}&page=${page}`;
+	return fetchWithBaseUrl(extra ? `${base}&${extra}` : base);
 };
 
 // Data Visualization endpoints
 export const generoHispanizacion = async () => {
-    try {
-        const data = await fetchWithBaseUrl(`gender-status-distribution/`);
-        if (!Array.isArray(data)) {
-            throw new Error('Invalid data format received from server');
-        }
-        return data;
-    } catch (error) {
-        console.error('Error fetching género hispanización data:', error);
-        throw error;
-    }
+	try {
+		const data = await fetchWithBaseUrl(`gender-status-distribution/`);
+		if (!Array.isArray(data)) {
+			throw new Error('Invalid data format received from server');
+		}
+		return data;
+	} catch (error) {
+		console.error('Error fetching género hispanización data:', error);
+		throw error;
+	}
 };
 
-
 export const placePeopleDistribution = async () => {
-    try {
-        const data = await fetchWithBaseUrl(`places-people-distribution/`);
-        if (!Array.isArray(data)) {
-            throw new Error('Invalid data format received from server');
-        }
-        return data;
-    } catch (error) {
-        console.error('Error fetching place people distribution data:', error);
-        throw error;
-    }
+	try {
+		const data = await fetchWithBaseUrl(`places-people-distribution/`);
+		if (!Array.isArray(data)) {
+			throw new Error('Invalid data format received from server');
+		}
+		return data;
+	} catch (error) {
+		console.error('Error fetching place people distribution data:', error);
+		throw error;
+	}
 };
 
 // ── Ingestion capture helpers ──────────────────────────────────────────────────
-export const createArchivo              = (data) => postWithBaseUrl('archivos/', data);
-export const createPersonaEsclavizada   = (data) => postWithBaseUrl('personas-esclavizadas/', data);
-export const createPersonaNoEsclavizada = (data) => postWithBaseUrl('personas-no-esclavizadas/', data);
-export const createDocumento           = (data) => postWithBaseUrl('documentos/', data);
-export const createLugar               = (data) => postWithBaseUrl('lugares/', data);
-export const createTipoDocumental      = (data) => postWithBaseUrl('vocabularios/tipos-documentales/', data);
-export const createCorporacion         = (data) => postWithBaseUrl('corporaciones/', data);
-export const updateCorporacion         = (id, data) => patchWithBaseUrl(`corporaciones/${id}/`, data);
+export const createArchivo = (data) => postWithBaseUrl('archivos/', data);
+export const createPersonaEsclavizada = (data) => postWithBaseUrl('personas-esclavizadas/', data);
+export const createPersonaNoEsclavizada = (data) =>
+	postWithBaseUrl('personas-no-esclavizadas/', data);
+export const createDocumento = (data) => postWithBaseUrl('documentos/', data);
+export const createLugar = (data) => postWithBaseUrl('lugares/', data);
+export const createTipoDocumental = (data) =>
+	postWithBaseUrl('vocabularios/tipos-documentales/', data);
+export const createCorporacion = (data) => postWithBaseUrl('corporaciones/', data);
+export const updateCorporacion = (id, data) => patchWithBaseUrl(`corporaciones/${id}/`, data);
 
 // ── PersonaRelaciones (P×P) helpers ──────────────────────────────────────────
-export const relacionesByPersona = (personaId) => fetchWithBaseUrl(`relaciones-personas/?personas__persona_id=${personaId}&page_size=100`);
-export const createPersonaRelacion  = (payload) => postWithBaseUrl('relaciones-personas/', payload);
-export const updatePersonaRelacion  = (id, payload) => patchWithBaseUrl(`relaciones-personas/${id}/`, payload);
-export const deletePersonaRelacion  = (id) => deleteWithBaseUrl(`relaciones-personas/${id}/`);
+export const relacionesByPersona = (personaId) =>
+	fetchWithBaseUrl(`relaciones-personas/?personas__persona_id=${personaId}&page_size=100`);
+export const createPersonaRelacion = (payload) => postWithBaseUrl('relaciones-personas/', payload);
+export const updatePersonaRelacion = (id, payload) =>
+	patchWithBaseUrl(`relaciones-personas/${id}/`, payload);
+export const deletePersonaRelacion = (id) => deleteWithBaseUrl(`relaciones-personas/${id}/`);
 
 // ── Merge helpers ─────────────────────────────────────────────────────────────
-export const mergeCandidates = (entity, q) => fetchWithBaseUrl(`merge/candidates/?entity=${entity}&q=${encodeURIComponent(q)}`);
-export const mergeExecute    = (payload) => postWithBaseUrl('merge/execute/', payload);
-export const mergeSuggest    = (payload) => postWithBaseUrl('merge/suggest/', payload);
+export const mergeCandidates = (entity, q) =>
+	fetchWithBaseUrl(`merge/candidates/?entity=${entity}&q=${encodeURIComponent(q)}`);
+export const mergeExecute = (payload) => postWithBaseUrl('merge/execute/', payload);
+export const mergeSuggest = (payload) => postWithBaseUrl('merge/suggest/', payload);
 
 // ── General entity update helpers ─────────────────────────────────────────────
-export const updateLugarById      = (id, data) => patchWithBaseUrl(`lugares/${id}/`, data);
-export const updatePersonaEscById = (id, data) => patchWithBaseUrl(`personas-esclavizadas/${id}/`, data);
+export const updateLugarById = (id, data) => patchWithBaseUrl(`lugares/${id}/`, data);
+export const updatePersonaEscById = (id, data) =>
+	patchWithBaseUrl(`personas-esclavizadas/${id}/`, data);

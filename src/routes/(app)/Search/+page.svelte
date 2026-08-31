@@ -1,11 +1,23 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
 	import {
-		unifiedStore, fetchResults, setActiveTab, setViewMode,
-		setPageSize, setPage, performSearch, clearSearch,
-		loadCounts, PAGE_SIZES, ENTITY_TYPES, abortAll,
-		fetchCrosstab, setCrosstabConfig, fetchSearchNetwork, setNetworkScope,
-		setFilters,
+		unifiedStore,
+		fetchResults,
+		setActiveTab,
+		setViewMode,
+		setPageSize,
+		setPage,
+		performSearch,
+		clearSearch,
+		loadCounts,
+		PAGE_SIZES,
+		ENTITY_TYPES,
+		abortAll,
+		fetchCrosstab,
+		setCrosstabConfig,
+		fetchSearchNetwork,
+		setNetworkScope,
+		setFilters
 	} from '$lib/unified-store';
 	import { exportCsv } from '$lib/api';
 	import { entityTabConfig } from '$conf/columns';
@@ -20,7 +32,13 @@
 	import SearchNetwork from './SearchNetwork.svelte';
 
 	export let data;
-	let { searchQuery, archivoId, tab: initialTab, view: initialView, filters: initialFilters = {} } = data;
+	let {
+		searchQuery,
+		archivoId,
+		tab: initialTab,
+		view: initialView,
+		filters: initialFilters = {}
+	} = data;
 
 	let query = searchQuery || '';
 	let exactSearch = searchQuery?.startsWith('"') && searchQuery?.endsWith('"');
@@ -109,16 +127,26 @@
 			exactSearch: state.exactSearch,
 			filters: tab?.filters,
 			ordering: tab?.sortField
-				? (tab.sortDir === 'desc' ? `-${tab.sortField}` : tab.sortField)
-				: undefined,
+				? tab.sortDir === 'desc'
+					? `-${tab.sortField}`
+					: tab.sortField
+				: undefined
 		});
 		window.open(url, '_blank');
 	}
 
-	function goFirst() { setPage(activeTab, 1); }
-	function goPrev() { if (tabState.currentPage > 1) setPage(activeTab, tabState.currentPage - 1); }
-	function goNext() { if (tabState.currentPage < totalPages) setPage(activeTab, tabState.currentPage + 1); }
-	function goLast() { setPage(activeTab, totalPages); }
+	function goFirst() {
+		setPage(activeTab, 1);
+	}
+	function goPrev() {
+		if (tabState.currentPage > 1) setPage(activeTab, tabState.currentPage - 1);
+	}
+	function goNext() {
+		if (tabState.currentPage < totalPages) setPage(activeTab, tabState.currentPage + 1);
+	}
+	function goLast() {
+		setPage(activeTab, totalPages);
+	}
 
 	function goToPage() {
 		const p = parseInt(desiredPage);
@@ -150,7 +178,13 @@
 					aria-label="Buscar"
 				/>
 				{#if query}
-					<button type="button" class="btn btn-outline-light" aria-label="Limpiar búsqueda" on:click={handleClearSearch} title="Limpiar búsqueda">
+					<button
+						type="button"
+						class="btn btn-outline-light"
+						aria-label="Limpiar búsqueda"
+						on:click={handleClearSearch}
+						title="Limpiar búsqueda"
+					>
 						<i class="bi bi-x-lg" aria-hidden="true"></i>
 					</button>
 				{/if}
@@ -175,10 +209,12 @@
 					/>
 					<label class="form-check-label text-white-50" for="exactSearchCheck">
 						Búsqueda exacta
-						<i class="bi bi-info-circle ms-1"
-						   data-bs-toggle="tooltip"
-						   data-bs-placement="right"
-						   title="Busca la frase exacta (equivalente a usar comillas)"></i>
+						<i
+							class="bi bi-info-circle ms-1"
+							data-bs-toggle="tooltip"
+							data-bs-placement="right"
+							title="Busca la frase exacta (equivalente a usar comillas)"
+						></i>
 					</label>
 				</div>
 			</div>
@@ -210,9 +246,13 @@
 							<i class="bi {cfg.icon}"></i>
 							<span class="d-none d-md-inline">{cfg.label}</span>
 							{#if badge !== '' && badge !== 0}
-							<span class="badge ms-1" class:bg-primary={activeTab === et} class:bg-secondary={activeTab !== et}>{badge.toLocaleString()}</span>
-						{:else if $unifiedStore.tabs[et]?.isLoading}
-							<span class="badge bg-secondary ms-1"><i class="bi bi-hourglass-split"></i></span>
+								<span
+									class="badge ms-1"
+									class:bg-primary={activeTab === et}
+									class:bg-secondary={activeTab !== et}>{badge.toLocaleString()}</span
+								>
+							{:else if $unifiedStore.tabs[et]?.isLoading}
+								<span class="badge bg-secondary ms-1"><i class="bi bi-hourglass-split"></i></span>
 							{/if}
 						</button>
 					</li>
@@ -220,7 +260,11 @@
 			</ul>
 
 			<!-- View mode switcher -->
-			<div class="view-mode-switcher d-flex justify-content-center py-2 border-start border-end border-bottom bg-white mb-0" role="group" aria-label="Modo de vista">
+			<div
+				class="view-mode-switcher d-flex justify-content-center py-2 border-start border-end border-bottom bg-white mb-0"
+				role="group"
+				aria-label="Modo de vista"
+			>
 				<div class="btn-group">
 					<button
 						class="btn btn-sm"
@@ -241,49 +285,56 @@
 						<i class="bi bi-grid-3x3-gap me-1" aria-hidden="true"></i>Tarjetas
 					</button>
 					{#if activeTab === 'personaesclavizada'}
-					<button
-						class="btn btn-sm"
-						class:btn-primary={viewMode === 'map'}
-						class:btn-outline-secondary={viewMode !== 'map'}
-						on:click={() => setViewMode('map')}
-						aria-pressed={viewMode === 'map'}
-					>
-						<i class="bi bi-globe-americas me-1" aria-hidden="true"></i>Mapa
-					</button>
+						<button
+							class="btn btn-sm"
+							class:btn-primary={viewMode === 'map'}
+							class:btn-outline-secondary={viewMode !== 'map'}
+							on:click={() => setViewMode('map')}
+							aria-pressed={viewMode === 'map'}
+						>
+							<i class="bi bi-globe-americas me-1" aria-hidden="true"></i>Mapa
+						</button>
 					{/if}
 					{#if activeTab === 'personaesclavizada' || activeTab === 'personanoesclavizada'}
-					<button
-						class="btn btn-sm"
-						class:btn-primary={viewMode === 'crosstab'}
-						class:btn-outline-secondary={viewMode !== 'crosstab'}
-						on:click={() => setViewMode('crosstab')}
-						aria-pressed={viewMode === 'crosstab'}
-					>
-						<i class="bi bi-layout-three-columns me-1" aria-hidden="true"></i>Tabla
-					</button>
-					<button
-						class="btn btn-sm"
-						class:btn-primary={viewMode === 'network'}
-						class:btn-outline-secondary={viewMode !== 'network'}
-						on:click={() => {
-							setViewMode('network');
-							fetchSearchNetwork(activeTab);
-						}}
-						aria-pressed={viewMode === 'network'}
-					>
-						<i class="bi bi-diagram-3 me-1" aria-hidden="true"></i>Red
-					</button>
+						<button
+							class="btn btn-sm"
+							class:btn-primary={viewMode === 'crosstab'}
+							class:btn-outline-secondary={viewMode !== 'crosstab'}
+							on:click={() => setViewMode('crosstab')}
+							aria-pressed={viewMode === 'crosstab'}
+						>
+							<i class="bi bi-layout-three-columns me-1" aria-hidden="true"></i>Tabla
+						</button>
+						<button
+							class="btn btn-sm"
+							class:btn-primary={viewMode === 'network'}
+							class:btn-outline-secondary={viewMode !== 'network'}
+							on:click={() => {
+								setViewMode('network');
+								fetchSearchNetwork(activeTab);
+							}}
+							aria-pressed={viewMode === 'network'}
+						>
+							<i class="bi bi-diagram-3 me-1" aria-hidden="true"></i>Red
+						</button>
 					{/if}
 				</div>
 			</div>
 
 			<!-- Control bar -->
-			<div class="browse-controls d-flex flex-wrap align-items-center gap-2 p-2 bg-light border rounded-bottom mb-3">
-
+			<div
+				class="browse-controls d-flex flex-wrap align-items-center gap-2 p-2 bg-light border rounded-bottom mb-3"
+			>
 				<!-- Page size -->
 				<div class="d-flex align-items-center gap-1">
 					<label for="pageSize" class="form-label mb-0 small text-muted">Mostrar</label>
-					<select id="pageSize" class="form-select form-select-sm" style="width: auto;" value={tabState?.pageSize} on:change={handlePageSizeChange}>
+					<select
+						id="pageSize"
+						class="form-select form-select-sm"
+						style="width: auto;"
+						value={tabState?.pageSize}
+						on:change={handlePageSizeChange}
+					>
 						{#each PAGE_SIZES as size}
 							<option value={size}>{size}</option>
 						{/each}
@@ -292,16 +343,19 @@
 
 				<!-- Column config (table mode only) -->
 				{#if viewMode === 'table'}
-					<button class="btn btn-sm btn-outline-secondary" on:click={() => showColumnConfig = true}>
+					<button
+						class="btn btn-sm btn-outline-secondary"
+						on:click={() => (showColumnConfig = true)}
+					>
 						<i class="bi bi-columns me-1"></i>Configurar Columnas
 					</button>
 				{/if}
 
 				<!-- Export CSV (hidden in crosstab mode — CrosstabView has its own) -->
 				{#if viewMode !== 'crosstab'}
-				<button class="btn btn-sm btn-outline-secondary" on:click={handleExport}>
-					<i class="bi bi-download me-1"></i>CSV
-				</button>
+					<button class="btn btn-sm btn-outline-secondary" on:click={handleExport}>
+						<i class="bi bi-download me-1"></i>CSV
+					</button>
 				{/if}
 			</div>
 
@@ -344,11 +398,26 @@
 				{/if}
 
 				<!-- Pagination -->
-				<nav class="d-flex justify-content-center align-items-center gap-2 my-3" aria-label="Paginación">
-					<button class="btn btn-sm btn-outline-secondary" aria-label="Primera página" title="Primera página" disabled={tabState.currentPage <= 1} on:click={goFirst}>
+				<nav
+					class="d-flex justify-content-center align-items-center gap-2 my-3"
+					aria-label="Paginación"
+				>
+					<button
+						class="btn btn-sm btn-outline-secondary"
+						aria-label="Primera página"
+						title="Primera página"
+						disabled={tabState.currentPage <= 1}
+						on:click={goFirst}
+					>
 						<i class="bi bi-chevron-double-left" aria-hidden="true"></i>
 					</button>
-					<button class="btn btn-sm btn-outline-secondary" aria-label="Página anterior" title="Página anterior" disabled={tabState.currentPage <= 1} on:click={goPrev}>
+					<button
+						class="btn btn-sm btn-outline-secondary"
+						aria-label="Página anterior"
+						title="Página anterior"
+						disabled={tabState.currentPage <= 1}
+						on:click={goPrev}
+					>
 						<i class="bi bi-chevron-left" aria-hidden="true"></i>
 					</button>
 
@@ -356,18 +425,40 @@
 						Página {tabState.currentPage} de {totalPages}
 					</span>
 
-					<button class="btn btn-sm btn-outline-secondary" aria-label="Página siguiente" title="Página siguiente" disabled={tabState.currentPage >= totalPages} on:click={goNext}>
+					<button
+						class="btn btn-sm btn-outline-secondary"
+						aria-label="Página siguiente"
+						title="Página siguiente"
+						disabled={tabState.currentPage >= totalPages}
+						on:click={goNext}
+					>
 						<i class="bi bi-chevron-right" aria-hidden="true"></i>
 					</button>
-					<button class="btn btn-sm btn-outline-secondary" aria-label="Última página" title="Última página" disabled={tabState.currentPage >= totalPages} on:click={goLast}>
+					<button
+						class="btn btn-sm btn-outline-secondary"
+						aria-label="Última página"
+						title="Última página"
+						disabled={tabState.currentPage >= totalPages}
+						on:click={goLast}
+					>
 						<i class="bi bi-chevron-double-right" aria-hidden="true"></i>
 					</button>
 
 					<div class="input-group input-group-sm" style="width: 140px;">
-						<input type="number" class="form-control" bind:value={desiredPage}
-							min="1" max={totalPages} placeholder="Ir a..." />
-					<button class="btn btn-outline-secondary" aria-label="Ir a la página" on:click={goToPage}>
-						<i class="bi bi-arrow-right" aria-hidden="true"></i>
+						<input
+							type="number"
+							class="form-control"
+							bind:value={desiredPage}
+							min="1"
+							max={totalPages}
+							placeholder="Ir a..."
+						/>
+						<button
+							class="btn btn-outline-secondary"
+							aria-label="Ir a la página"
+							on:click={goToPage}
+						>
+							<i class="bi bi-arrow-right" aria-hidden="true"></i>
 						</button>
 					</div>
 				</nav>
@@ -375,7 +466,8 @@
 				<div class="alert alert-info mt-3">
 					<i class="bi bi-info-circle me-2"></i>
 					{#if isSearch}
-						No se encontraron resultados para <em>{$unifiedStore.query}</em>. Intente con otros términos o ajuste los filtros.
+						No se encontraron resultados para <em>{$unifiedStore.query}</em>. Intente con otros
+						términos o ajuste los filtros.
 					{:else}
 						No se encontraron resultados. Intente ajustar los filtros.
 					{/if}
@@ -387,5 +479,5 @@
 
 <!-- Column config modal -->
 {#if showColumnConfig}
-	<ColumnConfigModal entityType={activeTab} on:close={() => showColumnConfig = false} />
+	<ColumnConfigModal entityType={activeTab} on:close={() => (showColumnConfig = false)} />
 {/if}

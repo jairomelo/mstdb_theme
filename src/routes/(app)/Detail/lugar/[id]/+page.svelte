@@ -5,14 +5,13 @@
 	import { lugares, lugarPersonasRelacionadas, lugarProcedencia, whoami } from '$lib/api';
 	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
 
-
 	export let data;
 	let lugar = null;
 	let error = null;
 	let personasRelacionadas = [];
 	let currentPage = 1;
-    let totalPages = 1;
-    let loading = false;
+	let totalPages = 1;
+	let loading = false;
 
 	let procedenciaPersonas = [];
 	let procPage = 1;
@@ -24,10 +23,14 @@
 	let canEdit = false;
 
 	onMount(async () => {
-		whoami().then(u => { canEdit = u.is_staff || u.groups?.includes('colectores'); }).catch(() => {});
+		whoami()
+			.then((u) => {
+				canEdit = u.is_staff || u.groups?.includes('colectores');
+			})
+			.catch(() => {});
 		try {
 			lugar = await lugares(data.id);
-            await loadPersonas(1);
+			await loadPersonas(1);
 			if (lugar.procedencia_count > 0) {
 				await loadProcedencia(1);
 			}
@@ -39,7 +42,10 @@
 	});
 
 	onDestroy(() => {
-		if (map) { map.remove(); map = null; }
+		if (map) {
+			map.remove();
+			map = null;
+		}
 	});
 
 	async function initializeMap() {
@@ -48,34 +54,45 @@
 		if (!container) return;
 		const leaflet = await import('leaflet');
 		L = leaflet.default;
-		if (map) { map.remove(); }
+		if (map) {
+			map.remove();
+		}
 		const lat = parseFloat(lugar.lat);
 		const lon = parseFloat(lugar.lon);
 		map = L.map(container).setView([lat, lon], 6);
-		L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
-			attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
-			maxZoom: 8
-		}).addTo(map);
+		L.tileLayer(
+			'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
+			{
+				attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
+				maxZoom: 8
+			}
+		).addTo(map);
 		L.circleMarker([lat, lon], {
-			radius: 8, fillColor: '#e74c3c', color: '#c0392b',
-			weight: 2, opacity: 1, fillOpacity: 0.8
-		}).addTo(map).bindPopup(`<strong>${lugar.nombre_lugar}</strong><br>${lugar.tipo}`);
+			radius: 8,
+			fillColor: '#e74c3c',
+			color: '#c0392b',
+			weight: 2,
+			opacity: 1,
+			fillOpacity: 0.8
+		})
+			.addTo(map)
+			.bindPopup(`<strong>${lugar.nombre_lugar}</strong><br>${lugar.tipo}`);
 	}
 
 	async function loadPersonas(page) {
-        if (loading) return;
-        loading = true;
-        try {
-            const response = await lugarPersonasRelacionadas(data.id, page);
-            personasRelacionadas = response.results;
-            currentPage = page;
-            totalPages = Math.ceil(response.count / 20); 
-        } catch (e) {
-            console.error('Failed to fetch personas:', e);
-        } finally {
-            loading = false;
-        }
-    }
+		if (loading) return;
+		loading = true;
+		try {
+			const response = await lugarPersonasRelacionadas(data.id, page);
+			personasRelacionadas = response.results;
+			currentPage = page;
+			totalPages = Math.ceil(response.count / 20);
+		} catch (e) {
+			console.error('Failed to fetch personas:', e);
+		} finally {
+			loading = false;
+		}
+	}
 
 	async function loadProcedencia(page) {
 		if (procLoading) return;
@@ -92,17 +109,17 @@
 		}
 	}
 
-    function nextPage() {
-        if (currentPage < totalPages) {
-            loadPersonas(currentPage + 1);
-        }
-    }
+	function nextPage() {
+		if (currentPage < totalPages) {
+			loadPersonas(currentPage + 1);
+		}
+	}
 
-    function prevPage() {
-        if (currentPage > 1) {
-            loadPersonas(currentPage - 1);
-        }
-    }
+	function prevPage() {
+		if (currentPage > 1) {
+			loadPersonas(currentPage - 1);
+		}
+	}
 
 	function procNextPage() {
 		if (procPage < procTotalPages) loadProcedencia(procPage + 1);
@@ -119,7 +136,11 @@
 </script>
 
 <svelte:head>
-	<title>{lugar ? `${lugar.nombre_lugar} — Lugar — Trayectorias Afro` : 'Lugar — Trayectorias Afro'}</title>
+	<title
+		>{lugar
+			? `${lugar.nombre_lugar} — Lugar — Trayectorias Afro`
+			: 'Lugar — Trayectorias Afro'}</title
+	>
 </svelte:head>
 
 <div class="container mt-4">
@@ -129,7 +150,9 @@
 		</div>
 	{:else if lugar}
 		<div class="card mb-4">
-			<div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+			<div
+				class="card-header bg-primary text-white d-flex align-items-center justify-content-between"
+			>
 				<h1 class="card-title mb-0">{lugar.nombre_lugar} ({lugar.tipo})</h1>
 				<div class="d-flex gap-2 align-items-center">
 					{#if canEdit}
@@ -150,119 +173,145 @@
 					</div>
 					<div class="col-md-6">
 						<p>
-							<strong><i class="bi bi-file-earmark-text me-2"></i>Localización (georreferenciación):</strong>
+							<strong
+								><i class="bi bi-file-earmark-text me-2"></i>Localización (georreferenciación):</strong
+							>
 							{lugar.lat || 'latitud'},{lugar.lon || 'longitud'}
 						</p>
 					</div>
 				</div>
 				{#if lugar.lat && lugar.lon}
-				<div id="lugar-map" style="height: 350px; width: 100%; border-radius: 0 0 0.375rem 0.375rem;"></div>
+					<div
+						id="lugar-map"
+						style="height: 350px; width: 100%; border-radius: 0 0 0.375rem 0.375rem;"
+					></div>
 				{/if}
 			</div>
 		</div>
 
 		{#if personasRelacionadas.length > 0}
-            <div class="card mb-4">
-                <div class="card-header bg-secondary text-white">
-                    <h2 class="card-title h5 mb-0">
-                        <i class="bi bi-people me-2"></i>Personas relacionadas con este lugar
-                    </h2>
-                </div>
-                <ul class="list-group list-group-flush">
-                    {#each personasRelacionadas as per}
-                        <li class="list-group-item">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    {#each per.personas as persona}
-                                        <a class="{personaDetailPath(persona) === 'personaesclavizada' ? 'text-primary' : 'text-secondary'}" 
-                                           href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}">
-                                            <h3 class="h6 mb-2">{persona.nombre_normalizado}</h3>
-                                        </a>
-                                    {/each}
-                                    {#if per.fecha_inicial_lugar_raw || per.fecha_final_lugar_raw}
-                                        <p class="mb-1"><small>Periodo: {per.fecha_inicial_lugar_raw || '?'} - {per.fecha_final_lugar_raw || '?'}</small></p>
-                                    {/if}
-                                    {#if per.situacion_lugar}
-                                        <p class="mb-1"><small>Situación: {per.situacion_lugar}</small></p>
-                                    {/if}
-                                </div>
-                                <div class="col-md-6">
-                                    {#if per.documento}
-                                        <p class="mb-1">
-                                            <small>Registro: 
-                                                <a href="/Detail/documento/{per.documento.documento_id}">
-                                                    {per.documento.titulo?.length > 50 
-                                                        ? per.documento.titulo.substring(0, 50) + '...'
-                                                        : per.documento.titulo}
-                                                </a>
-                                            </small>
-                                        </p>
-                                    {/if}
-                                </div>
-                            </div>
-                        </li>
-                    {/each}
-                </ul>
-                <div class="card-footer">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-primary btn-sm" on:click={prevPage} disabled={currentPage === 1}>
-                            <i class="bi bi-chevron-left"></i> Anterior
-                        </button>
-                        <span class="small text-muted">Página {currentPage} de {totalPages}</span>
-                        <button class="btn btn-primary btn-sm" on:click={nextPage} disabled={currentPage === totalPages}>
-                            Siguiente <i class="bi bi-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        {/if}
-
-		{#if loading}
-            <div class="text-center my-3">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-            </div>
-        {/if}
-
-		{#if procedenciaPersonas.length > 0}
-		<div class="card mb-4">
-			<div class="card-header bg-success text-white">
-				<h2 class="card-title h5 mb-0">
-					<i class="bi bi-geo-alt me-2"></i>Personas provenientes de este lugar
-				</h2>
-			</div>
-			<ul class="list-group list-group-flush">
-				{#each procedenciaPersonas as proc}
-					<li class="list-group-item">
-						<a href="/Detail/personaesclavizada/{proc.persona_id}">
-							<h3 class="h6 mb-2">{proc.nombre_normalizado}</h3>
-						</a>
-					</li>
-				{/each}
-			</ul>
-			<div class="card-footer">
-				<div class="d-flex justify-content-between align-items-center">
-					<button class="btn btn-success btn-sm" on:click={procPrevPage} disabled={procPage === 1}>
-						<i class="bi bi-chevron-left"></i> Anterior
-					</button>
-					<span class="small text-muted">Página {procPage} de {procTotalPages}</span>
-					<button class="btn btn-success btn-sm" on:click={procNextPage} disabled={procPage === procTotalPages}>
-						Siguiente <i class="bi bi-chevron-right"></i>
-					</button>
+			<div class="card mb-4">
+				<div class="card-header bg-secondary text-white">
+					<h2 class="card-title h5 mb-0">
+						<i class="bi bi-people me-2"></i>Personas relacionadas con este lugar
+					</h2>
+				</div>
+				<ul class="list-group list-group-flush">
+					{#each personasRelacionadas as per}
+						<li class="list-group-item">
+							<div class="row">
+								<div class="col-md-6">
+									{#each per.personas as persona}
+										<a
+											class={personaDetailPath(persona) === 'personaesclavizada'
+												? 'text-primary'
+												: 'text-secondary'}
+											href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}"
+										>
+											<h3 class="h6 mb-2">{persona.nombre_normalizado}</h3>
+										</a>
+									{/each}
+									{#if per.fecha_inicial_lugar_raw || per.fecha_final_lugar_raw}
+										<p class="mb-1">
+											<small
+												>Periodo: {per.fecha_inicial_lugar_raw || '?'} - {per.fecha_final_lugar_raw ||
+													'?'}</small
+											>
+										</p>
+									{/if}
+									{#if per.situacion_lugar}
+										<p class="mb-1"><small>Situación: {per.situacion_lugar}</small></p>
+									{/if}
+								</div>
+								<div class="col-md-6">
+									{#if per.documento}
+										<p class="mb-1">
+											<small
+												>Registro:
+												<a href="/Detail/documento/{per.documento.documento_id}">
+													{per.documento.titulo?.length > 50
+														? per.documento.titulo.substring(0, 50) + '...'
+														: per.documento.titulo}
+												</a>
+											</small>
+										</p>
+									{/if}
+								</div>
+							</div>
+						</li>
+					{/each}
+				</ul>
+				<div class="card-footer">
+					<div class="d-flex justify-content-between align-items-center">
+						<button class="btn btn-primary btn-sm" on:click={prevPage} disabled={currentPage === 1}>
+							<i class="bi bi-chevron-left"></i> Anterior
+						</button>
+						<span class="small text-muted">Página {currentPage} de {totalPages}</span>
+						<button
+							class="btn btn-primary btn-sm"
+							on:click={nextPage}
+							disabled={currentPage === totalPages}
+						>
+							Siguiente <i class="bi bi-chevron-right"></i>
+						</button>
+					</div>
 				</div>
 			</div>
-		</div>
+		{/if}
+
+		{#if loading}
+			<div class="text-center my-3">
+				<div class="spinner-border text-primary" role="status">
+					<span class="visually-hidden">Cargando...</span>
+				</div>
+			</div>
+		{/if}
+
+		{#if procedenciaPersonas.length > 0}
+			<div class="card mb-4">
+				<div class="card-header bg-success text-white">
+					<h2 class="card-title h5 mb-0">
+						<i class="bi bi-geo-alt me-2"></i>Personas provenientes de este lugar
+					</h2>
+				</div>
+				<ul class="list-group list-group-flush">
+					{#each procedenciaPersonas as proc}
+						<li class="list-group-item">
+							<a href="/Detail/personaesclavizada/{proc.persona_id}">
+								<h3 class="h6 mb-2">{proc.nombre_normalizado}</h3>
+							</a>
+						</li>
+					{/each}
+				</ul>
+				<div class="card-footer">
+					<div class="d-flex justify-content-between align-items-center">
+						<button
+							class="btn btn-success btn-sm"
+							on:click={procPrevPage}
+							disabled={procPage === 1}
+						>
+							<i class="bi bi-chevron-left"></i> Anterior
+						</button>
+						<span class="small text-muted">Página {procPage} de {procTotalPages}</span>
+						<button
+							class="btn btn-success btn-sm"
+							on:click={procNextPage}
+							disabled={procPage === procTotalPages}
+						>
+							Siguiente <i class="bi bi-chevron-right"></i>
+						</button>
+					</div>
+				</div>
+			</div>
 		{/if}
 
 		{#if procLoading}
-            <div class="text-center my-3">
-                <div class="spinner-border text-success" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-            </div>
-        {/if}
-
+			<div class="text-center my-3">
+				<div class="spinner-border text-success" role="status">
+					<span class="visually-hidden">Cargando...</span>
+				</div>
+			</div>
+		{/if}
 	{:else}
 		<div class="d-flex justify-content-center">
 			<div class="spinner-border text-primary" role="status">

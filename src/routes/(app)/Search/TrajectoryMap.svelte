@@ -34,22 +34,29 @@
 			L = leaflet.default;
 
 			map = L.map(mapContainer).setView([10, -70], 4);
-			L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
-				attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
-				maxZoom: 8
-			}).addTo(map);
+			L.tileLayer(
+				'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
+				{
+					attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
+					maxZoom: 8
+				}
+			).addTo(map);
 
 			svg = d3.select(map.getPanes().overlayPane).append('svg');
 
 			const defs = svg.append('defs');
-			defs.append('marker')
+			defs
+				.append('marker')
 				.attr('id', 'traj-arrow')
 				.attr('viewBox', '0 -5 10 10')
-				.attr('refX', 10).attr('refY', 0)
-				.attr('markerWidth', 6).attr('markerHeight', 6)
+				.attr('refX', 10)
+				.attr('refY', 0)
+				.attr('markerWidth', 6)
+				.attr('markerHeight', 6)
 				.attr('orient', 'auto')
 				.attr('fill', '#004080')
-				.append('path').attr('d', 'M0,-5L10,0L0,5');
+				.append('path')
+				.attr('d', 'M0,-5L10,0L0,5');
 
 			g = svg.append('g').attr('class', 'leaflet-zoom-hide');
 
@@ -65,7 +72,10 @@
 	});
 
 	onDestroy(() => {
-		if (map) { map.remove(); map = null; }
+		if (map) {
+			map.remove();
+			map = null;
+		}
 	});
 
 	async function loadData() {
@@ -75,9 +85,7 @@
 		try {
 			const params = {};
 			if (query) {
-				params.q = exactSearch
-					? `"${query.replace(/^"|"$/g, '')}"`
-					: query.replace(/^"|"$/g, '');
+				params.q = exactSearch ? `"${query.replace(/^"|"$/g, '')}"` : query.replace(/^"|"$/g, '');
 			}
 			// Forward all active filters from the search form
 			for (const [key, value] of Object.entries(filters || {})) {
@@ -110,7 +118,8 @@
 		const topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
 		const bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
 
-		svg.attr('width', bottomRight.x - topLeft.x)
+		svg
+			.attr('width', bottomRight.x - topLeft.x)
 			.attr('height', bottomRight.y - topLeft.y)
 			.style('left', `${topLeft.x}px`)
 			.style('top', `${topLeft.y}px`);
@@ -118,13 +127,13 @@
 
 		g.selectAll('path').remove();
 
-		const maxCount = Math.max(...routes.map(r => r.count), 1);
+		const maxCount = Math.max(...routes.map((r) => r.count), 1);
 
 		g.selectAll('path')
 			.data(routes)
 			.enter()
 			.append('path')
-			.attr('d', d => {
+			.attr('d', (d) => {
 				const [x1, y1] = projectPoint(d.from_lat, d.from_lon);
 				const [x2, y2] = projectPoint(d.to_lat, d.to_lon);
 				const dx = x2 - x1;
@@ -142,13 +151,13 @@
 			})
 			.attr('fill', '#ff6600')
 			.attr('stroke', 'none')
-			.attr('opacity', d => 0.3 + 0.5 * (d.count / maxCount))
+			.attr('opacity', (d) => 0.3 + 0.5 * (d.count / maxCount))
 			.attr('class', 'trajectory-arc')
 			.on('click', (event, d) => {
 				selectedRoute = d;
 			})
 			.append('title')
-			.text(d => `${d.from_nombre} → ${d.to_nombre}: ${d.count} persona(s)`);
+			.text((d) => `${d.from_nombre} → ${d.to_nombre}: ${d.count} persona(s)`);
 	}
 
 	function updatePlaces() {
@@ -156,7 +165,7 @@
 		circleLayer.clearLayers();
 		if (!showPlaces) return;
 
-		const maxPersonas = Math.max(...places.map(p => p.persona_count), 1);
+		const maxPersonas = Math.max(...places.map((p) => p.persona_count), 1);
 
 		for (const p of places) {
 			const radius = Math.max(5, Math.sqrt(p.persona_count / maxPersonas) * 25);
@@ -166,9 +175,12 @@
 				color: '#1a5276',
 				weight: 1,
 				opacity: 0.9,
-				fillOpacity: 0.6,
-			}).bindPopup(`<strong>${p.nombre}</strong><br>Personas: ${p.persona_count}<br>Entrantes: ${p.incoming} | Salientes: ${p.outgoing}`)
-			  .addTo(circleLayer);
+				fillOpacity: 0.6
+			})
+				.bindPopup(
+					`<strong>${p.nombre}</strong><br>Personas: ${p.persona_count}<br>Entrantes: ${p.incoming} | Salientes: ${p.outgoing}`
+				)
+				.addTo(circleLayer);
 		}
 	}
 
@@ -212,30 +224,42 @@
 		</div>
 	{:else if routes.length === 0}
 		<div class="alert alert-info mt-2">
-			<i class="bi bi-info-circle me-2"></i>No se encontraron trayectorias con los filtros aplicados.
+			<i class="bi bi-info-circle me-2"></i>No se encontraron trayectorias con los filtros
+			aplicados.
 		</div>
 	{/if}
 </div>
 
 {#if selectedRoute}
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-<div class="modal d-block" tabindex="-1" role="dialog" on:click|self={closeModal} on:keydown={e => e.key === 'Escape' && closeModal()}>
-	<div class="modal-dialog modal-lg modal-dialog-scrollable">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">
-					<i class="bi bi-arrow-right-circle me-2"></i>
-					{selectedRoute.from_nombre} → {selectedRoute.to_nombre}
-				</h5>
-				<button type="button" class="btn-close" on:click={closeModal}></button>
-			</div>
-			<div class="modal-body">
-				<RouteDetailPanel fromId={selectedRoute.from_lugar_id} toId={selectedRoute.to_lugar_id}
-					fromNombre={selectedRoute.from_nombre} toNombre={selectedRoute.to_nombre}
-					count={selectedRoute.count} {filters} />
+	<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+	<div
+		class="modal d-block"
+		tabindex="-1"
+		role="dialog"
+		on:click|self={closeModal}
+		on:keydown={(e) => e.key === 'Escape' && closeModal()}
+	>
+		<div class="modal-dialog modal-lg modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">
+						<i class="bi bi-arrow-right-circle me-2"></i>
+						{selectedRoute.from_nombre} → {selectedRoute.to_nombre}
+					</h5>
+					<button type="button" class="btn-close" on:click={closeModal}></button>
+				</div>
+				<div class="modal-body">
+					<RouteDetailPanel
+						fromId={selectedRoute.from_lugar_id}
+						toId={selectedRoute.to_lugar_id}
+						fromNombre={selectedRoute.from_nombre}
+						toNombre={selectedRoute.to_nombre}
+						count={selectedRoute.count}
+						{filters}
+					/>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<div class="modal-backdrop show"></div>
+	<div class="modal-backdrop show"></div>
 {/if}

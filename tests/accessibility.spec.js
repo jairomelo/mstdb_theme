@@ -9,7 +9,7 @@ const PAGES = [
 	{ name: 'Dashboard', path: '/Dashboard/' },
 	{ name: 'About', path: '/About/' },
 	{ name: 'Archivos', path: '/Archivos/' },
-	{ name: 'Login', path: '/User/login' },
+	{ name: 'Login', path: '/User/login' }
 ];
 
 for (const { name, path } of PAGES) {
@@ -18,16 +18,14 @@ for (const { name, path } of PAGES) {
 		// Wait for main content to be visible
 		await page.waitForLoadState('networkidle');
 
-		const results = await new AxeBuilder({ page })
-			.withTags(['wcag2a', 'wcag2aa'])
-			.analyze();
+		const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
 
 		const violations = results.violations;
 		if (violations.length > 0) {
 			const summary = violations
 				.map(
 					(v) =>
-						`[${v.impact}] ${v.id}: ${v.description}\n  Nodes: ${v.nodes.map((n) => n.target.join(', ')).join(' | ')}`,
+						`[${v.impact}] ${v.id}: ${v.description}\n  Nodes: ${v.nodes.map((n) => n.target.join(', ')).join(' | ')}`
 				)
 				.join('\n\n');
 			expect(violations, `WCAG violations on ${name}:\n\n${summary}`).toHaveLength(0);

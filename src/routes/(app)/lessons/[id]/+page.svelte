@@ -35,7 +35,11 @@
 
 	function formatDate(iso) {
 		if (!iso) return '';
-		return new Date(iso).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+		return new Date(iso).toLocaleDateString('es-MX', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		});
 	}
 
 	function detailUrl(path) {
@@ -46,14 +50,25 @@
 		window.print();
 	}
 
-	$: hasSidebar = leccion?.personas?.length || leccion?.documentos?.length || leccion?.corporaciones?.length;
-	$: visiblePersonas = showAllPersonas ? leccion?.personas : leccion?.personas?.slice(0, COLLAPSE_LIMIT);
-	$: visibleDocumentos = showAllDocumentos ? leccion?.documentos : leccion?.documentos?.slice(0, COLLAPSE_LIMIT);
-	$: visibleCorporaciones = showAllCorporaciones ? leccion?.corporaciones : leccion?.corporaciones?.slice(0, COLLAPSE_LIMIT);
+	$: hasSidebar =
+		leccion?.personas?.length || leccion?.documentos?.length || leccion?.corporaciones?.length;
+	$: visiblePersonas = showAllPersonas
+		? leccion?.personas
+		: leccion?.personas?.slice(0, COLLAPSE_LIMIT);
+	$: visibleDocumentos = showAllDocumentos
+		? leccion?.documentos
+		: leccion?.documentos?.slice(0, COLLAPSE_LIMIT);
+	$: visibleCorporaciones = showAllCorporaciones
+		? leccion?.corporaciones
+		: leccion?.corporaciones?.slice(0, COLLAPSE_LIMIT);
 </script>
 
 <svelte:head>
-	<title>{leccion ? `${leccion.title} — Lecciones Educativas — Trayectorias Afro` : 'Lecciones Educativas — Trayectorias Afro'}</title>
+	<title
+		>{leccion
+			? `${leccion.title} — Lecciones Educativas — Trayectorias Afro`
+			: 'Lecciones Educativas — Trayectorias Afro'}</title
+	>
 </svelte:head>
 
 <div class="container mt-4">
@@ -82,33 +97,37 @@
 					<div class="d-flex align-items-start justify-content-between gap-2 mb-3">
 						<h1 class="mb-0">{leccion.title}</h1>
 						<div class="d-flex gap-2 flex-shrink-0 lesson-detail-actions">
-							<button
-								type="button"
-								class="btn btn-sm btn-outline-secondary"
-								on:click={downloadPdf}
-							>
+							<button type="button" class="btn btn-sm btn-outline-secondary" on:click={downloadPdf}>
 								<i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>Descargar PDF
 							</button>
 							{#if leccion.can_edit}
-								<a href="/User/catalogar/leccion/{data.id}" class="btn btn-sm btn-outline-secondary">
+								<a
+									href="/User/catalogar/leccion/{data.id}"
+									class="btn btn-sm btn-outline-secondary"
+								>
 									<i class="bi bi-gear me-1" aria-hidden="true"></i>Administrar
 								</a>
-								<a href="/User/catalogar/leccion/{data.id}/edit" class="btn btn-sm btn-outline-primary">
+								<a
+									href="/User/catalogar/leccion/{data.id}/edit"
+									class="btn btn-sm btn-outline-primary"
+								>
 									<i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
 								</a>
-						{/if}
+							{/if}
 						</div>
 					</div>
 
 					{#if !leccion.is_published}
 						<div class="alert alert-warning py-2" role="status">
-							<i class="bi bi-pencil me-1" aria-hidden="true"></i>Esta lección es un borrador:
-							solo las personas con acceso pueden verla.
+							<i class="bi bi-pencil me-1" aria-hidden="true"></i>Esta lección es un borrador: solo
+							las personas con acceso pueden verla.
 						</div>
 					{/if}
 
 					<p class="lesson-detail-date text-muted">
-						<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Publicada el {formatDate(leccion.created_at)}
+						<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Publicada el {formatDate(
+							leccion.created_at
+						)}
 					</p>
 
 					{#if leccion.levels?.length || leccion.keywords?.length}
@@ -136,13 +155,17 @@
 							<div class="sidebar-section mb-4">
 								<h6 class="sidebar-section-title">
 									<i class="bi bi-people me-1" aria-hidden="true"></i>Personas
-									<span class="sidebar-section-count sidebar-section-count--persona">{leccion.personas.length}</span>
+									<span class="sidebar-section-count sidebar-section-count--persona"
+										>{leccion.personas.length}</span
+									>
 								</h6>
 								<div class="sidebar-chips">
 									{#each visiblePersonas as persona}
-										<a href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}"
-										   class="sidebar-chip sidebar-chip--persona"
-										   title={persona.nombre_normalizado ?? persona.persona_idno}>
+										<a
+											href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}"
+											class="sidebar-chip sidebar-chip--persona"
+											title={persona.nombre_normalizado ?? persona.persona_idno}
+										>
 											{persona.nombre_normalizado ?? persona.persona_idno}
 										</a>
 									{/each}
@@ -157,8 +180,10 @@
 									{/each}
 								</ul>
 								{#if leccion.personas.length > COLLAPSE_LIMIT}
-									<button class="btn btn-sm btn-link sidebar-toggle"
-											on:click={() => showAllPersonas = !showAllPersonas}>
+									<button
+										class="btn btn-sm btn-link sidebar-toggle"
+										on:click={() => (showAllPersonas = !showAllPersonas)}
+									>
 										{showAllPersonas ? 'Ver menos' : `Ver todos (${leccion.personas.length})`}
 									</button>
 								{/if}
@@ -169,25 +194,35 @@
 							<div class="sidebar-section mb-4">
 								<h6 class="sidebar-section-title">
 									<i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>Documentos
-									<span class="sidebar-section-count sidebar-section-count--documento">{leccion.documentos.length}</span>
+									<span class="sidebar-section-count sidebar-section-count--documento"
+										>{leccion.documentos.length}</span
+									>
 								</h6>
 								<div class="sidebar-chips">
 									{#each visibleDocumentos as documento}
-										<a href="/Detail/documento/{documento.documento_id}"
-										   class="sidebar-chip sidebar-chip--documento"
-										   title={documento.titulo ?? documento.documento_idno}>
+										<a
+											href="/Detail/documento/{documento.documento_id}"
+											class="sidebar-chip sidebar-chip--documento"
+											title={documento.titulo ?? documento.documento_idno}
+										>
 											{documento.titulo ?? documento.documento_idno}
 										</a>
 									{/each}
 								</div>
 								<ul class="lesson-sidebar-print-links">
 									{#each leccion.documentos as documento}
-										<li><a href="/Detail/documento/{documento.documento_id}">{detailUrl(`/Detail/documento/${documento.documento_id}`)}</a></li>
+										<li>
+											<a href="/Detail/documento/{documento.documento_id}"
+												>{detailUrl(`/Detail/documento/${documento.documento_id}`)}</a
+											>
+										</li>
 									{/each}
 								</ul>
 								{#if leccion.documentos.length > COLLAPSE_LIMIT}
-									<button class="btn btn-sm btn-link sidebar-toggle"
-											on:click={() => showAllDocumentos = !showAllDocumentos}>
+									<button
+										class="btn btn-sm btn-link sidebar-toggle"
+										on:click={() => (showAllDocumentos = !showAllDocumentos)}
+									>
 										{showAllDocumentos ? 'Ver menos' : `Ver todos (${leccion.documentos.length})`}
 									</button>
 								{/if}
@@ -198,26 +233,38 @@
 							<div class="sidebar-section mb-4">
 								<h6 class="sidebar-section-title">
 									<i class="bi bi-building me-1" aria-hidden="true"></i>Corporaciones
-									<span class="sidebar-section-count sidebar-section-count--corporacion">{leccion.corporaciones.length}</span>
+									<span class="sidebar-section-count sidebar-section-count--corporacion"
+										>{leccion.corporaciones.length}</span
+									>
 								</h6>
 								<div class="sidebar-chips">
 									{#each visibleCorporaciones as corporacion}
-										<a href="/Detail/corporacion/{corporacion.corporacion_id}"
-										   class="sidebar-chip sidebar-chip--corporacion"
-										   title={corporacion.nombre_institucion}>
+										<a
+											href="/Detail/corporacion/{corporacion.corporacion_id}"
+											class="sidebar-chip sidebar-chip--corporacion"
+											title={corporacion.nombre_institucion}
+										>
 											{corporacion.nombre_institucion}
 										</a>
 									{/each}
 								</div>
 								<ul class="lesson-sidebar-print-links">
 									{#each leccion.corporaciones as corporacion}
-										<li><a href="/Detail/corporacion/{corporacion.corporacion_id}">{detailUrl(`/Detail/corporacion/${corporacion.corporacion_id}`)}</a></li>
+										<li>
+											<a href="/Detail/corporacion/{corporacion.corporacion_id}"
+												>{detailUrl(`/Detail/corporacion/${corporacion.corporacion_id}`)}</a
+											>
+										</li>
 									{/each}
 								</ul>
 								{#if leccion.corporaciones.length > COLLAPSE_LIMIT}
-									<button class="btn btn-sm btn-link sidebar-toggle"
-											on:click={() => showAllCorporaciones = !showAllCorporaciones}>
-										{showAllCorporaciones ? 'Ver menos' : `Ver todos (${leccion.corporaciones.length})`}
+									<button
+										class="btn btn-sm btn-link sidebar-toggle"
+										on:click={() => (showAllCorporaciones = !showAllCorporaciones)}
+									>
+										{showAllCorporaciones
+											? 'Ver menos'
+											: `Ver todos (${leccion.corporaciones.length})`}
 									</button>
 								{/if}
 							</div>

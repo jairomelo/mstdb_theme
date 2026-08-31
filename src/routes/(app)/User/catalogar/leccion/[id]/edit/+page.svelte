@@ -1,6 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
-	import { fetchLeccion, updateLeccion, uploadLeccionImagen, uploadLeccionAdjunto } from '$lib/api.js';
+	import {
+		fetchLeccion,
+		updateLeccion,
+		uploadLeccionImagen,
+		uploadLeccionAdjunto
+	} from '$lib/api.js';
 	import { user } from '$lib/stores/user';
 	import LeccionForm from '$lib/components/forms/LeccionForm.svelte';
 	import LeccionColaboradores from '$lib/components/leccion/LeccionColaboradores.svelte';

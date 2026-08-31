@@ -61,27 +61,35 @@
 	function toggleFullTree() {
 		treeExpanded = !treeExpanded;
 		const archiveTreeElement = document.querySelector('.archive-tree');
-			if (archiveTreeElement) {
-				archiveTreeElement.classList.toggle('expanded', treeExpanded);
-			}
+		if (archiveTreeElement) {
+			archiveTreeElement.classList.toggle('expanded', treeExpanded);
+		}
 	}
 
 	function renderTree(nodes) {
 		return `
 			<ul class="tree">
-				${nodes.map(node => `
+				${nodes
+					.map(
+						(node) => `
 					<li>
 						<span><i class="bi ${node.icon} me-2"></i>${node.name}</span>
 						${node.children && node.children.length ? renderTree(node.children) : ''}
 					</li>
-				`).join('')}
+				`
+					)
+					.join('')}
 			</ul>
 		`;
 	}
 </script>
 
 <svelte:head>
-	<title>{documento ? `${documento.titulo} — Documento — Trayectorias Afro` : 'Documento — Trayectorias Afro'}</title>
+	<title
+		>{documento
+			? `${documento.titulo} — Documento — Trayectorias Afro`
+			: 'Documento — Trayectorias Afro'}</title
+	>
 </svelte:head>
 
 <div class="container mt-4">
@@ -91,9 +99,15 @@
 		</div>
 	{:else if documento}
 		<div class="card">
-			<div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+			<div
+				class="card-header bg-primary text-white d-flex align-items-center justify-content-between"
+			>
 				<h1 class="card-title mb-0">{documento.titulo}</h1>
-				<SuggestMerge entity="doc" currentId={documento.documento_id} currentLabel={documento.titulo} />
+				<SuggestMerge
+					entity="doc"
+					currentId={documento.documento_id}
+					currentLabel={documento.titulo}
+				/>
 			</div>
 			<div class="card-body">
 				<div class="row">
@@ -131,8 +145,9 @@
 						</div>
 					</div>
 					<div class="col-md-6">
-						<p>{#if documento.lugar_de_produccion}
-							<strong><i class="bi bi-geo-alt me-2"></i>Lugar de producción:</strong>
+						<p>
+							{#if documento.lugar_de_produccion}
+								<strong><i class="bi bi-geo-alt me-2"></i>Lugar de producción:</strong>
 								<a href="/Detail/lugar/{documento.lugar_de_produccion.lugar_id}">
 									{documento.lugar_de_produccion.nombre_lugar}
 								</a>
@@ -188,8 +203,12 @@
 				<ul class="list-group list-group-flush">
 					{#each personas as persona}
 						<li class="list-group-item">
-							<a class="{personaDetailPath(persona) === 'personaesclavizada' ? 'text-primary' : 'text-secondary'}"
-							   href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}">
+							<a
+								class={personaDetailPath(persona) === 'personaesclavizada'
+									? 'text-primary'
+									: 'text-secondary'}
+								href="/Detail/{personaDetailPath(persona)}/{persona.persona_id}"
+							>
 								<h3 class="h6 mb-0">{persona.nombre_normalizado}</h3>
 							</a>
 						</li>
@@ -198,11 +217,19 @@
 				{#if personaTotalPages > 1}
 					<div class="card-footer">
 						<div class="d-flex justify-content-between align-items-center">
-							<button class="btn btn-secondary btn-sm" on:click={prevPage} disabled={personaPage === 1}>
+							<button
+								class="btn btn-secondary btn-sm"
+								on:click={prevPage}
+								disabled={personaPage === 1}
+							>
 								<i class="bi bi-chevron-left"></i> Anterior
 							</button>
 							<span class="small text-muted">Página {personaPage} de {personaTotalPages}</span>
-							<button class="btn btn-secondary btn-sm" on:click={nextPage} disabled={personaPage === personaTotalPages}>
+							<button
+								class="btn btn-secondary btn-sm"
+								on:click={nextPage}
+								disabled={personaPage === personaTotalPages}
+							>
 								Siguiente <i class="bi bi-chevron-right"></i>
 							</button>
 						</div>

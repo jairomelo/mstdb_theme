@@ -4,7 +4,7 @@ const FOCUSABLE = [
 	'input:not([disabled])',
 	'select:not([disabled])',
 	'textarea:not([disabled])',
-	'[tabindex]:not([tabindex="-1"])',
+	'[tabindex]:not([tabindex="-1"])'
 ].join(', ');
 
 /**
@@ -21,7 +21,7 @@ export function focusTrap(node, options = {}) {
 
 	function getFocusable() {
 		return Array.from(node.querySelectorAll(FOCUSABLE)).filter(
-			(el) => !el.closest('[hidden]') && el.offsetParent !== null,
+			(el) => !el.closest('[hidden]') && el.offsetParent !== null
 		);
 	}
 
@@ -69,6 +69,6 @@ export function focusTrap(node, options = {}) {
 			if (returnTo && typeof returnTo.focus === 'function') {
 				returnTo.focus();
 			}
-		},
+		}
 	};
 }

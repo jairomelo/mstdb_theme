@@ -34,11 +34,7 @@
 	onMount(() => {
 		editor = new Editor({
 			element,
-			extensions: [
-				StarterKit.configure({ link: { openOnClick: false } }),
-				CaptionedImage,
-				Embed,
-			],
+			extensions: [StarterKit.configure({ link: { openOnClick: false } }), CaptionedImage, Embed],
 			content,
 			editable: true,
 			autofocus: 'end',
@@ -60,8 +56,8 @@
 						editor.chain().focus().setEmbed({ src: detected.src, embedType: detected.kind }).run();
 					}
 					return true;
-				},
-			},
+				}
+			}
 		});
 		updateActiveStates();
 	});
@@ -79,7 +75,7 @@
 			bulletList: editor.isActive('bulletList'),
 			orderedList: editor.isActive('orderedList'),
 			blockquote: editor.isActive('blockquote'),
-			link: editor.isActive('link'),
+			link: editor.isActive('link')
 		};
 	}
 
@@ -166,7 +162,11 @@
 		if (embedPreview.kind === 'image') {
 			editor.chain().focus().setImage({ src: embedPreview.src, alt: '' }).run();
 		} else {
-			editor.chain().focus().setEmbed({ src: embedPreview.src, embedType: embedPreview.kind }).run();
+			editor
+				.chain()
+				.focus()
+				.setEmbed({ src: embedPreview.src, embedType: embedPreview.kind })
+				.run();
 		}
 		closeEmbedDialog();
 	}

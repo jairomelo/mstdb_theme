@@ -62,8 +62,12 @@
 			setCrosstabConfig(entityType, { colDim: selCol, result: null });
 		}
 	}
-	function pushOp() { setCrosstabConfig(entityType, { cellOp: selOp, result: null }); }
-	function pushPeriod() { setCrosstabConfig(entityType, { periodSize: selPeriod, result: null }); }
+	function pushOp() {
+		setCrosstabConfig(entityType, { cellOp: selOp, result: null });
+	}
+	function pushPeriod() {
+		setCrosstabConfig(entityType, { periodSize: selPeriod, result: null });
+	}
 
 	function apply() {
 		fetchCrosstab(entityType);
@@ -77,7 +81,7 @@
 			col_dim: cfg.colDim,
 			cell_op: cfg.cellOp,
 			period_size: cfg.periodSize,
-			export_format: 'csv',
+			export_format: 'csv'
 		};
 		if (state.query) {
 			params.q = state.exactSearch
@@ -129,7 +133,10 @@
 	}
 
 	// Reset sort when a new result arrives
-	$: if (result) { sortCol = null; sortDir = 'asc'; }
+	$: if (result) {
+		sortCol = null;
+		sortDir = 'asc';
+	}
 
 	function _numericVal(cell) {
 		if (!cfg) return 0;
@@ -150,9 +157,7 @@
 				// Sort by row label (string)
 				va = result.rows[a] ?? '';
 				vb = result.rows[b] ?? '';
-				return sortDir === 'asc'
-					? va.localeCompare(vb, 'es')
-					: vb.localeCompare(va, 'es');
+				return sortDir === 'asc' ? va.localeCompare(vb, 'es') : vb.localeCompare(va, 'es');
 			} else if (sortCol === Infinity) {
 				// Sort by row total
 				va = _numericVal(result.row_totals[a]);
@@ -181,7 +186,9 @@
 
 <div class="crosstab-wrapper">
 	<!-- Config panel -->
-	<div class="crosstab-controls d-flex flex-wrap align-items-end gap-3 mb-3 p-3 bg-light border rounded">
+	<div
+		class="crosstab-controls d-flex flex-wrap align-items-end gap-3 mb-3 p-3 bg-light border rounded"
+	>
 		<div>
 			<label class="form-label small fw-semibold mb-1" for="ct-row-{entityType}">Filas</label>
 			<select
@@ -213,20 +220,22 @@
 		</div>
 
 		{#if showPeriodSize}
-		<div>
-			<label class="form-label small fw-semibold mb-1" for="ct-period-{entityType}">Intervalo</label>
-			<select
-				id="ct-period-{entityType}"
-				class="form-select form-select-sm"
-				bind:value={selPeriod}
-				on:change={pushPeriod}
-				aria-label="Tamaño del intervalo temporal"
-			>
-				{#each PERIOD_SIZES as ps}
-					<option value={ps}>{ps} años</option>
-				{/each}
-			</select>
-		</div>
+			<div>
+				<label class="form-label small fw-semibold mb-1" for="ct-period-{entityType}"
+					>Intervalo</label
+				>
+				<select
+					id="ct-period-{entityType}"
+					class="form-select form-select-sm"
+					bind:value={selPeriod}
+					on:change={pushPeriod}
+					aria-label="Tamaño del intervalo temporal"
+				>
+					{#each PERIOD_SIZES as ps}
+						<option value={ps}>{ps} años</option>
+					{/each}
+				</select>
+			</div>
 		{/if}
 
 		<div>
@@ -254,122 +263,145 @@
 		</button>
 
 		{#if result}
-		<button
-			class="btn btn-sm btn-outline-secondary"
-			aria-label="Descargar tabla como CSV"
-			title="Descargar tabla como CSV"
-			on:click={downloadCsv}
-		>
-			<i class="bi bi-download me-1" aria-hidden="true"></i>CSV
-		</button>
+			<button
+				class="btn btn-sm btn-outline-secondary"
+				aria-label="Descargar tabla como CSV"
+				title="Descargar tabla como CSV"
+				on:click={downloadCsv}
+			>
+				<i class="bi bi-download me-1" aria-hidden="true"></i>CSV
+			</button>
 		{/if}
 	</div>
 
 	<!-- M2M warning -->
 	{#if meta?.m2m_warning}
-	<div class="alert alert-warning alert-sm py-1 px-2 small mb-2" role="note">
-		<i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
-		{meta.m2m_warning}
-	</div>
+		<div class="alert alert-warning alert-sm py-1 px-2 small mb-2" role="note">
+			<i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
+			{meta.m2m_warning}
+		</div>
 	{/if}
 
 	<!-- Error state -->
 	{#if error}
-	<div class="alert alert-danger">
-		<i class="bi bi-exclamation-circle me-2"></i>{error}
-	</div>
+		<div class="alert alert-danger">
+			<i class="bi bi-exclamation-circle me-2"></i>{error}
+		</div>
 	{/if}
 
 	<!-- Loading state -->
 	{#if isLoading}
-	<div class="text-center py-5">
-		<div class="spinner-border text-primary" role="status">
-			<span class="visually-hidden">Calculando tabla cruzada…</span>
+		<div class="text-center py-5">
+			<div class="spinner-border text-primary" role="status">
+				<span class="visually-hidden">Calculando tabla cruzada…</span>
+			</div>
 		</div>
-	</div>
 	{:else if result}
+		<!-- Pivot table -->
+		<div class="table-responsive crosstab-table-wrap">
+			<table
+				class="table table-sm table-bordered table-hover crosstab-table"
+				aria-label="Tabla cruzada"
+			>
+				<caption class="visually-hidden">
+					{meta?.row_dim_label} × {meta?.col_dim_label}
+					{#if meta?.period_size}(intervalos de {meta.period_size} años){/if}
+					— {meta?.cell_op_label}
+				</caption>
 
-	<!-- Pivot table -->
-	<div class="table-responsive crosstab-table-wrap">
-		<table class="table table-sm table-bordered table-hover crosstab-table" aria-label="Tabla cruzada">
-			<caption class="visually-hidden">
-				{meta?.row_dim_label} × {meta?.col_dim_label}
-				{#if meta?.period_size}(intervalos de {meta.period_size} años){/if}
-				— {meta?.cell_op_label}
-			</caption>
-
-			<thead class="table-dark">
-				<tr>
-					<th scope="col" class="crosstab-row-header crosstab-sortable" on:click={() => toggleSort(-1)}
-						aria-sort={sortCol === -1 ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-						{meta?.row_dim_label}
-						<i class="bi {sortIcon(-1)} ms-1 small" aria-hidden="true"></i>
-					</th>
-					{#each result.cols as col, ci}
-						<th scope="col" class="text-end crosstab-sortable" on:click={() => toggleSort(ci)}
-							aria-sort={sortCol === ci ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-							{col}
-							<i class="bi {sortIcon(ci)} ms-1 small" aria-hidden="true"></i>
+				<thead class="table-dark">
+					<tr>
+						<th
+							scope="col"
+							class="crosstab-row-header crosstab-sortable"
+							on:click={() => toggleSort(-1)}
+							aria-sort={sortCol === -1 ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+						>
+							{meta?.row_dim_label}
+							<i class="bi {sortIcon(-1)} ms-1 small" aria-hidden="true"></i>
 						</th>
-					{/each}
-					<th scope="col" class="text-end crosstab-total-col crosstab-sortable" on:click={() => toggleSort(Infinity)}
-						aria-sort={sortCol === Infinity ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-						Total
-						<i class="bi {sortIcon(Infinity)} ms-1 small" aria-hidden="true"></i>
-					</th>
-				</tr>
-			</thead>
+						{#each result.cols as col, ci}
+							<th
+								scope="col"
+								class="text-end crosstab-sortable"
+								on:click={() => toggleSort(ci)}
+								aria-sort={sortCol === ci
+									? sortDir === 'asc'
+										? 'ascending'
+										: 'descending'
+									: 'none'}
+							>
+								{col}
+								<i class="bi {sortIcon(ci)} ms-1 small" aria-hidden="true"></i>
+							</th>
+						{/each}
+						<th
+							scope="col"
+							class="text-end crosstab-total-col crosstab-sortable"
+							on:click={() => toggleSort(Infinity)}
+							aria-sort={sortCol === Infinity
+								? sortDir === 'asc'
+									? 'ascending'
+									: 'descending'
+								: 'none'}
+						>
+							Total
+							<i class="bi {sortIcon(Infinity)} ms-1 small" aria-hidden="true"></i>
+						</th>
+					</tr>
+				</thead>
 
-			<tbody>
-				{#each sortedIndices as ri}
-				<tr>
-					<th scope="row" class="crosstab-row-header">{result.rows[ri]}</th>
-					{#each result.cells[ri] as cell}
-						<td class="text-end" class:crosstab-zero={cell?.count === 0}>
-							{cellPrimary(cell)}
+				<tbody>
+					{#each sortedIndices as ri}
+						<tr>
+							<th scope="row" class="crosstab-row-header">{result.rows[ri]}</th>
+							{#each result.cells[ri] as cell}
+								<td class="text-end" class:crosstab-zero={cell?.count === 0}>
+									{cellPrimary(cell)}
+								</td>
+							{/each}
+							<td class="text-end fw-semibold crosstab-total-col">
+								{totalPrimary(result.row_totals[ri])}
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+
+				<tfoot class="table-secondary">
+					<tr>
+						<th scope="row" class="crosstab-row-header fw-semibold">Total</th>
+						{#each result.col_totals as ct}
+							<td class="text-end fw-semibold">{totalPrimary(ct)}</td>
+						{/each}
+						<td class="text-end fw-bold crosstab-total-col">
+							{#if cfg?.cellOp === 'avg_edad'}
+								{result.grand_total?.avg_edad != null
+									? result.grand_total.avg_edad.toLocaleString('es')
+									: '—'}
+							{:else if cfg?.cellOp === 'pct_of_total'}
+								100%
+							{:else}
+								{result.grand_total?.count?.toLocaleString('es') ?? 0}
+							{/if}
 						</td>
-					{/each}
-					<td class="text-end fw-semibold crosstab-total-col">
-						{totalPrimary(result.row_totals[ri])}
-					</td>
-				</tr>
-				{/each}
-			</tbody>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
 
-			<tfoot class="table-secondary">
-				<tr>
-					<th scope="row" class="crosstab-row-header fw-semibold">Total</th>
-					{#each result.col_totals as ct}
-						<td class="text-end fw-semibold">{totalPrimary(ct)}</td>
-					{/each}
-					<td class="text-end fw-bold crosstab-total-col">
-						{#if cfg?.cellOp === 'avg_edad'}
-							{result.grand_total?.avg_edad != null
-								? result.grand_total.avg_edad.toLocaleString('es')
-								: '—'}
-						{:else if cfg?.cellOp === 'pct_of_total'}
-							100%
-						{:else}
-							{result.grand_total?.count?.toLocaleString('es') ?? 0}
-						{/if}
-					</td>
-				</tr>
-			</tfoot>
-		</table>
-	</div>
-
-	<!-- Summary line -->
-	<p class="text-muted small mt-1 mb-0">
-		{result.rows.length} {meta?.row_dim_label?.toLowerCase() ?? 'filas'},
-		{result.cols.length} {meta?.col_dim_label?.toLowerCase() ?? 'columnas'} —
-		{result.grand_total?.count?.toLocaleString('es') ?? 0} personas en total
-	</p>
-
+		<!-- Summary line -->
+		<p class="text-muted small mt-1 mb-0">
+			{result.rows.length}
+			{meta?.row_dim_label?.toLowerCase() ?? 'filas'},
+			{result.cols.length}
+			{meta?.col_dim_label?.toLowerCase() ?? 'columnas'} —
+			{result.grand_total?.count?.toLocaleString('es') ?? 0} personas en total
+		</p>
 	{:else}
-	<!-- Empty state -->
-	<div class="text-center text-muted py-5">
-		<i class="bi bi-layout-three-columns fs-2 d-block mb-2" aria-hidden="true"></i>
-		Selecciona las dimensiones y pulsa <strong>Aplicar</strong> para generar la tabla cruzada.
-	</div>
+		<!-- Empty state -->
+		<div class="text-center text-muted py-5">
+			<i class="bi bi-layout-three-columns fs-2 d-block mb-2" aria-hidden="true"></i>
+			Selecciona las dimensiones y pulsa <strong>Aplicar</strong> para generar la tabla cruzada.
+		</div>
 	{/if}
 </div>

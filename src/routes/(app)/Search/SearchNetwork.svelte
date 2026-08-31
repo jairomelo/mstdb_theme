@@ -21,7 +21,7 @@
 		fam: true,
 		aso: true,
 		tmp: true,
-		sub: true,
+		sub: true
 	};
 	let showOrphans = false;
 	let centralityThreshold = 0;
@@ -35,7 +35,7 @@
 		id: '',
 		type: '',
 		loading: false,
-		details: null,
+		details: null
 	};
 	let tooltipTimeout;
 
@@ -83,7 +83,7 @@
 			idealEdgeLength: 130,
 			edgeElasticity: 0.2,
 			gravity: 0.25,
-			numIter: 2000,
+			numIter: 2000
 		}).run();
 	}
 
@@ -116,10 +116,7 @@
 			cy = null;
 		}
 
-		const elements = [
-			...(graphData.nodes || []),
-			...(graphData.edges || []),
-		];
+		const elements = [...(graphData.nodes || []), ...(graphData.edges || [])];
 
 		cy = cytoscape({
 			container,
@@ -133,22 +130,22 @@
 						height: 'mapData(centrality, 0, 1, 16, 72)',
 						'background-color': '#9DB5B2',
 						'border-width': 2,
-						'border-color': '#7A9E9A',
-					},
+						'border-color': '#7A9E9A'
+					}
 				},
 				{
 					selector: 'node[type = "esclavizada"]',
 					style: {
 						'background-color': '#C9735B',
-						'border-color': '#A85A44',
-					},
+						'border-color': '#A85A44'
+					}
 				},
 				{
 					selector: 'node[in_results = false]',
 					style: {
 						'background-opacity': 0.6,
-						'border-style': 'dashed',
-					},
+						'border-style': 'dashed'
+					}
 				},
 				{
 					selector: 'edge',
@@ -157,30 +154,30 @@
 						'line-color': '#9CA3AF',
 						'curve-style': 'bezier',
 						'target-arrow-shape': 'none',
-						'opacity': 0.8,
-					},
+						opacity: 0.8
+					}
 				},
 				{
 					selector: 'edge[relation = "fam"]',
 					style: {
 						'line-color': '#D4A27F',
-						width: 2.2,
-					},
+						width: 2.2
+					}
 				},
 				{
 					selector: 'edge[relation = "tmp"]',
 					style: {
-						'line-color': '#B8C99A',
-					},
+						'line-color': '#B8C99A'
+					}
 				},
 				{
 					selector: 'edge[relation = "sub"]',
 					style: {
 						'line-color': '#9B8EC4',
 						'target-arrow-shape': 'triangle',
-						'target-arrow-color': '#9B8EC4',
-					},
-				},
+						'target-arrow-color': '#9B8EC4'
+					}
+				}
 			],
 			layout: {
 				name: layoutType,
@@ -192,8 +189,8 @@
 				idealEdgeLength: 130,
 				edgeElasticity: 0.2,
 				gravity: 0.25,
-				numIter: 2000,
-			},
+				numIter: 2000
+			}
 		});
 
 		const centralities = cy.nodes().map((n) => Number(n.data('centrality') || 0));
@@ -219,7 +216,7 @@
 				id: nodeId,
 				type: nodeType,
 				loading: true,
-				details: null,
+				details: null
 			};
 
 			try {
@@ -266,7 +263,7 @@
 			fam: true,
 			aso: true,
 			tmp: true,
-			sub: true,
+			sub: true
 		};
 		showOrphans = false;
 		centralityThreshold = minCentrality;
@@ -385,26 +382,62 @@
 						<div class="network-relation-pills" role="group" aria-label="Filtros de relaciones">
 							<span class="small fw-semibold text-muted me-1">Relaciones:</span>
 
-							<label class="network-pill-btn" class:active={relationFilter.fam} class:inactive={!relationFilter.fam}>
-								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.fam} on:change={applyFilter} />
+							<label
+								class="network-pill-btn"
+								class:active={relationFilter.fam}
+								class:inactive={!relationFilter.fam}
+							>
+								<input
+									class="visually-hidden"
+									type="checkbox"
+									bind:checked={relationFilter.fam}
+									on:change={applyFilter}
+								/>
 								<span class="color-dot" style="background-color: #D4A27F;"></span>
 								<span>Parentesco</span>
 							</label>
 
-							<label class="network-pill-btn" class:active={relationFilter.aso} class:inactive={!relationFilter.aso}>
-								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.aso} on:change={applyFilter} />
+							<label
+								class="network-pill-btn"
+								class:active={relationFilter.aso}
+								class:inactive={!relationFilter.aso}
+							>
+								<input
+									class="visually-hidden"
+									type="checkbox"
+									bind:checked={relationFilter.aso}
+									on:change={applyFilter}
+								/>
 								<span class="color-dot" style="background-color: #9CA3AF;"></span>
 								<span>Asociación</span>
 							</label>
 
-							<label class="network-pill-btn" class:active={relationFilter.tmp} class:inactive={!relationFilter.tmp}>
-								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.tmp} on:change={applyFilter} />
+							<label
+								class="network-pill-btn"
+								class:active={relationFilter.tmp}
+								class:inactive={!relationFilter.tmp}
+							>
+								<input
+									class="visually-hidden"
+									type="checkbox"
+									bind:checked={relationFilter.tmp}
+									on:change={applyFilter}
+								/>
 								<span class="color-dot" style="background-color: #B8C99A;"></span>
 								<span>Temporal</span>
 							</label>
 
-							<label class="network-pill-btn" class:active={relationFilter.sub} class:inactive={!relationFilter.sub}>
-								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.sub} on:change={applyFilter} />
+							<label
+								class="network-pill-btn"
+								class:active={relationFilter.sub}
+								class:inactive={!relationFilter.sub}
+							>
+								<input
+									class="visually-hidden"
+									type="checkbox"
+									bind:checked={relationFilter.sub}
+									on:change={applyFilter}
+								/>
 								<span class="color-dot" style="background-color: #9B8EC4;"></span>
 								<span>Subordinación</span>
 							</label>
@@ -419,7 +452,10 @@
 								bind:checked={showOrphans}
 								on:change={applyFilter}
 							/>
-							<label class="form-check-label small fw-semibold text-muted" for="search-show-orphans-toggle">
+							<label
+								class="form-check-label small fw-semibold text-muted"
+								for="search-show-orphans-toggle"
+							>
 								Mostrar huérfanos
 							</label>
 						</div>
@@ -507,7 +543,8 @@
 			</div>
 		{:else if graphData && (graphData.nodes || []).length === 0}
 			<div class="alert alert-info mt-3">
-				<i class="bi bi-info-circle me-1" aria-hidden="true"></i>No hay relaciones para los filtros activos.
+				<i class="bi bi-info-circle me-1" aria-hidden="true"></i>No hay relaciones para los filtros
+				activos.
 			</div>
 		{/if}
 	</div>
@@ -530,8 +567,14 @@
 				<div class="small">
 					{#if tooltip.details.sexo}<div><strong>Sexo:</strong> {tooltip.details.sexo}</div>{/if}
 					{#if tooltip.details.edad}<div><strong>Edad:</strong> {tooltip.details.edad}</div>{/if}
-					{#if tooltip.details.ocupaciones?.length}<div><strong>Ocupaciones:</strong> {tooltip.details.ocupaciones.join(', ')}</div>{/if}
-					{#if tooltip.details.etnonimos?.length}<div><strong>Etnónimos:</strong> {tooltip.details.etnonimos.join(', ')}</div>{/if}
+					{#if tooltip.details.ocupaciones?.length}<div>
+							<strong>Ocupaciones:</strong>
+							{tooltip.details.ocupaciones.join(', ')}
+						</div>{/if}
+					{#if tooltip.details.etnonimos?.length}<div>
+							<strong>Etnónimos:</strong>
+							{tooltip.details.etnonimos.join(', ')}
+						</div>{/if}
 				</div>
 			{/if}
 			<a class="btn btn-sm btn-outline-primary mt-2" href={detailHref()}>

@@ -9,7 +9,7 @@
 	import { browser } from '$app/environment';
 	import * as d3 from 'd3';
 	import html2canvas from 'html2canvas';
-	
+
 	cytoscape.use(fcose);
 
 	export let data;
@@ -28,17 +28,23 @@
 
 	// Helper: does this persona have any place data (FK or relational)?
 	function hasPlaceData(p) {
-		return (p.lugares && p.lugares.length > 0) ||
+		return (
+			(p.lugares && p.lugares.length > 0) ||
 			(p.procedencia && p.procedencia.lat) ||
 			(p.lugar_nacimiento && p.lugar_nacimiento.lat) ||
-			(p.lugar_defuncion && p.lugar_defuncion.lat);
+			(p.lugar_defuncion && p.lugar_defuncion.lat)
+		);
 	}
 
 	onMount(async () => {
-		whoami().then(u => { canEdit = u.is_staff || u.groups?.includes('colectores'); }).catch(() => {});
+		whoami()
+			.then((u) => {
+				canEdit = u.is_staff || u.groups?.includes('colectores');
+			})
+			.catch(() => {});
 		try {
 			peresc = await peresclavizadas(data.id);
-			
+
 			if (browser) {
 				// Fetch network + trajectory from live API (parallel)
 				const promises = [];
@@ -46,16 +52,20 @@
 				if (peresc.relaciones && peresc.relaciones.length > 0) {
 					promises.push(
 						personaNetwork(data.id)
-							.then(d => { networkData = d; })
-							.catch(e => console.warn('Network data unavailable:', e))
+							.then((d) => {
+								networkData = d;
+							})
+							.catch((e) => console.warn('Network data unavailable:', e))
 					);
 				}
 
 				if (hasPlaceData(peresc)) {
 					promises.push(
 						personaTrajectory(data.id)
-							.then(d => { trajectoryData = d; })
-							.catch(e => console.warn('Trajectory data unavailable:', e))
+							.then((d) => {
+								trajectoryData = d;
+							})
+							.catch((e) => console.warn('Trajectory data unavailable:', e))
 					);
 				}
 
@@ -78,7 +88,7 @@
 
 	function initializeRelationsNetwork() {
 		if (!networkData || !browser) return;
-		
+
 		const container = document.getElementById('relations-network');
 		if (!container) return;
 
@@ -107,16 +117,16 @@
 						'background-color': '#9DB5B2',
 						'border-width': 2,
 						'border-color': '#7A9E9A',
-						'label': 'data(label)',
+						label: 'data(label)',
 						'text-valign': 'bottom',
 						'text-halign': 'center',
 						'text-margin-y': 6,
-						'color': '#3d4f5f',
+						color: '#3d4f5f',
 						'font-size': '9px',
 						'text-wrap': 'wrap',
 						'text-max-width': '72px',
-						'width': 28,
-						'height': 28,
+						width: 28,
+						height: 28,
 						'text-outline-width': 1.5,
 						'text-outline-color': '#fff',
 						'text-outline-opacity': 0.8
@@ -135,17 +145,17 @@
 						'background-color': '#3B6D8C',
 						'border-color': '#2A4F66',
 						'border-width': 3,
-						'width': 38,
-						'height': 38,
+						width: 38,
+						height: 38,
 						'font-size': '10px',
 						'font-weight': 'bold',
-						'color': '#1a2a36'
+						color: '#1a2a36'
 					}
 				},
 				{
 					selector: 'edge',
 					style: {
-						'width': 1.5,
+						width: 1.5,
 						'line-color': '#C8D1D9',
 						'line-opacity': 0.7,
 						'curve-style': 'bezier',
@@ -156,7 +166,7 @@
 					selector: 'edge[relation = "fam"]',
 					style: {
 						'line-color': '#D4A27F',
-						'width': 2
+						width: 2
 					}
 				},
 				{
@@ -198,24 +208,25 @@
 			}
 		});
 
-		relationsCy.on('tap', 'node', function(event) {
+		relationsCy.on('tap', 'node', function (event) {
 			const node = event.target;
 			const nodeId = node.data('id').replace('p', '');
 			const nodeType = node.data('type');
-			
+
 			if (nodeId !== String(data.id)) {
-				const detailUrl = nodeType === 'esclavizada'
-					? `/Detail/personaesclavizada/${nodeId}`
-					: `/Detail/personanoesclavizada/${nodeId}`;
+				const detailUrl =
+					nodeType === 'esclavizada'
+						? `/Detail/personaesclavizada/${nodeId}`
+						: `/Detail/personanoesclavizada/${nodeId}`;
 				window.open(detailUrl, '_blank');
 			}
 		});
 
-		relationsCy.on('mouseover', 'node', function(event) {
+		relationsCy.on('mouseover', 'node', function (event) {
 			event.target.style({ 'border-width': 3, 'overlay-opacity': 0.08 });
 		});
 
-		relationsCy.on('mouseout', 'node', function(event) {
+		relationsCy.on('mouseout', 'node', function (event) {
 			const node = event.target;
 			const isCurrentPerson = node.data('id') === currentPersonId;
 			node.style({ 'border-width': isCurrentPerson ? 3 : 2, 'overlay-opacity': 0 });
@@ -223,7 +234,7 @@
 
 		const edgeTooltip = document.getElementById('relations-edge-tooltip');
 
-		relationsCy.on('mouseover', 'edge', function(event) {
+		relationsCy.on('mouseover', 'edge', function (event) {
 			const desc = event.target.data('descripcion');
 			if (!desc || !edgeTooltip) return;
 			const pos = event.renderedPosition;
@@ -231,10 +242,10 @@
 			edgeTooltip.style.display = 'block';
 			edgeTooltip.style.left = `${pos.x + 10}px`;
 			edgeTooltip.style.top = `${pos.y - 30}px`;
-			event.target.style({ 'width': 3, 'line-opacity': 1 });
+			event.target.style({ width: 3, 'line-opacity': 1 });
 		});
 
-		relationsCy.on('mousemove', 'edge', function(event) {
+		relationsCy.on('mousemove', 'edge', function (event) {
 			const desc = event.target.data('descripcion');
 			if (!desc || !edgeTooltip) return;
 			const pos = event.renderedPosition;
@@ -242,15 +253,15 @@
 			edgeTooltip.style.top = `${pos.y - 30}px`;
 		});
 
-		relationsCy.on('mouseout', 'edge', function(event) {
+		relationsCy.on('mouseout', 'edge', function (event) {
 			if (edgeTooltip) edgeTooltip.style.display = 'none';
-			event.target.style({ 'width': null, 'line-opacity': null });
+			event.target.style({ width: null, 'line-opacity': null });
 		});
 	}
 
 	async function initializeMap() {
 		if (!browser || !hasPlaceData(peresc)) return;
-		
+
 		const container = document.getElementById('places-map');
 		if (!container) return;
 
@@ -268,23 +279,26 @@
 			const firstPlace = peresc.lugares[0]?.lugar;
 			const centerLat = firstPlace?.lat ? parseFloat(firstPlace.lat) : 17.0;
 			const centerLon = firstPlace?.lon ? parseFloat(firstPlace.lon) : -96.7;
-			
+
 			map = L.map(container).setView([centerLat, centerLon], 8);
-			
+
 			// Add tile layer
-			L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
-						attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
-						maxZoom: 8
-			}).addTo(map);
+			L.tileLayer(
+				'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
+				{
+					attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service',
+					maxZoom: 8
+				}
+			).addTo(map);
 
 			// Add D3 overlay for better visualization
-			const svg = d3.select(map.getPanes().overlayPane).append("svg");
-			const g = svg.append("g").attr("class", "leaflet-zoom-hide");
+			const svg = d3.select(map.getPanes().overlayPane).append('svg');
+			const g = svg.append('g').attr('class', 'leaflet-zoom-hide');
 
 			// Collect all places with coordinates from persona_x_lugares
 			const places = (peresc.lugares || [])
-				.filter(lugar => lugar.lugar.lat && lugar.lugar.lon)
-				.map(lugar => ({
+				.filter((lugar) => lugar.lugar.lat && lugar.lugar.lon)
+				.map((lugar) => ({
 					name: lugar.lugar.nombre_lugar,
 					type: lugar.lugar.tipo,
 					situation: lugar.situacion_lugar,
@@ -293,11 +307,11 @@
 				}));
 
 			// Add direct FK places (procedencia, nacimiento, defuncion) if not already present
-			const seenCoords = new Set(places.map(p => `${p.lat},${p.lon}`));
+			const seenCoords = new Set(places.map((p) => `${p.lat},${p.lon}`));
 			const fkPlaces = [
 				peresc.lugar_nacimiento ? { ...peresc.lugar_nacimiento, _situacion: 'Nacimiento' } : null,
 				peresc.procedencia ? { ...peresc.procedencia, _situacion: 'Procedencia' } : null,
-				peresc.lugar_defuncion ? { ...peresc.lugar_defuncion, _situacion: 'Defunción' } : null,
+				peresc.lugar_defuncion ? { ...peresc.lugar_defuncion, _situacion: 'Defunción' } : null
 			].filter(Boolean);
 
 			for (const fk of fkPlaces) {
@@ -330,15 +344,15 @@
 				const bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
 
 				svg
-					.attr("width", bottomRight.x - topLeft.x)
-					.attr("height", bottomRight.y - topLeft.y)
-					.style("left", `${topLeft.x}px`)
-					.style("top", `${topLeft.y}px`);
+					.attr('width', bottomRight.x - topLeft.x)
+					.attr('height', bottomRight.y - topLeft.y)
+					.style('left', `${topLeft.x}px`)
+					.style('top', `${topLeft.y}px`);
 
-				g.attr("transform", `translate(${-topLeft.x},${-topLeft.y})`);
+				g.attr('transform', `translate(${-topLeft.x},${-topLeft.y})`);
 
 				// Clear previous elements
-				g.selectAll("*").remove();
+				g.selectAll('*').remove();
 
 				// Draw trajectory paths if available
 				if (personTrajectories.length > 0) {
@@ -346,25 +360,27 @@
 					function arcColor(d) {
 						const fromSit = d.from.situacion || '';
 						const toSit = d.to.situacion || '';
-						if (fromSit === 'Nacimiento' || fromSit === 'Procedencia' || toSit === 'Procedencia') return '#2980b9';
+						if (fromSit === 'Nacimiento' || fromSit === 'Procedencia' || toSit === 'Procedencia')
+							return '#2980b9';
 						if (toSit === 'Defunción') return '#7f8c8d';
 						return '#e74c3c';
 					}
 
 					// Create arrowhead markers for each arc type
-					const defs = svg.append("defs");
+					const defs = svg.append('defs');
 					['#e74c3c', '#2980b9', '#7f8c8d'].forEach((color, i) => {
-						defs.append("marker")
-							.attr("id", `arrow-person-${i}`)
-							.attr("viewBox", "0 -3 6 6")
-							.attr("refX", 6)
-							.attr("refY", 0)
-							.attr("markerWidth", 4)
-							.attr("markerHeight", 4)
-							.attr("orient", "auto")
-							.attr("fill", color)
-							.append("path")
-							.attr("d", "M0,-3L6,0L0,3Z");
+						defs
+							.append('marker')
+							.attr('id', `arrow-person-${i}`)
+							.attr('viewBox', '0 -3 6 6')
+							.attr('refX', 6)
+							.attr('refY', 0)
+							.attr('markerWidth', 4)
+							.attr('markerHeight', 4)
+							.attr('orient', 'auto')
+							.attr('fill', color)
+							.append('path')
+							.attr('d', 'M0,-3L6,0L0,3Z');
 					});
 
 					function arrowId(d) {
@@ -374,12 +390,12 @@
 					}
 
 					// Draw trajectory lines
-					g.selectAll(".trajectory-path")
+					g.selectAll('.trajectory-path')
 						.data(personTrajectories)
 						.enter()
-						.append("path")
-						.attr("class", "trajectory-path")
-						.attr("d", d => {
+						.append('path')
+						.attr('class', 'trajectory-path')
+						.attr('d', (d) => {
 							const [x1, y1] = projectPoint(d.from.lat, d.from.lon);
 							const [x2, y2] = projectPoint(d.to.lat, d.to.lon);
 							const dx = x2 - x1;
@@ -388,87 +404,82 @@
 							const dr = Math.max(dist * 1.2, 80);
 							return `M${x1},${y1}A${dr},${dr} 0 0,1 ${x2},${y2}`;
 						})
-						.attr("stroke", d => arcColor(d))
-						.attr("stroke-width", 3)
-						.attr("stroke-dasharray", d => (d.to.situacion === 'Defunción') ? '6,3' : null)
-						.attr("fill", "none")
-						.attr("opacity", 0.8)
-						.attr("marker-end", d => arrowId(d))
-						.on("mouseover", function() {
-							d3.select(this)
-								.attr("stroke-width", 5)
-								.attr("opacity", 1);
+						.attr('stroke', (d) => arcColor(d))
+						.attr('stroke-width', 3)
+						.attr('stroke-dasharray', (d) => (d.to.situacion === 'Defunción' ? '6,3' : null))
+						.attr('fill', 'none')
+						.attr('opacity', 0.8)
+						.attr('marker-end', (d) => arrowId(d))
+						.on('mouseover', function () {
+							d3.select(this).attr('stroke-width', 5).attr('opacity', 1);
 						})
-						.on("mouseout", function() {
-							d3.select(this)
-								.attr("stroke-width", 3)
-								.attr("opacity", 0.8);
+						.on('mouseout', function () {
+							d3.select(this).attr('stroke-width', 3).attr('opacity', 0.8);
 						})
-						.append("title")
-						.text(d => `${d.from.name} → ${d.to.name} (${d.date})`);
+						.append('title')
+						.text((d) => `${d.from.name} → ${d.to.name} (${d.date})`);
 				}
 
 				// Draw place circles
-				g.selectAll(".place-circle")
+				g.selectAll('.place-circle')
 					.data(places)
 					.enter()
-					.append("circle")
-					.attr("class", "place-circle")
-					.attr("cx", d => projectPoint(d.lat, d.lon)[0])
-					.attr("cy", d => projectPoint(d.lat, d.lon)[1])
-					.attr("r", 8)
-					.attr("fill", d => {
-						switch(d.type) {
-							case 'ciudad': return '#3498db';
-							case 'villa': return '#9b59b6';
-							case 'pueblo': return '#e67e22';
-							default: return '#2ecc71';
+					.append('circle')
+					.attr('class', 'place-circle')
+					.attr('cx', (d) => projectPoint(d.lat, d.lon)[0])
+					.attr('cy', (d) => projectPoint(d.lat, d.lon)[1])
+					.attr('r', 8)
+					.attr('fill', (d) => {
+						switch (d.type) {
+							case 'ciudad':
+								return '#3498db';
+							case 'villa':
+								return '#9b59b6';
+							case 'pueblo':
+								return '#e67e22';
+							default:
+								return '#2ecc71';
 						}
 					})
-					.attr("stroke", "#fff")
-					.attr("stroke-width", 2)
-					.attr("opacity", 0.8)
-					.on("mouseover", function() {
-						d3.select(this)
-							.attr("r", 12)
-							.attr("opacity", 1);
+					.attr('stroke', '#fff')
+					.attr('stroke-width', 2)
+					.attr('opacity', 0.8)
+					.on('mouseover', function () {
+						d3.select(this).attr('r', 12).attr('opacity', 1);
 					})
-					.on("mouseout", function() {
-						d3.select(this)
-							.attr("r", 8)
-							.attr("opacity", 0.8);
+					.on('mouseout', function () {
+						d3.select(this).attr('r', 8).attr('opacity', 0.8);
 					})
-					.append("title")
-					.text(d => `${d.name} (${d.type})${d.situation ? ' - ' + d.situation : ''}`);
+					.append('title')
+					.text((d) => `${d.name} (${d.type})${d.situation ? ' - ' + d.situation : ''}`);
 
 				// Add place labels
-				g.selectAll(".place-label")
+				g.selectAll('.place-label')
 					.data(places)
 					.enter()
-					.append("text")
-					.attr("class", "place-label")
-					.attr("x", d => projectPoint(d.lat, d.lon)[0])
-					.attr("y", d => projectPoint(d.lat, d.lon)[1] - 12)
-					.attr("text-anchor", "middle")
-					.attr("font-size", "12px")
-					.attr("font-weight", "bold")
-					.attr("fill", "#2c3e50")
-					.attr("stroke", "#fff")
-					.attr("stroke-width", 3)
-					.attr("paint-order", "stroke")
-					.text(d => d.name);
+					.append('text')
+					.attr('class', 'place-label')
+					.attr('x', (d) => projectPoint(d.lat, d.lon)[0])
+					.attr('y', (d) => projectPoint(d.lat, d.lon)[1] - 12)
+					.attr('text-anchor', 'middle')
+					.attr('font-size', '12px')
+					.attr('font-weight', 'bold')
+					.attr('fill', '#2c3e50')
+					.attr('stroke', '#fff')
+					.attr('stroke-width', 3)
+					.attr('paint-order', 'stroke')
+					.text((d) => d.name);
 			}
 
 			// Initial update and event listeners
 			updateVisualization();
-			map.on("zoomend moveend", updateVisualization);
+			map.on('zoomend moveend', updateVisualization);
 
 			// Fit map to show all places
 			if (places.length > 0) {
-				const bounds = L.latLngBounds(places.map(p => [p.lat, p.lon]));
+				const bounds = L.latLngBounds(places.map((p) => [p.lat, p.lon]));
 				map.fitBounds(bounds, { padding: [20, 20] });
 			}
-
 		} catch (error) {
 			console.error('Error initializing map:', error);
 			// Fallback to simple place list
@@ -479,11 +490,15 @@
 						<h5 class="mt-2">No se pudo cargar el mapa</h5>
 						<p class="text-muted">Lugares relacionados:</p>
 						<div class="mt-3">
-							${peresc.lugares.map(lugar => `
+							${peresc.lugares
+								.map(
+									(lugar) => `
 								<div class="badge bg-success me-2 mb-2">
 									${lugar.lugar.nombre_lugar} (${lugar.lugar.tipo})
 								</div>
-							`).join('')}
+							`
+								)
+								.join('')}
 						</div>
 					</div>
 				</div>
@@ -501,7 +516,11 @@
 	}
 
 	function slugify(name) {
-		return (name || 'persona').trim().replace(/\s+/g, '_').replace(/[^\w-]/g, '').toLowerCase();
+		return (name || 'persona')
+			.trim()
+			.replace(/\s+/g, '_')
+			.replace(/[^\w-]/g, '')
+			.toLowerCase();
 	}
 
 	function exportNetwork() {
@@ -515,7 +534,7 @@
 		if (!container) return;
 		try {
 			const canvas = await html2canvas(container, { useCORS: true, scale: 2 });
-			canvas.toBlob(blob => {
+			canvas.toBlob((blob) => {
 				if (blob) downloadBlob(blob, `mapa_${slugify(peresc?.nombre_normalizado)}.png`);
 			});
 		} catch (e) {
@@ -566,7 +585,11 @@
 </script>
 
 <svelte:head>
-	<title>{peresc ? `${peresc.nombre_normalizado} — Persona Esclavizada — Trayectorias Afro` : 'Persona Esclavizada — Trayectorias Afro'}</title>
+	<title
+		>{peresc
+			? `${peresc.nombre_normalizado} — Persona Esclavizada — Trayectorias Afro`
+			: 'Persona Esclavizada — Trayectorias Afro'}</title
+	>
 </svelte:head>
 
 <div class="container mt-4">
@@ -575,14 +598,17 @@
 			<i class="bi bi-exclamation-triangle-fill me-2"></i>Error: {error}
 		</div>
 	{:else if peresc}
-
-	<div class="entity-banner persona-esclavizada">
-		<h1>{peresc.nombre_normalizado || 'Persona Esclavizada'}</h1>
-		<div class="d-flex align-items-center gap-2 flex-wrap mt-1">
-			<span class="entity-type">Persona Esclavizada</span>
-			<SuggestMerge entity="pe" currentId={peresc.persona_id} currentLabel={peresc.nombre_normalizado} />
+		<div class="entity-banner persona-esclavizada">
+			<h1>{peresc.nombre_normalizado || 'Persona Esclavizada'}</h1>
+			<div class="d-flex align-items-center gap-2 flex-wrap mt-1">
+				<span class="entity-type">Persona Esclavizada</span>
+				<SuggestMerge
+					entity="pe"
+					currentId={peresc.persona_id}
+					currentLabel={peresc.nombre_normalizado}
+				/>
+			</div>
 		</div>
-	</div>
 
 		<div class="detailwrap">
 			<div class="detail">
@@ -598,61 +624,73 @@
 				<div class="detail-bottom"><p>{peresc.apellidos || 'No disponible'}</p></div>
 			</div>
 			{#if peresc.sexo}
-			<div class="detail">
-				<h3>Sexo</h3>
-				<div class="detail-bottom"><p>{peresc.sexo}</p></div>
-			</div>
+				<div class="detail">
+					<h3>Sexo</h3>
+					<div class="detail-bottom"><p>{peresc.sexo}</p></div>
+				</div>
 			{/if}
 			{#if peresc.edad}
-			<div class="detail">
-				<h3>Edad</h3>
-				<div class="detail-bottom"><p>{peresc.edad} {peresc.unidad_temporal_edad || 'años'}</p></div>
-			</div>
+				<div class="detail">
+					<h3>Edad</h3>
+					<div class="detail-bottom">
+						<p>{peresc.edad} {peresc.unidad_temporal_edad || 'años'}</p>
+					</div>
+				</div>
 			{/if}
 			{#if peresc.etnonimos}
-			<div class="detail">
-				<h3>Etnónimos</h3>
-				<div class="detail-bottom"><p>{peresc.etnonimos.join(', ')}</p></div>
-			</div>
+				<div class="detail">
+					<h3>Etnónimos</h3>
+					<div class="detail-bottom"><p>{peresc.etnonimos.join(', ')}</p></div>
+				</div>
 			{/if}
 			{#if peresc.hispanizacion}
-			<div class="detail">
-				<h3>Agencia / Adaptación</h3>
-				<div class="detail-bottom"><p>{peresc.hispanizacion}</p></div>
-			</div>
+				<div class="detail">
+					<h3>Agencia / Adaptación</h3>
+					<div class="detail-bottom"><p>{peresc.hispanizacion}</p></div>
+				</div>
 			{/if}
 			{#if peresc.marcas_corporales}
-			<div class="detail">
-				<h3>Marcas corporales</h3>
-				<div class="detail-bottom"><p>{peresc.marcas_corporales}</p></div>
-			</div>
+				<div class="detail">
+					<h3>Marcas corporales</h3>
+					<div class="detail-bottom"><p>{peresc.marcas_corporales}</p></div>
+				</div>
 			{/if}
 			{#if peresc.salud}
-			<div class="detail">
-				<h3>Salud</h3>
-				<div class="detail-bottom"><p>{peresc.salud}</p></div>
-			</div>
+				<div class="detail">
+					<h3>Salud</h3>
+					<div class="detail-bottom"><p>{peresc.salud}</p></div>
+				</div>
 			{/if}
 			{#if peresc.conducta}
-			<div class="detail">
-				<h3>Conducta</h3>
-				<div class="detail-bottom"><p>{peresc.conducta}</p></div>
-			</div>
+				<div class="detail">
+					<h3>Conducta</h3>
+					<div class="detail-bottom"><p>{peresc.conducta}</p></div>
+				</div>
 			{/if}
 		</div>
 
 		<!-- Places Map -->
 		{#if hasPlaceData(peresc)}
 			<div class="card mb-4">
-				<div class="card-header bg-success text-white d-flex justify-content-between align-items-start">
+				<div
+					class="card-header bg-success text-white d-flex justify-content-between align-items-start"
+				>
 					<div>
-								<h2 class="card-title h5 mb-0"><i class="bi bi-geo-alt me-2"></i>Trayectoria
-									<Tooltip text="Mapa de los lugares donde esta persona fue documentada. Los puntos naranjas son datos del perfil (nacimiento, procedencia); los rojos son puntos de trayectoria registrados en documentos." placement="bottom" />
-								</h2>
+						<h2 class="card-title h5 mb-0">
+							<i class="bi bi-geo-alt me-2"></i>Trayectoria
+							<Tooltip
+								text="Mapa de los lugares donde esta persona fue documentada. Los puntos naranjas son datos del perfil (nacimiento, procedencia); los rojos son puntos de trayectoria registrados en documentos."
+								placement="bottom"
+							/>
+						</h2>
 						<small class="text-white-50">Lugares conocidos y trayectoria de la persona</small>
 					</div>
 					<div class="d-flex gap-2">
-						<button class="btn btn-sm btn-outline-light" on:click={exportMap} title="Guardar imagen del mapa">
+						<button
+							class="btn btn-sm btn-outline-light"
+							on:click={exportMap}
+							title="Guardar imagen del mapa"
+						>
 							<i class="bi bi-download me-1"></i>PNG
 						</button>
 						{#if canEdit}
@@ -663,7 +701,10 @@
 					</div>
 				</div>
 				<div class="card-body">
-					<div id="places-map" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
+					<div
+						id="places-map"
+						style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"
+					></div>
 				</div>
 				<div class="card-footer">
 					<div class="row text-center">
@@ -711,19 +752,34 @@
 		<!-- Relations Network -->
 		{#if peresc.relaciones && peresc.relaciones.length > 0}
 			<div class="card mb-4">
-				<div class="card-header bg-info text-white d-flex justify-content-between align-items-start">
+				<div
+					class="card-header bg-info text-white d-flex justify-content-between align-items-start"
+				>
 					<div>
-								<h2 class="card-title h5 mb-0"><i class="bi bi-diagram-2 me-2"></i>Red de Relaciones
-									<Tooltip text="Visualiza las relaciones documentadas entre esta persona y otras. Cada nodo es una persona; los colores distinguen el tipo de relación (familiar, asociativa, temporal, subordinación)." placement="bottom" />
-								</h2>
-						<small class="text-white-50">Haz clic en un nodo para ver los detalles de esa persona</small>
+						<h2 class="card-title h5 mb-0">
+							<i class="bi bi-diagram-2 me-2"></i>Red de Relaciones
+							<Tooltip
+								text="Visualiza las relaciones documentadas entre esta persona y otras. Cada nodo es una persona; los colores distinguen el tipo de relación (familiar, asociativa, temporal, subordinación)."
+								placement="bottom"
+							/>
+						</h2>
+						<small class="text-white-50"
+							>Haz clic en un nodo para ver los detalles de esa persona</small
+						>
 					</div>
 					<div class="d-flex gap-2">
-						<button class="btn btn-sm btn-outline-light" on:click={exportNetwork} title="Guardar imagen de la red">
+						<button
+							class="btn btn-sm btn-outline-light"
+							on:click={exportNetwork}
+							title="Guardar imagen de la red"
+						>
 							<i class="bi bi-download me-1"></i>PNG
 						</button>
 						{#if canEdit}
-							<a href="/User/catalogar/relaciones?persona_id={data.id}" class="btn btn-sm btn-outline-light">
+							<a
+								href="/User/catalogar/relaciones?persona_id={data.id}"
+								class="btn btn-sm btn-outline-light"
+							>
 								<i class="bi bi-pencil-square me-1"></i>Editar relaciones
 							</a>
 						{/if}
@@ -732,20 +788,48 @@
 				<div class="card-body p-2 pb-0">
 					<div class="d-flex flex-wrap gap-1 align-items-center mb-2">
 						<small class="text-muted me-1">Filtrar:</small>
-						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'fam'} style="--fc: #D4A27F;" on:click={() => filterByRelation('fam')}>Parentesco</button>
+						<button
+							class="btn btn-sm network-filter-btn"
+							class:active={activeRelFilter === 'fam'}
+							style="--fc: #D4A27F;"
+							on:click={() => filterByRelation('fam')}>Parentesco</button
+						>
 
-						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'aso'} style="--fc: #9CA3AF;" on:click={() => filterByRelation('aso')}>Asociativa</button>
-						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'tmp'} style="--fc: #B8C99A;" on:click={() => filterByRelation('tmp')}>Temporal</button>
-						<button class="btn btn-sm network-filter-btn" class:active={activeRelFilter === 'sub'} style="--fc: #9B8EC4;" on:click={() => filterByRelation('sub')}>Subordinación</button>
+						<button
+							class="btn btn-sm network-filter-btn"
+							class:active={activeRelFilter === 'aso'}
+							style="--fc: #9CA3AF;"
+							on:click={() => filterByRelation('aso')}>Asociativa</button
+						>
+						<button
+							class="btn btn-sm network-filter-btn"
+							class:active={activeRelFilter === 'tmp'}
+							style="--fc: #B8C99A;"
+							on:click={() => filterByRelation('tmp')}>Temporal</button
+						>
+						<button
+							class="btn btn-sm network-filter-btn"
+							class:active={activeRelFilter === 'sub'}
+							style="--fc: #9B8EC4;"
+							on:click={() => filterByRelation('sub')}>Subordinación</button
+						>
 						<span class="mx-1 text-muted">|</span>
-						<button class="btn btn-sm network-filter-btn" class:active={showSexo} style="--fc: #6c757d;" on:click={toggleSexo}>
+						<button
+							class="btn btn-sm network-filter-btn"
+							class:active={showSexo}
+							style="--fc: #6c757d;"
+							on:click={toggleSexo}
+						>
 							<i class="bi bi-shapes me-1"></i>Sexo
 						</button>
 					</div>
 				</div>
 				<div class="card-body pt-0">
 					<div style="position: relative;">
-						<div id="relations-network" style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
+						<div
+							id="relations-network"
+							style="height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"
+						></div>
 						<div id="relations-edge-tooltip" class="network-edge-tooltip" aria-hidden="true"></div>
 					</div>
 				</div>
@@ -771,26 +855,26 @@
 						</div>
 					</div>
 					{#if showSexo}
-					<div class="row text-center mt-2 border-top pt-2">
-						<div class="col-md-4">
-							<small class="text-muted">
-								<span class="shape-legend diamond me-1"></span>
-								Mujer
-							</small>
+						<div class="row text-center mt-2 border-top pt-2">
+							<div class="col-md-4">
+								<small class="text-muted">
+									<span class="shape-legend diamond me-1"></span>
+									Mujer
+								</small>
+							</div>
+							<div class="col-md-4">
+								<small class="text-muted">
+									<span class="shape-legend rectangle me-1"></span>
+									Varón
+								</small>
+							</div>
+							<div class="col-md-4">
+								<small class="text-muted">
+									<span class="shape-legend circle me-1"></span>
+									Desconocido
+								</small>
+							</div>
 						</div>
-						<div class="col-md-4">
-							<small class="text-muted">
-								<span class="shape-legend rectangle me-1"></span>
-								Varón
-							</small>
-						</div>
-						<div class="col-md-4">
-							<small class="text-muted">
-								<span class="shape-legend circle me-1"></span>
-								Desconocido
-							</small>
-						</div>
-					</div>
 					{/if}
 				</div>
 			</div>
@@ -910,18 +994,18 @@
 	}
 
 	.color-legend-mini.enslaved {
-		background-color: #C9735B;
-		border-color: #A85A44;
+		background-color: #c9735b;
+		border-color: #a85a44;
 	}
 
 	.color-legend-mini.non-enslaved {
-		background-color: #9DB5B2;
-		border-color: #7A9E9A;
+		background-color: #9db5b2;
+		border-color: #7a9e9a;
 	}
 
 	.color-legend-mini.current {
-		background-color: #3B6D8C;
-		border-color: #2A4F66;
+		background-color: #3b6d8c;
+		border-color: #2a4f66;
 		border-width: 2px;
 	}
 

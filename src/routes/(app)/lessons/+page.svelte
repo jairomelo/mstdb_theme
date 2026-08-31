@@ -23,7 +23,10 @@
 
 	onMount(async () => {
 		try {
-			const [nivelesResp, palabrasResp] = await Promise.all([leccionNiveles(), leccionPalabrasClave()]);
+			const [nivelesResp, palabrasResp] = await Promise.all([
+				leccionNiveles(),
+				leccionPalabrasClave()
+			]);
 			niveles = nivelesResp.results ?? nivelesResp;
 			palabrasClave = palabrasResp.results ?? palabrasResp;
 		} catch (e) {
@@ -41,7 +44,7 @@
 				page_size: PAGE_SIZE,
 				ordering,
 				levels: selectedNivel || undefined,
-				keywords: selectedPalabraClave || undefined,
+				keywords: selectedPalabraClave || undefined
 			});
 			lecciones = data.results ?? data;
 			count = data.count ?? lecciones.length;
@@ -60,7 +63,11 @@
 
 	function formatDate(iso) {
 		if (!iso) return '';
-		return new Date(iso).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+		return new Date(iso).toLocaleDateString('es-MX', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		});
 	}
 </script>
 
@@ -84,10 +91,18 @@
 		</div>
 	{/if}
 
-	<form class="row g-3 align-items-end mb-4 lessons-filters" on:submit|preventDefault={applyFilters}>
+	<form
+		class="row g-3 align-items-end mb-4 lessons-filters"
+		on:submit|preventDefault={applyFilters}
+	>
 		<div class="col-sm-4">
 			<label class="form-label" for="filter-nivel">Nivel</label>
-			<select id="filter-nivel" class="form-select" bind:value={selectedNivel} on:change={applyFilters}>
+			<select
+				id="filter-nivel"
+				class="form-select"
+				bind:value={selectedNivel}
+				on:change={applyFilters}
+			>
 				<option value="">Todos los niveles</option>
 				{#each niveles as nivel}
 					<option value={nivel.nivel_id}>{nivel.nivel}</option>
@@ -96,7 +111,12 @@
 		</div>
 		<div class="col-sm-4">
 			<label class="form-label" for="filter-palabra-clave">Palabra clave</label>
-			<select id="filter-palabra-clave" class="form-select" bind:value={selectedPalabraClave} on:change={applyFilters}>
+			<select
+				id="filter-palabra-clave"
+				class="form-select"
+				bind:value={selectedPalabraClave}
+				on:change={applyFilters}
+			>
 				<option value="">Todas las palabras clave</option>
 				{#each palabrasClave as palabra}
 					<option value={palabra.palabra_clave_id}>{palabra.palabra_clave}</option>
@@ -105,7 +125,12 @@
 		</div>
 		<div class="col-sm-4">
 			<label class="form-label" for="filter-ordering">Ordenar por</label>
-			<select id="filter-ordering" class="form-select" bind:value={ordering} on:change={applyFilters}>
+			<select
+				id="filter-ordering"
+				class="form-select"
+				bind:value={ordering}
+				on:change={applyFilters}
+			>
 				<option value="title">Título (A–Z)</option>
 				<option value="-title">Título (Z–A)</option>
 				<option value="-created_at">Más recientes</option>
@@ -138,7 +163,9 @@
 							<span class="badge lesson-draft-badge mb-2">Borrador</span>
 						{/if}
 						<p class="lesson-card-date">
-							<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>{formatDate(leccion.created_at)}
+							<i class="bi bi-calendar3 me-1" aria-hidden="true"></i>{formatDate(
+								leccion.created_at
+							)}
 						</p>
 						{#if leccion.levels?.length}
 							<div class="lesson-card-badges mb-1">
@@ -163,12 +190,23 @@
 		</div>
 
 		{#if totalPages > 1}
-			<nav class="d-flex justify-content-center align-items-center gap-3 mt-5" aria-label="Paginación de lecciones">
-				<button class="btn btn-outline-secondary" disabled={page <= 1} on:click={() => load(page - 1)}>
+			<nav
+				class="d-flex justify-content-center align-items-center gap-3 mt-5"
+				aria-label="Paginación de lecciones"
+			>
+				<button
+					class="btn btn-outline-secondary"
+					disabled={page <= 1}
+					on:click={() => load(page - 1)}
+				>
 					<i class="bi bi-chevron-left me-1" aria-hidden="true"></i>Anterior
 				</button>
 				<span>Página {page} de {totalPages}</span>
-				<button class="btn btn-outline-secondary" disabled={page >= totalPages} on:click={() => load(page + 1)}>
+				<button
+					class="btn btn-outline-secondary"
+					disabled={page >= totalPages}
+					on:click={() => load(page + 1)}
+				>
 					Siguiente<i class="bi bi-chevron-right ms-1" aria-hidden="true"></i>
 				</button>
 			</nav>

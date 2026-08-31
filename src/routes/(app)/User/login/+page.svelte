@@ -12,7 +12,14 @@
 
 	// --- Register ---
 	let mode = 'login'; // 'login' | 'register'
-	let reg = { username: '', first_name: '', last_name: '', email: '', password: '', confirm_password: '' };
+	let reg = {
+		username: '',
+		first_name: '',
+		last_name: '',
+		email: '',
+		password: '',
+		confirm_password: ''
+	};
 	let regErrors = {};
 	let regSuccess = null;
 	let regLoading = false;
@@ -45,9 +52,15 @@
 			}
 			turnstileWidgetId = window.turnstile.render(container, {
 				sitekey: turnstileSiteKey,
-				callback: (token) => { turnstileToken = token; },
-				'expired-callback': () => { turnstileToken = ''; },
-				'error-callback': () => { turnstileToken = ''; },
+				callback: (token) => {
+					turnstileToken = token;
+				},
+				'expired-callback': () => {
+					turnstileToken = '';
+				},
+				'error-callback': () => {
+					turnstileToken = '';
+				}
 			});
 		};
 
@@ -62,18 +75,18 @@
 		error = null;
 		try {
 			const csrfResponse = await setCsrfCookie();
-			let csrfToken = getCookie("csrftoken");
+			let csrfToken = getCookie('csrftoken');
 			if (!csrfToken && csrfResponse.csrfToken) {
 				csrfToken = csrfResponse.csrfToken;
 			}
 			if (!csrfToken) {
-				throw new Error("CSRF token not available. Please try again.");
+				throw new Error('CSRF token not available. Please try again.');
 			}
-		await login(username, password, csrfToken);
-		const u = await whoami();
-		user.set(u);
-		sessionStorage.setItem('ta_welcome', u.username);
-		window.location.href = safeNext(new URLSearchParams(window.location.search).get('next'));
+			await login(username, password, csrfToken);
+			const u = await whoami();
+			user.set(u);
+			sessionStorage.setItem('ta_welcome', u.username);
+			window.location.href = safeNext(new URLSearchParams(window.location.search).get('next'));
 		} catch (err) {
 			console.error(err);
 			error = 'Usuario o contraseña incorrectos';
@@ -102,10 +115,17 @@
 				email: reg.email,
 				first_name: reg.first_name,
 				last_name: reg.last_name,
-				turnstile_token: turnstileToken,
+				turnstile_token: turnstileToken
 			});
 			regSuccess = res.detail;
-			reg = { username: '', first_name: '', last_name: '', email: '', password: '', confirm_password: '' };
+			reg = {
+				username: '',
+				first_name: '',
+				last_name: '',
+				email: '',
+				password: '',
+				confirm_password: ''
+			};
 			turnstileToken = '';
 			turnstileWidgetId = null;
 		} catch (err) {
@@ -127,12 +147,15 @@
 		try {
 			const cfg = await fetchPublicConfig();
 			turnstileSiteKey = cfg.turnstile_site_key || '';
-		} catch { /* non-critical */ }
+		} catch {
+			/* non-critical */
+		}
 
 		if (turnstileSiteKey) {
 			window._onTurnstileLoad = () => {};
 			const script = document.createElement('script');
-			script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=_onTurnstileLoad&render=explicit';
+			script.src =
+				'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=_onTurnstileLoad&render=explicit';
 			script.async = true;
 			script.defer = true;
 			document.head.appendChild(script);
@@ -146,7 +169,6 @@
 
 <div class="container mt-4">
 	<div class="login-container">
-
 		{#if mode === 'login'}
 			<h1 class="login-title">Ingresar</h1>
 			<form on:submit|preventDefault={handleLogin}>
@@ -188,11 +210,14 @@
 
 			<p class="mt-3 text-center small">
 				¿No tienes cuenta?
-				<button type="button" class="btn btn-link btn-sm p-0 align-baseline" on:click={() => switchMode('register')}>
+				<button
+					type="button"
+					class="btn btn-link btn-sm p-0 align-baseline"
+					on:click={() => switchMode('register')}
+				>
 					Registrarse
 				</button>
 			</p>
-
 		{:else}
 			<h1 class="login-title">Registrarse</h1>
 
@@ -201,7 +226,11 @@
 					<i class="bi bi-check-circle me-2" aria-hidden="true"></i>{regSuccess}
 				</div>
 				<p class="text-center small">
-					<button type="button" class="btn btn-link btn-sm p-0" on:click={() => switchMode('login')}>
+					<button
+						type="button"
+						class="btn btn-link btn-sm p-0"
+						on:click={() => switchMode('login')}
+					>
 						← Ir a iniciar sesión
 					</button>
 				</p>
@@ -227,13 +256,25 @@
 					<div class="form-group">
 						<label for="reg-first" class="visually-hidden">Nombre</label>
 						<i class="bi bi-person-badge" aria-hidden="true"></i>
-						<input id="reg-first" type="text" placeholder="Nombre" bind:value={reg.first_name} autocomplete="given-name" />
+						<input
+							id="reg-first"
+							type="text"
+							placeholder="Nombre"
+							bind:value={reg.first_name}
+							autocomplete="given-name"
+						/>
 					</div>
 
 					<div class="form-group">
 						<label for="reg-last" class="visually-hidden">Apellido</label>
 						<i class="bi bi-person-badge" aria-hidden="true"></i>
-						<input id="reg-last" type="text" placeholder="Apellido" bind:value={reg.last_name} autocomplete="family-name" />
+						<input
+							id="reg-last"
+							type="text"
+							placeholder="Apellido"
+							bind:value={reg.last_name}
+							autocomplete="family-name"
+						/>
 					</div>
 
 					<div class="form-group">
@@ -283,7 +324,9 @@
 							aria-describedby={regErrors.confirm_password ? 'err-confirm' : undefined}
 						/>
 						{#if regErrors.confirm_password}
-							<span id="err-confirm" class="error-message" role="alert">{regErrors.confirm_password}</span>
+							<span id="err-confirm" class="error-message" role="alert"
+								>{regErrors.confirm_password}</span
+							>
 						{/if}
 					</div>
 
@@ -301,7 +344,11 @@
 						{/if}
 					{/if}
 
-					<button type="submit" class="login-btn" disabled={regLoading || (turnstileSiteKey && !turnstileToken)}>
+					<button
+						type="submit"
+						class="login-btn"
+						disabled={regLoading || (turnstileSiteKey && !turnstileToken)}
+					>
 						{#if regLoading}
 							<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
 						{/if}
@@ -311,12 +358,15 @@
 
 				<p class="mt-3 text-center small">
 					¿Ya tienes cuenta?
-					<button type="button" class="btn btn-link btn-sm p-0 align-baseline" on:click={() => switchMode('login')}>
+					<button
+						type="button"
+						class="btn btn-link btn-sm p-0 align-baseline"
+						on:click={() => switchMode('login')}
+					>
 						Iniciar sesión
 					</button>
 				</p>
 			{/if}
 		{/if}
-
 	</div>
 </div>

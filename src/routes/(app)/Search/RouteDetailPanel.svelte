@@ -93,11 +93,19 @@
 
 	{#if totalPages > 1}
 		<nav class="d-flex justify-content-center align-items-center gap-2 mt-2">
-			<button class="btn btn-sm btn-outline-secondary" disabled={currentPage <= 1} on:click={() => loadPage(currentPage - 1)}>
+			<button
+				class="btn btn-sm btn-outline-secondary"
+				disabled={currentPage <= 1}
+				on:click={() => loadPage(currentPage - 1)}
+			>
 				<i class="bi bi-chevron-left"></i>
 			</button>
 			<span class="small text-muted">Página {currentPage} de {totalPages}</span>
-			<button class="btn btn-sm btn-outline-secondary" disabled={currentPage >= totalPages} on:click={() => loadPage(currentPage + 1)}>
+			<button
+				class="btn btn-sm btn-outline-secondary"
+				disabled={currentPage >= totalPages}
+				on:click={() => loadPage(currentPage + 1)}
+			>
 				<i class="bi bi-chevron-right"></i>
 			</button>
 		</nav>

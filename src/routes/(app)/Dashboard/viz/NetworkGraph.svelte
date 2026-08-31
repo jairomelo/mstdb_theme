@@ -17,7 +17,7 @@
 		fam: true,
 		aso: true,
 		tmp: true,
-		sub: true,
+		sub: true
 	};
 	let showOrphans = false;
 	let centralityThreshold = 0;
@@ -56,7 +56,7 @@
 			fam: true,
 			aso: true,
 			tmp: true,
-			sub: true,
+			sub: true
 		};
 		showOrphans = false;
 		centralityThreshold = minCentrality;
@@ -118,7 +118,7 @@
 			idealEdgeLength: 130,
 			edgeElasticity: 0.2,
 			gravity: 0.25,
-			numIter: 2000,
+			numIter: 2000
 		}).run();
 	}
 
@@ -157,11 +157,11 @@
 
 		// Build adjacency list (use node IDs from data)
 		const adj = new Map();
-		nodes.forEach(n => {
+		nodes.forEach((n) => {
 			const nodeId = n.data?.id || n.id;
 			if (nodeId) adj.set(nodeId, []);
 		});
-		edges.forEach(e => {
+		edges.forEach((e) => {
 			const source = e.data?.source || e.source;
 			const target = e.data?.target || e.target;
 			if (source && target) {
@@ -180,7 +180,7 @@
 				const nodeId = queue.shift();
 				component.push(nodeId);
 
-				(adj.get(nodeId) || []).forEach(neighborId => {
+				(adj.get(nodeId) || []).forEach((neighborId) => {
 					if (!visited.has(neighborId)) {
 						visited.add(neighborId);
 						queue.push(neighborId);
@@ -192,11 +192,11 @@
 		}
 
 		// Find all clusters
-		nodes.forEach(n => {
+		nodes.forEach((n) => {
 			const nodeId = n.data.id;
 			if (!visited.has(nodeId)) {
 				const component = bfs(nodeId);
-				component.forEach(id => clusterMap.set(id, clusterId));
+				component.forEach((id) => clusterMap.set(id, clusterId));
 				clusterId++;
 			}
 		});
@@ -230,12 +230,12 @@
 		const rect = container.getBoundingClientRect();
 		if (rect.width === 0 || rect.height === 0) {
 			console.warn('Container has zero dimensions, retrying...');
-			await new Promise(resolve => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
 
 		// Compute cluster sizes and annotate nodes
 		const clusterSizes = computeClusterSizes(data.nodes, data.edges);
-		const annotatedNodes = data.nodes.map(n => ({
+		const annotatedNodes = data.nodes.map((n) => ({
 			...n,
 			data: {
 				...n.data,
@@ -257,22 +257,22 @@
 						height: 'mapData(centrality, 0, 1, 16, 72)',
 						'background-color': '#9DB5B2',
 						'border-width': 2,
-						'border-color': '#7A9E9A',
-					},
+						'border-color': '#7A9E9A'
+					}
 				},
 				{
 					selector: 'node[type = "esclavizada"]',
 					style: {
 						'background-color': '#C9735B',
-						'border-color': '#A85A44',
-					},
+						'border-color': '#A85A44'
+					}
 				},
 				{
 					selector: 'node[in_results = false]',
 					style: {
 						'background-opacity': 0.6,
-						'border-style': 'dashed',
-					},
+						'border-style': 'dashed'
+					}
 				},
 				{
 					selector: 'edge',
@@ -281,30 +281,30 @@
 						'line-color': '#9CA3AF',
 						'curve-style': 'bezier',
 						'target-arrow-shape': 'none',
-						'opacity': 0.8,
-					},
+						opacity: 0.8
+					}
 				},
 				{
 					selector: 'edge[relation = "fam"]',
 					style: {
 						'line-color': '#D4A27F',
-						width: 2.2,
-					},
+						width: 2.2
+					}
 				},
 				{
 					selector: 'edge[relation = "tmp"]',
 					style: {
-						'line-color': '#B8C99A',
-					},
+						'line-color': '#B8C99A'
+					}
 				},
 				{
 					selector: 'edge[relation = "sub"]',
 					style: {
 						'line-color': '#9B8EC4',
 						'target-arrow-shape': 'triangle',
-						'target-arrow-color': '#9B8EC4',
-					},
-				},
+						'target-arrow-color': '#9B8EC4'
+					}
+				}
 			],
 			layout: {
 				name: layoutType,
@@ -316,8 +316,8 @@
 				idealEdgeLength: 130,
 				edgeElasticity: 0.2,
 				gravity: 0.25,
-				numIter: 2000,
-			},
+				numIter: 2000
+			}
 		});
 
 		const centralities = cy.nodes().map((n) => Number(n.data('centrality') || 0));
@@ -350,7 +350,7 @@
 				id: nodeId,
 				type: nodeType,
 				loading: true,
-				details: null,
+				details: null
 			};
 
 			try {
@@ -386,7 +386,7 @@
 			idealEdgeLength: 130,
 			edgeElasticity: 0.2,
 			gravity: 0.25,
-			numIter: 2000,
+			numIter: 2000
 		}).run();
 
 		applyFilter();
@@ -514,26 +514,62 @@
 						<div class="network-relation-pills" role="group" aria-label="Filtros de relaciones">
 							<span class="small fw-semibold text-muted me-1">Relaciones:</span>
 
-							<label class="network-pill-btn" class:active={relationFilter.fam} class:inactive={!relationFilter.fam}>
-								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.fam} on:change={applyFilter} />
+							<label
+								class="network-pill-btn"
+								class:active={relationFilter.fam}
+								class:inactive={!relationFilter.fam}
+							>
+								<input
+									class="visually-hidden"
+									type="checkbox"
+									bind:checked={relationFilter.fam}
+									on:change={applyFilter}
+								/>
 								<span class="color-dot" style="background-color: #D4A27F;"></span>
 								<span>Parentesco</span>
 							</label>
 
-							<label class="network-pill-btn" class:active={relationFilter.aso} class:inactive={!relationFilter.aso}>
-								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.aso} on:change={applyFilter} />
+							<label
+								class="network-pill-btn"
+								class:active={relationFilter.aso}
+								class:inactive={!relationFilter.aso}
+							>
+								<input
+									class="visually-hidden"
+									type="checkbox"
+									bind:checked={relationFilter.aso}
+									on:change={applyFilter}
+								/>
 								<span class="color-dot" style="background-color: #9CA3AF;"></span>
 								<span>Asociación</span>
 							</label>
 
-							<label class="network-pill-btn" class:active={relationFilter.tmp} class:inactive={!relationFilter.tmp}>
-								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.tmp} on:change={applyFilter} />
+							<label
+								class="network-pill-btn"
+								class:active={relationFilter.tmp}
+								class:inactive={!relationFilter.tmp}
+							>
+								<input
+									class="visually-hidden"
+									type="checkbox"
+									bind:checked={relationFilter.tmp}
+									on:change={applyFilter}
+								/>
 								<span class="color-dot" style="background-color: #B8C99A;"></span>
 								<span>Temporal</span>
 							</label>
 
-							<label class="network-pill-btn" class:active={relationFilter.sub} class:inactive={!relationFilter.sub}>
-								<input class="visually-hidden" type="checkbox" bind:checked={relationFilter.sub} on:change={applyFilter} />
+							<label
+								class="network-pill-btn"
+								class:active={relationFilter.sub}
+								class:inactive={!relationFilter.sub}
+							>
+								<input
+									class="visually-hidden"
+									type="checkbox"
+									bind:checked={relationFilter.sub}
+									on:change={applyFilter}
+								/>
 								<span class="color-dot" style="background-color: #9B8EC4;"></span>
 								<span>Subordinación</span>
 							</label>
@@ -548,7 +584,10 @@
 								bind:checked={showOrphans}
 								on:change={applyFilter}
 							/>
-							<label class="form-check-label small fw-semibold text-muted" for="show-orphans-toggle">
+							<label
+								class="form-check-label small fw-semibold text-muted"
+								for="show-orphans-toggle"
+							>
 								Mostrar huérfanos
 							</label>
 						</div>
@@ -702,11 +741,16 @@
 				<i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>{error}
 			</div>
 		{:else}
-			<div bind:this={container} class="border rounded" style="width: 100%; height: 560px; display: block;"></div>
+			<div
+				bind:this={container}
+				class="border rounded"
+				style="width: 100%; height: 560px; display: block;"
+			></div>
 
 			{#if graphData && (graphData.nodes || []).length === 0}
 				<div class="alert alert-info mt-3">
-					<i class="bi bi-info-circle me-1" aria-hidden="true"></i>No hay relaciones para los filtros activos.
+					<i class="bi bi-info-circle me-1" aria-hidden="true"></i>No hay relaciones para los
+					filtros activos.
 				</div>
 			{/if}
 		{/if}
@@ -726,10 +770,22 @@
 						<div class="small text-muted">Cargando detalles...</div>
 					{:else if tooltip.details}
 						<div class="small">
-							{#if tooltip.details.sexo}<div><strong>Sexo:</strong> {tooltip.details.sexo}</div>{/if}
-							{#if tooltip.details.edad}<div><strong>Edad:</strong> {tooltip.details.edad}</div>{/if}
-							{#if tooltip.details.ocupaciones?.length}<div><strong>Ocupaciones:</strong> {tooltip.details.ocupaciones.join(', ')}</div>{/if}
-							{#if tooltip.details.etnonimos?.length}<div><strong>Etnónimos:</strong> {tooltip.details.etnonimos.join(', ')}</div>{/if}
+							{#if tooltip.details.sexo}<div>
+									<strong>Sexo:</strong>
+									{tooltip.details.sexo}
+								</div>{/if}
+							{#if tooltip.details.edad}<div>
+									<strong>Edad:</strong>
+									{tooltip.details.edad}
+								</div>{/if}
+							{#if tooltip.details.ocupaciones?.length}<div>
+									<strong>Ocupaciones:</strong>
+									{tooltip.details.ocupaciones.join(', ')}
+								</div>{/if}
+							{#if tooltip.details.etnonimos?.length}<div>
+									<strong>Etnónimos:</strong>
+									{tooltip.details.etnonimos.join(', ')}
+								</div>{/if}
 						</div>
 					{/if}
 					<a class="btn btn-sm btn-outline-primary mt-2" href={detailHref()}>
