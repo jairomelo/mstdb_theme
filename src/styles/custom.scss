@@ -90,6 +90,19 @@ $theme-colors: (
 	}
 }
 
+.login-container .btn-link {
+	color: map-get($theme-colors, 'dark');
+
+	&:hover {
+		color: map-get($theme-colors, 'primary');
+	}
+
+	&:focus-visible {
+		outline: 2px solid map-get($theme-colors, 'primary');
+		outline-offset: 2px;
+	}
+}
+
 .error-message {
 	color: map-get($theme-colors, 'danger');
 	font-size: 0.875rem;
