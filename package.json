@@ -10,10 +10,12 @@
 		"test:integration": "playwright test",
 		"test:unit": "vitest",
 		"lint": "prettier --check .",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"translate": "node scripts/translate.js"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.11.1",
+		"@inlang/paraglide-js": "^2.25.0",
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/adapter-node": "^5.2.2",
