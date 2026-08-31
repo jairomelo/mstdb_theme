@@ -423,7 +423,7 @@
 					</button>
 
 					<span class="small text-muted">
-						{m.from_to()}
+						{m.from_to({ currentPage: tabState.currentPage })} {m.total_pages( {totalPages: totalPages} )}
 					</span>
 
 					<button
