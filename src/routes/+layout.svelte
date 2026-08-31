@@ -20,7 +20,7 @@
 		await setLocale(nextLocale);
 	}
 
-	const WELCOME_DURATION_MS = 6000;
+	const WELCOME_DURATION_MS = 3000;
 
 	const appVersion = __APP_VERSION__;
 
