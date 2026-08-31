@@ -155,7 +155,7 @@
 										class="dropdown-item"
 										href="/About/"
 										aria-current={$page.url.pathname.startsWith('/About') ? 'page' : undefined}
-										>{m.seemly_same_quail_boost()}</a
+										>{m.low_flaky_myna_love()}</a
 									>
 								</li>
 							</ul>
