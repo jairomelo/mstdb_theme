@@ -733,7 +733,7 @@
 		{#if loading}
 			<div class="text-center py-5">
 				<div class="spinner-border text-primary" role="status">
-					<span class="visually-hidden">Cargando...</span>
+					<span class="visually-hidden">{m.loading()}</span>
 				</div>
 			</div>
 		{:else if error}

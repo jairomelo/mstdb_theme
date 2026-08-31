@@ -1245,7 +1245,7 @@
 	{#if formLoadingRel}
 		<div class="d-flex justify-content-center py-5">
 			<span class="spinner-border text-danger" role="status">
-				<span class="visually-hidden">Cargando...</span>
+				<span class="visually-hidden">{m.loading()}</span>
 			</span>
 		</div>
 	{:else}

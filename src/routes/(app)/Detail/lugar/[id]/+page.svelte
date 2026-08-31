@@ -262,7 +262,7 @@
 		{#if loading}
 			<div class="text-center my-3">
 				<div class="spinner-border text-primary" role="status">
-					<span class="visually-hidden">Cargando...</span>
+					<span class="visually-hidden">{m.loading()}</span>
 				</div>
 			</div>
 		{/if}
@@ -308,14 +308,14 @@
 		{#if procLoading}
 			<div class="text-center my-3">
 				<div class="spinner-border text-success" role="status">
-					<span class="visually-hidden">Cargando...</span>
+					<span class="visually-hidden">{m.loading()}</span>
 				</div>
 			</div>
 		{/if}
 	{:else}
 		<div class="d-flex justify-content-center">
 			<div class="spinner-border text-primary" role="status">
-				<span class="visually-hidden">Cargando...</span>
+				<span class="visually-hidden">{m.loading()}</span>
 			</div>
 		</div>
 	{/if}
