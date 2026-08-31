@@ -11,7 +11,8 @@
 		"test:unit": "vitest",
 		"lint": "prettier --check .",
 		"format": "prettier --write .",
-		"translate": "node scripts/translate.js"
+		"translate": "node scripts/translate.js",
+		"translate:verify": "node scripts/translate.js --verify"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.11.1",
