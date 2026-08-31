@@ -30,3 +30,4 @@ svelte-control.sh
 deploy.sh
 routes/static/temp/*
 test-results/*
+test-results/.last-run.json
