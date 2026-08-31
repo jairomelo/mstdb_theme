@@ -3,6 +3,7 @@
 	import { filtersDefinition } from '$conf/columns';
 	import SearchableSelect from './SearchableSelect.svelte';
 	import IdSearchableSelect from './IdSearchableSelect.svelte';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let entityType;
 
@@ -98,7 +99,7 @@
 <aside class="facet-sidebar">
 	<!-- Header -->
 	<div class="d-flex justify-content-between align-items-center mb-3">
-		<h6 class="mb-0 fw-bold"><i class="bi bi-funnel me-1"></i> Filtros</h6>
+		<h6 class="mb-0 fw-bold"><i class="bi bi-funnel me-1"></i> {m.filters_title()}</h6>
 		{#if activeCount > 0}
 			<button class="btn btn-sm btn-link text-decoration-none p-0" on:click={handleClear}>
 				Limpiar ({activeCount})
@@ -163,7 +164,7 @@
 						disabled={!yearDirty}
 						on:click={() => applyYearRange(filter.key, nextFilter.key)}
 					>
-						Aplicar
+						{m.apply_button()}
 					</button>
 				</div>
 			{:else if isYearLte && filterLayout.ungrouped[i - 1]?.type === 'year'}

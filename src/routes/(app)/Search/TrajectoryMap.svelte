@@ -4,6 +4,7 @@
 	import * as d3 from 'd3';
 	import { aggregatedTrajectories } from '$lib/api';
 	import RouteDetailPanel from './RouteDetailPanel.svelte';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let filters = {};
 	export let query = '';

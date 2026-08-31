@@ -4,6 +4,7 @@
 	import { dimsForEntity, opsForEntity, PERIOD_SIZES, DIMENSIONS } from '$conf/crosstab';
 	import config from '../../../config';
 	import queryString from 'query-string';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let entityType;
 
@@ -258,7 +259,7 @@
 				<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
 				Calculando…
 			{:else}
-				<i class="bi bi-play-fill me-1" aria-hidden="true"></i>Aplicar
+				<i class="bi bi-play-fill me-1" aria-hidden="true"></i>{m.apply_button()}
 			{/if}
 		</button>
 
@@ -401,7 +402,7 @@
 		<!-- Empty state -->
 		<div class="text-center text-muted py-5">
 			<i class="bi bi-layout-three-columns fs-2 d-block mb-2" aria-hidden="true"></i>
-			Selecciona las dimensiones y pulsa <strong>Aplicar</strong> para generar la tabla cruzada.
+			Selecciona las dimensiones y pulsa <strong>{m.apply_button()}</strong> para generar la tabla cruzada.
 		</div>
 	{/if}
 </div>

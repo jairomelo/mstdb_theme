@@ -4,6 +4,7 @@
 	import cytoscape from 'cytoscape';
 	import fcose from 'cytoscape-fcose';
 	import { peresclavizadas, pernoesclavizadas } from '$lib/api';
+	import { m } from '$lib/paraglide/messages.js';
 
 	cytoscape.use(fcose);
 
@@ -353,7 +354,7 @@
 						aria-label="Alternar filtros"
 					>
 						<i class="bi bi-funnel{isFiltered ? '-fill text-primary' : ''}" aria-hidden="true"></i>
-						<span>Filtros</span>
+						<span>{m.filters_title()}</span>
 						{#if isFiltered}
 							<span class="badge rounded-pill bg-primary" style="font-size: 0.6rem;">•</span>
 						{/if}
@@ -379,7 +380,7 @@
 				<div class="network-filter-section">
 					<!-- Relation Pills & Orphans Switch -->
 					<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-						<div class="network-relation-pills" role="group" aria-label="Filtros de relaciones">
+						<div class="network-relation-pills" role="group" aria-label="{m.filters_title()} de relaciones">
 							<span class="small fw-semibold text-muted me-1">Relaciones:</span>
 
 							<label

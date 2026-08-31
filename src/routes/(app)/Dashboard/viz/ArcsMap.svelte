@@ -3,6 +3,7 @@
 	import { browser } from '$app/environment';
 	import * as d3 from 'd3';
 	import { aggregatedTrajectories } from '$lib/api';
+	import { m } from '$lib/paraglide/messages.js';
 	import RouteDetailPanel from '../../Search/RouteDetailPanel.svelte';
 	import config from '../../../../config';
 
@@ -755,7 +756,7 @@
 							bind:value={endYear}
 						/>
 						<button class="btn btn-outline-secondary" type="button" on:click={loadData}
-							>Aplicar</button
+							>{m.apply_button()}</button
 						>
 					</div>
 				</div>
