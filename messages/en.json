@@ -46,5 +46,7 @@
   "keen_polite_bobcat_snip": "Enter",
   "civil_mean_elk_push": "Go to the Content",
   "sharp_full_wren_dare": "Sister Projects",
-  "records_count": "{count} records"
+  "records_count": "{count} records",
+  "user_menu": "User menu",
+  "user_menu_named": "User menu: {username}"
 }
