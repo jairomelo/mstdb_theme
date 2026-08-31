@@ -1,5 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
+	import { m } from '$lib/paraglide/messages.js';
 	import {
 		unifiedStore,
 		fetchResults,
@@ -162,7 +163,7 @@
 </script>
 
 <svelte:head>
-	<title>Buscar / Explorar — Trayectorias Afro</title>
+	<title>{m.mean_light_flamingo_mix()}</title>
 </svelte:head>
 
 <!-- Search hero banner -->
@@ -174,30 +175,30 @@
 				<input
 					bind:value={query}
 					class="form-control form-control-lg"
-					placeholder="Buscar en la base de datos..."
-					aria-label="Buscar"
+					placeholder={m.upper_noble_crocodile_kiss()}
+					aria-label={m.happy_blue_wombat_aid()}
 				/>
 				{#if query}
 					<button
 						type="button"
 						class="btn btn-outline-light"
-						aria-label="Limpiar búsqueda"
+						aria-label={m.helpful_due_beetle_flip()}
 						on:click={handleClearSearch}
-						title="Limpiar búsqueda"
+						title={m.helpful_due_beetle_flip()}
 					>
 						<i class="bi bi-x-lg" aria-hidden="true"></i>
 					</button>
 				{/if}
-				<button type="submit" class="btn btn-primary btn-lg" aria-label="Buscar">
+				<button type="submit" class="btn btn-primary btn-lg" aria-label={m.happy_blue_wombat_aid()}>
 					<i class="bi bi-search" aria-hidden="true"></i>
 				</button>
 			</div>
 			<div class="d-flex justify-content-between align-items-center">
 				<small class="text-white-50">
 					{#if !isSearch}
-						<i class="bi bi-grid-3x3-gap me-1"></i>Explorando la base de datos
+						<i class="bi bi-grid-3x3-gap me-1"></i>{m.few_sunny_goldfish_trim()}
 					{:else}
-						<i class="bi bi-search me-1"></i>Resultados para <em>{$unifiedStore.query}</em>
+						<i class="bi bi-search me-1"></i>{m.green_patient_racoon_vent()} <em>{$unifiedStore.query}</em>
 					{/if}
 				</small>
 				<div class="form-check">
@@ -208,12 +209,12 @@
 						id="exactSearchCheck"
 					/>
 					<label class="form-check-label text-white-50" for="exactSearchCheck">
-						Búsqueda exacta
+						{m.simple_muddy_scallop_coax()}
 						<i
 							class="bi bi-info-circle ms-1"
 							data-bs-toggle="tooltip"
 							data-bs-placement="right"
-							title="Busca la frase exacta (equivalente a usar comillas)"
+							title={m.proof_round_newt_build()}
 						></i>
 					</label>
 				</div>
@@ -263,7 +264,7 @@
 			<div
 				class="view-mode-switcher d-flex justify-content-center py-2 border-start border-end border-bottom bg-white mb-0"
 				role="group"
-				aria-label="Modo de vista"
+				aria-label={m.awful_suave_porpoise_fall()}
 			>
 				<div class="btn-group">
 					<button
@@ -273,7 +274,7 @@
 						on:click={() => setViewMode('table')}
 						aria-pressed={viewMode === 'table'}
 					>
-						<i class="bi bi-table me-1" aria-hidden="true"></i>Lista
+						<i class="bi bi-table me-1" aria-hidden="true"></i>{m.aloof_tense_pelican_file()}
 					</button>
 					<button
 						class="btn btn-sm"
@@ -282,7 +283,7 @@
 						on:click={() => setViewMode('card')}
 						aria-pressed={viewMode === 'card'}
 					>
-						<i class="bi bi-grid-3x3-gap me-1" aria-hidden="true"></i>Tarjetas
+						<i class="bi bi-grid-3x3-gap me-1" aria-hidden="true"></i>{m.stout_less_gecko_praise()}
 					</button>
 					{#if activeTab === 'personaesclavizada'}
 						<button
@@ -292,7 +293,7 @@
 							on:click={() => setViewMode('map')}
 							aria-pressed={viewMode === 'map'}
 						>
-							<i class="bi bi-globe-americas me-1" aria-hidden="true"></i>Mapa
+							<i class="bi bi-globe-americas me-1" aria-hidden="true"></i>{m.active_cozy_termite_learn()}
 						</button>
 					{/if}
 					{#if activeTab === 'personaesclavizada' || activeTab === 'personanoesclavizada'}
@@ -303,7 +304,7 @@
 							on:click={() => setViewMode('crosstab')}
 							aria-pressed={viewMode === 'crosstab'}
 						>
-							<i class="bi bi-layout-three-columns me-1" aria-hidden="true"></i>Tabla
+							<i class="bi bi-layout-three-columns me-1" aria-hidden="true"></i>{m.brave_lower_tiger_jest()}
 						</button>
 						<button
 							class="btn btn-sm"
@@ -315,7 +316,7 @@
 							}}
 							aria-pressed={viewMode === 'network'}
 						>
-							<i class="bi bi-diagram-3 me-1" aria-hidden="true"></i>Red
+							<i class="bi bi-diagram-3 me-1" aria-hidden="true"></i>{m.big_salty_turkey_propel()}
 						</button>
 					{/if}
 				</div>
@@ -327,7 +328,7 @@
 			>
 				<!-- Page size -->
 				<div class="d-flex align-items-center gap-1">
-					<label for="pageSize" class="form-label mb-0 small text-muted">Mostrar</label>
+					<label for="pageSize" class="form-label mb-0 small text-muted">{m.gray_green_penguin_pause()}</label>
 					<select
 						id="pageSize"
 						class="form-select form-select-sm"
@@ -347,7 +348,7 @@
 						class="btn btn-sm btn-outline-secondary"
 						on:click={() => (showColumnConfig = true)}
 					>
-						<i class="bi bi-columns me-1"></i>Configurar Columnas
+						<i class="bi bi-columns me-1"></i>{m.fresh_super_osprey_shine()}
 					</button>
 				{/if}
 
@@ -370,7 +371,7 @@
 			{#if tabState?.isLoading}
 				<div class="text-center py-4">
 					<div class="spinner-border text-primary" role="status">
-						<span class="visually-hidden">Cargando...</span>
+						<span class="visually-hidden">{m.loading()}</span>
 					</div>
 				</div>
 			{:else if viewMode === 'crosstab' && isPeopleTab}
@@ -400,12 +401,12 @@
 				<!-- Pagination -->
 				<nav
 					class="d-flex justify-content-center align-items-center gap-2 my-3"
-					aria-label="Paginación"
+					aria-label={m.pagination()}
 				>
 					<button
 						class="btn btn-sm btn-outline-secondary"
-						aria-label="Primera página"
-						title="Primera página"
+						aria-label={m.first_page()}
+						title={m.first_page()}
 						disabled={tabState.currentPage <= 1}
 						on:click={goFirst}
 					>
@@ -413,8 +414,8 @@
 					</button>
 					<button
 						class="btn btn-sm btn-outline-secondary"
-						aria-label="Página anterior"
-						title="Página anterior"
+						aria-label={m.previously()}
+						title={m.previously()}
 						disabled={tabState.currentPage <= 1}
 						on:click={goPrev}
 					>
@@ -422,13 +423,13 @@
 					</button>
 
 					<span class="small text-muted">
-						Página {tabState.currentPage} de {totalPages}
+						{m.from_to()}
 					</span>
 
 					<button
 						class="btn btn-sm btn-outline-secondary"
-						aria-label="Página siguiente"
-						title="Página siguiente"
+						aria-label={m.next_page()}
+						title={m.next_page()}
 						disabled={tabState.currentPage >= totalPages}
 						on:click={goNext}
 					>
@@ -436,8 +437,8 @@
 					</button>
 					<button
 						class="btn btn-sm btn-outline-secondary"
-						aria-label="Última página"
-						title="Última página"
+						aria-label={m.last_page()}
+						title={m.last_page()}
 						disabled={tabState.currentPage >= totalPages}
 						on:click={goLast}
 					>
@@ -455,7 +456,7 @@
 						/>
 						<button
 							class="btn btn-outline-secondary"
-							aria-label="Ir a la página"
+							aria-label={m.gotopage()}
 							on:click={goToPage}
 						>
 							<i class="bi bi-arrow-right" aria-hidden="true"></i>
@@ -466,10 +467,9 @@
 				<div class="alert alert-info mt-3">
 					<i class="bi bi-info-circle me-2"></i>
 					{#if isSearch}
-						No se encontraron resultados para <em>{$unifiedStore.query}</em>. Intente con otros
-						términos o ajuste los filtros.
+						{m.nice_flaky_trout_compose()} <em>{$unifiedStore.query}</em>. {m.topical_away_bumblebee_strive()}
 					{:else}
-						No se encontraron resultados. Intente ajustar los filtros.
+						{m.alert_careful_sloth_arise()}
 					{/if}
 				</div>
 			{/if}
