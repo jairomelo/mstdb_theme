@@ -1,15 +1,16 @@
 /*
 How to use
-# To run with the default qwen2.5:3b model
+# To run with the default qwen2.5:3b model in small batches
 npm run translate
- 
-# To run with Llama 3.2 (3B) instead
+
+# To run with Llama 3.2 (3B) with a specific batch size (e.g. 2 or 3 keys at a time)
 export OLLAMA_MODEL="llama3.2:latest"
+export BATCH_SIZE=3
 npm run translate
- 
-# To run with Llama 3 (8B) for deeper translation checks
- export OLLAMA_MODEL="llama3:8b"
- npm run translate
+
+# To run with Llama 3 (8B)
+export OLLAMA_MODEL="llama3:8b"
+npm run translate
 */
 
 import fs from 'node:fs/promises';
@@ -21,6 +22,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MESSAGES_DIR = path.resolve(__dirname, '../messages');
 const ES_PATH = path.join(MESSAGES_DIR, 'es.json');
 const EN_PATH = path.join(MESSAGES_DIR, 'en.json');
+
+function chunkObject(obj, size) {
+	const entries = Object.entries(obj);
+	const chunks = [];
+	for (let i = 0; i < entries.length; i += size) {
+		const chunk = Object.fromEntries(entries.slice(i, i + size));
+		chunks.push(chunk);
+	}
+	return chunks;
+}
 
 async function main() {
 	const apiKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
@@ -59,37 +70,77 @@ async function main() {
 		return;
 	}
 
+	// Default batch size is 3 to keep prompt and generation memory minimal for small local models
+	const batchSize = Math.max(1, parseInt(process.env.BATCH_SIZE || '3', 10));
+	const chunks = chunkObject(keysToTranslate, batchSize);
+
+	const modelName = useOllama
+		? process.env.OLLAMA_MODEL || 'qwen2.5:3b'
+		: process.env.OPENAI_API_KEY
+			? process.env.TRANSLATION_MODEL || 'gpt-4o-mini'
+			: process.env.TRANSLATION_MODEL || 'gemini-1.5-flash';
+
 	console.log(`\n🔍 Found ${missingCount} keys that need translation to English.`);
+	console.log(`🤖 Using model: ${modelName}`);
+	console.log(`📦 Processing in ${chunks.length} batch(es) of up to ${batchSize} key(s) each...\n`);
 
-	// 3. Perform API request
-	let translatedData = {};
-	if (useOllama) {
-		const model = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
-		console.log(`🤖 Sending translation request to local Ollama model (${model})...`);
-		translatedData = await translateWithOllama(keysToTranslate);
-	} else if (process.env.OPENAI_API_KEY) {
-		console.log('🤖 Sending translation request to OpenAI...');
-		translatedData = await translateWithOpenAI(keysToTranslate);
-	} else if (process.env.GEMINI_API_KEY) {
-		console.log('🤖 Sending translation request to Gemini...');
-		translatedData = await translateWithGemini(keysToTranslate);
+	let translatedCount = 0;
+	let currentEnData = { ...enData };
+
+	for (let i = 0; i < chunks.length; i++) {
+		const chunk = chunks[i];
+		const chunkKeys = Object.keys(chunk);
+		process.stdout.write(
+			`⏳ [Batch ${i + 1}/${chunks.length}] Translating ${chunkKeys.length} key(s)... `
+		);
+
+		let translatedChunk = {};
+		try {
+			if (useOllama) {
+				translatedChunk = await translateWithOllama(chunk);
+			} else if (process.env.OPENAI_API_KEY) {
+				translatedChunk = await translateWithOpenAI(chunk);
+			} else if (process.env.GEMINI_API_KEY) {
+				translatedChunk = await translateWithGemini(chunk);
+			}
+		} catch (batchError) {
+			console.log(`\n⚠️ Batch error: ${batchError.message}. Retrying key-by-key...`);
+			// Fallback: Translate individually for this batch to isolate issues
+			for (const [k, v] of Object.entries(chunk)) {
+				try {
+					const singleResult = useOllama
+						? await translateWithOllama({ [k]: v })
+						: process.env.OPENAI_API_KEY
+							? await translateWithOpenAI({ [k]: v })
+							: await translateWithGemini({ [k]: v });
+					translatedChunk[k] = singleResult[k] || v;
+				} catch (singleErr) {
+					console.error(`❌ Could not translate key "${k}": ${singleErr.message}`);
+					translatedChunk[k] = v; // Keep original as fallback
+				}
+			}
+		}
+
+		// Merge this batch immediately
+		for (const [key, value] of Object.entries(chunk)) {
+			currentEnData[key] = translatedChunk[key] || value;
+		}
+
+		translatedCount += chunkKeys.length;
+
+		// Incrementally save progress to disk so no work is lost if interrupted
+		const orderedEnData = {};
+		for (const key of Object.keys(esData)) {
+			if (currentEnData[key] !== undefined) {
+				orderedEnData[key] = currentEnData[key];
+			}
+		}
+
+		await fs.writeFile(EN_PATH, JSON.stringify(orderedEnData, null, 2), 'utf-8');
+		console.log(`✅ Saved! (${translatedCount}/${missingCount} keys done)`);
 	}
 
-	// 4. Merge and write
-	const mergedEnData = { ...enData };
-	for (const [key, value] of Object.entries(esData)) {
-		// Keep existing translations, add new ones, fallback to Spanish if translation failed
-		mergedEnData[key] = enData[key] || translatedData[key] || value;
-	}
-
-	// Format keys in same order as es.json
-	const orderedEnData = {};
-	for (const key of Object.keys(esData)) {
-		orderedEnData[key] = mergedEnData[key];
-	}
-
-	await fs.writeFile(EN_PATH, JSON.stringify(orderedEnData, null, 2), 'utf-8');
-	console.log('🎉 Translation complete! messages/en.json has been updated.');
+	console.log('\n🎉 Translation complete! messages/en.json is fully updated and synced.');
 }
 
 async function translateWithOpenAI(keys) {
