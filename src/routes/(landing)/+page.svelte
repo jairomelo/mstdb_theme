@@ -118,7 +118,7 @@
 			>
 				<!-- Search bar -->
 				<div class="input-group mb-2">
-					<label for="hero-search" class="visually-hidden">{m.quaint_brief_pony_pat()}</label>
+					<label for="hero-search" class="visually-hidden">{m.upper_noble_crocodile_kiss()}</label>
 					<input
 						id="hero-search"
 						type="text"
