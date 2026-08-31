@@ -21,7 +21,7 @@
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/adapter-node": "^5.2.2",
 		"@sveltejs/adapter-static": "^3.0.4",
-		"@sveltejs/kit": "^2.7.1",
+		"@sveltejs/kit": "^2.70.3",
 		"@sveltejs/vite-plugin-svelte": "^4.0.4",
 		"@types/animejs": "^3.1.12",
 		"prettier": "^3.1.1",
