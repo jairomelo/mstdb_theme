@@ -124,10 +124,14 @@
 						type="text"
 						bind:value={query}
 						class="form-control form-control-lg"
-						placeholder="{m.bald_zippy_warthog_nourish()}"
-						aria-label="{m.upper_noble_crocodile_kiss()}"
+						placeholder={m.bald_zippy_warthog_nourish()}
+						aria-label={m.upper_noble_crocodile_kiss()}
 					/>
-					<button type="submit" class="btn btn-lg btn-primary search-btn" aria-label="{m.happy_blue_wombat_aid()}">
+					<button
+						type="submit"
+						class="btn btn-lg btn-primary search-btn"
+						aria-label={m.happy_blue_wombat_aid()}
+					>
 						<i class="bi bi-search" aria-hidden="true"></i>
 					</button>
 				</div>
@@ -157,7 +161,9 @@
 						{#if counts[item.tab] != null}
 							<span
 								class="hero-explore-count"
-								aria-label={m.records_count({ count: counts[item.tab].toLocaleString(getLocale()) })}
+								aria-label={m.records_count({
+									count: counts[item.tab].toLocaleString(getLocale())
+								})}
 							>
 								{counts[item.tab].toLocaleString(getLocale())}
 							</span>
@@ -193,7 +199,7 @@
 		>
 			<div class="col-md-12">
 				<div class="icon-wrapper">
-					<img src="/icons/i_peresc.webp" alt={m.mild_quick_parakeet_dart()} />
+					<img src="/icons/i_peresc.webp" alt={m.mild_quick_parakeet_dart()} class="section-icon" />
 				</div>
 				<h2 class="section-title">{m.low_flaky_myna_love()}</h2>
 				<div class="about-content">
@@ -272,7 +278,9 @@
 					<div class="showcase-card-overlay">
 						<span class="showcase-card-badge">{m.lost_giant_worm_attend()}</span>
 						<h3 class="showcase-card-title">{m.simple_this_giraffe_endure()}</h3>
-						<span class="showcase-card-cta">{m.moving_top_deer_pick()} <i class="bi bi-arrow-right"></i></span>
+						<span class="showcase-card-cta"
+							>{m.moving_top_deer_pick()} <i class="bi bi-arrow-right"></i></span
+						>
 					</div>
 				</a>
 			</div>
