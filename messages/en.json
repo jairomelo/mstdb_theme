@@ -1,3 +1,5 @@
 {
-	"test_message": "Hello world"
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"test_message": "Hello world",
+	"records_count": "{count} records"
 }
