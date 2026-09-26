@@ -3,6 +3,7 @@ import { searchAll, searchNetwork, fetchCounts, exportCsv, fetchWithBaseUrl } fr
 import { defaultVisibleColumns } from '$conf/columns';
 import { DEFAULT_CROSSTAB_CONFIG } from '$conf/crosstab';
 import log from '$lib/logger';
+import { buildSearchUrl } from '$lib/searchUrl';
 import queryString from 'query-string';
 
 // ── Abort controllers for in-flight requests ─────────────────────────
@@ -40,24 +41,16 @@ function updateUrlWithFilters() {
 
 	const state = get(unifiedStore);
 	const currentTab = state.activeTab;
-	const filters = state.tabs[currentTab]?.filters || {};
 
-	const params = new URLSearchParams();
-
-	// Add tab if it's not the default
-	if (currentTab) {
-		params.set('tab', currentTab);
-	}
-
-	// Add all active filters
-	for (const [key, value] of Object.entries(filters)) {
-		if (value !== null && value !== undefined && value !== '') {
-			params.set(key, value);
-		}
-	}
-
-	const newUrl = `/Search${params.toString() ? `?${params.toString()}` : ''}`;
-	window.history.replaceState({}, '', newUrl);
+	window.history.replaceState(
+		{},
+		'',
+		buildSearchUrl({
+			tab: currentTab,
+			q: state.query,
+			filters: state.tabs[currentTab]?.filters || {}
+		})
+	);
 }
 
 // ── Per-tab state factory ────────────────────────────────────────────
@@ -450,10 +443,16 @@ export function performSearch(query, exactSearch = false) {
 
 	// Update URL with search query
 	if (typeof window !== 'undefined') {
-		const params = new URLSearchParams();
-		params.set('q', query);
-		const newUrl = `/Search?${params.toString()}`;
-		window.history.replaceState({}, '', newUrl);
+		const state = get(unifiedStore);
+		window.history.replaceState(
+			{},
+			'',
+			buildSearchUrl({
+				tab: state.activeTab,
+				q: query,
+				filters: state.tabs[state.activeTab]?.filters || {}
+			})
+		);
 	}
 
 	const state = get(unifiedStore);
@@ -472,9 +471,17 @@ export function clearSearch() {
 		return { ...s, query: '', exactSearch: false, tabs };
 	});
 
-	// Update URL to clear search
+	// Update URL to clear search (filters stay active)
 	if (typeof window !== 'undefined') {
-		window.history.replaceState({}, '', '/Search');
+		const state = get(unifiedStore);
+		window.history.replaceState(
+			{},
+			'',
+			buildSearchUrl({
+				tab: state.activeTab,
+				filters: state.tabs[state.activeTab]?.filters || {}
+			})
+		);
 	}
 
 	const state = get(unifiedStore);

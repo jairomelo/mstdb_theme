@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { archivos as archivosData, estados, elaboracion } from '$conf/archivos';
 	import { archivos as fetchArchivos } from '$lib/api';
+	import { buildSearchUrl } from '$lib/searchUrl';
 	import { goto } from '$app/navigation';
 
 	/** Map archivo_id → live documento_count from the API */
@@ -34,7 +35,7 @@
 	}));
 
 	function explorar(archivoId) {
-		goto(`/Search/?archivo_id=${archivoId}`);
+		goto(buildSearchUrl({ archivoId }));
 	}
 </script>
 

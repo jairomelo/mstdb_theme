@@ -33,13 +33,7 @@
 	import SearchNetwork from './SearchNetwork.svelte';
 
 	export let data;
-	let {
-		searchQuery,
-		archivoId,
-		tab: initialTab,
-		view: initialView,
-		filters: initialFilters = {}
-	} = data;
+	let { searchQuery, tab: initialTab, view: initialView, filters: initialFilters = {} } = data;
 
 	let query = searchQuery || '';
 	let exactSearch = searchQuery?.startsWith('"') && searchQuery?.endsWith('"');
@@ -84,13 +78,15 @@
 
 		await loadCounts();
 
-		// Apply URL-based filters before fetching
+		// Apply URL-based filters and query before fetching
 		const targetTab = initialTab || $unifiedStore.activeTab;
-		if (Object.keys(initialFilters).length > 0) {
+		const hasFilters = Object.keys(initialFilters).length > 0;
+		if (hasFilters) {
 			setFilters(targetTab, initialFilters);
-		} else if (query) {
+		}
+		if (query) {
 			performSearch(query, exactSearch);
-		} else {
+		} else if (!hasFilters) {
 			fetchResults(targetTab);
 		}
 	});
@@ -198,7 +194,8 @@
 					{#if !isSearch}
 						<i class="bi bi-grid-3x3-gap me-1"></i>{m.few_sunny_goldfish_trim()}
 					{:else}
-						<i class="bi bi-search me-1"></i>{m.green_patient_racoon_vent()} <em>{$unifiedStore.query}</em>
+						<i class="bi bi-search me-1"></i>{m.green_patient_racoon_vent()}
+						<em>{$unifiedStore.query}</em>
 					{/if}
 				</small>
 				<div class="form-check">
@@ -293,7 +290,8 @@
 							on:click={() => setViewMode('map')}
 							aria-pressed={viewMode === 'map'}
 						>
-							<i class="bi bi-globe-americas me-1" aria-hidden="true"></i>{m.active_cozy_termite_learn()}
+							<i class="bi bi-globe-americas me-1" aria-hidden="true"
+							></i>{m.active_cozy_termite_learn()}
 						</button>
 					{/if}
 					{#if activeTab === 'personaesclavizada' || activeTab === 'personanoesclavizada'}
@@ -304,7 +302,8 @@
 							on:click={() => setViewMode('crosstab')}
 							aria-pressed={viewMode === 'crosstab'}
 						>
-							<i class="bi bi-layout-three-columns me-1" aria-hidden="true"></i>{m.brave_lower_tiger_jest()}
+							<i class="bi bi-layout-three-columns me-1" aria-hidden="true"
+							></i>{m.brave_lower_tiger_jest()}
 						</button>
 						<button
 							class="btn btn-sm"
@@ -328,7 +327,9 @@
 			>
 				<!-- Page size -->
 				<div class="d-flex align-items-center gap-1">
-					<label for="pageSize" class="form-label mb-0 small text-muted">{m.gray_green_penguin_pause()}</label>
+					<label for="pageSize" class="form-label mb-0 small text-muted"
+						>{m.gray_green_penguin_pause()}</label
+					>
 					<select
 						id="pageSize"
 						class="form-select form-select-sm"
@@ -423,7 +424,8 @@
 					</button>
 
 					<span class="small text-muted">
-						{m.from_to({ currentPage: tabState.currentPage })} {m.total_pages( {totalPages: totalPages} )}
+						{m.from_to({ currentPage: tabState.currentPage })}
+						{m.total_pages({ totalPages: totalPages })}
 					</span>
 
 					<button
@@ -454,11 +456,7 @@
 							max={totalPages}
 							placeholder="Ir a..."
 						/>
-						<button
-							class="btn btn-outline-secondary"
-							aria-label={m.gotopage()}
-							on:click={goToPage}
-						>
+						<button class="btn btn-outline-secondary" aria-label={m.gotopage()} on:click={goToPage}>
 							<i class="bi bi-arrow-right" aria-hidden="true"></i>
 						</button>
 					</div>

@@ -1,7 +1,10 @@
 <script>
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
 	import { placePeopleDistribution } from '$lib/api';
+	import { buildSearchUrl } from '$lib/searchUrl';
+	import { m } from '$lib/paraglide/messages.js';
 	import * as d3 from 'd3';
 
 	let plotContainer;
@@ -23,6 +26,7 @@
 
 	let sortConfig = { field: 'total', direction: 'desc' };
 	let tooltip; // Reusable tooltip
+	let drilldownStatus = '';
 
 	const processPlaceSummary = (data) => {
 		const grouped = d3.group(data, (d) => d.lugar);
@@ -119,14 +123,18 @@
 		updateFilteredData();
 	};
 
-	const navigateToSearch = (lugar, lugar_id, year) => {
-		const searchParams = new URLSearchParams({
-			tab: 'personaesclavizada',
-			procedencia: lugar_id,
-			fecha_documento__gte: year,
-			fecha_documento__lte: year + 1
-		});
-		window.location.href = `/Search?${searchParams.toString()}`;
+	const navigateToSearch = (lugar, lugar_id, year, count) => {
+		drilldownStatus = m.drilldown_navigation_status({ count, lugar, year });
+		goto(
+			buildSearchUrl({
+				tab: 'personaesclavizada',
+				filters: {
+					lugar_any: String(lugar_id),
+					fecha_documento__gte: String(year),
+					fecha_documento__lte: String(year)
+				}
+			})
+		);
 	};
 
 	const renderVisualization = () => {
@@ -241,12 +249,12 @@
 				tooltip.style('display', 'none');
 			})
 			.on('click', (event, d) => {
-				navigateToSearch(d.lugar, d.lugar_id, d.year);
+				navigateToSearch(d.lugar, d.lugar_id, d.year, d.count);
 			})
 			.on('keydown', (event, d) => {
 				if (event.key === 'Enter' || event.key === ' ') {
 					event.preventDefault();
-					navigateToSearch(d.lugar, d.lugar_id, d.year);
+					navigateToSearch(d.lugar, d.lugar_id, d.year, d.count);
 				}
 			});
 	};
@@ -413,6 +421,10 @@
 	</div>
 
 	<div class="viz-wrapper">
+		<div class="visually-hidden" role="status" aria-live="polite">{drilldownStatus}</div>
+		<p class="text-muted small px-3 pt-3 mb-0">
+			<i class="bi bi-info-circle me-1" aria-hidden="true"></i>{m.place_people_count_note()}
+		</p>
 		<div
 			class="plot-container"
 			bind:this={plotContainer}
