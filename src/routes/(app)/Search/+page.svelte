@@ -3,7 +3,6 @@
 	import { m } from '$lib/paraglide/messages.js';
 	import {
 		unifiedStore,
-		fetchResults,
 		setActiveTab,
 		setViewMode,
 		setPageSize,
@@ -14,11 +13,9 @@
 		PAGE_SIZES,
 		ENTITY_TYPES,
 		abortAll,
-		fetchCrosstab,
-		setCrosstabConfig,
 		fetchSearchNetwork,
 		setNetworkScope,
-		setFilters
+		applyUrlState
 	} from '$lib/unified-store';
 	import { exportCsv } from '$lib/api';
 	import { entityTabConfig } from '$conf/columns';
@@ -33,13 +30,48 @@
 	import SearchNetwork from './SearchNetwork.svelte';
 
 	export let data;
-	let { searchQuery, tab: initialTab, view: initialView, filters: initialFilters = {} } = data;
 
-	let query = searchQuery || '';
-	let exactSearch = searchQuery?.startsWith('"') && searchQuery?.endsWith('"');
+	let query = data.searchQuery || '';
+	let exactSearch = data.searchQuery?.startsWith('"') && data.searchQuery?.endsWith('"');
 	let showColumnConfig = false;
 	let desiredPage = '';
 	let heroSectionElement;
+	let heroSearchInput;
+
+	// URL is the source of truth: +page.js load re-runs on mount, on goto
+	// navigations and on Back/Forward, so this reactive statement restores
+	// tab/query/filters/page/view from the parsed URL. It is idempotent
+	// (applyUrlState no-ops when the store already matches) and never
+	// rewrites the URL, which avoids restore loops.
+	$: applyNavData(data);
+
+	function applyNavData(d) {
+		applyUrlState({
+			tab: d.tab,
+			view: d.view || 'table',
+			q: d.searchQuery,
+			exactSearch: d.searchQuery?.startsWith('"') && d.searchQuery?.endsWith('"'),
+			page: d.page,
+			pageSize: d.pageSize,
+			ordering: d.ordering,
+			filters: d.filters
+		});
+	}
+
+	// Keep the hero input in sync with restored search state, but never
+	// clobber text the user is currently typing.
+	let syncedQuery = data.searchQuery || '';
+	let syncedExact = exactSearch;
+	$: syncQueryInputs($unifiedStore.query, $unifiedStore.exactSearch);
+
+	function syncQueryInputs(q, exact) {
+		if (q === syncedQuery && exact === syncedExact) return;
+		syncedQuery = q;
+		syncedExact = exact;
+		if (heroSearchInput && document.activeElement === heroSearchInput) return;
+		query = q || '';
+		exactSearch = exact;
+	}
 
 	$: activeTab = $unifiedStore.activeTab;
 	$: viewMode = $unifiedStore.viewMode;
@@ -69,26 +101,7 @@
 
 	onMount(async () => {
 		setRandomHeroImage(heroSectionElement);
-		if (initialView === 'card' || initialView === 'table') {
-			setViewMode(initialView);
-		}
-		if (initialTab && ENTITY_TYPES.includes(initialTab)) {
-			setActiveTab(initialTab);
-		}
-
 		await loadCounts();
-
-		// Apply URL-based filters and query before fetching
-		const targetTab = initialTab || $unifiedStore.activeTab;
-		const hasFilters = Object.keys(initialFilters).length > 0;
-		if (hasFilters) {
-			setFilters(targetTab, initialFilters);
-		}
-		if (query) {
-			performSearch(query, exactSearch);
-		} else if (!hasFilters) {
-			fetchResults(targetTab);
-		}
 	});
 
 	function handleSearch() {
@@ -170,6 +183,7 @@
 			<div class="input-group mb-2">
 				<input
 					bind:value={query}
+					bind:this={heroSearchInput}
 					class="form-control form-control-lg"
 					placeholder={m.upper_noble_crocodile_kiss()}
 					aria-label={m.happy_blue_wombat_aid()}

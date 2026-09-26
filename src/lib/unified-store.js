@@ -1,4 +1,5 @@
 import { writable, get } from 'svelte/store';
+import { goto } from '$app/navigation';
 import { searchAll, searchNetwork, fetchCounts, exportCsv, fetchWithBaseUrl } from '$lib/api';
 import { defaultVisibleColumns } from '$conf/columns';
 import { DEFAULT_CROSSTAB_CONFIG } from '$conf/crosstab';
@@ -33,24 +34,131 @@ function isPeopleType(entityType) {
 }
 
 /**
- * Update browser URL with current filter state
- * Uses replaceState to avoid creating new history entries
+ * Sync the browser URL with the current search state via a SvelteKit
+ * navigation. Push for discrete user actions (new search, tab/page change)
+ * so Back restores them; replace for keystrokes and intermediate filters.
+ * goto() keeps SvelteKit's history state intact, which raw
+ * history.replaceState would wipe and break SPA Back/Forward.
  */
-function updateUrlWithFilters() {
+function updateUrl({ push = false } = {}) {
 	if (typeof window === 'undefined') return; // SSR guard
 
 	const state = get(unifiedStore);
 	const currentTab = state.activeTab;
+	const tab = state.tabs[currentTab] || {};
 
-	window.history.replaceState(
-		{},
-		'',
+	goto(
 		buildSearchUrl({
 			tab: currentTab,
+			view: state.viewMode,
 			q: state.query,
-			filters: state.tabs[currentTab]?.filters || {}
-		})
+			exactSearch: state.exactSearch,
+			page: tab.currentPage,
+			pageSize: tab.pageSize,
+			ordering: tab.sortField
+				? tab.sortDir === 'desc'
+					? `-${tab.sortField}`
+					: tab.sortField
+				: '',
+			filters: tab.filters || {}
+		}),
+		{ keepFocus: true, noScroll: true, replaceState: !push }
 	);
+}
+
+function filtersMatch(a, b) {
+	const ka = Object.keys(a);
+	const kb = Object.keys(b);
+	if (ka.length !== kb.length) return false;
+	return ka.every((k) => a[k] === b[k]);
+}
+
+function isViewValidForTab(view, entityType) {
+	if (view === 'table' || view === 'card') return true;
+	if (view === 'map') return entityType === 'personaesclavizada';
+	if (view === 'crosstab' || view === 'network') return isPeopleType(entityType);
+	return false;
+}
+
+/**
+ * Restore search state from the parsed URL (+page.js load data). Called on
+ * mount and on every load re-run (Back/Forward, goto navigations), so it
+ * must be idempotent: it patches only what differs and never writes the URL.
+ */
+export function applyUrlState({
+	tab,
+	view = 'table',
+	q,
+	exactSearch = false,
+	page,
+	pageSize,
+	ordering,
+	filters = {}
+} = {}) {
+	const current = get(unifiedStore);
+	const targetTab = tab && ENTITY_TYPES.includes(tab) ? tab : current.activeTab;
+	const tabState = current.tabs[targetTab];
+
+	const nextFilters = { ...filters };
+	const filtersChanged = !filtersMatch(nextFilters, tabState.filters);
+	const queryChanged = (q || '') !== current.query || exactSearch !== current.exactSearch;
+
+	let sortField = tabState.sortField;
+	let sortDir = tabState.sortDir;
+	if (ordering) {
+		const dir = ordering.startsWith('-') ? 'desc' : 'asc';
+		const field = dir === 'desc' ? ordering.slice(1) : ordering;
+		if (field !== sortField || dir !== sortDir) {
+			sortField = field;
+			sortDir = dir;
+		}
+	} else if (tabState.sortField) {
+		sortField = '';
+		sortDir = 'asc';
+	}
+
+	const nextPage = page && page > 1 ? page : 1;
+	const nextPageSize = pageSize || tabState.pageSize;
+	const viewChanged = view !== current.viewMode && isViewValidForTab(view, targetTab);
+
+	if (
+		targetTab === current.activeTab &&
+		!filtersChanged &&
+		!queryChanged &&
+		nextPage === tabState.currentPage &&
+		nextPageSize === tabState.pageSize &&
+		sortField === tabState.sortField &&
+		sortDir === tabState.sortDir &&
+		!viewChanged
+	) {
+		return false;
+	}
+
+	unifiedStore.update((s) => ({
+		...s,
+		activeTab: targetTab,
+		viewMode: viewChanged ? view : s.viewMode,
+		query: q || '',
+		exactSearch,
+		tabs: {
+			...s.tabs,
+			[targetTab]: {
+				...s.tabs[targetTab],
+				filters: nextFilters,
+				currentPage: nextPage,
+				pageSize: nextPageSize,
+				sortField,
+				sortDir
+			}
+		}
+	}));
+
+	const state = get(unifiedStore);
+	if (state.viewMode === 'network' && isPeopleType(targetTab)) {
+		fetchSearchNetwork(targetTab);
+	}
+	fetchResults(targetTab);
+	return true;
 }
 
 // ── Per-tab state factory ────────────────────────────────────────────
@@ -285,9 +393,9 @@ export async function loadCounts() {
 	}
 }
 
-export function setActiveTab(entityType) {
+export function setActiveTab(entityType, { push = true } = {}) {
 	unifiedStore.update((s) => ({ ...s, activeTab: entityType }));
-	updateUrlWithFilters();
+	updateUrl({ push });
 	const state = get(unifiedStore);
 	// Auto-fetch if tab has no results yet
 	if (state.tabs[entityType].results.length === 0 && !state.tabs[entityType].isLoading) {
@@ -300,6 +408,7 @@ export function setActiveTab(entityType) {
 
 export function setViewMode(mode) {
 	unifiedStore.update((s) => ({ ...s, viewMode: mode }));
+	updateUrl({ push: false });
 	const state = get(unifiedStore);
 	if (mode === 'network' && isPeopleType(state.activeTab)) {
 		fetchSearchNetwork(state.activeTab);
@@ -318,6 +427,7 @@ export function setPageSize(entityType, size) {
 			[entityType]: { ...s.tabs[entityType], pageSize: size, currentPage: 1 }
 		}
 	}));
+	updateUrl({ push: false });
 	fetchResults(entityType);
 }
 
@@ -329,6 +439,7 @@ export function setPage(entityType, page) {
 			[entityType]: { ...s.tabs[entityType], currentPage: page }
 		}
 	}));
+	updateUrl({ push: true });
 	fetchResults(entityType);
 }
 
@@ -346,6 +457,7 @@ export function toggleSort(entityType, field) {
 			[entityType]: { ...s.tabs[entityType], sortField: field, sortDir: newDir, currentPage: 1 }
 		}
 	}));
+	updateUrl({ push: false });
 	fetchResults(entityType);
 }
 
@@ -361,7 +473,7 @@ export function setFilter(entityType, key, value) {
 			}
 		}
 	}));
-	updateUrlWithFilters();
+	updateUrl({ push: false });
 	fetchResults(entityType);
 }
 
@@ -379,7 +491,7 @@ export function setFilters(entityType, entries) {
 			}
 		};
 	});
-	updateUrlWithFilters();
+	updateUrl({ push: false });
 	fetchResults(entityType);
 }
 
@@ -391,7 +503,7 @@ export function clearFilters(entityType) {
 			[entityType]: { ...s.tabs[entityType], filters: {}, currentPage: 1 }
 		}
 	}));
-	updateUrlWithFilters();
+	updateUrl({ push: false });
 	fetchResults(entityType);
 }
 
@@ -441,19 +553,7 @@ export function performSearch(query, exactSearch = false) {
 		return { ...s, query, exactSearch, tabs };
 	});
 
-	// Update URL with search query
-	if (typeof window !== 'undefined') {
-		const state = get(unifiedStore);
-		window.history.replaceState(
-			{},
-			'',
-			buildSearchUrl({
-				tab: state.activeTab,
-				q: query,
-				filters: state.tabs[state.activeTab]?.filters || {}
-			})
-		);
-	}
+	updateUrl({ push: true });
 
 	const state = get(unifiedStore);
 	fetchResults(state.activeTab);
@@ -471,18 +571,7 @@ export function clearSearch() {
 		return { ...s, query: '', exactSearch: false, tabs };
 	});
 
-	// Update URL to clear search (filters stay active)
-	if (typeof window !== 'undefined') {
-		const state = get(unifiedStore);
-		window.history.replaceState(
-			{},
-			'',
-			buildSearchUrl({
-				tab: state.activeTab,
-				filters: state.tabs[state.activeTab]?.filters || {}
-			})
-		);
-	}
+	updateUrl({ push: true });
 
 	const state = get(unifiedStore);
 	fetchResults(state.activeTab);

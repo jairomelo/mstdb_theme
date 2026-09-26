@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { currentSuffix, currentColor, updateSuffix, titleStem } from '$lib/maintitle';
 	import { unifiedStore, loadCounts } from '$lib/unified-store';
 	import { animateSuffix } from '$lib/textanimation';
@@ -38,7 +39,7 @@
 		if (query) {
 			const filterParam = currentFilter !== '' ? `&filter=${currentFilter}` : '';
 			const searchQuery = exactSearch ? `"${query}"` : query;
-			window.location.href = `/Search/?q=${encodeURIComponent(searchQuery)}${filterParam}`;
+			goto(`/Search/?q=${encodeURIComponent(searchQuery)}${filterParam}`);
 		}
 	}
 
