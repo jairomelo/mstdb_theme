@@ -74,7 +74,6 @@
 										href="{getDetailUrl(row)}#relations-network"
 										class="text-decoration-none"
 										title="Ver red de relaciones"
-										on:click|stopPropagation
 									>
 										<i class="bi bi-diagram-3 text-primary"></i>
 									</a>
@@ -87,7 +86,6 @@
 										href="{getDetailUrl(row)}#places-map"
 										class="text-decoration-none"
 										title="Ver trayectoria"
-										on:click|stopPropagation
 									>
 										<i class="bi bi-geo-alt text-success"></i>
 									</a>
@@ -102,7 +100,6 @@
 												href="/Detail/documento/{doc.documento_id}"
 												class="text-decoration-none"
 												title={doc.titulo || doc.documento_idno}
-												on:click|stopPropagation
 											>
 												<i class="bi bi-file-earmark-text"></i>
 											</a>

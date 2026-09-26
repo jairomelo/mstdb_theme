@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
+	import { page, navigating } from '$app/stores';
 	import '@fontsource/aleo';
 	import '@fontsource/eb-garamond';
 	import { dropdown, collapse } from '$lib/bootstrap-actions.js';
@@ -43,6 +43,11 @@
 	}
 
 	let welcomeTimeout;
+
+	// Landing vs app chrome: resolve from the in-flight navigation target so the
+	// branch flips at navigation start. Keying on $page.url alone flips after
+	// the new page has mounted, which destroyed and remounted it mid-fetch.
+	$: isLanding = ($navigating?.to?.url.pathname ?? $page.url.pathname) === '/';
 
 	function dismissWelcome() {
 		welcome = null;
@@ -89,7 +94,7 @@
 		></button>
 	</div>
 {/if}
-{#if $page.url.pathname === '/'}
+{#if isLanding}
 	<slot />
 {:else}
 	<a class="skip-link" href="#main-content">{m.born_frail_jaguar_amuse()}</a>
@@ -257,7 +262,11 @@
 						<a href="https://neogranadina.org/" target="_blank" rel="noopener"
 							>{m.weird_nimble_hedgehog_grow()}</a
 						>{m.low_patient_baboon_enrich()}
-						<a href="https://www.history.ucsb.edu/faculty/juan-cobo/" target="_blank" rel="noopener">
+						<a
+							href="https://www.history.ucsb.edu/faculty/juan-cobo/"
+							target="_blank"
+							rel="noopener"
+						>
 							{m.bland_misty_lobster_spur()}
 						</a>.
 					</p>

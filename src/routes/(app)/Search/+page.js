@@ -1,7 +1,9 @@
 export const prerender = false;
 
 // URL params that carry search state, not form filters
-const STATE_PARAMS = ['q', 'archivo_id', 'tab', 'view', 'page', 'page_size', 'ordering'];
+// (`archivo_id` is deliberately absent: it is remapped to the `archivo`
+// filter below rather than skipped)
+const STATE_PARAMS = ['q', 'tab', 'view', 'page', 'page_size', 'ordering'];
 
 export function load({ url }) {
 	const sp = url.searchParams;

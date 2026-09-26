@@ -85,5 +85,6 @@
 	"first_page": "First page",
 	"gray_green_penguin_pause": "Show",
 	"place_people_count_note": "The chart counts distinct people documented at each place per year (trajectory). Opening a year in Search also includes people whose recorded origin (procedencia) is that place, so result counts may be slightly higher.",
-	"drilldown_navigation_status": "{count} people in {lugar} in {year} → view in Search"
+	"drilldown_navigation_status": "{count} people in {lugar} in {year} → view in Search",
+	"back_to_results": "Back to results"
 }

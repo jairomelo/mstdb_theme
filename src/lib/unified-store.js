@@ -47,23 +47,26 @@ function updateUrl({ push = false } = {}) {
 	const currentTab = state.activeTab;
 	const tab = state.tabs[currentTab] || {};
 
-	goto(
-		buildSearchUrl({
-			tab: currentTab,
-			view: state.viewMode,
-			q: state.query,
-			exactSearch: state.exactSearch,
-			page: tab.currentPage,
-			pageSize: tab.pageSize,
-			ordering: tab.sortField
-				? tab.sortDir === 'desc'
-					? `-${tab.sortField}`
-					: tab.sortField
-				: '',
-			filters: tab.filters || {}
-		}),
-		{ keepFocus: true, noScroll: true, replaceState: !push }
-	);
+	const url = buildSearchUrl({
+		tab: currentTab,
+		view: state.viewMode,
+		q: state.query,
+		exactSearch: state.exactSearch,
+		page: tab.currentPage,
+		pageSize: tab.pageSize,
+		ordering: tab.sortField ? (tab.sortDir === 'desc' ? `-${tab.sortField}` : tab.sortField) : '',
+		filters: tab.filters || {}
+	});
+
+	goto(url, { keepFocus: true, noScroll: true, replaceState: !push });
+
+	// Remember the full search state so Detail pages can offer an accurate
+	// "Volver a resultados" link (document.referrer is stale after SPA navs).
+	try {
+		sessionStorage.setItem('ta_last_search_url', url);
+	} catch {
+		// sessionStorage unavailable (privacy mode) — link falls back to /Search/
+	}
 }
 
 function filtersMatch(a, b) {
@@ -131,6 +134,12 @@ export function applyUrlState({
 		sortDir === tabState.sortDir &&
 		!viewChanged
 	) {
+		// URL matches the store, but a remount with no results yet (first load
+		// or after an aborted fetch) still needs its data.
+		const ts = get(unifiedStore).tabs[targetTab];
+		if (ts.results.length === 0 && !ts.isLoading) {
+			fetchResults(targetTab);
+		}
 		return false;
 	}
 
@@ -282,8 +291,22 @@ export async function fetchResults(entityType) {
 			fetchSearchNetwork(entityType);
 		}
 	} catch (err) {
-		// Silently ignore aborted requests
-		if (err.name === 'AbortError') return;
+		// Silently ignore aborted requests, but if this fetch was aborted by a
+		// teardown (no newer fetch replaced it) clear the loading flag so a
+		// remount isn't left with a stuck spinner.
+		if (err.name === 'AbortError') {
+			const controller = abortControllers[`fetch:${entityType}`];
+			if (!controller || controller.signal !== signal) {
+				unifiedStore.update((s) => ({
+					...s,
+					tabs: {
+						...s.tabs,
+						[entityType]: { ...s.tabs[entityType], isLoading: false }
+					}
+				}));
+			}
+			return;
+		}
 
 		log.error(`Error fetching ${entityType}: ${err.message}`);
 		unifiedStore.update((s) => ({
@@ -360,7 +383,22 @@ export async function fetchSearchNetwork(entityType) {
 			}
 		}));
 	} catch (err) {
-		if (err.name === 'AbortError') return;
+		if (err.name === 'AbortError') {
+			const controller = abortControllers[`network:${entityType}`];
+			if (!controller || controller.signal !== signal) {
+				unifiedStore.update((s) => ({
+					...s,
+					tabs: {
+						...s.tabs,
+						[entityType]: {
+							...s.tabs[entityType],
+							network: { ...s.tabs[entityType].network, isLoading: false }
+						}
+					}
+				}));
+			}
+			return;
+		}
 
 		log.error(`Error fetching network for ${entityType}: ${err.message}`);
 		unifiedStore.update((s) => ({

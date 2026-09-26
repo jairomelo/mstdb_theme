@@ -34,5 +34,6 @@ export function buildSearchUrl({
 	if (pageSize && pageSize !== DEFAULT_PAGE_SIZE) params.set('page_size', String(pageSize));
 	if (ordering) params.set('ordering', ordering);
 	const qs = params.toString();
+	// Slash-form matches the app's canonical trailingSlash: 'always'.
 	return `/Search/${qs ? `?${qs}` : ''}`;
 }

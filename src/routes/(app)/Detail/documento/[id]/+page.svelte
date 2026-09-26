@@ -3,6 +3,8 @@
 	import { tooltip } from '$lib/bootstrap-actions.js';
 	import { documentos, documentoPersonas } from '$lib/api';
 	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
+	import BackToResults from '$lib/components/BackToResults.svelte';
+	import { m } from '$lib/paraglide/messages.js';
 	import { generateDocumentTree } from '$lib/documentTree.js';
 	import { formatDate } from '$lib/utils';
 
@@ -93,6 +95,7 @@
 </svelte:head>
 
 <div class="container mt-4">
+	<BackToResults />
 	{#if error}
 		<div class="alert alert-danger" role="alert">
 			<i class="bi bi-exclamation-triangle-fill me-2"></i>Error: {error}
