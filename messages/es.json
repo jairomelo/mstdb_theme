@@ -85,5 +85,7 @@
 	"first_page": "Primera página",
 	"gray_green_penguin_pause": "Mostrar",
 	"filters_title": "Filtros",
-	"apply_button": "Aplicar"
+	"apply_button": "Aplicar",
+	"place_people_count_note": "El gráfico cuenta personas distintas registradas en cada lugar por año (trayectoria). Al abrir un año en Búsqueda también se incluyen personas cuya procedencia registrada es ese lugar, por lo que el número de resultados puede ser ligeramente mayor.",
+	"drilldown_navigation_status": "{count} personas en {lugar} en {year} → ver en Búsqueda"
 }
