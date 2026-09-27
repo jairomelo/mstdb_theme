@@ -86,5 +86,12 @@
 	"gray_green_penguin_pause": "Show",
 	"place_people_count_note": "The chart counts distinct people documented at each place per year (trajectory). Opening a year in Search also includes people whose recorded origin (procedencia) is that place, so result counts may be slightly higher.",
 	"drilldown_navigation_status": "{count} people in {lugar} in {year} → view in Search",
-	"back_to_results": "Back to results"
+	"back_to_results": "Back to results",
+	"archivos_live_note": "Live counts from the database; refreshed on every page load.",
+	"archivos_counts_loading": "Loading document counts…",
+	"archivos_counts_error": "Could not load live counts.",
+	"archivos_retry": "Retry",
+	"archivos_counts_updated": "Updated: {time}",
+	"archivos_docs_count": "{count} catalogued documents",
+	"archivos_pending_count": "Count coming soon — collection being catalogued"
 }

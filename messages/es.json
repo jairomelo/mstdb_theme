@@ -88,5 +88,12 @@
 	"apply_button": "Aplicar",
 	"place_people_count_note": "El gráfico cuenta personas distintas registradas en cada lugar por año (trayectoria). Al abrir un año en Búsqueda también se incluyen personas cuya procedencia registrada es ese lugar, por lo que el número de resultados puede ser ligeramente mayor.",
 	"drilldown_navigation_status": "{count} personas en {lugar} en {year} → ver en Búsqueda",
-	"back_to_results": "Volver a resultados"
+	"back_to_results": "Volver a resultados",
+	"archivos_live_note": "Conteos en vivo desde la base de datos; se actualizan al cargar la página.",
+	"archivos_counts_loading": "Cargando conteos de documentos…",
+	"archivos_counts_error": "No se pudieron cargar los conteos en vivo.",
+	"archivos_retry": "Reintentar",
+	"archivos_counts_updated": "Actualizado: {time}",
+	"archivos_docs_count": "{count} documentos catalogados",
+	"archivos_pending_count": "Conteo próximamente — acervo en catalogación"
 }

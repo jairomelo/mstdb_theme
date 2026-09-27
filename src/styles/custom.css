@@ -2204,3 +2204,48 @@ li {
 	flex-basis: 100%;
 	font-style: italic;
 }
+
+/* ── Archivos live counts ─────────────────────────────────────────────── */
+
+.archivos-live-note {
+	font-family: 'aleo', sans-serif;
+}
+
+.archivos-counts-status .spinner-border-sm {
+	width: 1rem;
+	height: 1rem;
+	vertical-align: text-bottom;
+}
+
+.archivos-count-skeleton {
+	display: inline-block;
+	width: 8rem;
+	height: 0.9rem;
+	border-radius: 0.25rem;
+	background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+	background-size: 200% 100%;
+	animation: archivos-skeleton 1.2s ease-in-out infinite;
+}
+
+.archivos-doc-count-pending {
+	font-style: italic;
+	white-space: normal;
+	max-width: 16rem;
+	text-align: right;
+}
+
+@keyframes archivos-skeleton {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.archivos-count-skeleton {
+		animation: none;
+		background: #e9ecef;
+	}
+}

@@ -3,24 +3,44 @@
 	import { archivos as archivosData, estados, elaboracion } from '$conf/archivos';
 	import { archivos as fetchArchivos } from '$lib/api';
 	import { buildSearchUrl } from '$lib/searchUrl';
+	import { getLocale } from '$lib/paraglide/runtime.js';
+	import { m } from '$lib/paraglide/messages.js';
 	import { goto } from '$app/navigation';
 
 	/** Map archivo_id → live documento_count from the API */
 	let counts = {};
-	let countsLoaded = false;
+	let countsStatus = 'loading';
+	let countsUpdatedAt = null;
 
-	onMount(async () => {
+	function formatCountsTime(date) {
+		try {
+			return date.toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit' });
+		} catch {
+			return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		}
+	}
+
+	async function loadCounts() {
+		countsStatus = 'loading';
 		try {
 			const resp = await fetchArchivos();
 			const list = resp.results || resp;
+			const next = {};
 			for (const a of list) {
-				counts[a.archivo_id] = a.documento_count ?? 0;
+				next[a.archivo_id] = a.documento_count ?? 0;
 			}
-			countsLoaded = true;
+			counts = next;
+			countsUpdatedAt = new Date();
+			countsStatus = 'ready';
 		} catch (e) {
 			console.warn('Could not fetch live archive counts:', e);
+			countsStatus = countsUpdatedAt ? 'ready' : 'error';
 		}
-	});
+	}
+
+	$: countsLoaded = countsStatus === 'ready';
+
+	onMount(loadCounts);
 
 	/** Toggle state for collapsible sections per archive index */
 	let expanded = {};
@@ -53,6 +73,27 @@
 
 	<div class="row justify-content-center">
 		<div class="col-lg-10">
+			<p class="archivos-live-note text-center text-muted small mb-1">
+				<i class="bi bi-lightning-charge-fill me-1" aria-hidden="true"></i>{m.archivos_live_note()}
+			</p>
+			<div class="archivos-counts-status text-center small mb-4" role="status" aria-live="polite">
+				{#if countsStatus === 'loading'}
+					<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"
+					></span>{m.archivos_counts_loading()}
+				{:else if countsStatus === 'error'}
+					<span class="text-danger">
+						<i class="bi bi-exclamation-triangle-fill me-1" aria-hidden="true"
+						></i>{m.archivos_counts_error()}
+					</span>
+					<button type="button" class="btn btn-sm btn-outline-secondary ms-2" on:click={loadCounts}>
+						{m.archivos_retry()}
+					</button>
+				{:else if countsUpdatedAt}
+					<span class="text-muted"
+						>{m.archivos_counts_updated({ time: formatCountsTime(countsUpdatedAt) })}</span
+					>
+				{/if}
+			</div>
 			{#each grouped as group}
 				<section class="estado-section mb-5">
 					<h2 class="estado-title">
@@ -67,10 +108,29 @@
 									<span class="badge bg-muted">{archivo.nombre_abreviado}</span>
 								</div>
 
-								{#if archivo.archivo_id != null && countsLoaded}
-									<span class="doc-count" title="Documentos en la base de datos">
-										<i class="bi bi-file-earmark-text me-1"></i>
-										{counts[archivo.archivo_id] ?? '—'} documentos
+								{#if archivo.archivo_id != null}
+									{#if countsLoaded}
+										<span
+											class="doc-count"
+											title={m.archivos_live_note()}
+											aria-label={m.archivos_docs_count({
+												count: (counts[archivo.archivo_id] ?? 0).toLocaleString(getLocale())
+											})}
+										>
+											<i class="bi bi-file-earmark-text me-1" aria-hidden="true"></i>
+											{m.archivos_docs_count({
+												count: (counts[archivo.archivo_id] ?? 0).toLocaleString(getLocale())
+											})}
+										</span>
+									{:else if countsStatus !== 'error'}
+										<span class="doc-count" aria-hidden="true">
+											<span class="archivos-count-skeleton"></span>
+										</span>
+									{/if}
+								{:else}
+									<span class="doc-count archivos-doc-count-pending">
+										<i class="bi bi-hourglass-split me-1" aria-hidden="true"
+										></i>{m.archivos_pending_count()}
 									</span>
 								{/if}
 							</div>
