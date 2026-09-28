@@ -149,6 +149,12 @@
 					</div>
 					<div class="col-md-6">
 						<p>
+							{#if documento.archivo}
+								<strong><i class="bi bi-archive me-2"></i>Archivo:</strong>
+								{documento.archivo.nombre_abreviado || documento.archivo.nombre}
+							{/if}
+						</p>
+						<p>
 							{#if documento.lugar_de_produccion}
 								<strong><i class="bi bi-geo-alt me-2"></i>Lugar de producción:</strong>
 								<a href="/Detail/lugar/{documento.lugar_de_produccion.lugar_id}">
@@ -160,6 +166,20 @@
 							<strong><i class="bi bi-exclamation-circle me-2"></i>Deteriorado:</strong>
 							{documento.deteriorado ? 'Sí' : 'No'}
 						</p>
+						{#if documento.evento_valor_sp || documento.evento_forma_de_pago || documento.evento_total}
+							<p>
+								<strong><i class="bi bi-cash-coin me-2"></i>Valor del evento:</strong>
+								{documento.evento_valor_sp || '—'}
+							</p>
+							<p>
+								<strong><i class="bi bi-credit-card me-2"></i>Forma de pago:</strong>
+								{documento.evento_forma_de_pago || '—'}
+							</p>
+							<p>
+								<strong><i class="bi bi-calculator me-2"></i>Total:</strong>
+								{documento.evento_total || '—'}
+							</p>
+						{/if}
 					</div>
 				</div>
 				<div class="mt-3">

@@ -34,14 +34,19 @@ export const columnsConfig = {
 		{ key: 'marcas_corporales', label: 'Marcas corporales', sortable: true, visible: false },
 		{ key: 'conducta', label: 'Conducta', sortable: true, visible: false },
 		{ key: 'salud', label: 'Salud', sortable: true, visible: false },
-		{ key: 'evento_valor_sp_list', label: 'Evento Valor (SP)', sortable: true, visible: false },
 		{
-			key: 'evento_forma_de_pago_list',
-			label: 'Evento Forma de Pago',
-			sortable: true,
+			key: 'evento_valor_sp_list',
+			label: 'Valor (pesos, texto archivo)',
+			sortable: false,
 			visible: false
 		},
-		{ key: 'evento_total_list', label: 'Evento Total', sortable: true, visible: false },
+		{
+			key: 'evento_forma_de_pago_list',
+			label: 'Forma de pago',
+			sortable: false,
+			visible: false
+		},
+		{ key: 'evento_total_list', label: 'Total', sortable: false, visible: false },
 		{ key: 'created_at', label: 'Creado', sortable: true, visible: false },
 		{ key: 'updated_at', label: 'Actualizado', sortable: true, visible: false }
 	],
@@ -67,6 +72,14 @@ export const columnsConfig = {
 		{ key: 'archivo', label: 'Archivo', sortable: false, visible: true },
 		{ key: 'fecha_inicial', label: 'Fecha inicial', sortable: true, visible: true },
 		{ key: 'fecha_final', label: 'Fecha final', sortable: true, visible: false },
+		{
+			key: 'evento_valor_sp',
+			label: 'Valor (pesos, texto archivo)',
+			sortable: false,
+			visible: false
+		},
+		{ key: 'evento_forma_de_pago', label: 'Forma de pago', sortable: false, visible: false },
+		{ key: 'evento_total', label: 'Total', sortable: false, visible: false },
 		{ key: 'created_at', label: 'Creado', sortable: true, visible: false }
 	],
 	lugar: [
@@ -231,6 +244,13 @@ export const filtersDefinition = {
 			group: 'Documento'
 		},
 		{
+			key: 'evento_valor_sp__icontains',
+			label: 'Valor económico',
+			type: 'text',
+			placeholder: 'Buscar valor (ej. 200 pesos)...',
+			group: 'Documento'
+		},
+		{
 			key: 'archivo',
 			label: 'Archivo',
 			type: 'id-searchable-select',
@@ -329,6 +349,12 @@ export const filtersDefinition = {
 			type: 'text',
 			placeholder: 'Buscar tipo...'
 		},
+		{
+			key: 'evento_valor_sp__icontains',
+			label: 'Valor económico',
+			type: 'text',
+			placeholder: 'Buscar valor (ej. 200 pesos)...'
+		},
 		{ key: 'fecha_inicial__gte', label: 'Fecha desde', type: 'date', placeholder: 'AAAA-MM-DD' },
 		{ key: 'fecha_inicial__lte', label: 'Fecha hasta', type: 'date', placeholder: 'AAAA-MM-DD' }
 	],
@@ -406,6 +432,20 @@ export function renderCellValue(entityType, columnKey, row) {
 	// Handle nested objects
 	if (columnKey === 'archivo' && typeof value === 'object') {
 		return value.nombre || value.nombre_abreviado || '—';
+	}
+
+	// Evento value fields — aggregated lists from the archive, plain text
+	if (columnKey.startsWith('evento_')) {
+		if (Array.isArray(value)) {
+			return value.length > 0
+				? value
+						.map((v) => String(v).trim())
+						.filter(Boolean)
+						.join('; ') || '—'
+				: '—';
+		}
+		const str = String(value).trim();
+		return str || '—';
 	}
 	if (columnKey === 'lugar_corporacion' && typeof value === 'object') {
 		return value.nombre_lugar ? `${value.nombre_lugar} (${value.tipo || ''})` : '—';

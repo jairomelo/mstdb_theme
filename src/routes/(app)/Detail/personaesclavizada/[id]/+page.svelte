@@ -670,6 +670,18 @@
 					<div class="detail-bottom"><p>{peresc.conducta}</p></div>
 				</div>
 			{/if}
+			{#if peresc.procedencia}
+				<div class="detail">
+					<h3>Procedencia</h3>
+					<div class="detail-bottom">
+						<p>
+							<a href="/Detail/lugar/{peresc.procedencia.lugar_id}">
+								{peresc.procedencia.nombre_lugar}
+							</a>
+						</p>
+					</div>
+				</div>
+			{/if}
 		</div>
 
 		<!-- Places Map -->
@@ -894,10 +906,27 @@
 				<ul class="list-group list-group-flush">
 					{#each peresc.documentos as doc}
 						<li class="list-group-item">
-							<h3 class="h6">{doc.titulo}</h3>
+							<h3 class="h6">
+								<a href="/Detail/documento/{doc.documento_id}" class="text-decoration-none">
+									{doc.titulo}
+								</a>
+							</h3>
 							<p class="mb-1"><small>ID: {doc.documento_idno}</small></p>
 							<p class="mb-1"><small>Archivo: {doc.archivo.nombre}</small></p>
 							<p class="mb-1"><small>Fecha: {doc.fecha_inicial} - {doc.fecha_final}</small></p>
+							{#if doc.evento_valor_sp || doc.evento_forma_de_pago || doc.evento_total}
+								<p class="mb-1">
+									<small>
+										Valor: {doc.evento_valor_sp || '—'}
+										{#if doc.evento_forma_de_pago}
+											· Forma de pago: {doc.evento_forma_de_pago}
+										{/if}
+										{#if doc.evento_total}
+											· Total: {doc.evento_total}
+										{/if}
+									</small>
+								</p>
+							{/if}
 						</li>
 					{/each}
 				</ul>
