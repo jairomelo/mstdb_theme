@@ -382,6 +382,11 @@ export const routeDetail = (fromId, toId, page = 1, params = {}) => {
 	const base = `travel-trajectories/route_detail/?from_lugar_id=${fromId}&to_lugar_id=${toId}&page=${page}`;
 	return fetchWithBaseUrl(extra ? `${base}&${extra}` : base);
 };
+export const placeDetail = (lugarId, page = 1, params = {}) => {
+	const extra = new URLSearchParams(params).toString();
+	const base = `travel-trajectories/place_detail/?lugar_id=${lugarId}&page=${page}`;
+	return fetchWithBaseUrl(extra ? `${base}&${extra}` : base);
+};
 
 // Data Visualization endpoints
 export const generoHispanizacion = async () => {

@@ -95,5 +95,16 @@
 	"archivos_retry": "Reintentar",
 	"archivos_counts_updated": "Actualizado: {time}",
 	"archivos_docs_count": "{count} documentos catalogados",
-	"archivos_pending_count": "Conteo próximamente — acervo en catalogación"
+	"archivos_pending_count": "Conteo próximamente — acervo en catalogación",
+	"arcs_map_truncated": "Mostrando las {limit} rutas principales; ajusta los filtros para ver más detalle",
+	"arcs_map_view_people": "Ver personas de {lugar} en Búsqueda",
+	"arcs_map_close_place": "Cerrar detalle de lugar",
+	"arcs_map_view_in_search": "Ver en Búsqueda",
+	"arcs_map_place_movements": "{count} movimientos",
+	"arcs_map_place_in_out": "Entrantes: {incoming} · Salientes: {outgoing}",
+	"arcs_map_place_tabs": "Entrantes y salientes",
+	"arcs_map_place_all": "Todos",
+	"arcs_map_place_incoming": "Entrantes",
+	"arcs_map_place_outgoing": "Salientes",
+	"arcs_map_place_empty": "No hay personas para este lugar con los filtros aplicados."
 }

@@ -2129,13 +2129,24 @@ li {
 	cursor: pointer;
 }
 
+.arcs-map svg path.map-arc-hit {
+	cursor: pointer;
+	pointer-events: stroke;
+}
+
 .arcs-map svg path.map-arc:hover {
 	opacity: 0.95 !important;
 }
 
-.arcs-map svg path.map-arc:focus-visible {
+.arcs-map svg path.map-arc:focus-visible,
+.arcs-map svg path.map-arc-hit:focus-visible,
+.arcs-map svg circle.map-marker:focus-visible {
 	outline: 3px solid #8b4513;
 	outline-offset: 2px;
+}
+
+.arcs-map svg circle.map-marker {
+	cursor: pointer;
 }
 
 .arcs-map .map-tooltip {

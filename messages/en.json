@@ -93,5 +93,16 @@
 	"archivos_retry": "Retry",
 	"archivos_counts_updated": "Updated: {time}",
 	"archivos_docs_count": "{count} catalogued documents",
-	"archivos_pending_count": "Count coming soon — collection being catalogued"
+	"archivos_pending_count": "Count coming soon — collection being catalogued",
+	"arcs_map_truncated": "Showing the top {limit} routes; adjust the filters to see more detail",
+	"arcs_map_view_people": "View people from {lugar} in Search",
+	"arcs_map_close_place": "Close place detail",
+	"arcs_map_view_in_search": "View in Search",
+	"arcs_map_place_movements": "{count} movements",
+	"arcs_map_place_in_out": "Incoming: {incoming} · Outgoing: {outgoing}",
+	"arcs_map_place_tabs": "Incoming and outgoing",
+	"arcs_map_place_all": "All",
+	"arcs_map_place_incoming": "Incoming",
+	"arcs_map_place_outgoing": "Outgoing",
+	"arcs_map_place_empty": "No people for this place with the current filters."
 }

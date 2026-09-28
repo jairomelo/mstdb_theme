@@ -1,17 +1,19 @@
 <script>
 	import { onMount, onDestroy, tick } from 'svelte';
 	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
 	import * as d3 from 'd3';
 	import { aggregatedTrajectories } from '$lib/api';
 	import { m } from '$lib/paraglide/messages.js';
 	import RouteDetailPanel from '../../Search/RouteDetailPanel.svelte';
+	import PlaceDetailPanel from './PlaceDetailPanel.svelte';
+	import { buildSearchUrl } from '$lib/searchUrl.js';
 	import config from '../../../../config';
 
 	const ARC_COLOR = '#ff6600';
 	const MARKER_FILL = '#2980b9';
 	const MARKER_STROKE = '#1a5276';
 	const PARTICLE_COLOR = '#d9480f';
-	const PARTICLE_CAP = 80;
 	const TRAVEL_MS = 2600;
 	const BUCKET_MS = 1300;
 
@@ -20,6 +22,7 @@
 	let svg = null;
 	let gRoot = null,
 		gArcs = null,
+		gArcsHit = null,
 		gMarkers = null,
 		gParticles = null;
 	let mapContainer;
@@ -30,9 +33,15 @@
 	let error = null;
 	let routes = [];
 	let places = [];
+	let truncated = false;
 	let meta = { min_year: null, max_year: null, undated_count: 0 };
 
-	let routeLimit = 250;
+	const isMobileViewport = browser && window.matchMedia('(max-width: 767.98px)').matches;
+	let routeLimit = isMobileViewport ? 100 : 250;
+	// Geometry cache: routeKey+zoom (+pan offset) → path pieces, so the rAF
+	// particle loop never calls latLngToLayerPoint per particle per frame.
+	let geometryCache = new Map();
+	let geometryCacheZoom = null;
 	let origin = '';
 	let destination = '';
 	let startYear = '';
@@ -53,7 +62,10 @@
 	let playhead = 0;
 
 	let selectedRoute = null;
-	let lastFocusedArc = null;
+	let selectedPlace = null;
+	let lastFocusedEl = null;
+
+	$: modalOpen = selectedRoute != null || selectedPlace != null;
 
 	let tooltipVisible = false;
 	let tooltipX = 0;
@@ -191,18 +203,29 @@
 
 	function defaultRouteLimit(total) {
 		const max = Math.max(10, total);
-		return Math.min(Math.max(10, Math.round(total / 2 / 10) * 10), max);
+		const half = Math.min(Math.max(10, Math.round(total / 2 / 10) * 10), max);
+		if (isMobileViewport) return Math.min(half, 100);
+		return half;
+	}
+
+	// Adaptive particle budget: fewer DOM nodes on small screens, none when
+	// the user prefers reduced motion (handled in rebuildParticles).
+	$: particleCap = prefersReducedMotion ? 0 : isMobileViewport ? 30 : 80;
+
+	function backendRouteLimit() {
+		return Math.max(routeLimit, 500);
 	}
 
 	async function loadData() {
 		loading = true;
 		error = null;
 		try {
-			const params = { include_timeline: 1 };
+			const params = { include_timeline: 1, limit_rutas: backendRouteLimit() };
 			if (startDate) params.fecha_inicial__gte = startDate;
 			if (endDate) params.fecha_inicial__lte = endDate;
 			const data = await aggregatedTrajectories(params);
 			routes = data.routes || [];
+			truncated = Boolean(data.truncated);
 			routeLimit = defaultRouteLimit(routes.length);
 			places = data.places || [];
 			meta = {
@@ -218,7 +241,7 @@
 		} finally {
 			loading = false;
 			if (mode === 'timeline' && meta.min_year != null && !error) {
-				playing = true;
+				playing = !prefersReducedMotion;
 			}
 		}
 	}
@@ -239,11 +262,15 @@
 			svg = d3.select(map.getPanes().overlayPane).append('svg');
 			gRoot = svg.append('g').attr('class', 'leaflet-zoom-hide');
 			gArcs = gRoot.append('g');
+			gArcsHit = gRoot.append('g');
 			gMarkers = gRoot.append('g');
 			gParticles = gRoot.append('g');
 
 			await loadData();
-			map.on('zoomend moveend', renderScene);
+			map.on('zoomend moveend', () => {
+				invalidateGeometryCache();
+				renderScene();
+			});
 		} catch (e) {
 			console.error(e);
 			error = e.message;
@@ -270,17 +297,33 @@
 	}
 
 	function arcGeometry(route) {
+		const cacheKey = `${routeKey(route)}@${geometryCacheZoom}`;
+		const cached = geometryCache.get(cacheKey);
+		if (cached) return cached;
 		const [x1, y1] = projectPoint(route.from_lat, route.from_lon);
 		const [x2, y2] = projectPoint(route.to_lat, route.to_lon);
 		const dx = x2 - x1;
 		const dy = y2 - y1;
 		const dist = Math.hypot(dx, dy) || 1;
 		const bend = Math.min(80, dist * 0.25);
-		return {
+		const geom = {
 			p0: [x1, y1],
 			pc: [(x1 + x2) / 2 - (dy / dist) * bend, (y1 + y2) / 2 + (dx / dist) * bend],
 			p1: [x2, y2]
 		};
+		geometryCache.set(cacheKey, geom);
+		if (geometryCache.size > 2000) {
+			const first = geometryCache.keys().next().value;
+			geometryCache.delete(first);
+		}
+		return geom;
+	}
+
+	function invalidateGeometryCache() {
+		geometryCacheZoom = map ? map.getZoom() : null;
+		// Keep the Map bounded (at most ~2 viewports of arcs); pan offsets are
+		// folded into layoutSvg's root transform so cached geometry stays valid.
+		if (geometryCache.size > 2000) geometryCache.clear();
 	}
 
 	function arcPathD(route) {
@@ -305,6 +348,7 @@
 
 	function renderScene() {
 		if (!map || !svg || !gRoot) return;
+		if (geometryCacheZoom == null) geometryCacheZoom = map.getZoom();
 		layoutSvg();
 		renderArcs();
 		renderMarkers();
@@ -324,10 +368,13 @@
 	}
 
 	function renderArcs() {
-		if (!gArcs) return;
+		if (!gArcs || !gArcsHit) return;
+		const skipTransition = visibleRoutes.length > 300;
 		const sel = gArcs.selectAll('path.map-arc').data(visibleRoutes, (d) => routeKey(d));
+		const hitSel = gArcsHit.selectAll('path.map-arc-hit').data(visibleRoutes, (d) => routeKey(d));
 
 		sel.exit().remove();
+		hitSel.exit().remove();
 
 		const enter = sel
 			.enter()
@@ -347,14 +394,49 @@
 			.on('click', onArcActivate)
 			.on('keydown', onArcKeydown);
 
+		// Invisible wide hit stroke over the thin visible arc: pointer/touch
+		// targets stay tappable without thickening the visual encoding.
+		const hitEnter = hitSel
+			.enter()
+			.append('path')
+			.attr('class', 'map-arc-hit leaflet-interactive')
+			.attr('fill', 'none')
+			.attr('stroke', '#000')
+			.attr('stroke-opacity', 0)
+			.attr('stroke-linecap', 'round')
+			.attr('tabindex', 0)
+			.attr('role', 'img')
+			.on('pointerenter', onArcPointerEnter)
+			.on('pointermove', onPointerMove)
+			.on('pointerleave', hideTooltip)
+			.on('focus', onArcFocus)
+			.on('blur', hideTooltip)
+			.on('click', onArcActivate)
+			.on('keydown', onArcKeydown);
+
 		const merged = enter.merge(sel);
 		merged.attr('d', arcPathD).attr('aria-label', arcAriaLabel);
+		const hitMerged = hitEnter.merge(hitSel);
+		hitMerged.attr('d', arcPathD).attr('aria-label', arcAriaLabel);
 
-		merged
-			.transition('tl')
-			.duration(220)
-			.attr('stroke-width', arcWidth)
-			.attr('opacity', arcOpacity);
+		if (skipTransition) {
+			merged.interrupt('tl').attr('stroke-width', arcWidth).attr('opacity', arcOpacity);
+			hitMerged
+				.interrupt('tl')
+				.attr('stroke-width', (r) => Math.max(12, arcWidth(r) + 8))
+				.attr('stroke-opacity', 0);
+		} else {
+			merged
+				.transition('tl')
+				.duration(220)
+				.attr('stroke-width', arcWidth)
+				.attr('opacity', arcOpacity);
+			hitMerged
+				.transition('tl')
+				.duration(220)
+				.attr('stroke-width', (r) => Math.max(12, arcWidth(r) + 8))
+				.attr('stroke-opacity', 0);
+		}
 	}
 
 	function arcWidth(route) {
@@ -391,30 +473,53 @@
 		const enter = sel
 			.enter()
 			.append('circle')
-			.attr('class', 'map-marker')
+			.attr('class', 'map-marker leaflet-interactive')
 			.attr('fill', MARKER_FILL)
 			.attr('stroke', MARKER_STROKE)
 			.attr('stroke-width', 1)
 			.attr('fill-opacity', 0.6)
 			.attr('r', 0)
+			.attr('tabindex', 0)
+			.attr('role', 'button')
 			.on('pointerenter', onMarkerPointerEnter)
 			.on('pointermove', onPointerMove)
-			.on('pointerleave', hideTooltip);
+			.on('pointerleave', hideTooltip)
+			.on('focus', onMarkerFocus)
+			.on('blur', hideTooltip)
+			.on('click', onMarkerActivate)
+			.on('keydown', onMarkerKeydown);
 
 		const merged = enter.merge(sel);
 		merged
 			.attr('cx', (p) => projectPoint(p.lat, p.lon)[0])
-			.attr('cy', (p) => projectPoint(p.lat, p.lon)[1]);
+			.attr('cy', (p) => projectPoint(p.lat, p.lon)[1])
+			.attr('aria-label', markerAriaLabel);
 
-		merged
-			.transition('tl')
-			.duration(220)
-			.attr('r', (p) => markerRadius(p));
+		const skipTransition = visibleRoutes.length > 300;
+		if (skipTransition) {
+			merged.interrupt('tl').attr('r', (p) => markerRadius(p));
+		} else {
+			merged
+				.transition('tl')
+				.duration(220)
+				.attr('r', (p) => markerRadius(p));
+		}
+	}
+
+	function markerMovements(place) {
+		const s = series.placeCum.get(place.lugar_id);
+		const idx = Math.min(playhead, (s?.total.length || 1) - 1);
+		return s ? s.total[idx] || 0 : 0;
+	}
+
+	function markerAriaLabel(place) {
+		return `${place.nombre}: ${markerMovements(place)} movimientos. Enter para ver personas.`;
 	}
 
 	function markerRadius(place) {
 		const cum = placeCumAt(place, playhead);
-		return cum > 0 ? Math.max(5, Math.sqrt(cum / maxPlaceCum) * 22) : 0;
+		// Larger floor so small places stay tappable on touch screens.
+		return cum > 0 ? Math.max(isMobileViewport ? 8 : 5, Math.sqrt(cum / maxPlaceCum) * 22) : 0;
 	}
 
 	// ------------------------------------------------------------------
@@ -443,13 +548,13 @@
 		}
 		const list = [];
 		if (total > 0) {
-			let remaining = PARTICLE_CAP;
+			let remaining = particleCap;
 			active.sort((a, b) => b.period - a.period);
 			for (const item of active) {
 				if (remaining <= 0) break;
 				const count = Math.min(
 					remaining,
-					Math.max(1, Math.round((item.period / total) * PARTICLE_CAP))
+					Math.max(1, Math.round((item.period / total) * particleCap))
 				);
 				remaining -= count;
 				for (let k = 0; k < count; k++) {
@@ -501,6 +606,8 @@
 	function drawParticles(now) {
 		if (!gParticles || !map) return;
 		const duration = TRAVEL_MS / speed;
+		// arcGeometry() is cached per route+zoom, so this loop is pure Bézier
+		// math: no latLngToLayerPoint calls per particle per frame.
 		gParticles.selectAll('circle.map-particle').each(function (p) {
 			const t = (now / duration + p.offset) % 1;
 			const { p0, pc, p1 } = arcGeometry(p.route);
@@ -618,10 +725,9 @@
 		if (tooltipData) positionTooltipFromEvent(event);
 	}
 
-	function onArcFocus(event, route) {
-		setRouteTooltip(route);
-		const { p0, pc, p1 } = arcGeometry(route);
-		const [mx, my] = bezierPoint(0.5, p0, pc, p1);
+	function onMarkerFocus(event, place) {
+		setMarkerTooltip(place);
+		const [mx, my] = projectPoint(place.lat, place.lon);
 		const containerPoint = map.layerPointToContainerPoint(L.point(mx, my));
 		const frameRect = mapFrame.getBoundingClientRect();
 		const mapRect = mapContainer.getBoundingClientRect();
@@ -636,24 +742,32 @@
 	}
 
 	// ------------------------------------------------------------------
-	// Detail modal
+	// Detail modal (route arcs + place markers)
 	// ------------------------------------------------------------------
 
 	function onArcActivate(event, route) {
-		openModal(route, event.currentTarget);
+		openRouteModal(route, event.currentTarget);
 	}
 
 	function onArcKeydown(event, route) {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			openModal(route, event.currentTarget);
+			openRouteModal(route, event.currentTarget);
 		}
 	}
 
-	async function openModal(route, sourceEl) {
-		hideTooltip();
-		lastFocusedArc = sourceEl || null;
-		selectedRoute = route;
+	function onMarkerActivate(event, place) {
+		openPlaceModal(place, event.currentTarget);
+	}
+
+	function onMarkerKeydown(event, place) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			openPlaceModal(place, event.currentTarget);
+		}
+	}
+
+	async function focusModal() {
 		await tick();
 		if (modalEl) {
 			const focusable = modalEl.querySelector(
@@ -663,10 +777,36 @@
 		}
 	}
 
+	async function openRouteModal(route, sourceEl) {
+		hideTooltip();
+		lastFocusedEl = sourceEl || null;
+		selectedPlace = null;
+		selectedRoute = route;
+		await focusModal();
+	}
+
+	async function openPlaceModal(place, sourceEl) {
+		hideTooltip();
+		lastFocusedEl = sourceEl || null;
+		selectedRoute = null;
+		selectedPlace = place;
+		await focusModal();
+	}
+
+	function gotoPlaceSearch(place) {
+		goto(
+			buildSearchUrl({
+				tab: 'personaesclavizada',
+				filters: { lugar_any: String(place.lugar_id) }
+			})
+		);
+	}
+
 	function closeModal() {
 		selectedRoute = null;
-		if (lastFocusedArc && document.contains(lastFocusedArc)) lastFocusedArc.focus();
-		lastFocusedArc = null;
+		selectedPlace = null;
+		if (lastFocusedEl && document.contains(lastFocusedEl)) lastFocusedEl.focus();
+		lastFocusedEl = null;
 	}
 
 	function onModalKeydown(event) {
@@ -780,6 +920,23 @@
 						<i class="bi bi-map me-1" aria-hidden="true"></i>Vista estática
 					</button>
 				{/if}
+				{#if destination || origin}
+					{@const focusPlace = places.find(
+						(p) => String(p.lugar_id) === String(destination || origin)
+					)}
+					{#if focusPlace}
+						<button
+							class="btn btn-outline-secondary"
+							type="button"
+							on:click={() => gotoPlaceSearch(focusPlace)}
+							aria-label={m.arcs_map_view_people({ lugar: focusPlace.nombre })}
+						>
+							<i class="bi bi-people me-1" aria-hidden="true"></i>{m.arcs_map_view_people({
+								lugar: focusPlace.nombre
+							})}
+						</button>
+					{/if}
+				{/if}
 			</div>
 
 			{#if mode === 'timeline'}
@@ -884,11 +1041,14 @@
 				</p>
 			{/if}
 
-			<p class="small text-muted mt-2 mb-1">
+			<p class="small text-muted mt-2 mb-1" role="status">
 				{Math.min(routeLimit, visibleRoutes.length)} de {routes.length} rutas agregadas ·
 				{places.length} lugares
 				{#if meta.min_year != null}
 					· {meta.min_year}–{meta.max_year}
+				{/if}
+				{#if truncated}
+					· {m.arcs_map_truncated({ limit: backendRouteLimit() })}
 				{/if}
 			</p>
 
@@ -916,7 +1076,7 @@
 	</div>
 {/if}
 
-{#if selectedRoute}
+{#if modalOpen}
 	<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 	<div
 		class="modal d-block arcs-map-dialog"
@@ -930,28 +1090,50 @@
 	>
 		<div class="modal-dialog modal-lg modal-dialog-scrollable">
 			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="arcs-map-dialog-title">
-						<i class="bi bi-arrow-right-circle me-2" aria-hidden="true"></i>
-						{selectedRoute.from_nombre} → {selectedRoute.to_nombre}
-					</h5>
-					<button
-						type="button"
-						class="btn-close"
-						aria-label="Cerrar detalle de ruta"
-						on:click={closeModal}
-					></button>
-				</div>
-				<div class="modal-body">
-					<RouteDetailPanel
-						fromId={selectedRoute.from_lugar_id}
-						toId={selectedRoute.to_lugar_id}
-						fromNombre={selectedRoute.from_nombre}
-						toNombre={selectedRoute.to_nombre}
-						count={selectedRoute.count}
-						filters={activeFilters}
-					/>
-				</div>
+				{#if selectedRoute}
+					<div class="modal-header">
+						<h5 class="modal-title" id="arcs-map-dialog-title">
+							<i class="bi bi-arrow-right-circle me-2" aria-hidden="true"></i>
+							{selectedRoute.from_nombre} → {selectedRoute.to_nombre}
+						</h5>
+						<button
+							type="button"
+							class="btn-close"
+							aria-label="Cerrar detalle de ruta"
+							on:click={closeModal}
+						></button>
+					</div>
+					<div class="modal-body">
+						<RouteDetailPanel
+							fromId={selectedRoute.from_lugar_id}
+							toId={selectedRoute.to_lugar_id}
+							fromNombre={selectedRoute.from_nombre}
+							toNombre={selectedRoute.to_nombre}
+							count={selectedRoute.count}
+							filters={activeFilters}
+						/>
+					</div>
+				{:else if selectedPlace}
+					<div class="modal-header">
+						<h5 class="modal-title" id="arcs-map-dialog-title">
+							<i class="bi bi-geo-alt me-2" aria-hidden="true"></i>
+							{selectedPlace.nombre}
+						</h5>
+						<button
+							type="button"
+							class="btn-close"
+							aria-label={m.arcs_map_close_place()}
+							on:click={closeModal}
+						></button>
+					</div>
+					<div class="modal-body">
+						<PlaceDetailPanel
+							place={selectedPlace}
+							filters={activeFilters}
+							onViewInSearch={() => gotoPlaceSearch(selectedPlace)}
+						/>
+					</div>
+				{/if}
 			</div>
 		</div>
 	</div>
