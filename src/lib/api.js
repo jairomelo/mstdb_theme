@@ -419,6 +419,8 @@ export const createDocumento = (data) => postWithBaseUrl('documentos/', data);
 export const createLugar = (data) => postWithBaseUrl('lugares/', data);
 export const createTipoDocumental = (data) =>
 	postWithBaseUrl('vocabularios/tipos-documentales/', data);
+export const conductaTerms = () => fetchWithBaseUrl('vocabularios/conducta-terms/');
+export const createConductaTerm = (data) => postWithBaseUrl('vocabularios/conducta-terms/', data);
 export const createCorporacion = (data) => postWithBaseUrl('corporaciones/', data);
 export const updateCorporacion = (id, data) => patchWithBaseUrl(`corporaciones/${id}/`, data);
 

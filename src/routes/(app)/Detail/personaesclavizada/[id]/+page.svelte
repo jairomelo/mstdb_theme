@@ -664,6 +664,18 @@
 					<div class="detail-bottom"><p>{peresc.salud}</p></div>
 				</div>
 			{/if}
+			{#if peresc.conducta_terms?.length}
+				<div class="detail">
+					<h3>Conducta (canónica)</h3>
+					<div class="detail-bottom">
+						<p>
+							{#each peresc.conducta_terms as term}
+								<span class="badge bg-success me-1">{term}</span>
+							{/each}
+						</p>
+					</div>
+				</div>
+			{/if}
 			{#if peresc.conducta}
 				<div class="detail">
 					<h3>Conducta</h3>

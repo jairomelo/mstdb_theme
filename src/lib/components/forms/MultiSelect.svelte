@@ -28,6 +28,7 @@
 			item.calidad ??
 			item.etonimo ??
 			item.hispanizacion ??
+			item.canonico ??
 			item.estado_civil ??
 			item.actividad ??
 			item.situacion ??

@@ -1,5 +1,6 @@
 <script>
-	import { createPersonaEsclavizada } from '$lib/api.js';
+	import { onMount } from 'svelte';
+	import { createPersonaEsclavizada, createConductaTerm, conductaTerms } from '$lib/api.js';
 	import FormField from '$lib/components/forms/FormField.svelte';
 	import SearchableSelect from '$lib/components/forms/SearchableSelect.svelte';
 	import MultiSelect from '$lib/components/forms/MultiSelect.svelte';
@@ -41,12 +42,71 @@
 	let ocupacion_categoria = '';
 	let marcas_corporales = '';
 	let conducta = '';
+	let conducta_terms = [];
 	let salud = '';
 	let notas = '';
 
 	let submitting = false;
 	let created = null;
 	let errors = {};
+
+	let allConductaTerms = [];
+	let newConductaTerm = '';
+	let creatingTerm = false;
+	let termError = null;
+
+	onMount(async () => {
+		try {
+			allConductaTerms = await conductaTerms();
+		} catch {
+			allConductaTerms = [];
+		}
+	});
+
+	const stripAccents = (s) =>
+		(s || '')
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.toLowerCase();
+
+	$: conductaNorm = stripAccents(conducta);
+	$: suggestedTerm = (() => {
+		if (!conductaNorm) return null;
+		for (const t of allConductaTerms) {
+			const words = [t.canonico, ...(t.aliases || [])];
+			for (const w of words) {
+				const m = stripAccents(w.replace(/\*$/, ''));
+				if (m && conductaNorm.includes(m)) return t;
+			}
+		}
+		return null;
+	})();
+	$: suggestedTermId = suggestedTerm ? (suggestedTerm.conducta_term_id ?? suggestedTerm.id) : null;
+	$: showSuggestion = suggestedTerm && !conducta_terms.some((v) => v.value === suggestedTermId);
+
+	function addTerm(term) {
+		const id = term.conducta_term_id ?? term.id;
+		if (!conducta_terms.some((v) => v.value === id)) {
+			conducta_terms = [...conducta_terms, { value: id, label: term.canonico }];
+		}
+	}
+
+	async function quickCreateTerm() {
+		const canonico = newConductaTerm.trim();
+		if (!canonico) return;
+		creatingTerm = true;
+		termError = null;
+		try {
+			const term = await createConductaTerm({ canonico });
+			allConductaTerms = [...allConductaTerms, term];
+			addTerm(term);
+			newConductaTerm = '';
+		} catch (e) {
+			termError = e?.data ? JSON.stringify(e.data) : e.message;
+		} finally {
+			creatingTerm = false;
+		}
+	}
 
 	function fieldError(field) {
 		const e = errors[field];
@@ -84,6 +144,7 @@
 				...(ocupacion_categoria && { ocupacion_categoria }),
 				...(marcas_corporales && { marcas_corporales }),
 				...(conducta && { conducta }),
+				conducta_terms: conducta_terms.map((t) => t.value),
 				...(salud && { salud }),
 				...(notas && { notas })
 			};
@@ -121,6 +182,7 @@
 		ocupacion_categoria = '';
 		marcas_corporales = '';
 		conducta = '';
+		conducta_terms = [];
 		salud = '';
 		notas = '';
 		created = null;
@@ -409,6 +471,55 @@
 					<FormField label="Conducta" id="conducta" error={fieldError('conducta')}>
 						<textarea id="conducta" class="form-control" rows="3" bind:value={conducta}></textarea>
 					</FormField>
+					{#if showSuggestion}
+						<div class="form-text" role="status">
+							¿Quisiste decir <strong>{suggestedTerm.canonico}</strong>?
+							<button
+								type="button"
+								class="btn btn-sm btn-outline-success ms-1"
+								on:click={() => addTerm(suggestedTerm)}
+							>
+								Añadir
+							</button>
+						</div>
+					{/if}
+					<FormField
+						label="Conducta (vocabulario canónico)"
+						id="conducta-terms"
+						error={fieldError('conducta_terms')}
+						hint="Variantes como huido, hullo o huyeron se agrupan bajo el término canónico."
+					>
+						<MultiSelect
+							id="conducta-terms"
+							bind:values={conducta_terms}
+							endpoint="vocabularios/conducta-terms/"
+							placeholder="Buscar término canónico…"
+						/>
+					</FormField>
+					<div
+						class="input-group input-group-sm mb-1"
+						role="group"
+						aria-label="Crear término canónico"
+					>
+						<input
+							type="text"
+							class="form-control"
+							placeholder="Nuevo término canónico (ej. huído)"
+							aria-label="Nuevo término canónico"
+							bind:value={newConductaTerm}
+						/>
+						<button
+							type="button"
+							class="btn btn-outline-secondary"
+							disabled={creatingTerm || !newConductaTerm.trim()}
+							on:click={quickCreateTerm}
+						>
+							{creatingTerm ? 'Creando…' : 'Crear'}
+						</button>
+					</div>
+					{#if termError}
+						<div class="text-danger small" role="alert">{termError}</div>
+					{/if}
 				</div>
 				<div class="col-md-6">
 					<FormField label="Salud" id="salud" error={fieldError('salud')}>

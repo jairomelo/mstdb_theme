@@ -224,9 +224,16 @@ export const filtersDefinition = {
 		},
 		{
 			key: 'conducta__icontains',
-			label: 'Conducta',
+			label: 'Conducta (texto libre)',
 			type: 'text',
 			placeholder: 'Buscar conducta...',
+			group: 'Biografía'
+		},
+		{
+			key: 'conducta_canonica',
+			label: 'Conducta (canónica)',
+			type: 'searchable-select',
+			facetKey: 'conductas',
 			group: 'Biografía'
 		},
 		{
