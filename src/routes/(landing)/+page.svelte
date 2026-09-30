@@ -8,7 +8,7 @@
 	import { user } from '$lib/stores/user';
 	import { loginUrl } from '$lib/auth';
 	import { m } from '$lib/paraglide/messages.js';
-	import { getLocale } from '$lib/paraglide/runtime.js';
+	import { getLocale, setLocale } from '$lib/paraglide/runtime.js';
 
 	/* global __APP_VERSION__ */
 	const appVersion = __APP_VERSION__;
@@ -41,6 +41,11 @@
 			const searchQuery = exactSearch ? `"${query}"` : query;
 			goto(`/Search/?q=${encodeURIComponent(searchQuery)}${filterParam}`);
 		}
+	}
+
+	async function toggleLanguage() {
+		const nextLocale = getLocale() === 'es' ? 'en' : 'es';
+		await setLocale(nextLocale);
 	}
 
 	function handleClickOutside(event) {
@@ -96,6 +101,15 @@
 			<i class="bi bi-person-circle" aria-hidden="true"></i>
 			{$user ? $user.username : m.fine_chunky_grizzly_bump()}
 		</a>
+		<button
+			type="button"
+			class="hero-language-switch"
+			on:click={toggleLanguage}
+			aria-label={getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+		>
+			<i class="bi bi-translate" aria-hidden="true"></i>
+			<span>{getLocale() === 'es' ? 'EN' : 'ES'}</span>
+		</button>
 		<div class="hero-content text-center">
 			<h1 class="display-4 dynamic-title" aria-label="{titleStem} {$currentSuffix}">
 				<span class="title-stem">{titleStem}</span>

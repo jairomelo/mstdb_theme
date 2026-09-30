@@ -769,6 +769,31 @@ $theme-colors: (
 	}
 }
 
+.hero-language-switch {
+	position: absolute;
+	top: 3.75rem;
+	right: 1.25rem;
+	z-index: 5;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	color: #fff;
+	background: rgba(map-get($theme-colors, 'dark'), 0.65);
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	border-radius: 2rem;
+	padding: 0.4rem 0.95rem;
+	font-size: 0.95rem;
+
+	&:hover {
+		background: rgba(map-get($theme-colors, 'dark'), 0.85);
+	}
+
+	&:focus-visible {
+		outline: 3px solid #fff;
+		outline-offset: 2px;
+	}
+}
+
 .welcome-alert {
 	max-width: 32rem;
 	margin: 1rem auto 0;
