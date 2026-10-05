@@ -55,9 +55,7 @@
 	}
 
 	function personaDetailPath(persona) {
-		const ct = persona.polymorphic_ctype;
-		const isEsclavizada = ct === 25 || (typeof ct === 'string' && ct.includes('esclavizada'));
-		return isEsclavizada ? 'personaesclavizada' : 'personanoesclavizada';
+		return persona.persona_model === 'personaesclavizada' ? 'personaesclavizada' : 'personanoesclavizada';
 	}
 
 	function toggleFullTree() {
