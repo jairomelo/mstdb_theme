@@ -53,7 +53,6 @@
 	"candid_late_sparrow_hug": "Search/Explore",
 	"fine_chunky_grizzly_bump": "Welcome",
 	"candid_such_lamb_hug": "Visualizations",
-	"sweet_sleek_shrimp_pop": "Files",
 	"blue_arable_niklas_breathe": "Toggle navigation",
 	"cute_slimy_orangutan_gleam": "Close welcome message",
 	"start_session": "Log in",
@@ -104,5 +103,6 @@
 	"arcs_map_place_all": "All",
 	"arcs_map_place_incoming": "Incoming",
 	"arcs_map_place_outgoing": "Outgoing",
-	"arcs_map_place_empty": "No people for this place with the current filters."
+	"arcs_map_place_empty": "No people for this place with the current filters.",
+	"archivos": "Archives"
 }
