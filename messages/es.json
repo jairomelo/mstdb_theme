@@ -53,7 +53,6 @@
 	"candid_late_sparrow_hug": "Buscar/Explorar",
 	"fine_chunky_grizzly_bump": "Bienvenido/a",
 	"candid_such_lamb_hug": "Visualizaciones",
-	"sweet_sleek_shrimp_pop": "Archivos",
 	"blue_arable_niklas_breathe": "Alternar navegación",
 	"cute_slimy_orangutan_gleam": "Cerrar mensaje de bienvenida",
 	"start_session": "Iniciar sesión",
@@ -106,5 +105,15 @@
 	"arcs_map_place_all": "Todos",
 	"arcs_map_place_incoming": "Entrantes",
 	"arcs_map_place_outgoing": "Salientes",
-	"arcs_map_place_empty": "No hay personas para este lugar con los filtros aplicados."
+	"arcs_map_place_empty": "No hay personas para este lugar con los filtros aplicados.",
+	"odd_best_seal_gleam": "Archivos con documentación incluida en la base de datos",
+	"archivo_view_details": "Ver",
+	"moving_grassy_skate_race": "Catálogos e índices",
+	"error": "error",
+	"archivos": "Archivos",
+	"funny_jolly_chipmunk_loop": "Informes y publicaciones",
+	"strong_mealy_cuckoo_affirm": "Explorar documentos",
+	"archivos_hide_details": "Ocultar",
+	"each_zippy_niklas_inspire": "catálogos, índices y enlaces",
+	"steep_pretty_moose_quiz": "Archivos — Trayectorias Afro"
 }
