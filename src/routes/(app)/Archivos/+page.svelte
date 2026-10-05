@@ -60,14 +60,14 @@
 </script>
 
 <svelte:head>
-	<title>Archivos — Trayectorias Afro</title>
+	<title>{m.steep_pretty_moose_quiz()}</title>
 </svelte:head>
 
 <div class="container mt-4">
 	<!-- Hero -->
 	<div class="archivos-hero mb-5 text-center">
-		<h1 class="display-4 mb-3">Archivos</h1>
-		<p class="lead hero-sub mb-0">Archivos con documentación incluida en la base de datos</p>
+		<h1 class="display-4 mb-3">{m.archivos()}</h1>
+		<p class="lead hero-sub mb-0">{m.odd_best_seal_gleam()}</p>
 		<div class="divider mx-auto"></div>
 	</div>
 
@@ -159,7 +159,7 @@
 									on:click={() => toggle(archivo._idx)}
 									aria-expanded={!!expanded[archivo._idx]}
 								>
-									{expanded[archivo._idx] ? 'Ocultar' : 'Ver'} catálogos, índices y enlaces
+									{expanded[archivo._idx] ? m.archivos_hide_details() : m.archivo_view_details()} {m.each_zippy_niklas_inspire()}
 									<i
 										class="bi"
 										class:bi-chevron-up={expanded[archivo._idx]}
@@ -170,7 +170,7 @@
 								{#if expanded[archivo._idx]}
 									<div class="collapsible-content mt-3">
 										{#if archivo.catalogos.length}
-											<h4 class="ref-heading">Catálogos e índices</h4>
+											<h4 class="ref-heading">{m.moving_grassy_skate_race()}</h4>
 											<ul class="ref-list">
 												{#each archivo.catalogos as entry}
 													<li>{entry}</li>
@@ -179,7 +179,7 @@
 										{/if}
 
 										{#if archivo.informes.length}
-											<h4 class="ref-heading">Informes y publicaciones</h4>
+											<h4 class="ref-heading">{m.funny_jolly_chipmunk_loop()}</h4>
 											<ul class="ref-list">
 												{#each archivo.informes as entry}
 													<li>{entry}</li>
@@ -207,7 +207,7 @@
 							{#if archivo.archivo_id != null}
 								<div class="mt-3">
 									<button class="btn btn-explore" on:click={() => explorar(archivo.archivo_id)}>
-										<i class="bi bi-search me-1"></i>Explorar documentos
+										<i class="bi bi-search me-1"></i>{m.strong_mealy_cuckoo_affirm()}
 									</button>
 								</div>
 							{/if}
