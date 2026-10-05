@@ -152,7 +152,7 @@
 										class="dropdown-item"
 										href="/Archivos/"
 										aria-current={$page.url.pathname.startsWith('/Archivos') ? 'page' : undefined}
-										>{m.sweet_sleek_shrimp_pop()}</a
+										>{m.archivos()}</a
 									>
 								</li>
 								<li>
