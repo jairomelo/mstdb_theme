@@ -47,7 +47,7 @@ Translate the Spanish values in the provided JSON object into natural, professio
 
 CRITICAL RULES:
 1. Output MUST be a valid JSON object matching the EXACT same keys.
-2. DO NOT leave Spanish words untranslated unless they are untranslatable proper nouns or organization names (e.g., "Trayectorias Afro", "Memorica México", "Fundación Neogranadina").
+2. DO NOT leave Spanish words untranslated unless they are untranslatable proper nouns or organization names (e.g., "Trayectorias Afro", "Memorica México", "Fundación Neogranadina", "Memorias Afromexicanas").
 3. Historical and Domain Glossary:
    - "Personas Esclavizadas" -> "Enslaved People"
    - "Personas No Esclavizadas" -> "Non-Enslaved People"
@@ -103,7 +103,7 @@ CRITICAL RULES:
    - "Proyectos Hermanos" -> "Sister Projects"
    - "Visualizaciones" -> "Visualizations"
 3. Improve awkward or overly literal phrasing into natural, fluent scholarly English.
-4. Keep recognized proper names in their standard form (e.g., "Trayectorias Afro", "Memorica México").
+4. Keep recognized proper names in their standard form (e.g., "Trayectorias Afro", "Memorica México", "Memorias Afromexicanas").
 5. Preserve variables enclosed in curly braces verbatim, e.g. {name}, {count}.
 
 EXAMPLE:
