@@ -1,3 +1,7 @@
+<script>
+	import { m } from '$lib/paraglide/messages.js';
+</script>
+
 <svelte:head>
 	<title>{m.accessibility_declaration()}</title>
 </svelte:head>

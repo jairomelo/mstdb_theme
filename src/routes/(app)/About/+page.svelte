@@ -1,5 +1,6 @@
 <script>
 	import { contributors } from '$conf/contributors';
+	import { m } from '$lib/paraglide/messages.js';
 </script>
 
 <svelte:head>
