@@ -3,13 +3,13 @@
 </script>
 
 <svelte:head>
-	<title>Sobre el Proyecto — Trayectorias Afro</title>
+	<title>{m.about_ta()}</title>
 </svelte:head>
 
 <div class="container mt-4">
 	<!-- Hero Section for About Page -->
 	<div class="about-hero mb-5 text-center" data-aos="fade-up">
-		<h1 class="display-4 mb-4">Sobre el Proyecto</h1>
+		<h1 class="display-4 mb-4">{m.about_project()}</h1>
 		<div class="divider mx-auto"></div>
 	</div>
 
@@ -19,20 +19,15 @@
 			<!-- Main Description -->
 			<div class="description-section mb-5">
 				<p class="lead">
-					El sitio web Trayectorias Afro es el resultado de colaboración entre investigadores de
-					varias instituciones de México y Estados Unidos desde 2022, para la construcción de una
-					base de datos de personas esclavizadas en la Nueva España en la que, a través del análisis
-					pormenorizado de fuentes documentales se dé cuenta de su <b>movilidad geográfica</b> en el
-					territorio novohispano.
+					{m.such_aware_flea_glow()}
 				</p>
 				<p>
-					Este proyecto también busca democratizar la información poniendo la documentación
-					histórica al alcance de amplios sectores de la sociedad mexicana y del mundo académico.
+					{m.slimy_calm_ladybug_coax()}
 				</p>
 				<div class="collaboration-invite mt-4">
 					<p class="text-primary d-flex align-items-center">
 						<i class="bi bi-info-circle me-2"></i>
-						Invitamos a otros investigadores a colaborar con esta iniciativa.
+						{m.kind_salty_toucan_enjoy()}
 					</p>
 				</div>
 			</div>
@@ -40,7 +35,7 @@
 			<!-- Coordinators Section -->
 			<div class="team-section mb-5" data-aos="fade-up">
 				<h2 class="section-title">
-					<i class="bi bi-people-fill me-2"></i>Coordinadores
+					<i class="bi bi-people-fill me-2"></i>{m.coordinators()}
 				</h2>
 				<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-3">
 					{#each contributors.coordinators as coordinator}
@@ -64,10 +59,10 @@
 			<!-- Contributors Section -->
 			<div class="contributors-section mb-5" data-aos="fade-up">
 				<h2 class="section-title">
-					<i class="bi bi-people me-2"></i>Participantes
+					<i class="bi bi-people me-2"></i>{m.participants()}
 				</h2>
 				<p class="section-subtitle mb-4">
-					Han colaborado con sus bases de datos, o las de sus instituciones:
+					{m.sharp_kind_dragonfly_jest()}
 				</p>
 
 				<div class="contributors-grid">
@@ -115,7 +110,7 @@
 			{#if contributors.developers.length > 0}
 				<div class="developers-section mb-5" data-aos="fade-up">
 					<h2 class="section-title">
-						<i class="bi bi-code-slash me-2"></i>Arquitectura y Curaduría de Datos de Investigación
+						<i class="bi bi-code-slash me-2"></i>{m.few_neat_goose_ascend()}
 					</h2>
 					<div class="developer-cards mt-3">
 						{#each contributors.developers as developer}
@@ -137,31 +132,30 @@
 			<div class="footer-sections" data-aos="fade-up">
 				<!-- Funding -->
 				<div class="funding-section mb-4">
-					<h2 class="section-title">Financiamiento</h2>
+					<h2 class="section-title">{m.financing()}</h2>
 					<p>
-						Partes de este proyecto han sido financiadas por el University of California MRPI
+						{m.funding_parts()}
 						<a href="https://www.humanities.uci.edu/routes-enslavement-americas" target="_blank">
-							Routes of Enslavement in the Americas
+							{m.routes_of_enslavement()}
 						</a>
-						y la Universidad de California
+						{m.university_of_california()}
 						<a
 							href="https://alianzamx.universityofcalifornia.edu/research-and-innovation/latino-studies-projects/"
 							target="_blank"
 						>
-							Alianza MX — Latino Studies Projects
+							{m.alianza_mx()}
 						</a>
 					</p>
 				</div>
 
 				<!-- Acknowledgments -->
 				<div class="acknowledgments-section">
-					<h2 class="section-title">Agradecimientos</h2>
+					<h2 class="section-title">{m.acknowledgements()}</h2>
 					<p>
-						Agradecemos el hospedaje web de este proyecto a la
-						<a href="https://neogranadina.org/" target="_blank">Fundación Neogranadina</a>, y el
-						asesoramiento para esto de Juan Cobo de la
+						{m.tangy_merry_camel_rush()}
+						<a href="https://neogranadina.org/" target="_blank">{m.weird_nimble_hedgehog_grow()}</a>{m.low_patient_baboon_enrich()}
 						<a href="https://www.history.ucsb.edu/faculty/juan-cobo/" target="_blank">
-							Universidad de California, Santa Bárbara
+							{m.bland_misty_lobster_spur()}
 						</a>.
 					</p>
 				</div>
