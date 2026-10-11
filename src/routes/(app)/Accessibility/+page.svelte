@@ -1,10 +1,10 @@
 <svelte:head>
-	<title>Accesibilidad — Trayectorias Afro</title>
+	<title>{m.accessibility_declaration()}</title>
 </svelte:head>
 
 <div class="container mt-4">
 	<div class="about-hero mb-5 text-center" data-aos="fade-up">
-		<h1 class="display-4 mb-4">Declaración de Accesibilidad</h1>
+		<h1 class="display-4 mb-4">{m.accessibility_declaration_title()}</h1>
 		<div class="divider mx-auto"></div>
 	</div>
 
@@ -13,54 +13,47 @@
 			<!-- About this statement -->
 			<section class="description-section mb-5" aria-labelledby="commitment-heading">
 				<h2 id="commitment-heading" class="section-title">
-					<i class="bi bi-universal-access me-2" aria-hidden="true"></i>Sobre esta declaración
+					<i class="bi bi-universal-access me-2" aria-hidden="true"></i>{m.mean_dry_leopard_file()}
 				</h2>
 				<p class="lead">
-					Esta declaración fue elaborada el <strong>13 de abril de 2026</strong> y refleja el estado
-					de accesibilidad del sitio en esa fecha.
+					{m.major_bald_fish_sail()}<strong>{m.left_curly_jan_care()}</strong>{m.glad_happy_newt_enrich()}
 				</p>
 			</section>
 
 			<!-- Conformance Status -->
 			<section class="mb-5" aria-labelledby="conformance-heading">
 				<h2 id="conformance-heading" class="section-title">
-					<i class="bi bi-patch-check me-2" aria-hidden="true"></i>Estado de Conformidad
+					<i class="bi bi-patch-check me-2" aria-hidden="true"></i>{m.mellow_suave_ladybug_soar()}
 				</h2>
 				<p>
-					Este sitio web busca cumplir con las
+					{m.sound_hour_shrimp_quiz()}
 					<a href="https://www.w3.org/TR/WCAG21/" target="_blank" rel="noopener">
-						Pautas de Accesibilidad para el Contenido Web (WCAG) 2.1, Nivel AA
+						{m.east_silly_ant_leap()}
 					</a>
-					del World Wide Web Consortium (W3C), así como con los requisitos de accesibilidad establecidos
-					por el
+					{m.nice_sour_jackal_favor()}
 					<a
 						href="https://www.ada.gov/resources/2024-03-08-web-rule/"
 						target="_blank"
-						rel="noopener">Departamento de Justicia de los Estados Unidos (DOJ)</a
+						rel="noopener">{m.many_top_puma_succeed()}</a
 					>
-					bajo el Título II de la Ley para Americanos con Discapacidades (ADA), aplicables a instituciones
-					de educación superior que reciben fondos federales.
+					{m.wide_alive_sawfish_treat()}
 				</p>
 				<p>
-					El sitio también sigue los lineamientos de la
+					{m.odd_spicy_ostrich_link()}
 					<a
 						href="https://www.ucop.edu/electronic-accessibility/index.html"
 						target="_blank"
 						rel="noopener"
 					>
-						Política de Accesibilidad de Tecnologías de la Información de la Universidad de
-						California
+						{m.super_pretty_buzzard_work()}
 					</a>.
 				</p>
 
 				<div class="contributor-card mt-4">
 					<div class="card-body">
-						<h3 class="contributor-name fs-5">Nivel de conformidad alcanzado</h3>
+						<h3 class="contributor-name fs-5">{m.honest_ok_sheep_trim()}</h3>
 						<p class="mb-0">
-							<strong>WCAG 2.1 Nivel AA — Conforme</strong> para las páginas de contenido principal (inicio,
-							búsqueda, acerca del proyecto, archivos y detalle de registros). Las secciones de visualización
-							interactiva (mapa de trayectorias, red de personas y personas por lugar) aún no alcanzan
-							ese nivel en esta versión.
+							<strong>{m.neat_tense_marten_pet()}</strong> {m.ornate_super_hawk_drop()}
 						</p>
 					</div>
 				</div>
@@ -69,39 +62,39 @@
 			<!-- Measures Taken -->
 			<section class="mb-5" aria-labelledby="measures-heading">
 				<h2 id="measures-heading" class="section-title">
-					<i class="bi bi-list-check me-2" aria-hidden="true"></i>Medidas Adoptadas
+					<i class="bi bi-list-check me-2" aria-hidden="true"></i>{m.ok_jolly_shrimp_snap()}
 				</h2>
-				<p>Para cumplir con estas normas, el equipo de desarrollo ha implementado:</p>
+				<p>{m.home_blue_mammoth_adore()}</p>
 				<ul>
-					<li>Identificación del idioma de la página con el atributo <code>lang="es"</code>.</li>
+					<li>{m.weird_vexed_mule_conquer()}<code>lang="es"</code>.</li>
 					<li>
-						Enlace de salto al contenido principal para usuarios de teclado y lectores de pantalla.
+						{m.whole_blue_tuna_trip()}
 					</li>
-					<li>Títulos de página únicos y descriptivos en todas las rutas.</li>
-					<li>Etiquetas visibles o accesibles en todos los controles de formulario.</li>
+					<li>{m.close_quiet_sparrow_cook()}</li>
+					<li>{m.grand_warm_hare_dine()}</li>
 					<li>
-						Mensajes de error vinculados programáticamente a los campos correspondientes mediante <code
+						{m.ideal_heavy_cougar_renew()}<code
 							>aria-describedby</code
 						>.
 					</li>
 					<li>
-						Gestión del foco en ventanas modales y paneles deslizantes (<em>focus trapping</em>).
+						{m.late_red_hedgehog_talk()}(<em>focus trapping</em>).
 					</li>
-					<li>Indicador de foco visible en todos los elementos interactivos.</li>
+					<li>{m.icy_trite_canary_twirl()}</li>
 					<li>
-						Textos alternativos en imágenes informativas; imágenes decorativas marcadas con <code
+						{m.east_fine_wolf_approve()}<code
 							>aria-hidden="true"</code
 						>.
 					</li>
-					<li>Contraste de color mínimo de 4.5:1 para texto normal y 3:1 para texto grande.</li>
-					<li>Operabilidad completa mediante teclado.</li>
-					<li>Soporte para la preferencia de usuario <code>prefers-reduced-motion</code>.</li>
+					<li>{m.next_east_cockroach_tickle()}</li>
+					<li>{m.drab_dirty_herring_heal()}</li>
+					<li>{m.less_white_vulture_savor()}<code>prefers-reduced-motion</code>.</li>
 					<li>
-						Evaluación automatizada continua con <a
+						{m.livid_weary_hornet_mop()}<a
 							href="https://www.deque.com/axe/"
 							target="_blank"
 							rel="noopener">axe-core</a
-						> mediante pruebas de regresión con Playwright.
+						>{m.spicy_icy_cockroach_thrive()}
 					</li>
 				</ul>
 			</section>
@@ -109,78 +102,67 @@
 			<!-- Known Limitations -->
 			<section class="mb-5" aria-labelledby="limitations-heading">
 				<h2 id="limitations-heading" class="section-title">
-					<i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>Limitaciones Conocidas
+					<i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>{m.known_limitations()}
 				</h2>
 				<p>
-					Las siguientes secciones presentan limitaciones de accesibilidad que no han sido resueltas
-					en esta versión:
+					{m.stout_any_samuel_borrow()}
 				</p>
 				<div class="contributor-card">
 					<div class="card-body">
 						<ul class="mb-0">
 							<li>
-								<strong>Mapa de Trayectorias</strong> — visualización geográfica interactiva; no cuenta
-								actualmente con una alternativa textual completa para los datos representados.
+								<strong>{m.routes_map()}</strong> — {m.late_polite_hound_achieve()}
 							</li>
 							<li>
-								<strong>Red de Personas</strong> — grafo de relaciones interactivo; los nodos y aristas
-								no disponen de descripciones accesibles individuales.
+								<strong>{m.people_network()}</strong> — {m.real_plain_termite_rush()}
 							</li>
 							<li>
-								<strong>Personas por Lugar</strong> — visualización estadística interactiva; la información
-								no está disponible en formato tabular alternativo.
+								<strong>{m.people_by_place()}</strong> — {m.this_many_piranha_strive()}
 							</li>
 						</ul>
 					</div>
 				</div>
 				<p class="mt-3">
-					En versiones futuras se buscará incluir descripciones textuales alternativas, tablas de
-					datos descargables y controles accesibles para estas visualizaciones.
+					{m.glad_gross_crab_amaze()}
 				</p>
 			</section>
 
 			<!-- Feedback & Contact -->
 			<section class="mb-5" aria-labelledby="feedback-heading">
 				<h2 id="feedback-heading" class="section-title">
-					<i class="bi bi-envelope me-2" aria-hidden="true"></i>Retroalimentación
+					<i class="bi bi-envelope me-2" aria-hidden="true"></i>{m.feedback()}
 				</h2>
 				<p>
-					La accesibilidad es un reto que no siempre se alcanza a superar con las herramientas
-					actuales. Si encuentra alguna barrera de accesibilidad que considere que debe atenderse,
-					puede abrir un reporte en el repositorio del proyecto con el siguiente enlace:
+					{m.few_lost_fish_harbor()}
 				</p>
 				<ul>
 					<li>
 						<a
 							href="https://github.com/TrayectoriasAfro/trayectoriasAfro/issues/new?template=accessibility-issue.md"
-							>Reporte de accesibilidad</a
+							>{m.accessibility_report()}</a
 						>
 					</li>
 				</ul>
 				<p>
-					Trayectorias Afro es un proyecto de investigación con recursos limitados; no siempre es
-					posible atender los reportes de forma inmediata. Las mejoras de accesibilidad se
-					incorporarán en la próxima versión.
+					{m.sad_grand_cobra_support()}
 				</p>
 			</section>
 
 			<!-- Technical Specification -->
 			<section class="mb-5" aria-labelledby="tech-heading">
 				<h2 id="tech-heading" class="section-title">
-					<i class="bi bi-code-slash me-2" aria-hidden="true"></i>Especificación Técnica
+					<i class="bi bi-code-slash me-2" aria-hidden="true"></i>{m.technical_specification()}
 				</h2>
 				<p>
-					Este sitio web fue desarrollado con SvelteKit y Bootstrap. La conformidad se verifica
-					mediante herramientas automatizadas basadas en el motor
+					{m.sad_clean_lynx_offer()}
 					<a href="https://github.com/dequelabs/axe-core" target="_blank" rel="noopener">axe-core</a
-					>, integradas en una batería de pruebas Playwright ejecutada contra las páginas
-					principales del sitio.
+					>, {m.dry_seemly_halibut_heart()}
 				</p>
-				<p>Los navegadores y tecnologías de apoyo con los que se ha validado el sitio incluyen:</p>
+				<p>{m.inner_front_buzzard_express()}</p>
 				<ul>
 					<li>Safari + VoiceOver (macOS)</li>
-					<li>Chrome (pruebas automatizadas con axe-core)</li>
-					<li>Firefox (navegación por teclado)</li>
+					<li>{m.simple_candid_sloth_type()}</li>
+					<li>{m.green_dizzy_osprey_push()}</li>
 				</ul>
 			</section>
 		</div>
