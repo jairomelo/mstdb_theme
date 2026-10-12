@@ -239,7 +239,7 @@
 				tooltip
 					.style('display', 'block')
 					.html(
-						`<strong>${d.lugar}</strong><br/>Tipo: ${d.tipo}<br/>Año: ${d.year}<br/>Personas: ${d.count}`
+						`<strong>${d.lugar}</strong><br/>${m.conf_col_tipo()}: ${d.tipo}<br/>${m.agno()}: ${d.year}<br/>${m.conf_col_personas()}: ${d.count}`
 					)
 					.style('left', event.pageX + 10 + 'px')
 					.style('top', event.pageY - 28 + 'px');
@@ -273,7 +273,7 @@
 		const thead = table.createTHead();
 		const headerRow = thead.insertRow();
 
-		['Lugar', 'Total', 'Periodo'].forEach((text, idx) => {
+		[m.conf_col_lugar(), m.conf_col_total(), m.period()].forEach((text, idx) => {
 			const th = document.createElement('th');
 			th.setAttribute('role', 'columnheader');
 			th.setAttribute('scope', 'col');
@@ -352,21 +352,21 @@
 <div class="place-visualization-container">
 	<div class="controls">
 		<div class="control-group">
-			<label for="place-search">Buscar Lugar:</label>
+			<label for="place-search">{m.viz_pbp_search_place()}:</label>
 			<div class="place-filter-container">
 				<input
 					id="place-search"
 					type="text"
 					class="place-filter-input"
-					placeholder="Escribe para buscar..."
+					placeholder={m.lib_search_placeholder()}
 					value={searchTerm}
-					aria-label="Buscar lugar por nombre"
+					aria-label={m.viz_pbp_searchbyname()}
 					aria-describedby="place-search-hint"
 					on:input={handleSearch}
 					on:focus={() => (showDropdown = true)}
 				/>
 				<div id="place-search-hint" style="display: none;">
-					Ingresa el nombre de un lugar para filtrar la visualización
+					{m.solid_solid_canary_wave()}
 				</div>
 				{#if showDropdown && filteredPlaces.length > 0}
 					<div class="place-filter-list" role="listbox">
@@ -380,7 +380,7 @@
 								on:click={() => handleSelect(place)}
 								on:keydown={(e) => e.key === 'Enter' && handleSelect(place)}
 							>
-								{place === 'all' ? 'Todos los Lugares' : place}
+								{place === 'all' ? m.all_places() : place}
 							</button>
 						{/each}
 					</div>
@@ -389,7 +389,7 @@
 		</div>
 
 		<div class="control-group">
-			<label for="year-min">Año Mínimo:</label>
+			<label for="year-min">{m.min_year()}:</label>
 			<input
 				id="year-min"
 				name="yearMin"
@@ -397,14 +397,14 @@
 				min={minYear}
 				max={maxYear}
 				value={yearRangeMin}
-				aria-label="Año mínimo del rango de filtrado"
+				aria-label={m.funny_flaky_bison_devour()}
 				aria-describedby="year-range-hint"
 				on:change={handleYearRangeChange}
 			/>
 		</div>
 
 		<div class="control-group">
-			<label for="year-max">Año Máximo:</label>
+			<label for="year-max">{m.max_year()}:</label>
 			<input
 				id="year-max"
 				name="yearMax"
@@ -412,11 +412,11 @@
 				min={minYear}
 				max={maxYear}
 				value={yearRangeMax}
-				aria-label="Año máximo del rango de filtrado"
+				aria-label={m.antsy_seemly_stingray_pout()}
 				aria-describedby="year-range-hint"
 				on:change={handleYearRangeChange}
 			/>
-			<div id="year-range-hint" style="display: none;">Selecciona un rango de años válido</div>
+			<div id="year-range-hint" style="display: none;">{m.year_hint()}</div>
 		</div>
 	</div>
 
@@ -430,12 +430,12 @@
 			bind:this={plotContainer}
 			style="height: 500px; width: 100%;"
 			role="img"
-			aria-label="Gráfico de burbujas mostrando personas asociadas a lugares por año"
+			aria-label={m.viz_pbp_aria_hint()}
 		></div>
 	</div>
 
 	<div class="summary-section">
-		<h3>Resumen por Lugar</h3>
+		<h3>{m.viz_pbp_table_title()}</h3>
 		<div class="table-container" bind:this={tableContainer}></div>
 	</div>
 </div>

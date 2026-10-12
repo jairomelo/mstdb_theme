@@ -540,5 +540,15 @@
   "no_date": "No date",
   "movement_s": "movement(s)",
   "person_people": "people",
-  "person": "person"
+  "person": "person",
+  "year_hint": "Select a valid year range",
+  "min_year": "Minimum Year",
+  "solid_solid_canary_wave": "Enter the name of a place to filter the visualization",
+  "funny_flaky_bison_devour": "Minimum year of the filter range",
+  "viz_pbp_search_place": "Search Place",
+  "antsy_seemly_stingray_pout": "Maximum year of the filter range",
+  "viz_pbp_searchbyname": "Search place by name",
+  "viz_pbp_table_title": "Summary by Place",
+  "viz_pbp_aria_hint": "Bubble chart showing people associated with places by year",
+  "max_year": "Maximum Year"
 }

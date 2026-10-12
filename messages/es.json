@@ -540,5 +540,15 @@
 	"no_date": "Sin fecha",
 	"movement_s": "movimiento(s)",
 	"person_people": "personas",
-	"person": "persona"
+	"person": "persona",
+	"year_hint": "Selecciona un rango de años válido",
+	"min_year": "Año Mínimo",
+	"solid_solid_canary_wave": "Ingresa el nombre de un lugar para filtrar la visualización",
+	"funny_flaky_bison_devour": "Año mínimo del rango de filtrado",
+	"viz_pbp_search_place": "Buscar Lugar",
+	"antsy_seemly_stingray_pout": "Año máximo del rango de filtrado",
+	"viz_pbp_searchbyname": "Buscar lugar por nombre",
+	"viz_pbp_table_title": "Resumen por Lugar",
+	"viz_pbp_aria_hint": "Gráfico de burbujas mostrando personas asociadas a lugares por año",
+	"max_year": "Año Máximo"
 }
