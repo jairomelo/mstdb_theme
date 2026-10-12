@@ -1,5 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let value = ''; // raw string the user types (e.g. "1650" or "03-1690")
 	export let id = '';
@@ -7,8 +8,9 @@
 	export let disabled = false;
 
 	const dispatch = createEventDispatcher();
-	const HINT = 'DD-MM-AAAA, MM-AAAA, o AAAA';
 	const PATTERN = /^(\d{4}|\d{2}-\d{4}|\d{2}-\d{2}-\d{4})$/;
+
+	$: HINT = m.lib_date_hint();
 
 	let touched = false;
 	$: isValid = !touched || PATTERN.test((value ?? '').trim().replace(/\//g, '-'));

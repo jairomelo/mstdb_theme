@@ -5,6 +5,7 @@
 	 * Usage: <Tooltip text="Explicación de este campo" />
 	 */
 	import { tooltip } from '$lib/bootstrap-actions.js';
+	import { m } from '$lib/paraglide/messages.js';
 	export let text = '';
 	export let placement = 'top';
 </script>
@@ -12,7 +13,7 @@
 <button
 	type="button"
 	class="btn btn-link btn-sm p-0 ms-1 text-muted"
-	aria-label="Información: {text}"
+	aria-label={m.lib_tooltip_info({ text })}
 	use:tooltip={{ title: text, placement }}
 	tabindex="0"
 	style="line-height:1; vertical-align: middle;"

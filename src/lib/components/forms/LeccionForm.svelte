@@ -3,6 +3,7 @@
 	import FormField from '$lib/components/forms/FormField.svelte';
 	import MultiSelect from '$lib/components/forms/MultiSelect.svelte';
 	import RichTextEditor from '$lib/components/forms/RichTextEditor.svelte';
+	import { m } from '$lib/paraglide/messages.js';
 
 	/** Existing lesson to hydrate the form with (null when creating). */
 	export let leccion = null;
@@ -12,7 +13,7 @@
 	export let canPublish = false;
 	export let errors = {};
 	export let submitting = false;
-	export let submitLabel = 'Guardar lección';
+	export let submitLabel = '';
 	/** async (file) => url; null disables image upload. */
 	export let onUploadImage = null;
 	/** async (file) => url; null disables PDF upload. */
@@ -100,10 +101,10 @@
 
 <form on:submit|preventDefault={handleSubmit} novalidate>
 	<section class="card mb-4">
-		<div class="card-header fw-semibold">Contenido</div>
+		<div class="card-header fw-semibold">{m.lib_lesson_content_section()}</div>
 		<div class="card-body row g-3">
 			<div class="col-12">
-				<FormField label="Título" id="title" required error={fieldError('title')}>
+				<FormField label={m.lib_lesson_title()} id="title" required error={fieldError('title')}>
 					<input
 						id="title"
 						class="form-control"
@@ -114,12 +115,12 @@
 				</FormField>
 			</div>
 			<div class="col-12">
-				<FormField label="Contenido" id="body" error={fieldError('body')}>
+				<FormField label={m.lib_lesson_content()} id="body" error={fieldError('body')}>
 					<RichTextEditor
 						bind:this={editorRef}
 						id="body"
 						bind:content={body}
-						placeholder="Escriba el contenido de la lección…"
+						placeholder={m.lib_lesson_body_placeholder()}
 						{onUploadImage}
 						{onUploadPdf}
 						{disabledHint}
@@ -130,25 +131,25 @@
 	</section>
 
 	<section class="card mb-4">
-		<div class="card-header fw-semibold">Clasificación</div>
+		<div class="card-header fw-semibold">{m.lib_lesson_classification()}</div>
 		<div class="card-body row g-3">
 			<div class="col-md-6">
-				<FormField label="Niveles" id="levels" error={fieldError('levels')}>
+				<FormField label={m.lib_lesson_levels()} id="levels" error={fieldError('levels')}>
 					<MultiSelect
 						id="levels"
 						bind:values={levels}
 						endpoint="vocabularios/niveles-leccion/"
-						placeholder="Buscar nivel…"
+						placeholder={m.lib_lesson_levels_placeholder()}
 					/>
 				</FormField>
 			</div>
 			<div class="col-md-6">
-				<FormField label="Palabras clave" id="keywords" error={fieldError('keywords')}>
+				<FormField label={m.lib_lesson_keywords()} id="keywords" error={fieldError('keywords')}>
 					<MultiSelect
 						id="keywords"
 						bind:values={keywords}
 						endpoint="vocabularios/palabras-clave-leccion/"
-						placeholder="Buscar palabra clave…"
+						placeholder={m.lib_lesson_keywords_placeholder()}
 					/>
 				</FormField>
 			</div>
@@ -156,21 +157,25 @@
 	</section>
 
 	<section class="card mb-4">
-		<div class="card-header fw-semibold">Entidades relacionadas</div>
+		<div class="card-header fw-semibold">{m.lib_lesson_related()}</div>
 		<div class="card-body row g-3">
 			<div class="col-md-6">
-				<FormField label="Personas esclavizadas" id="personas-esc" error={fieldError('personas')}>
+				<FormField
+					label={m.lib_lesson_people_enslaved()}
+					id="personas-esc"
+					error={fieldError('personas')}
+				>
 					<MultiSelect
 						id="personas-esc"
 						bind:values={personasEsclavizadas}
 						endpoint="personas-esclavizadas/"
-						placeholder="Buscar persona esclavizada…"
+						placeholder={m.lib_lesson_people_enslaved_placeholder()}
 					/>
 				</FormField>
 			</div>
 			<div class="col-md-6">
 				<FormField
-					label="Personas no esclavizadas"
+					label={m.lib_lesson_people_nonenslaved()}
 					id="personas-no-esc"
 					error={fieldError('personas')}
 				>
@@ -178,27 +183,35 @@
 						id="personas-no-esc"
 						bind:values={personasNoEsclavizadas}
 						endpoint="personas-no-esclavizadas/"
-						placeholder="Buscar persona no esclavizada…"
+						placeholder={m.lib_lesson_people_nonenslaved_placeholder()}
 					/>
 				</FormField>
 			</div>
 			<div class="col-md-6">
-				<FormField label="Documentos" id="documentos" error={fieldError('documentos')}>
+				<FormField
+					label={m.lib_lesson_documents()}
+					id="documentos"
+					error={fieldError('documentos')}
+				>
 					<MultiSelect
 						id="documentos"
 						bind:values={documentos}
 						endpoint="documentos/"
-						placeholder="Buscar documento…"
+						placeholder={m.lib_lesson_documents_placeholder()}
 					/>
 				</FormField>
 			</div>
 			<div class="col-md-6">
-				<FormField label="Corporaciones" id="corporaciones" error={fieldError('corporaciones')}>
+				<FormField
+					label={m.lib_lesson_corporations()}
+					id="corporaciones"
+					error={fieldError('corporaciones')}
+				>
 					<MultiSelect
 						id="corporaciones"
 						bind:values={corporaciones}
 						endpoint="corporaciones/"
-						placeholder="Buscar corporación…"
+						placeholder={m.lib_lesson_corporations_placeholder()}
 					/>
 				</FormField>
 			</div>
@@ -207,9 +220,9 @@
 
 	{#if leccionId && canPublish}
 		<fieldset class="card mb-4">
-			<div class="card-header fw-semibold">Estado de publicación</div>
+			<div class="card-header fw-semibold">{m.lib_lesson_publish_status()}</div>
 			<div class="card-body">
-				<legend class="visually-hidden">Estado de publicación</legend>
+				<legend class="visually-hidden">{m.lib_lesson_publish_status()}</legend>
 				<div class="form-check form-switch">
 					<input
 						id="is-published"
@@ -218,8 +231,7 @@
 						bind:checked={isPublished}
 					/>
 					<label class="form-check-label" for="is-published">
-						{#if isPublished}Publicada (visible en el sitio público){:else}Borrador (visible solo
-							para personas con acceso){/if}
+						{#if isPublished}{m.lib_lesson_published()}{:else}{m.lib_lesson_draft()}{/if}
 					</label>
 				</div>
 				{#if fieldError('is_published')}
@@ -233,7 +245,7 @@
 		<button type="submit" class="btn btn-primary" disabled={submitting}>
 			{#if submitting}<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"
 				></span>{/if}
-			{submitLabel}
+			{submitLabel || m.lib_lesson_save()}
 		</button>
 		<slot name="actions" />
 	</div>
