@@ -534,5 +534,11 @@
   "arcline_width": "Arc thickness:",
   "period": "Period",
   "people": "people",
-  "conf_unit_anio": "year"
+  "conf_unit_anio": "year",
+  "agnos": "Years",
+  "cumulated": "Cumulative",
+  "no_date": "No date",
+  "movement_s": "movement(s)",
+  "person_people": "people",
+  "person": "person"
 }

@@ -678,12 +678,16 @@
 	function setRouteTooltip(route) {
 		const lines = [];
 		if (mode === 'static') {
-			lines.push(`${route.count} persona(s)`);
+			if (route.count === 1 ) {
+				lines.push(`${route.count} ${m.person()}`);
+			} else {
+				lines.push(`${route.count} ${m.person_people()}`);
+			}
 		} else {
-			lines.push(`Acumulado: ${routeCumAt(route, playhead)} movimiento(s)`);
-			lines.push(`${currentBucketLabel}: ${routePeriodAt(route, playhead)} movimiento(s)`);
+			lines.push(`${m.cumulated()}: ${routeCumAt(route, playhead)} ${m.movement_s()}`);
+			lines.push(`${currentBucketLabel}: ${routePeriodAt(route, playhead)} ${m.movement_s()}`);
 		}
-		lines.push(route.min_year != null ? `Años: ${route.min_year}–${route.max_year}` : 'Sin fecha');
+		lines.push(route.min_year != null ? `${m.agnos()}: ${route.min_year}–${route.max_year}` : m.no_date());
 		tooltipData = { title: `${route.from_nombre} → ${route.to_nombre}`, lines };
 	}
 
@@ -695,7 +699,7 @@
 		const outCount = s ? s.out[idx] || 0 : 0;
 		tooltipData = {
 			title: place.nombre,
-			lines: [`Acumulado: ${total} movimiento(s)`, `Entrantes: ${inCount} · Salientes: ${outCount}`]
+			lines: [`${m.cumulated()}: ${total} ${m.movement_s()}`, `${m.arcs_map_place_incoming()}: ${inCount} · ${m.arcs_map_place_outgoing()}: ${outCount}`]
 		};
 	}
 
