@@ -3,6 +3,8 @@
  * Renders `<figure>…(img|iframe)…<figcaption><input></figcaption></figure>` and lets
  * the caption be edited inline via the input while the node is selected.
  */
+import { m } from '$lib/paraglide/messages.js';
+
 export class FigureNodeView {
 	constructor(node, view, getPos, buildMedia) {
 		this.node = node;
@@ -20,9 +22,9 @@ export class FigureNodeView {
 		this.captionInput = document.createElement('input');
 		this.captionInput.type = 'text';
 		this.captionInput.className = 'lesson-figure-caption-input';
-		this.captionInput.placeholder = 'Añadir pie de figura…';
+		this.captionInput.placeholder = m.lib_figure_caption_placeholder();
 		this.captionInput.value = node.attrs.caption || '';
-		this.captionInput.setAttribute('aria-label', 'Pie de figura');
+		this.captionInput.setAttribute('aria-label', m.lib_figure_caption_aria());
 		this.captionInput.addEventListener('input', () => this.onCaptionInput());
 		this.captionInput.addEventListener('click', (e) => e.stopPropagation());
 
