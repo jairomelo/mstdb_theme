@@ -4,17 +4,20 @@
 	import StarterKit from '@tiptap/starter-kit';
 	import Embed from '$lib/editor/embed-node.js';
 	import CaptionedImage from '$lib/editor/captioned-image.js';
-	import { detectEmbed, EMBED_KIND_LABELS } from '$lib/editor/embed.js';
+	import { detectEmbed, EMBED_KIND_KEYS } from '$lib/editor/embed.js';
+	import { m } from '$lib/paraglide/messages.js';
 
 	/** Two-way bindable HTML content (`bind:content`) */
 	export let content = '';
 	export let id = 'rich-text-editor';
-	export let placeholder = 'Escriba el contenido…';
+	export let placeholder = '';
 	/** async (file: File) => url string. When null/undefined, image upload is disabled. */
 	export let onUploadImage = null;
 	/** async (file: File) => url string. When null/undefined, PDF upload is disabled. */
 	export let onUploadPdf = null;
 	export let disabledHint = '';
+
+	$: editorPlaceholder = placeholder || m.lib_rich_placeholder();
 
 	const dispatch = createEventDispatcher();
 
@@ -139,7 +142,10 @@
 	}
 
 	function setLink() {
-		const url = window.prompt('URL del enlace:', editor.getAttributes('link').href ?? 'https://');
+		const url = window.prompt(
+			m.lib_rich_link_prompt(),
+			editor.getAttributes('link').href ?? 'https://'
+		);
 		if (url === null) return;
 		if (url === '') {
 			editor.chain().focus().unsetLink().run();
@@ -173,14 +179,14 @@
 </script>
 
 <div class="rich-text-editor">
-	<div class="rich-text-toolbar" role="toolbar" aria-label="Formato de texto">
+	<div class="rich-text-toolbar" role="toolbar" aria-label={m.lib_rich_toolbar_aria()}>
 		<button
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
 			class:active={active.bold}
 			aria-pressed={active.bold}
-			aria-label="Negrita"
-			title="Negrita"
+			aria-label={m.lib_rich_bold()}
+			title={m.lib_rich_bold()}
 			on:click={() => editor.chain().focus().toggleBold().run()}
 		>
 			<i class="bi bi-type-bold" aria-hidden="true"></i>
@@ -190,8 +196,8 @@
 			class="btn btn-sm btn-outline-secondary"
 			class:active={active.italic}
 			aria-pressed={active.italic}
-			aria-label="Cursiva"
-			title="Cursiva"
+			aria-label={m.lib_rich_italic()}
+			title={m.lib_rich_italic()}
 			on:click={() => editor.chain().focus().toggleItalic().run()}
 		>
 			<i class="bi bi-type-italic" aria-hidden="true"></i>
@@ -201,8 +207,8 @@
 			class="btn btn-sm btn-outline-secondary"
 			class:active={active.strike}
 			aria-pressed={active.strike}
-			aria-label="Tachado"
-			title="Tachado"
+			aria-label={m.lib_rich_strike()}
+			title={m.lib_rich_strike()}
 			on:click={() => editor.chain().focus().toggleStrike().run()}
 		>
 			<i class="bi bi-type-strikethrough" aria-hidden="true"></i>
@@ -212,8 +218,8 @@
 			class="btn btn-sm btn-outline-secondary"
 			class:active={active.h2}
 			aria-pressed={active.h2}
-			aria-label="Encabezado 2"
-			title="Encabezado 2"
+			aria-label={m.lib_rich_h2()}
+			title={m.lib_rich_h2()}
 			on:click={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
 		>
 			<i class="bi bi-type-h2" aria-hidden="true"></i>
@@ -223,8 +229,8 @@
 			class="btn btn-sm btn-outline-secondary"
 			class:active={active.h3}
 			aria-pressed={active.h3}
-			aria-label="Encabezado 3"
-			title="Encabezado 3"
+			aria-label={m.lib_rich_h3()}
+			title={m.lib_rich_h3()}
 			on:click={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
 		>
 			<i class="bi bi-type-h3" aria-hidden="true"></i>
@@ -234,8 +240,8 @@
 			class="btn btn-sm btn-outline-secondary"
 			class:active={active.bulletList}
 			aria-pressed={active.bulletList}
-			aria-label="Lista con viñetas"
-			title="Lista con viñetas"
+			aria-label={m.lib_rich_bullet()}
+			title={m.lib_rich_bullet()}
 			on:click={() => editor.chain().focus().toggleBulletList().run()}
 		>
 			<i class="bi bi-list-ul" aria-hidden="true"></i>
@@ -245,8 +251,8 @@
 			class="btn btn-sm btn-outline-secondary"
 			class:active={active.orderedList}
 			aria-pressed={active.orderedList}
-			aria-label="Lista numerada"
-			title="Lista numerada"
+			aria-label={m.lib_rich_ordered()}
+			title={m.lib_rich_ordered()}
 			on:click={() => editor.chain().focus().toggleOrderedList().run()}
 		>
 			<i class="bi bi-list-ol" aria-hidden="true"></i>
@@ -256,8 +262,8 @@
 			class="btn btn-sm btn-outline-secondary"
 			class:active={active.link}
 			aria-pressed={active.link}
-			aria-label="Insertar enlace"
-			title="Insertar enlace"
+			aria-label={m.lib_rich_link()}
+			title={m.lib_rich_link()}
 			on:click={setLink}
 		>
 			<i class="bi bi-link-45deg" aria-hidden="true"></i>
@@ -267,8 +273,8 @@
 			class="btn btn-sm btn-outline-secondary"
 			class:active={active.blockquote}
 			aria-pressed={active.blockquote}
-			aria-label="Cita"
-			title="Cita"
+			aria-label={m.lib_rich_quote()}
+			title={m.lib_rich_quote()}
 			on:click={() => editor.chain().focus().toggleBlockquote().run()}
 		>
 			<i class="bi bi-quote" aria-hidden="true"></i>
@@ -276,8 +282,8 @@
 		<button
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
-			aria-label="Línea horizontal"
-			title="Línea horizontal"
+			aria-label={m.lib_rich_hr()}
+			title={m.lib_rich_hr()}
 			on:click={() => editor.chain().focus().setHorizontalRule().run()}
 		>
 			<i class="bi bi-hr" aria-hidden="true"></i>
@@ -285,9 +291,9 @@
 		<button
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
-			aria-label="Insertar imagen"
+			aria-label={m.lib_rich_image()}
 			disabled={!onUploadImage}
-			title={!onUploadImage ? disabledHint : 'Insertar imagen'}
+			title={!onUploadImage ? disabledHint : m.lib_rich_image()}
 			on:click={() => fileInput.click()}
 		>
 			<i class="bi bi-image" aria-hidden="true"></i>
@@ -305,9 +311,9 @@
 		<button
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
-			aria-label="Insertar PDF"
+			aria-label={m.lib_rich_pdf()}
 			disabled={!onUploadPdf}
-			title={!onUploadPdf ? disabledHint : 'Insertar PDF'}
+			title={!onUploadPdf ? disabledHint : m.lib_rich_pdf()}
 			on:click={() => pdfFileInput.click()}
 		>
 			<i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>
@@ -325,8 +331,8 @@
 		<button
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
-			aria-label="Insertar embed (YouTube, PDF, IIIF, iframe)"
-			title="Insertar embed (YouTube, PDF, IIIF, iframe)"
+			aria-label={m.lib_rich_embed()}
+			title={m.lib_rich_embed()}
 			on:click={openEmbedDialog}
 		>
 			<i class="bi bi-code-square" aria-hidden="true"></i>
@@ -334,8 +340,8 @@
 		<button
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
-			aria-label="Deshacer"
-			title="Deshacer"
+			aria-label={m.lib_rich_undo()}
+			title={m.lib_rich_undo()}
 			on:click={() => editor.chain().focus().undo().run()}
 		>
 			<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
@@ -343,8 +349,8 @@
 		<button
 			type="button"
 			class="btn btn-sm btn-outline-secondary"
-			aria-label="Rehacer"
-			title="Rehacer"
+			aria-label={m.lib_rich_redo()}
+			title={m.lib_rich_redo()}
 			on:click={() => editor.chain().focus().redo().run()}
 		>
 			<i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
@@ -369,7 +375,7 @@
 		}}
 		role="textbox"
 		aria-multiline="true"
-		aria-label={placeholder}
+		aria-label={editorPlaceholder}
 	></div>
 
 	{#if !onUploadImage && disabledHint}
@@ -377,7 +383,8 @@
 	{/if}
 	{#if uploading}
 		<p class="small text-muted mt-1">
-			<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Subiendo imagen…
+			<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"
+			></span>{m.lib_rich_uploading()}
 		</p>
 	{/if}
 	{#if uploadError}
@@ -385,11 +392,11 @@
 	{/if}
 </div>
 
-<dialog bind:this={embedDialog} class="embed-dialog" aria-label="Insertar embed">
+<dialog bind:this={embedDialog} class="embed-dialog" aria-label={m.lib_rich_embed_title()}>
 	<form method="dialog" on:submit|preventDefault={confirmEmbed}>
-		<h2 class="h5">Insertar embed</h2>
+		<h2 class="h5">{m.lib_rich_embed_title()}</h2>
 		<p class="form-text mb-2">
-			Pega una URL de YouTube, un PDF, un manifiesto IIIF o cualquier página incrustable.
+			{m.lib_rich_embed_hint()}
 		</p>
 		<label class="form-label" for="embed-url-input">URL</label>
 		<input
@@ -402,19 +409,19 @@
 		/>
 		<div class="form-text" aria-live="polite">
 			{#if embedUrl && embedPreview}
-				Se insertará como: <strong>{EMBED_KIND_LABELS[embedPreview.kind]}</strong>
+				{m.lib_rich_embed_as({ kind: m[EMBED_KIND_KEYS[embedPreview.kind]]() })}
 			{:else if embedUrl}
-				URL no reconocida o no válida.
+				{m.lib_rich_embed_unrecognized()}
 			{:else}
-				El tipo se detectará automáticamente.
+				{m.lib_rich_embed_autodetect()}
 			{/if}
 		</div>
 		<div class="d-flex justify-content-end gap-2 mt-3">
 			<button type="button" class="btn btn-outline-secondary btn-sm" on:click={closeEmbedDialog}>
-				Cancelar
+				{m.lib_cancel()}
 			</button>
 			<button type="submit" class="btn btn-primary btn-sm" disabled={!embedPreview}>
-				Insertar
+				{m.lib_rich_insert()}
 			</button>
 		</div>
 	</form>
