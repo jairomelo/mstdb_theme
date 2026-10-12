@@ -7,7 +7,24 @@
 
 	export let entityType;
 
-	$: filterDefs = filtersDefinition[entityType] || [];
+	function resolveLabel(key) {
+		return key ? m[key]() : '';
+	}
+
+	function localizeFilter(f) {
+		return {
+			...f,
+			label: resolveLabel(f.labelKey),
+			rangeLabel: f.rangeLabelKey ? resolveLabel(f.rangeLabelKey) : '',
+			placeholder: f.placeholderKey ? resolveLabel(f.placeholderKey) : '',
+			options: f.options
+				? f.options.map((o) => ({ ...o, label: resolveLabel(o.labelKey) }))
+				: f.options
+		};
+	}
+
+	// Resolve message keys to text so reactive locale changes re-render labels.
+	$: filterDefs = (filtersDefinition[entityType] || []).map(localizeFilter);
 	$: currentFilters = $unifiedStore.tabs[entityType]?.filters || {};
 	$: facets = $unifiedStore.facets || {};
 	$: yearRange = facets.year_range || {};
@@ -19,34 +36,35 @@
 		const ungrouped = [];
 		const groupMap = new Map(); // preserve insertion order
 		for (const f of defs) {
-			if (!f.group) {
+			if (!f.groupKey) {
 				ungrouped.push(f);
 			} else {
-				if (!groupMap.has(f.group)) groupMap.set(f.group, []);
-				groupMap.get(f.group).push(f);
+				if (!groupMap.has(f.groupKey)) {
+					groupMap.set(f.groupKey, {
+						key: f.groupKey,
+						name: resolveLabel(f.groupKey),
+						filters: []
+					});
+				}
+				groupMap.get(f.groupKey).filters.push(f);
 			}
 		}
-		const groups = [];
-		for (const [name, filters] of groupMap) {
-			groups.push({ name, filters });
-		}
-		return { ungrouped, groups };
+		return { ungrouped, groups: [...groupMap.values()] };
 	}
 
-	// Track which groups are expanded — Trayectorias expanded by default, rest collapsed
+	// Track which groups are expanded — Trayectorias expanded by default, rest collapsed.
+	// Add missing keys in place (no reassignment) to avoid a self-referential reactive loop.
 	let expandedGroups = {};
 	$: {
-		// Reset on entity change, keep existing state
-		const ng = {};
 		for (const g of filterLayout.groups) {
-			ng[g.name] =
-				expandedGroups[g.name] !== undefined ? expandedGroups[g.name] : g.name === 'Trayectorias';
+			if (!(g.key in expandedGroups)) {
+				expandedGroups[g.key] = g.key === 'conf_group_trayectorias';
+			}
 		}
-		expandedGroups = ng;
 	}
 
-	function toggleGroup(name) {
-		expandedGroups[name] = !expandedGroups[name];
+	function toggleGroup(key) {
+		expandedGroups[key] = !expandedGroups[key];
 		expandedGroups = expandedGroups;
 	}
 
@@ -102,7 +120,7 @@
 		<h6 class="mb-0 fw-bold"><i class="bi bi-funnel me-1"></i> {m.filters_title()}</h6>
 		{#if activeCount > 0}
 			<button class="btn btn-sm btn-link text-decoration-none p-0" on:click={handleClear}>
-				Limpiar ({activeCount})
+				{m.conf_browse_clear({ count: activeCount })}
 			</button>
 		{/if}
 	</div>
@@ -127,7 +145,7 @@
 			{:else if isYearGte && nextFilter?.type === 'year'}
 				<!-- Year range pair, always visible -->
 				<div class="mb-3">
-					<label class="form-label small mb-1">Rango de fechas</label>
+					<label class="form-label small mb-1">{m.conf_browse_date_range()}</label>
 					<div class="d-flex align-items-center gap-2">
 						<input
 							type="number"
@@ -176,15 +194,15 @@
 		{#each filterLayout.groups as group}
 			{@const active = groupActiveCount(group.filters)}
 			<div class="filter-group">
-				<button class="filter-group-header" on:click={() => toggleGroup(group.name)}>
-					<i class="bi {expandedGroups[group.name] ? 'bi-chevron-down' : 'bi-chevron-right'} me-1"
+				<button class="filter-group-header" on:click={() => toggleGroup(group.key)}>
+					<i class="bi {expandedGroups[group.key] ? 'bi-chevron-down' : 'bi-chevron-right'} me-1"
 					></i>
 					<span>{group.name}</span>
 					{#if active > 0}
 						<span class="ms-auto badge bg-primary" style="font-size: 0.65rem;">{active}</span>
 					{/if}
 				</button>
-				{#if expandedGroups[group.name]}
+				{#if expandedGroups[group.key]}
 					<div class="filter-group-body">
 						{#each group.filters as filter, i}
 							{@const nextFilter = group.filters[i + 1]}
@@ -197,12 +215,7 @@
 							{#if isRangePair}
 								<!-- Number range pair (e.g. edad min/max) -->
 								<div class="mb-2">
-									<label class="form-label small mb-1"
-										>{filter.key
-											.replace(/__(gte|lte)$/, '')
-											.replace(/_/g, ' ')
-											.replace(/^\w/, (c) => c.toUpperCase())}</label
-									>
+									<label class="form-label small mb-1">{filter.rangeLabel}</label>
 									<div class="d-flex gap-2">
 										<input
 											type="number"
@@ -239,7 +252,7 @@
 									<SearchableSelect
 										options={facets[filter.facetKey] || []}
 										value={currentFilters[filter.key] || ''}
-										placeholder="Buscar {filter.label.toLowerCase()}..."
+										placeholder={m.conf_ph_buscar_por({ term: filter.label.toLowerCase() })}
 										on:change={(e) => handleFilterChange(filter.key, e.detail, true)}
 									/>
 								</div>
@@ -249,7 +262,7 @@
 									<IdSearchableSelect
 										options={facets[filter.facetKey] || []}
 										value={currentFilters[filter.key] || ''}
-										placeholder="Buscar {filter.label.toLowerCase()}..."
+										placeholder={m.conf_ph_buscar_por({ term: filter.label.toLowerCase() })}
 										multi={filter.multi || false}
 										on:change={(e) => handleFilterChange(filter.key, e.detail, true)}
 									/>
