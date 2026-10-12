@@ -42,9 +42,15 @@ export function detectEmbed(rawUrl) {
 	return { kind: 'iframe', src: url };
 }
 
-export const EMBED_KIND_LABELS = {
-	youtube: 'Vídeo de YouTube',
-	pdf: 'Documento PDF',
-	image: 'Imagen',
-	iframe: 'Página o visor incrustado (iframe)'
+// Paraglide message keys for embed kinds; resolve with m[key]() at render time.
+export const EMBED_KIND_KEYS = {
+	youtube: 'conf_embed_youtube',
+	pdf: 'conf_embed_pdf',
+	image: 'conf_embed_image',
+	iframe: 'conf_embed_iframe'
 };
+
+/** Resolve the Paraglide message key for an embed kind, or '' if unknown. */
+export function embedKindKey(kind) {
+	return EMBED_KIND_KEYS[kind] ?? '';
+}
