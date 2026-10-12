@@ -493,5 +493,12 @@
   "viz_map_description": "Geographic visualization of the routes and forced displacements of enslaved people, with individual arcs and aggregated flows over a historical map.",
   "viz_map_title": "Trajectories Map",
   "viz_pnet_title": "Network of Related People",
-  "viz_pnet_description": "Interactive graph of relationships between enslaved and non-enslaved people, with filters by relationship type, centrality, and person type."
+  "viz_pnet_description": "Interactive graph of relationships between enslaved and non-enslaved people, with filters by relationship type, centrality, and person type.",
+  "viz_map_head_title": "Trajectory Map — Trayectorias Afro",
+  "source": "Source",
+  "viz_map_panel_source": "MSTDB Database — Trayectorias Afro",
+  "viz_map_breadcrumb": "Trajectory map",
+  "viz_map_panel_data": "Individual trajectories and aggregated flows between places",
+  "viz_map_panel_desc": "Geographic visualization of the trajectories of enslaved people in New Spain.",
+  "data": "Data"
 }

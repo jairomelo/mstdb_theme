@@ -491,7 +491,14 @@
 	"viz_pbp_title": "Personas por lugar",
 	"viz_pbp_description": "Distribución de personas esclavizadas por ubicación geográfica, con vistas estática y dinámica para explorar patrones espaciales.",
 	"viz_map_description": "Visualización geográfica de las rutas y desplazamientos forzados de personas esclavizadas, con arcos individuales y flujos agregados sobre un mapa histórico.",
-	"viz_map_title": "Mapa de trayectorias",
+	"viz_map_title": "Visualizaciones",
 	"viz_pnet_title": "Red de personas relacionadas",
-	"viz_pnet_description": "Grafo interactivo de relaciones entre personas esclavizadas y no esclavizadas, con filtros por tipo de relación, centralidad y tipo de persona."
+	"viz_pnet_description": "Grafo interactivo de relaciones entre personas esclavizadas y no esclavizadas, con filtros por tipo de relación, centralidad y tipo de persona.",
+	"viz_map_head_title": "Mapa de Trayectorias — Trayectorias Afro",
+	"source": "Fuente",
+	"viz_map_panel_source": "Base de datos MSTDB — Trayectorias Afro",
+	"viz_map_breadcrumb": "Mapa de trayectorias",
+	"viz_map_panel_data": "Trayectorias individuales y flujos agregados entre lugares",
+	"viz_map_panel_desc": "Visualización geográfica de las trayectorias de las personas esclavizadas en Nueva España.",
+	"data": "Datos"
 }
