@@ -1,4 +1,5 @@
-import { titleStem, titleSuffixes } from '$conf/local';
+import { titleStem, titleSuffixKeys } from '$conf/local';
+import { m } from '$lib/paraglide/messages.js';
 import { writable } from 'svelte/store';
 
 let currentSuffixIndex = 0;
@@ -13,8 +14,9 @@ function getRandomColor() {
 }
 
 export function updateSuffix() {
-	currentSuffixIndex = (currentSuffixIndex + 1) % titleSuffixes.length;
-	currentSuffix.set(titleSuffixes[currentSuffixIndex]);
+	currentSuffixIndex = (currentSuffixIndex + 1) % titleSuffixKeys.length;
+	// Resolve the localized suffix at call time so the active locale is honored.
+	currentSuffix.set(m[titleSuffixKeys[currentSuffixIndex]]());
 	currentColor.set(getRandomColor());
 }
 
