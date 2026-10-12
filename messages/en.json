@@ -21,6 +21,7 @@
   "north_ago_insect_amaze": "Visualizations",
   "happy_blue_wombat_aid": "Search",
   "last_early_husky_taste": "About Trayectorias Afro",
+  "footer_contact": "Questions & suggestions",
   "mild_quick_parakeet_dart": "Enslaved People Icon",
   "vivid_least_pig_forgive": "Memorica – Memorias Afromexicanas",
   "simple_muddy_scallop_coax": "Exact Search",
@@ -549,7 +550,11 @@
   "antsy_seemly_stingray_pout": "Maximum year of the filter range",
   "viz_pbp_searchbyname": "Search place by name",
   "viz_pbp_table_title": "Summary by Place",
+  "viz_pbp_col_total_personas": "Total Number of Enslaved People",
   "viz_pbp_aria_hint": "Bubble chart showing people associated with places by year",
+  "viz_pbp_axis_people": "Number of People",
+  "viz_pbp_table_aria": "Summary of people by place",
+  "viz_pbp_point_aria": "{lugar}, {year}: {count} people. Press Enter to filter by this place and year.",
   "max_year": "Maximum Year",
   "netw_concentric": "Concentric",
   "netw_grid": "Grid",
@@ -576,5 +581,7 @@
   "lessons_sort_asc": "Title (A–Z)",
   "lessons_pagination": "Page {page} of {totalPages}",
   "lessons_all_keywords": "All keywords",
-  "lessons_before": "Previous"
+  "lessons_before": "Previous",
+  "lessons_read_lesson": "Read lesson",
+  "lessons_error_mss": "This lesson is not available. It may be a draft without access for your account."
 }

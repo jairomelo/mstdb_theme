@@ -11,6 +11,7 @@
 
 	import { user } from '$lib/stores/user';
 	import { logout } from '$lib/api';
+	import { publicConfig, loadPublicConfig } from '$lib/publicConfig';
 	import { loginUrl } from '$lib/auth';
 	import { getLocale, setLocale } from '$lib/paraglide/runtime.js';
 
@@ -64,6 +65,7 @@
 		} catch {
 			user.set(null);
 		}
+		loadPublicConfig();
 		const w = sessionStorage.getItem('ta_welcome');
 		if (w) {
 			sessionStorage.removeItem('ta_welcome');
@@ -276,6 +278,11 @@
 					<ul class="list-unstyled">
 						<li><a href="/About">{m.civil_awake_llama_treat()}</a></li>
 						<li><a href="/Accessibility">{m.royal_civil_hare_pride()}</a></li>
+						{#if $publicConfig.contact_email}
+							<li>
+								<a href="mailto:{$publicConfig.contact_email}">{m.footer_contact()}</a>
+							</li>
+						{/if}
 						{#if !$user}
 							<li><a href={loginUrl('/')}>{m.keen_polite_bobcat_snip()}</a></li>
 						{:else}

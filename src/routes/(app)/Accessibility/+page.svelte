@@ -1,5 +1,6 @@
 <script>
 	import { m } from '$lib/paraglide/messages.js';
+	import { publicConfig } from '$lib/publicConfig';
 </script>
 
 <svelte:head>
@@ -20,7 +21,8 @@
 					<i class="bi bi-universal-access me-2" aria-hidden="true"></i>{m.mean_dry_leopard_file()}
 				</h2>
 				<p class="lead">
-					{m.major_bald_fish_sail()}<strong>{m.left_curly_jan_care()}</strong>{m.glad_happy_newt_enrich()}
+					{m.major_bald_fish_sail()}<strong>{m.left_curly_jan_care()}</strong
+					>{m.glad_happy_newt_enrich()}
 				</p>
 			</section>
 
@@ -57,7 +59,8 @@
 					<div class="card-body">
 						<h3 class="contributor-name fs-5">{m.honest_ok_sheep_trim()}</h3>
 						<p class="mb-0">
-							<strong>{m.neat_tense_marten_pet()}</strong> {m.ornate_super_hawk_drop()}
+							<strong>{m.neat_tense_marten_pet()}</strong>
+							{m.ornate_super_hawk_drop()}
 						</p>
 					</div>
 				</div>
@@ -77,18 +80,14 @@
 					<li>{m.close_quiet_sparrow_cook()}</li>
 					<li>{m.grand_warm_hare_dine()}</li>
 					<li>
-						{m.ideal_heavy_cougar_renew()}<code
-							>aria-describedby</code
-						>.
+						{m.ideal_heavy_cougar_renew()}<code>aria-describedby</code>.
 					</li>
 					<li>
 						{m.late_red_hedgehog_talk()}(<em>focus trapping</em>).
 					</li>
 					<li>{m.icy_trite_canary_twirl()}</li>
 					<li>
-						{m.east_fine_wolf_approve()}<code
-							>aria-hidden="true"</code
-						>.
+						{m.east_fine_wolf_approve()}<code>aria-hidden="true"</code>.
 					</li>
 					<li>{m.next_east_cockroach_tickle()}</li>
 					<li>{m.drab_dirty_herring_heal()}</li>
@@ -146,6 +145,11 @@
 							>{m.accessibility_report()}</a
 						>
 					</li>
+					{#if $publicConfig.contact_email}
+						<li>
+							<a href="mailto:{$publicConfig.contact_email}">{m.footer_contact()}</a>
+						</li>
+					{/if}
 				</ul>
 				<p>
 					{m.sad_grand_cobra_support()}

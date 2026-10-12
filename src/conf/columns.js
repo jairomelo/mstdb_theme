@@ -119,7 +119,7 @@ export const columnsConfig = {
 		{ key: 'nombre_lugar', labelKey: 'conf_col_nombre', sortable: true, visible: true },
 		{ key: 'tipo', labelKey: 'conf_col_tipo', sortable: true, visible: true },
 		{ key: 'otros_nombres', labelKey: 'conf_col_otros_nombres', sortable: false, visible: true },
-		{ key: 'persona_count', labelKey: 'conf_col_personas', sortable: false, visible: true },
+		{ key: 'persona_count', labelKey: 'conf_col_personas', sortable: true, visible: true },
 		{ key: 'lat', labelKey: 'conf_col_latitud', sortable: false, visible: false },
 		{ key: 'lon', labelKey: 'conf_col_longitud', sortable: false, visible: false }
 	],

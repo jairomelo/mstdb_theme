@@ -6,6 +6,7 @@
 	import { animateSuffix } from '$lib/textanimation';
 	import { setRandomHeroImage } from '$lib/heroBackground'; // Updated import path
 	import { user } from '$lib/stores/user';
+	import { publicConfig } from '$lib/publicConfig';
 	import { loginUrl } from '$lib/auth';
 	import { m } from '$lib/paraglide/messages.js';
 	import { getLocale, setLocale } from '$lib/paraglide/runtime.js';
@@ -345,6 +346,9 @@
 				<ul class="list-unstyled">
 					<li><a href="/About">{m.civil_awake_llama_treat()}</a></li>
 					<li><a href="/Accessibility">{m.royal_civil_hare_pride()}</a></li>
+					{#if $publicConfig.contact_email}
+						<li><a href="mailto:{$publicConfig.contact_email}">{m.footer_contact()}</a></li>
+					{/if}
 					{#if !$user}
 						<li><a href={loginUrl('/')}>{m.keen_polite_bobcat_snip()}</a></li>
 					{:else}

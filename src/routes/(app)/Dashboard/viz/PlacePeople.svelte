@@ -86,7 +86,7 @@
 
 	const handleSelect = (place) => {
 		selectedPlace = place;
-		searchTerm = place === 'all' ? 'Todos los Lugares' : place;
+		searchTerm = place === 'all' ? m.all_places() : place;
 		showDropdown = false;
 		updateFilteredData();
 	};
@@ -181,7 +181,7 @@
 			.attr('y', 40)
 			.attr('text-anchor', 'middle')
 			.attr('fill', '#1d1916')
-			.text('Año');
+			.text(m.agno());
 
 		// Y axis
 		svg
@@ -193,7 +193,7 @@
 			.attr('y', -40)
 			.attr('text-anchor', 'middle')
 			.attr('fill', '#1d1916')
-			.text('Número de Personas');
+			.text(m.viz_pbp_axis_people());
 
 		// Reuse or create tooltip (only once per app lifecycle)
 		if (!tooltip) {
@@ -228,10 +228,8 @@
 			.style('cursor', 'pointer')
 			.attr('role', 'button')
 			.attr('tabindex', 0)
-			.attr(
-				'aria-label',
-				(d) =>
-					`${d.lugar}, ${d.year}: ${d.count} personas. Presione Enter para filtrar por este lugar y año.`
+			.attr('aria-label', (d) =>
+				m.viz_pbp_point_aria({ lugar: d.lugar, year: d.year, count: d.count })
 			)
 			.on('mouseover', function (event, d) {
 				d3.select(this).attr('opacity', 1).attr('stroke-width', 2.5);
@@ -267,13 +265,13 @@
 		const table = document.createElement('table');
 		table.className = 'summary-table';
 		table.setAttribute('role', 'table');
-		table.setAttribute('aria-label', 'Resumen de personas por lugar');
+		table.setAttribute('aria-label', m.viz_pbp_table_aria());
 
 		// Header
 		const thead = table.createTHead();
 		const headerRow = thead.insertRow();
 
-		[m.conf_col_lugar(), m.conf_col_total(), m.period()].forEach((text, idx) => {
+		[m.conf_col_lugar(), m.viz_pbp_col_total_personas(), m.period()].forEach((text, idx) => {
 			const th = document.createElement('th');
 			th.setAttribute('role', 'columnheader');
 			th.setAttribute('scope', 'col');
