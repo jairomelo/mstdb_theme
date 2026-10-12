@@ -197,8 +197,8 @@
 
 	$: currentBucketLabel = buckets[playhead]
 		? granularity === 1
-			? `Año: ${buckets[playhead].label}`
-			: `Periodo: ${buckets[playhead].label}`
+			? `${m.agno()}: ${buckets[playhead].label}`
+			: `${m.period()}: ${buckets[playhead].label}`
 		: '—';
 
 	function defaultRouteLimit(total) {
@@ -863,25 +863,25 @@
 					/>
 				</div>
 				<div class="arcs-map-filter">
-					<label class="form-label" for="origin">Origen</label>
+					<label class="form-label" for="origin">{m.origin()}</label>
 					<select id="origin" class="form-select" bind:value={origin}>
-						<option value="">Todos los lugares</option>
+						<option value="">{m.all_places()}</option>
 						{#each places as place}
 							<option value={place.lugar_id}>{place.nombre}</option>
 						{/each}
 					</select>
 				</div>
 				<div class="arcs-map-filter">
-					<label class="form-label" for="destination">Destino</label>
+					<label class="form-label" for="destination">{m.destination()}</label>
 					<select id="destination" class="form-select" bind:value={destination}>
-						<option value="">Todos los lugares</option>
+						<option value="">{m.all_places()}</option>
 						{#each places as place}
 							<option value={place.lugar_id}>{place.nombre}</option>
 						{/each}
 					</select>
 				</div>
 				<div class="arcs-map-filter arcs-map-filter-dates">
-					<label class="form-label" for="start-year">Rango de fechas</label>
+					<label class="form-label" for="start-year">{m.conf_browse_date_range()}</label>
 					<div class="input-group">
 						<input
 							id="start-year"
@@ -922,14 +922,14 @@
 						on:click={enterTimeline}
 						disabled={loading || meta.min_year == null}
 					>
-						<i class="bi bi-play-circle me-1" aria-hidden="true"></i>Ver línea de tiempo
+						<i class="bi bi-play-circle me-1" aria-hidden="true"></i>{m.arable_close_florian_foster()}
 					</button>
 					{#if !loading && meta.min_year == null}
 						<span class="small text-muted">Sin movimientos con fecha disponibles.</span>
 					{/if}
 				{:else}
 					<button class="btn btn-outline-primary" type="button" on:click={exitTimeline}>
-						<i class="bi bi-map me-1" aria-hidden="true"></i>Vista estática
+						<i class="bi bi-map me-1" aria-hidden="true"></i>{m.quiet_plane_manatee_support()}
 					</button>
 				{/if}
 				{#if destination || origin}
@@ -957,8 +957,8 @@
 						class="btn btn-sm btn-outline-secondary"
 						type="button"
 						on:click={skipToStart}
-						aria-label="Ir al inicio de la línea de tiempo"
-						title="Ir al inicio de la línea de tiempo"
+						aria-label={m.nice_mad_ladybug_tear()}
+						title={m.nice_mad_ladybug_tear()}
 						disabled={!buckets.length}
 					>
 						<i class="bi bi-skip-start-fill" aria-hidden="true"></i>
@@ -967,8 +967,8 @@
 						class="btn btn-sm btn-primary"
 						type="button"
 						on:click={togglePlay}
-						aria-label={playing ? 'Pausar animación' : 'Reproducir animación'}
-						title={playing ? 'Pausar animación' : 'Reproducir animación'}
+						aria-label={playing ? m.pause_animation() : m.continue_animation()}
+						title={playing ? m.pause_animation() : m.continue_animation()}
 						disabled={!buckets.length}
 					>
 						<i class="bi {playing ? 'bi-pause-fill' : 'bi-play-fill'}" aria-hidden="true"></i>
@@ -977,8 +977,8 @@
 						class="btn btn-sm btn-outline-secondary"
 						type="button"
 						on:click={skipToEnd}
-						aria-label="Ir al final de la línea de tiempo"
-						title="Ir al final de la línea de tiempo"
+						aria-label={m.gototheend()}
+						title={m.gototheend()}
 						disabled={!buckets.length}
 					>
 						<i class="bi bi-skip-end-fill" aria-hidden="true"></i>
@@ -990,21 +990,21 @@
 						max={Math.max(0, buckets.length - 1)}
 						step="1"
 						bind:value={playhead}
-						aria-label="Posición de la línea de tiempo"
+						aria-label={m.timeline_poss()}
 						aria-valuetext={currentBucketLabel}
 						disabled={!buckets.length}
 					/>
 					<span class="timeline-year badge text-bg-secondary">{currentBucketLabel}</span>
 					<label class="form-label small mb-0" for="granularity">
-						Agrupar por
+						{m.groupby()}
 						<select id="granularity" class="form-select form-select-sm" bind:value={granularity}>
-							<option value={1}>1 año</option>
-							<option value={5}>5 años</option>
-							<option value={10}>10 años</option>
+							<option value={1}>1 {m.conf_unit_anio()}</option>
+							<option value={5}>5 {m.conf_unit_anios()}</option>
+							<option value={10}>10 {m.conf_unit_anios()}</option>
 						</select>
 					</label>
 					<label class="form-label small mb-0" for="speed">
-						Velocidad
+						{m.speed()}
 						<select id="speed" class="form-select form-select-sm" bind:value={speed}>
 							<option value={0.5}>0.5×</option>
 							<option value={1}>1×</option>
@@ -1019,20 +1019,20 @@
 				{#if loading}
 					<div class="map-loading-overlay" role="status">
 						<div class="spinner-border text-primary" aria-hidden="true"></div>
-						<p class="mb-0 mt-2">Cargando trayectorias… Esto puede tomar unos momentos.</p>
+						<p class="mb-0 mt-2">{m.loading_trajectories()}</p>
 					</div>
 				{/if}
 				{#if error}
 					<div class="map-error-overlay" role="alert">
 						<i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-						<p class="mb-0 ms-2">Error cargando trayectorias: {error}</p>
+						<p class="mb-0 ms-2">{m.loading_error({error: error})}</p>
 					</div>
 				{/if}
 				{#if mode === 'timeline' && !loading && !error && meta.min_year == null}
 					<div class="map-empty-overlay">
 						<p class="mb-0">
 							<i class="bi bi-calendar-x me-2" aria-hidden="true"></i>
-							No hay movimientos con fecha para mostrar en la línea de tiempo.
+							{m.loading_nothing()}
 						</p>
 					</div>
 				{/if}
@@ -1049,13 +1049,14 @@
 			{#if mode === 'timeline' && meta.undated_count > 0}
 				<p class="small arcs-map-notice mt-2 mb-0">
 					<i class="bi bi-info-circle me-1" aria-hidden="true"></i>
-					{meta.undated_count} movimientos sin fecha no se muestran en la línea de tiempo.
+					{ m.no_shown_movements({undated_count : meta.undated_count})}
 				</p>
 			{/if}
 
 			<p class="small text-muted mt-2 mb-1" role="status">
-				{Math.min(routeLimit, visibleRoutes.length)} de {routes.length} rutas agregadas ·
-				{places.length} lugares
+				<!-- {Math.min(routeLimit, visibleRoutes.length)} de {routes.length} rutas agregadas · -->
+				{m.min_max_routes({ min: Math.min(routeLimit, visibleRoutes.length), max: routes.length})}
+				{m.places_length({places_length : places.length})}
 				{#if meta.min_year != null}
 					· {meta.min_year}–{meta.max_year}
 				{/if}
@@ -1067,20 +1068,19 @@
 			<div class="arcs-map-legend small text-muted">
 				<span class="legend-item">
 					<span class="legend-arc" aria-hidden="true"></span>
-					Grosor del arco: {mode === 'timeline' ? 'movimientos acumulados' : 'personas'}
+					{m.arcline_width()} {mode === 'timeline' ? m.cum_movs() : m.people()}
 				</span>
 				{#if mode === 'timeline'}
 					<span class="legend-item">
 						<span class="legend-marker" aria-hidden="true"></span>
-						Tamaño del círculo: movimientos acumulados del lugar
+						{m.circle_size()}
 					</span>
 					<span class="legend-item">
 						<span class="legend-particle" aria-hidden="true"></span>
-						Puntos en movimiento: flujos del periodo mostrado
+						{m.mov_points()}
 					</span>
 					<span class="legend-note">
-						Los conteos por periodo cuentan movimientos (no personas únicas); la vista estática
-						cuenta personas únicas por ruta.
+						{m.arcs_note()}
 					</span>
 				{/if}
 			</div>
