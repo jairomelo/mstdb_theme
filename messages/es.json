@@ -503,5 +503,8 @@
 	"data": "Datos",
 	"viz_pbp_head_title": "Personas por Lugar — Trayectorias Afro",
 	"viz_pbp_panel_desc": "Distribución geográfica de personas esclavizadas por ubicación, con vistas estática y\n\t\t\t\tdinámica para explorar patrones espaciales a lo largo del tiempo.",
-	"viz_pbp_data_desc": "Conteo de personas asociadas a cada lugar registrado"
+	"viz_pbp_data_desc": "Conteo de personas asociadas a cada lugar registrado",
+	"viz_pnet_panel_desc": "Grafo interactivo de relaciones entre personas esclavizadas y no esclavizadas, con filtros\n\t\t\t\tpor tipo de relación, centralidad y categoría de persona.",
+	"key_small_clownfish_exhale": "Relaciones de asociación, familiares y temporales entre personas",
+	"viz_pnet_head_title": "Red de Personas — Trayectorias Afro"
 }

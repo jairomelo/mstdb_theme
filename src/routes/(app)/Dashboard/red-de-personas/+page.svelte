@@ -1,9 +1,12 @@
 <script>
+
+	import { m } from '$lib/paraglide/messages.js';
+
 	import NetworkGraph from '../viz/NetworkGraph.svelte';
 </script>
 
 <svelte:head>
-	<title>Red de Personas — Trayectorias Afro</title>
+	<title>{m.viz_pnet_head_title()}</title>
 </svelte:head>
 
 <div class="container-fluid py-4">
@@ -11,8 +14,8 @@
 		<div class="col">
 			<nav aria-label="breadcrumb">
 				<ol class="breadcrumb">
-					<li class="breadcrumb-item"><a href="/Dashboard">Visualizaciones</a></li>
-					<li class="breadcrumb-item active" aria-current="page">Red de personas</li>
+					<li class="breadcrumb-item"><a href="/Dashboard">{m.vizualizations()}</a></li>
+					<li class="breadcrumb-item active" aria-current="page">{m.viz_pnet_title()}</li>
 				</ol>
 			</nav>
 		</div>
@@ -20,16 +23,15 @@
 
 	<div class="row mb-4">
 		<div class="col-lg-8">
-			<h1 class="display-5">Red de personas relacionadas</h1>
+			<h1 class="display-5">{m.viz_pnet_title()}</h1>
 			<p class="lead text-muted">
-				Grafo interactivo de relaciones entre personas esclavizadas y no esclavizadas, con filtros
-				por tipo de relación, centralidad y categoría de persona.
+				{m.viz_pnet_panel_desc()}
 			</p>
 			<dl class="row small text-muted mb-0">
-				<dt class="col-sm-2">Fuente</dt>
-				<dd class="col-sm-10">Base de datos MSTDB — Trayectorias Afro</dd>
-				<dt class="col-sm-2">Datos</dt>
-				<dd class="col-sm-10">Relaciones de asociación, familiares y temporales entre personas</dd>
+				<dt class="col-sm-2">{m.source()}</dt>
+				<dd class="col-sm-10">{m.viz_panel_source()}</dd>
+				<dt class="col-sm-2">{m.data()}</dt>
+				<dd class="col-sm-10">{m.key_small_clownfish_exhale()}</dd>
 			</dl>
 		</div>
 	</div>

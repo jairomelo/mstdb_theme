@@ -503,5 +503,8 @@
   "data": "Data",
   "viz_pbp_head_title": "People by Place — Trayectorias Afro",
   "viz_pbp_panel_desc": "Geographic distribution of enslaved people by location, with static and\n\t\t\t\tdynamic views to explore spatial patterns over time.",
-  "viz_pbp_data_desc": "Count of people associated with each recorded place"
+  "viz_pbp_data_desc": "Count of people associated with each recorded place",
+  "viz_pnet_panel_desc": "Interactive graph of relationships between enslaved and non-enslaved people, with filters\n\t\t\t\tby relationship type, centrality, and person category.",
+  "key_small_clownfish_exhale": "Association, family, and temporary relationships between people",
+  "viz_pnet_head_title": "People Network — Trayectorias Afro"
 }
