@@ -93,13 +93,13 @@
 
 	$: buildBuckets(meta, granularity);
 
-	function buildBuckets(m, g) {
+	function buildBuckets(met, gra) {
 		const list = [];
-		if (m.min_year != null && m.max_year != null) {
-			const start = Math.floor(m.min_year / g) * g;
-			const end = Math.floor(m.max_year / g) * g;
-			for (let year = start; year <= end; year += g) {
-				list.push({ key: year, label: g === 1 ? String(year) : `${year}–${year + g - 1}` });
+		if (met.min_year != null && met.max_year != null) {
+			const start = Math.floor(met.min_year / gra) * gra;
+			const end = Math.floor(met.max_year / gra) * gra;
+			for (let year = start; year <= end; year += gra) {
+				list.push({ key: year, label: gra === 1 ? String(year) : `${year}–${year + gra - 1}` });
 			}
 		}
 		buckets = list;
