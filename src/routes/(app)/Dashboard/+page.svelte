@@ -20,7 +20,7 @@
 			color: '#2d6a4f'
 		},
 		{
-			slug:' red-de-personas',
+			slug: 'red-de-personas',
 			title: m.viz_pnet_title(),
 			description:
 				m.viz_pnet_description(),
