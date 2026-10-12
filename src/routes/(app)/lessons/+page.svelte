@@ -184,7 +184,7 @@
 							</div>
 						{/if}
 						<a class="btn btn-outline-primary btn-sm mt-3" href="/lessons/{leccion.leccion_id}">
-							Leer lección<span class="visually-hidden"> {leccion.title}</span>
+							{m.lessons_read_lesson()}<span class="visually-hidden"> {leccion.title}</span>
 						</a>
 					</article>
 				</div>

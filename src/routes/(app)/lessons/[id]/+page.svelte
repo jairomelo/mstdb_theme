@@ -19,7 +19,7 @@
 			leccion = await fetchLeccion(data.id);
 		} catch (e) {
 			error = /40[34]/.test(e.message)
-				? 'Esta lección no está disponible. Puede ser un borrador sin acceso para tu cuenta.'
+				? m.lessons_error_mss()
 				: e.message;
 			console.error('Failed to fetch leccion:', e);
 		} finally {

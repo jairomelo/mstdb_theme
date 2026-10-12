@@ -576,5 +576,7 @@
 	"lessons_sort_asc": "Título (A–Z)",
 	"lessons_pagination": "Página \\{page\\} de \\{totalPages\\}",
 	"lessons_all_keywords": "Todas las palabras clave",
-	"lessons_before": "Anterior"
+	"lessons_before": "Anterior",
+	"lessons_read_lesson": "Leer lección",
+	"lessons_error_mss": "Esta lección no está disponible. Puede ser un borrador sin acceso para tu cuenta."
 }
