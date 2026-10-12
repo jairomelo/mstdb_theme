@@ -3,72 +3,72 @@
  * Mirrors mstdb_manager/api/v2/crosstab.py — keep in sync when adding dimensions.
  */
 
-/** @typedef {{ label: string, entities: string[], isPeriod?: boolean, isMM?: boolean }} DimConfig */
+/** @typedef {{ labelKey: string, entities: string[], isPeriod?: boolean, isMM?: boolean }} DimConfig */
 
 /** @type {Record<string, DimConfig>} */
 export const DIMENSIONS = {
 	fecha_periodo: {
-		label: 'Periodo de tiempo',
+		labelKey: 'conf_dim_periodo',
 		entities: ['personaesclavizada', 'personanoesclavizada'],
 		isPeriod: true,
 		isMM: false
 	},
 	sexo: {
-		label: 'Sexo',
+		labelKey: 'conf_col_sexo',
 		entities: ['personaesclavizada', 'personanoesclavizada'],
 		isPeriod: false,
 		isMM: false
 	},
 	etnonimos: {
-		label: 'Etnónimo',
+		labelKey: 'conf_filter_etnonimo',
 		entities: ['personaesclavizada'],
 		isPeriod: false,
 		isMM: true
 	},
 	calidades: {
-		label: 'Calidad',
+		labelKey: 'conf_filter_calidad',
 		entities: ['personaesclavizada', 'personanoesclavizada'],
 		isPeriod: false,
 		isMM: true
 	},
 	hispanizacion: {
-		label: 'Agencia / Adaptación',
+		labelKey: 'conf_col_hispanizacion',
 		entities: ['personaesclavizada'],
 		isPeriod: false,
 		isMM: true
 	},
 	procedencia: {
-		label: 'Procedencia (lugar)',
+		labelKey: 'conf_dim_procedencia',
 		entities: ['personaesclavizada'],
 		isPeriod: false,
 		isMM: false
 	},
 	lugar_trayectoria: {
-		label: 'Lugar (trayectoria)',
+		labelKey: 'conf_dim_lugar_trayectoria',
 		entities: ['personaesclavizada', 'personanoesclavizada'],
 		isPeriod: false,
 		isMM: true
 	},
 	estado_civil: {
-		label: 'Estado matrimonial',
+		labelKey: 'conf_col_estado_civil',
 		entities: ['personaesclavizada', 'personanoesclavizada'],
 		isPeriod: false,
 		isMM: true
 	},
 	honorifico: {
-		label: 'Honorífico',
+		labelKey: 'conf_filter_honorifico',
 		entities: ['personanoesclavizada'],
 		isPeriod: false,
 		isMM: false
 	},
 	tipo_documental: {
-		label: 'Tipo documental',
+		labelKey: 'conf_filter_tipo_documental',
 		entities: ['personaesclavizada', 'personanoesclavizada'],
 		isPeriod: false,
 		isMM: true
 	},
 	ocupaciones: {
-		label: 'Ocupación',
+		labelKey: 'conf_filter_ocupacion',
 		entities: ['personanoesclavizada'],
 		isPeriod: false,
 		isMM: true
@@ -77,15 +77,15 @@ export const DIMENSIONS = {
 
 export const CELL_OPS = {
 	count: {
-		label: 'Recuento de personas',
+		labelKey: 'conf_op_count',
 		entities: ['personaesclavizada', 'personanoesclavizada']
 	},
 	avg_edad: {
-		label: 'Edad promedio',
+		labelKey: 'conf_op_avg_edad',
 		entities: ['personaesclavizada']
 	},
 	pct_of_total: {
-		label: '% del total',
+		labelKey: 'conf_op_pct',
 		entities: ['personaesclavizada', 'personanoesclavizada']
 	}
 };

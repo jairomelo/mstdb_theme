@@ -1,10 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
 	import { unifiedStore, fetchCrosstab, setCrosstabConfig } from '$lib/unified-store';
-	import { dimsForEntity, opsForEntity, PERIOD_SIZES, DIMENSIONS } from '$conf/crosstab';
+	import { dimsForEntity, opsForEntity, PERIOD_SIZES, DIMENSIONS, CELL_OPS } from '$conf/crosstab';
 	import config from '../../../config';
 	import queryString from 'query-string';
 	import { m } from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	export let entityType;
 
@@ -14,6 +15,27 @@
 	$: isLoading = cfg?.isLoading;
 	$: error = cfg?.error;
 	$: meta = result?.meta;
+
+	function resolveDimLabel(dim) {
+		const key = DIMENSIONS[dim]?.labelKey;
+		return key ? m[key]() : '';
+	}
+
+	function formatNumber(value) {
+		try {
+			return value.toLocaleString(getLocale());
+		} catch {
+			return value.toLocaleString();
+		}
+	}
+
+	// Localized labels for the active configuration (fall back to API labels).
+	$: rowDimLabel = resolveDimLabel(cfg?.rowDim) || meta?.row_dim_label || '';
+	$: colDimLabel = resolveDimLabel(cfg?.colDim) || meta?.col_dim_label || '';
+	$: cellOpLabel = (() => {
+		const key = CELL_OPS[cfg?.cellOp]?.labelKey;
+		return key ? m[key]() : meta?.cell_op_label || '';
+	})();
 
 	// Local select values – synced from store ONLY on entity-type switch.
 	// Using bind:value so Svelte owns the DOM ↔ variable binding.
@@ -38,8 +60,8 @@
 	// Dimension lists — do NOT exclude the opposite dim from the list.
 	// Both selects always show the full set for the entity type so the
 	// browser never loses the selected value when options re-render.
-	$: allDims = dimsForEntity(entityType);
-	$: ops = opsForEntity(entityType);
+	$: allDims = dimsForEntity(entityType).map((d) => ({ ...d, label: m[d.labelKey]() }));
+	$: ops = opsForEntity(entityType).map((o) => ({ ...o, label: m[o.labelKey]() }));
 
 	$: rowIsPeriod = DIMENSIONS[selRow]?.isPeriod;
 	$: colIsPeriod = DIMENSIONS[selCol]?.isPeriod;
@@ -107,12 +129,12 @@
 	function cellPrimary(cell) {
 		if (!cfg) return '';
 		if (cfg.cellOp === 'avg_edad') {
-			return cell?.avg_edad != null ? cell.avg_edad.toLocaleString('es') : '—';
+			return cell?.avg_edad != null ? formatNumber(cell.avg_edad) : '—';
 		}
 		if (cfg.cellOp === 'pct_of_total') {
 			return cell?.pct != null ? `${cell.pct}%` : '—';
 		}
-		return cell?.count != null ? cell.count.toLocaleString('es') : '0';
+		return cell?.count != null ? formatNumber(cell.count) : '0';
 	}
 
 	function totalPrimary(tot) {
@@ -158,7 +180,9 @@
 				// Sort by row label (string)
 				va = result.rows[a] ?? '';
 				vb = result.rows[b] ?? '';
-				return sortDir === 'asc' ? va.localeCompare(vb, 'es') : vb.localeCompare(va, 'es');
+				return sortDir === 'asc'
+					? va.localeCompare(vb, getLocale())
+					: vb.localeCompare(va, getLocale());
 			} else if (sortCol === Infinity) {
 				// Sort by row total
 				va = _numericVal(result.row_totals[a]);
@@ -191,13 +215,15 @@
 		class="crosstab-controls d-flex flex-wrap align-items-end gap-3 mb-3 p-3 bg-light border rounded"
 	>
 		<div>
-			<label class="form-label small fw-semibold mb-1" for="ct-row-{entityType}">Filas</label>
+			<label class="form-label small fw-semibold mb-1" for="ct-row-{entityType}"
+				>{m.conf_crosstab_rows()}</label
+			>
 			<select
 				id="ct-row-{entityType}"
 				class="form-select form-select-sm"
 				bind:value={selRow}
 				on:change={pushRow}
-				aria-label="Dimensión de filas"
+				aria-label={m.conf_crosstab_aria_row_dim()}
 			>
 				{#each allDims as dim}
 					<option value={dim.key}>{dim.label}</option>
@@ -206,13 +232,15 @@
 		</div>
 
 		<div>
-			<label class="form-label small fw-semibold mb-1" for="ct-col-{entityType}">Columnas</label>
+			<label class="form-label small fw-semibold mb-1" for="ct-col-{entityType}"
+				>{m.conf_crosstab_cols()}</label
+			>
 			<select
 				id="ct-col-{entityType}"
 				class="form-select form-select-sm"
 				bind:value={selCol}
 				on:change={pushCol}
-				aria-label="Dimensión de columnas"
+				aria-label={m.conf_crosstab_aria_col_dim()}
 			>
 				{#each allDims as dim}
 					<option value={dim.key}>{dim.label}</option>
@@ -223,30 +251,32 @@
 		{#if showPeriodSize}
 			<div>
 				<label class="form-label small fw-semibold mb-1" for="ct-period-{entityType}"
-					>Intervalo</label
+					>{m.conf_crosstab_interval()}</label
 				>
 				<select
 					id="ct-period-{entityType}"
 					class="form-select form-select-sm"
 					bind:value={selPeriod}
 					on:change={pushPeriod}
-					aria-label="Tamaño del intervalo temporal"
+					aria-label={m.conf_crosstab_aria_period()}
 				>
 					{#each PERIOD_SIZES as ps}
-						<option value={ps}>{ps} años</option>
+						<option value={ps}>{m.conf_crosstab_period_years({ count: ps })}</option>
 					{/each}
 				</select>
 			</div>
 		{/if}
 
 		<div>
-			<label class="form-label small fw-semibold mb-1" for="ct-op-{entityType}">Celdas</label>
+			<label class="form-label small fw-semibold mb-1" for="ct-op-{entityType}"
+				>{m.conf_crosstab_cells()}</label
+			>
 			<select
 				id="ct-op-{entityType}"
 				class="form-select form-select-sm"
 				bind:value={selOp}
 				on:change={pushOp}
-				aria-label="Operación de celda"
+				aria-label={m.conf_crosstab_aria_cell_op()}
 			>
 				{#each ops as op}
 					<option value={op.key}>{op.label}</option>
@@ -257,7 +287,7 @@
 		<button class="btn btn-sm btn-primary" on:click={apply} disabled={isLoading}>
 			{#if isLoading}
 				<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-				Calculando…
+				{m.conf_crosstab_calculating()}
 			{:else}
 				<i class="bi bi-play-fill me-1" aria-hidden="true"></i>{m.apply_button()}
 			{/if}
@@ -266,8 +296,8 @@
 		{#if result}
 			<button
 				class="btn btn-sm btn-outline-secondary"
-				aria-label="Descargar tabla como CSV"
-				title="Descargar tabla como CSV"
+				aria-label={m.conf_crosstab_download_csv()}
+				title={m.conf_crosstab_download_csv()}
 				on:click={downloadCsv}
 			>
 				<i class="bi bi-download me-1" aria-hidden="true"></i>CSV
@@ -294,7 +324,7 @@
 	{#if isLoading}
 		<div class="text-center py-5">
 			<div class="spinner-border text-primary" role="status">
-				<span class="visually-hidden">Calculando tabla cruzada…</span>
+				<span class="visually-hidden">{m.conf_crosstab_calculating_table()}</span>
 			</div>
 		</div>
 	{:else if result}
@@ -302,12 +332,19 @@
 		<div class="table-responsive crosstab-table-wrap">
 			<table
 				class="table table-sm table-bordered table-hover crosstab-table"
-				aria-label="Tabla cruzada"
+				aria-label={m.conf_crosstab_table_aria()}
 			>
 				<caption class="visually-hidden">
-					{meta?.row_dim_label} × {meta?.col_dim_label}
-					{#if meta?.period_size}(intervalos de {meta.period_size} años){/if}
-					— {meta?.cell_op_label}
+					{#if meta?.period_size}
+						{m.conf_crosstab_caption_period({
+							row: rowDimLabel,
+							col: colDimLabel,
+							size: meta.period_size,
+							op: cellOpLabel
+						})}
+					{:else}
+						{m.conf_crosstab_caption({ row: rowDimLabel, col: colDimLabel, op: cellOpLabel })}
+					{/if}
 				</caption>
 
 				<thead class="table-dark">
@@ -318,7 +355,7 @@
 							on:click={() => toggleSort(-1)}
 							aria-sort={sortCol === -1 ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
 						>
-							{meta?.row_dim_label}
+							{rowDimLabel}
 							<i class="bi {sortIcon(-1)} ms-1 small" aria-hidden="true"></i>
 						</th>
 						{#each result.cols as col, ci}
@@ -346,7 +383,7 @@
 									: 'descending'
 								: 'none'}
 						>
-							Total
+							{m.conf_crosstab_total()}
 							<i class="bi {sortIcon(Infinity)} ms-1 small" aria-hidden="true"></i>
 						</th>
 					</tr>
@@ -370,19 +407,19 @@
 
 				<tfoot class="table-secondary">
 					<tr>
-						<th scope="row" class="crosstab-row-header fw-semibold">Total</th>
+						<th scope="row" class="crosstab-row-header fw-semibold">{m.conf_crosstab_total()}</th>
 						{#each result.col_totals as ct}
 							<td class="text-end fw-semibold">{totalPrimary(ct)}</td>
 						{/each}
 						<td class="text-end fw-bold crosstab-total-col">
 							{#if cfg?.cellOp === 'avg_edad'}
 								{result.grand_total?.avg_edad != null
-									? result.grand_total.avg_edad.toLocaleString('es')
+									? formatNumber(result.grand_total.avg_edad)
 									: '—'}
 							{:else if cfg?.cellOp === 'pct_of_total'}
 								100%
 							{:else}
-								{result.grand_total?.count?.toLocaleString('es') ?? 0}
+								{result.grand_total?.count != null ? formatNumber(result.grand_total.count) : 0}
 							{/if}
 						</td>
 					</tr>
@@ -392,17 +429,23 @@
 
 		<!-- Summary line -->
 		<p class="text-muted small mt-1 mb-0">
-			{result.rows.length}
-			{meta?.row_dim_label?.toLowerCase() ?? 'filas'},
-			{result.cols.length}
-			{meta?.col_dim_label?.toLowerCase() ?? 'columnas'} —
-			{result.grand_total?.count?.toLocaleString('es') ?? 0} personas en total
+			{m.conf_crosstab_summary({
+				rows: result.rows.length,
+				rowLabel: rowDimLabel.toLowerCase(),
+				cols: result.cols.length,
+				colLabel: colDimLabel.toLowerCase(),
+				total:
+					result.grand_total?.count != null
+						? formatNumber(result.grand_total.count)
+						: formatNumber(0)
+			})}
 		</p>
 	{:else}
 		<!-- Empty state -->
 		<div class="text-center text-muted py-5">
 			<i class="bi bi-layout-three-columns fs-2 d-block mb-2" aria-hidden="true"></i>
-			Selecciona las dimensiones y pulsa <strong>{m.apply_button()}</strong> para generar la tabla cruzada.
+			{m.conf_crosstab_empty_before()}<strong>{m.apply_button()}</strong
+			>{m.conf_crosstab_empty_after()}
 		</div>
 	{/if}
 </div>
