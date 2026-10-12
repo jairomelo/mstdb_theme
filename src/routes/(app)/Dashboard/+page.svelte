@@ -1,26 +1,29 @@
 <script>
+	import { m } from '$lib/paraglide/messages.js';
+
+
 	const visualizations = [
 		{
 			slug: 'mapa-trayectorias',
-			title: 'Mapa de trayectorias',
+			title: m.viz_map_title(),
 			description:
-				'Visualización geográfica de las rutas y desplazamientos forzados de personas esclavizadas, con arcos individuales y flujos agregados sobre un mapa histórico.',
+				m.viz_map_description(),
 			icon: 'bi-map',
 			color: '#004080'
 		},
 		{
 			slug: 'personas-por-lugar',
-			title: 'Personas por lugar',
+			title: m.viz_pbp_title(),
 			description:
-				'Distribución de personas esclavizadas por ubicación geográfica, con vistas estática y dinámica para explorar patrones espaciales.',
+				m.viz_pbp_description(),
 			icon: 'bi-geo-alt',
 			color: '#2d6a4f'
 		},
 		{
-			slug: 'red-de-personas',
-			title: 'Red de personas relacionadas',
+			slug:' red-de-personas',
+			title: m.viz_pnet_title(),
 			description:
-				'Grafo interactivo de relaciones entre personas esclavizadas y no esclavizadas, con filtros por tipo de relación, centralidad y tipo de persona.',
+				m.viz_pnet_description(),
 			icon: 'bi-diagram-3',
 			color: '#6a040f'
 		}
@@ -28,15 +31,15 @@
 </script>
 
 <svelte:head>
-	<title>Visualizaciones — Trayectorias Afro</title>
+	<title>{m.viz_head_title()}</title>
 </svelte:head>
 
 <div class="container-fluid py-4">
 	<div class="row mb-4">
 		<div class="col">
-			<h1 class="display-5 mb-0">Visualizaciones</h1>
+			<h1 class="display-5 mb-0">{m.vizualizations()}</h1>
 			<p class="text-muted mt-2">
-				Exploraciones visuales de los datos de la base de datos de trayectorias.
+				{m.viz_description()}
 			</p>
 		</div>
 	</div>
@@ -58,7 +61,7 @@
 						</div>
 						<div class="card-footer bg-transparent border-0 text-end">
 							<span class="btn btn-sm btn-outline-primary">
-								Ver visualización <i class="bi bi-arrow-right ms-1"></i>
+								{m.viz_seemore()}<i class="bi bi-arrow-right ms-1"></i>
 							</span>
 						</div>
 					</div>

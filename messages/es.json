@@ -483,5 +483,15 @@
 	"lib_net_age": "Edad:",
 	"lib_net_occupations": "Ocupaciones:",
 	"lib_net_ethnonyms": "Etnónimos:",
-	"lib_net_view_detail": "Ver ficha"
+	"lib_net_view_detail": "Ver ficha",
+	"vizualizations": "Visualizaciones",
+	"viz_head_title": "Visualizaciones — Trayectorias Afro",
+	"viz_description": "Exploraciones visuales de los datos de la base de datos de trayectorias.",
+	"viz_seemore": "Ver visualización ",
+	"viz_pbp_title": "Personas por lugar",
+	"viz_pbp_description": "Distribución de personas esclavizadas por ubicación geográfica, con vistas estática y dinámica para explorar patrones espaciales.",
+	"viz_map_description": "Visualización geográfica de las rutas y desplazamientos forzados de personas esclavizadas, con arcos individuales y flujos agregados sobre un mapa histórico.",
+	"viz_map_title": "Mapa de trayectorias",
+	"viz_pnet_title": "Red de personas relacionadas",
+	"viz_pnet_description": "Grafo interactivo de relaciones entre personas esclavizadas y no esclavizadas, con filtros por tipo de relación, centralidad y tipo de persona."
 }
