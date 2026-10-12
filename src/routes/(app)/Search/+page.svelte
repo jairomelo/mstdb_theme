@@ -9,7 +9,6 @@
 		setPage,
 		performSearch,
 		clearSearch,
-		loadCounts,
 		PAGE_SIZES,
 		ENTITY_TYPES,
 		abortAll,
@@ -18,6 +17,7 @@
 		applyUrlState
 	} from '$lib/unified-store';
 	import { exportCsv } from '$lib/api';
+	import { tabBadge } from '$lib/searchBadges';
 	import { entityTabConfig } from '$conf/columns';
 	import { setRandomHeroImage } from '$lib/heroBackground';
 
@@ -77,31 +77,19 @@
 	$: viewMode = $unifiedStore.viewMode;
 	$: tabState = $unifiedStore.tabs[activeTab];
 	$: totalPages = tabState?.totalPages || 0;
-	$: counts = $unifiedStore.counts;
 	$: typeCounts = $unifiedStore.typeCounts || {};
 	$: isSearch = !!$unifiedStore.query;
 	$: isPeopleTab = activeTab === 'personaesclavizada' || activeTab === 'personanoesclavizada';
 	$: networkState = tabState?.network;
 
-	// Tab badge: in search mode use typeCounts (all types returned by API);
-	// for the active tab prefer totalResults (reflects applied filters).
-	// In browse mode use DB counts from loadCounts().
+	// Tab badge: every badge reflects the current query + filters, so the
+	// single source of truth is the server-computed typeCounts map.
 	function badgeCount(entityType) {
-		if (isSearch) {
-			if (entityType === activeTab) {
-				const tab = $unifiedStore.tabs[entityType];
-				if (tab?.totalResults > 0) return tab.totalResults;
-			}
-			return typeCounts[entityType] || 0;
-		}
-		const tab = $unifiedStore.tabs[entityType];
-		if (tab?.totalResults > 0) return tab.totalResults;
-		return counts[entityType] ?? '';
+		return tabBadge(typeCounts, entityType);
 	}
 
-	onMount(async () => {
+	onMount(() => {
 		setRandomHeroImage(heroSectionElement);
-		await loadCounts();
 	});
 
 	function handleSearch() {
@@ -257,13 +245,13 @@
 						>
 							<i class="bi {cfg.icon}"></i>
 							<span class="d-none d-md-inline">{m[cfg.labelKey]()}</span>
-							{#if badge !== '' && badge !== 0}
+							{#if badge !== ''}
 								<span
 									class="badge ms-1"
 									class:bg-primary={activeTab === et}
 									class:bg-secondary={activeTab !== et}>{badge.toLocaleString()}</span
 								>
-							{:else if $unifiedStore.tabs[et]?.isLoading}
+							{:else if $unifiedStore.tabs[et]?.isLoading || $unifiedStore.typeCountsLoading}
 								<span class="badge bg-secondary ms-1"><i class="bi bi-hourglass-split"></i></span>
 							{/if}
 						</button>

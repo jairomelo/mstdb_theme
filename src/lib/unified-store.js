@@ -206,6 +206,7 @@ const initialState = {
 	exactSearch: false,
 	counts: {}, // total DB counts per entity type
 	typeCounts: {}, // counts from the current query/filter context
+	typeCountsLoading: false, // true while a fetch is resolving typeCounts
 	facets: {},
 	tabs: Object.fromEntries(ENTITY_TYPES.map((t) => [t, createTabState(t)]))
 };
@@ -224,6 +225,7 @@ export async function fetchResults(entityType) {
 
 	unifiedStore.update((s) => ({
 		...s,
+		typeCountsLoading: true,
 		tabs: {
 			...s.tabs,
 			[entityType]: { ...s.tabs[entityType], isLoading: true, error: null }
@@ -267,7 +269,8 @@ export async function fetchResults(entityType) {
 
 		unifiedStore.update((s) => ({
 			...s,
-			typeCounts: data.typeCounts || s.typeCounts,
+			typeCounts: data.typeCounts || {},
+			typeCountsLoading: false,
 			facets: data.facets || s.facets,
 			tabs: {
 				...s.tabs,
@@ -311,6 +314,7 @@ export async function fetchResults(entityType) {
 		log.error(`Error fetching ${entityType}: ${err.message}`);
 		unifiedStore.update((s) => ({
 			...s,
+			typeCountsLoading: false,
 			tabs: {
 				...s.tabs,
 				[entityType]: {
@@ -588,7 +592,7 @@ export function performSearch(query, exactSearch = false) {
 		for (const et of ENTITY_TYPES) {
 			tabs[et] = { ...tabs[et], currentPage: 1, results: [], totalResults: 0, totalPages: 0 };
 		}
-		return { ...s, query, exactSearch, tabs };
+		return { ...s, query, exactSearch, typeCounts: {}, tabs };
 	});
 
 	updateUrl({ push: true });
@@ -606,7 +610,7 @@ export function clearSearch() {
 		for (const et of ENTITY_TYPES) {
 			tabs[et] = { ...tabs[et], currentPage: 1, results: [], totalResults: 0, totalPages: 0 };
 		}
-		return { ...s, query: '', exactSearch: false, tabs };
+		return { ...s, query: '', exactSearch: false, typeCounts: {}, tabs };
 	});
 
 	updateUrl({ push: true });
@@ -632,6 +636,7 @@ export function abortAll() {
 		abortControllers[key].abort();
 		delete abortControllers[key];
 	}
+	unifiedStore.update((s) => ({ ...s, typeCountsLoading: false }));
 }
 
 // ── Crosstab / pivot-table actions ───────────────────────────────────────────
