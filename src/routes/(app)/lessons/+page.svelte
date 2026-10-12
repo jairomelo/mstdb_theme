@@ -3,6 +3,8 @@
 	import { fetchLecciones, leccionNiveles, leccionPalabrasClave } from '$lib/api.js';
 	import { user } from '$lib/stores/user';
 
+	import { m } from '$lib/paraglide/messages.js';
+
 	$: canCreate = $user?.is_staff || $user?.groups?.includes('colectores');
 
 	const PAGE_SIZE = 12;
@@ -72,14 +74,14 @@
 </script>
 
 <svelte:head>
-	<title>Lecciones Educativas — Trayectorias Afro</title>
+	<title>{m.lessons_head_title()}</title>
 </svelte:head>
 
 <div class="container mt-4">
 	<div class="lessons-hero mb-5 text-center">
-		<h1 class="display-5 mb-3">Lecciones Educativas</h1>
+		<h1 class="display-5 mb-3">{m.lessons_title()}</h1>
 		<p class="lead hero-sub mb-0">
-			Recursos educativos elaborados a partir de la investigación en Trayectorias Afro.
+			{m.lessons_description()}
 		</p>
 	</div>
 
@@ -96,45 +98,45 @@
 		on:submit|preventDefault={applyFilters}
 	>
 		<div class="col-sm-4">
-			<label class="form-label" for="filter-nivel">Nivel</label>
+			<label class="form-label" for="filter-nivel">{m.lessons_level()}</label>
 			<select
 				id="filter-nivel"
 				class="form-select"
 				bind:value={selectedNivel}
 				on:change={applyFilters}
 			>
-				<option value="">Todos los niveles</option>
+				<option value="">{m.lessons_all_levels()}</option>
 				{#each niveles as nivel}
 					<option value={nivel.nivel_id}>{nivel.nivel}</option>
 				{/each}
 			</select>
 		</div>
 		<div class="col-sm-4">
-			<label class="form-label" for="filter-palabra-clave">Palabra clave</label>
+			<label class="form-label" for="filter-palabra-clave">{m.lessons_keyword()}</label>
 			<select
 				id="filter-palabra-clave"
 				class="form-select"
 				bind:value={selectedPalabraClave}
 				on:change={applyFilters}
 			>
-				<option value="">Todas las palabras clave</option>
+				<option value="">{m.lessons_all_keywords()}</option>
 				{#each palabrasClave as palabra}
 					<option value={palabra.palabra_clave_id}>{palabra.palabra_clave}</option>
 				{/each}
 			</select>
 		</div>
 		<div class="col-sm-4">
-			<label class="form-label" for="filter-ordering">Ordenar por</label>
+			<label class="form-label" for="filter-ordering">{m.lessons_sort()}</label>
 			<select
 				id="filter-ordering"
 				class="form-select"
 				bind:value={ordering}
 				on:change={applyFilters}
 			>
-				<option value="title">Título (A–Z)</option>
-				<option value="-title">Título (Z–A)</option>
-				<option value="-created_at">Más recientes</option>
-				<option value="created_at">Más antiguas</option>
+				<option value="title">{m.lessons_sort_asc()}</option>
+				<option value="-title">{m.lessons_sort_desc()}</option>
+				<option value="-created_at">{m.lessons_recent()}</option>
+				<option value="created_at">{m.lessons_older()}</option>
 			</select>
 		</div>
 	</form>
@@ -146,11 +148,11 @@
 	{:else if loading}
 		<div class="text-center py-5">
 			<div class="spinner-border" role="status">
-				<span class="visually-hidden">Cargando lecciones…</span>
+				<span class="visually-hidden">{m.lessons_loading()}</span>
 			</div>
 		</div>
 	{:else if lecciones.length === 0}
-		<p class="text-center py-5">No se encontraron lecciones con los filtros seleccionados.</p>
+		<p class="text-center py-5">{m.lessons_no_found()}</p>
 	{:else}
 		<div class="row g-4">
 			{#each lecciones as leccion}
@@ -192,16 +194,16 @@
 		{#if totalPages > 1}
 			<nav
 				class="d-flex justify-content-center align-items-center gap-3 mt-5"
-				aria-label="Paginación de lecciones"
+				aria-label={m.lessons_pagination_aria()}
 			>
 				<button
 					class="btn btn-outline-secondary"
 					disabled={page <= 1}
 					on:click={() => load(page - 1)}
 				>
-					<i class="bi bi-chevron-left me-1" aria-hidden="true"></i>Anterior
+					<i class="bi bi-chevron-left me-1" aria-hidden="true"></i>{m.lessons_before()}
 				</button>
-				<span>Página {page} de {totalPages}</span>
+				<span>{m.lessons_pagination({page: page, totalPages: totalPages})}</span>
 				<button
 					class="btn btn-outline-secondary"
 					disabled={page >= totalPages}

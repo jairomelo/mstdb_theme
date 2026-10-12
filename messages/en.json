@@ -559,5 +559,22 @@
   "viz_netw_component_size": "Component size",
   "viz_netw_document_years": "Years (document)",
   "viz_netw_end_year": "End year",
-  "viz_netw_component_size_aria": "Minimum component size"
+  "viz_netw_component_size_aria": "Minimum component size",
+  "lessons_loading": "Loading lessons…",
+  "lessons_no_found": "No lessons were found with the selected filters.",
+  "lessons_pagination_aria": "Lesson pagination",
+  "lessons_recent": "Most recent",
+  "lessons_all_levels": "All levels",
+  "lessons_sort": "Sort by",
+  "lessons_level": "Level",
+  "lessons_title": "Educational Lessons",
+  "lessons_head_title": "Educational Lessons — Trayectorias Afro",
+  "lessons_sort_desc": "Title (Z–A)",
+  "lessons_keyword": "Keyword",
+  "lessons_older": "Oldest",
+  "lessons_description": "Educational resources developed from research in Trayectorias Afro.",
+  "lessons_sort_asc": "Title (A–Z)",
+  "lessons_pagination": "Page {page} of {totalPages}",
+  "lessons_all_keywords": "All keywords",
+  "lessons_before": "Previous"
 }
