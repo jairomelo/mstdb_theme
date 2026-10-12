@@ -77,16 +77,9 @@
 	$: viewMode = $unifiedStore.viewMode;
 	$: tabState = $unifiedStore.tabs[activeTab];
 	$: totalPages = tabState?.totalPages || 0;
-	$: typeCounts = $unifiedStore.typeCounts || {};
 	$: isSearch = !!$unifiedStore.query;
 	$: isPeopleTab = activeTab === 'personaesclavizada' || activeTab === 'personanoesclavizada';
 	$: networkState = tabState?.network;
-
-	// Tab badge: every badge reflects the current query + filters, so the
-	// single source of truth is the server-computed typeCounts map.
-	function badgeCount(entityType) {
-		return tabBadge(typeCounts, entityType);
-	}
 
 	onMount(() => {
 		setRandomHeroImage(heroSectionElement);
@@ -236,7 +229,7 @@
 			<ul class="nav nav-tabs mb-0 border-bottom-0 browse-view">
 				{#each ENTITY_TYPES as et}
 					{@const cfg = entityTabConfig[et]}
-					{@const badge = badgeCount(et)}
+					{@const badge = tabBadge($unifiedStore.typeCounts, et)}
 					<li class="nav-item">
 						<button
 							class="nav-link d-flex align-items-center gap-1"
