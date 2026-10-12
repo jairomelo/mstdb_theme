@@ -550,5 +550,14 @@
 	"viz_pbp_searchbyname": "Buscar lugar por nombre",
 	"viz_pbp_table_title": "Resumen por Lugar",
 	"viz_pbp_aria_hint": "Gráfico de burbujas mostrando personas asociadas a lugares por año",
-	"max_year": "Año Máximo"
+	"max_year": "Año Máximo",
+	"netw_concentric": "Concéntrico",
+	"netw_grid": "Cuadrícula",
+	"netw_organic": "Orgánico",
+	"topical_free_emu_bask": "La red fue truncada por tamaño. Ajuste filtros para una visualización más precisa.",
+	"viz_netw_starting_year": "Año de inicio",
+	"viz_netw_component_size": "Tamaño componente",
+	"viz_netw_document_years": "Años (documento)",
+	"viz_netw_end_year": "Año de fin",
+	"viz_netw_component_size_aria": "Tamaño mínimo de componente"
 }

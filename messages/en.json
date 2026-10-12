@@ -550,5 +550,14 @@
   "viz_pbp_searchbyname": "Search place by name",
   "viz_pbp_table_title": "Summary by Place",
   "viz_pbp_aria_hint": "Bubble chart showing people associated with places by year",
-  "max_year": "Maximum Year"
+  "max_year": "Maximum Year",
+  "netw_concentric": "Concentric",
+  "netw_grid": "Grid",
+  "netw_organic": "Organic",
+  "topical_free_emu_bask": "The network was truncated by size. Adjust filters for a more precise visualization.",
+  "viz_netw_starting_year": "Start year",
+  "viz_netw_component_size": "Component size",
+  "viz_netw_document_years": "Years (document)",
+  "viz_netw_end_year": "End year",
+  "viz_netw_component_size_aria": "Minimum component size"
 }
