@@ -28,7 +28,7 @@
 			</p>
 			<dl class="row small text-muted mb-0">
 				<dt class="col-sm-2">{m.source()}</dt>
-				<dd class="col-sm-10">{m.viz_map_panel_source()}</dd>
+				<dd class="col-sm-10">{m.viz_panel_source()}</dd>
 				<dt class="col-sm-2">{m.data()}</dt>
 				<dd class="col-sm-10">{m.viz_map_panel_data()}</dd>
 			</dl>
