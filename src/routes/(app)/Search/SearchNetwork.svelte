@@ -291,7 +291,7 @@
 			<div class="network-toolbar">
 				<div class="network-toolbar-group">
 					<!-- Scope Buttons -->
-					<div class="btn-group btn-group-sm" role="group" aria-label="Alcance de la red">
+					<div class="btn-group btn-group-sm" role="group" aria-label={m.lib_net_scope_aria()}>
 						<button
 							type="button"
 							class="btn"
@@ -299,7 +299,7 @@
 							class:btn-outline-secondary={scopeMode !== 'strict'}
 							on:click={() => updateScopeMode('strict')}
 						>
-							Resultados filtrados
+							{m.lib_net_scope_strict()}
 						</button>
 						<button
 							type="button"
@@ -308,7 +308,7 @@
 							class:btn-outline-secondary={scopeMode !== 'expanded'}
 							on:click={() => updateScopeMode('expanded')}
 						>
-							+ Vecinos directos
+							{m.lib_net_scope_expanded()}
 						</button>
 					</div>
 
@@ -321,13 +321,13 @@
 							class="form-select form-select-sm border-start-0 ps-1"
 							bind:value={layoutType}
 							on:change={applyLayout}
-							aria-label="Tipo de diseño"
+							aria-label={m.lib_net_layout_aria()}
 						>
-							<option value="fcose">FCoSE (Orgánico)</option>
-							<option value="cose">CoSE</option>
-							<option value="circle">Círculo</option>
-							<option value="concentric">Concéntrico</option>
-							<option value="grid">Cuadrícula</option>
+							<option value="fcose">{m.lib_net_layout_fcose()}</option>
+							<option value="cose">{m.lib_net_layout_cose()}</option>
+							<option value="circle">{m.lib_net_layout_circle()}</option>
+							<option value="concentric">{m.lib_net_layout_concentric()}</option>
+							<option value="grid">{m.lib_net_layout_grid()}</option>
 						</select>
 					</div>
 
@@ -336,10 +336,10 @@
 						type="button"
 						class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
 						on:click={resetView}
-						title="Reenfocar vista"
+						title={m.lib_net_refocus_title()}
 					>
 						<i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
-						<span class="d-none d-sm-inline">Reenfocar</span>
+						<span class="d-none d-sm-inline">{m.lib_net_refocus()}</span>
 					</button>
 				</div>
 
@@ -351,7 +351,7 @@
 						class:active={!filtersCollapsed}
 						on:click={toggleFilters}
 						aria-expanded={!filtersCollapsed}
-						aria-label="Alternar filtros"
+						aria-label={m.lib_net_toggle_filters()}
 					>
 						<i class="bi bi-funnel{isFiltered ? '-fill text-primary' : ''}" aria-hidden="true"></i>
 						<span>{m.filters_title()}</span>
@@ -366,10 +366,10 @@
 							type="button"
 							class="btn btn-sm btn-link text-decoration-none text-muted p-0 ms-1 small d-inline-flex align-items-center gap-1"
 							on:click={resetFilters}
-							title="Restablecer filtros"
+							title={m.lib_net_reset_filters_title()}
 						>
 							<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
-							<span>Restablecer</span>
+							<span>{m.lib_net_reset()}</span>
 						</button>
 					{/if}
 				</div>
@@ -380,8 +380,12 @@
 				<div class="network-filter-section">
 					<!-- Relation Pills & Orphans Switch -->
 					<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-						<div class="network-relation-pills" role="group" aria-label="{m.filters_title()} de relaciones">
-							<span class="small fw-semibold text-muted me-1">Relaciones:</span>
+						<div
+							class="network-relation-pills"
+							role="group"
+							aria-label={m.lib_net_relations_aria()}
+						>
+							<span class="small fw-semibold text-muted me-1">{m.lib_net_relations()}</span>
 
 							<label
 								class="network-pill-btn"
@@ -395,7 +399,7 @@
 									on:change={applyFilter}
 								/>
 								<span class="color-dot" style="background-color: #D4A27F;"></span>
-								<span>Parentesco</span>
+								<span>{m.lib_net_rel_fam()}</span>
 							</label>
 
 							<label
@@ -410,7 +414,7 @@
 									on:change={applyFilter}
 								/>
 								<span class="color-dot" style="background-color: #9CA3AF;"></span>
-								<span>Asociación</span>
+								<span>{m.lib_net_rel_aso()}</span>
 							</label>
 
 							<label
@@ -425,7 +429,7 @@
 									on:change={applyFilter}
 								/>
 								<span class="color-dot" style="background-color: #B8C99A;"></span>
-								<span>Temporal</span>
+								<span>{m.lib_net_rel_tmp()}</span>
 							</label>
 
 							<label
@@ -440,7 +444,7 @@
 									on:change={applyFilter}
 								/>
 								<span class="color-dot" style="background-color: #9B8EC4;"></span>
-								<span>Subordinación</span>
+								<span>{m.lib_net_rel_sub()}</span>
 							</label>
 						</div>
 
@@ -457,7 +461,7 @@
 								class="form-check-label small fw-semibold text-muted"
 								for="search-show-orphans-toggle"
 							>
-								Mostrar huérfanos
+								{m.lib_net_show_orphans()}
 							</label>
 						</div>
 					</div>
@@ -467,7 +471,7 @@
 						<div class="metric-header">
 							<label for="search-centrality-threshold" class="metric-title">
 								<i class="bi bi-diagram-2" aria-hidden="true"></i>
-								Centralidad mín.
+								{m.lib_net_centrality_min()}
 							</label>
 							<span class="metric-badge">≥ {Number(centralityThreshold).toFixed(2)}</span>
 						</div>
@@ -482,7 +486,7 @@
 								step="0.01"
 								bind:value={centralityThreshold}
 								on:input={applyFilter}
-								aria-label="Centralidad mínima"
+								aria-label={m.lib_net_centrality_aria()}
 							/>
 							<span class="slider-bound">{maxCentrality.toFixed(1)}</span>
 						</div>
@@ -496,28 +500,28 @@
 			<div class="d-flex flex-wrap align-items-center gap-3">
 				<span class="network-legend-item">
 					<span class="legend-color-chip" style="background:#C9735B;"></span>
-					Persona esclavizada
+					{m.lib_net_legend_enslaved()}
 				</span>
 				<span class="network-legend-item">
 					<span class="legend-color-chip" style="background:#9DB5B2;"></span>
-					Persona no esclavizada
+					{m.lib_net_legend_nonenslaved()}
 				</span>
 				{#if scopeMode === 'expanded' || graphData?.meta?.result_count !== undefined}
 					<span class="network-legend-item">
 						<span class="legend-color-chip border bg-white"></span>
-						Vecino fuera de resultados
+						{m.lib_net_legend_neighbor()}
 					</span>
 				{/if}
 			</div>
 
 			{#if graphData?.meta}
 				<div class="text-muted small ms-auto fw-semibold">
-					<span>Nodos: <strong>{graphData.meta.node_count}</strong></span>
+					<span>{m.lib_net_nodes()} <strong>{graphData.meta.node_count}</strong></span>
 					<span class="mx-1">·</span>
-					<span>Aristas: <strong>{graphData.meta.edge_count}</strong></span>
+					<span>{m.lib_net_edges()} <strong>{graphData.meta.edge_count}</strong></span>
 					{#if graphData.meta.result_count !== undefined}
 						<span class="mx-1">·</span>
-						<span>Base: <strong>{graphData.meta.result_count}</strong></span>
+						<span>{m.lib_net_base()} <strong>{graphData.meta.result_count}</strong></span>
 					{/if}
 				</div>
 			{/if}
@@ -526,7 +530,7 @@
 		{#if graphData?.meta?.truncated}
 			<div class="alert alert-warning py-2 mb-3">
 				<i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
-				La red fue truncada por tamaño. Ajuste filtros para una visualización más precisa.
+				{m.lib_net_truncated()}
 			</div>
 		{/if}
 
@@ -544,8 +548,7 @@
 			</div>
 		{:else if graphData && (graphData.nodes || []).length === 0}
 			<div class="alert alert-info mt-3">
-				<i class="bi bi-info-circle me-1" aria-hidden="true"></i>No hay relaciones para los filtros
-				activos.
+				<i class="bi bi-info-circle me-1" aria-hidden="true"></i>{m.lib_net_empty()}
 			</div>
 		{/if}
 	</div>
@@ -563,23 +566,29 @@
 			<div class="fw-semibold">{tooltip.name}</div>
 			<div class="small text-muted mb-1">ID: {tooltip.id}</div>
 			{#if tooltip.loading}
-				<div class="small text-muted">Cargando detalles...</div>
+				<div class="small text-muted">{m.lib_net_loading_details()}</div>
 			{:else if tooltip.details}
 				<div class="small">
-					{#if tooltip.details.sexo}<div><strong>Sexo:</strong> {tooltip.details.sexo}</div>{/if}
-					{#if tooltip.details.edad}<div><strong>Edad:</strong> {tooltip.details.edad}</div>{/if}
+					{#if tooltip.details.sexo}<div>
+							<strong>{m.lib_net_sex()}</strong>
+							{tooltip.details.sexo}
+						</div>{/if}
+					{#if tooltip.details.edad}<div>
+							<strong>{m.lib_net_age()}</strong>
+							{tooltip.details.edad}
+						</div>{/if}
 					{#if tooltip.details.ocupaciones?.length}<div>
-							<strong>Ocupaciones:</strong>
+							<strong>{m.lib_net_occupations()}</strong>
 							{tooltip.details.ocupaciones.join(', ')}
 						</div>{/if}
 					{#if tooltip.details.etnonimos?.length}<div>
-							<strong>Etnónimos:</strong>
+							<strong>{m.lib_net_ethnonyms()}</strong>
 							{tooltip.details.etnonimos.join(', ')}
 						</div>{/if}
 				</div>
 			{/if}
 			<a class="btn btn-sm btn-outline-primary mt-2" href={detailHref()}>
-				<i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Ver ficha
+				<i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>{m.lib_net_view_detail()}
 			</a>
 		</div>
 	</div>

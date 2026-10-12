@@ -1,11 +1,12 @@
 <script>
 	import { fetchWithBaseUrl } from '$lib/api.js';
 	import { createEventDispatcher, onMount } from 'svelte';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let value = null; // { value, label } or null
 	export let endpoint = ''; // e.g. 'lugares/' or 'vocabularios/calidades/'
 	export let searchParam = 'search'; // query param name
-	export let placeholder = 'Buscar…';
+	export let placeholder = '';
 	export let id = '';
 	export let disabled = false;
 
@@ -109,7 +110,7 @@
 			{id}
 			type="text"
 			class="form-control"
-			{placeholder}
+			placeholder={placeholder || m.lib_search_placeholder()}
 			{disabled}
 			bind:value={query}
 			on:input={onInput}
@@ -124,8 +125,8 @@
 				type="button"
 				class="btn btn-outline-secondary"
 				on:click={clear}
-				aria-label="Limpiar"
-				title="Limpiar"
+				aria-label={m.lib_search_clear()}
+				title={m.lib_search_clear()}
 			>
 				&times;
 			</button>
@@ -135,7 +136,7 @@
 	{#if open && (options.length > 0 || loading)}
 		<ul class="searchable-select-dropdown list-group">
 			{#if loading}
-				<li class="list-group-item text-muted small">Buscando…</li>
+				<li class="list-group-item text-muted small">{m.lib_search_searching()}</li>
 			{/if}
 			{#each options as opt}
 				<li
