@@ -7,6 +7,7 @@
 	 */
 	import { createEventDispatcher } from 'svelte';
 	import { mergeSuggest } from '$lib/api';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let entity = ''; // 'pe' | 'pn' | 'lug' | 'doc' | 'cor'
 	export let currentId = null; // pre-fills as canonical
@@ -22,13 +23,18 @@
 	let error = null;
 	let success = false;
 
-	const ENTITY_LABELS = {
-		pe: 'Persona Esclavizada',
-		pn: 'Persona No Esclavizada',
-		lug: 'Lugar',
-		doc: 'Documento',
-		cor: 'Corporación'
+	const ENTITY_KEYS = {
+		pe: 'lib_merge_entity_pe',
+		pn: 'lib_merge_entity_pn',
+		lug: 'lib_merge_entity_lug',
+		doc: 'lib_merge_entity_doc',
+		cor: 'lib_merge_entity_cor'
 	};
+
+	function entityLabel(e) {
+		const key = ENTITY_KEYS[e];
+		return key ? m[key]() : e;
+	}
 
 	function openModal() {
 		open = true;
@@ -47,11 +53,11 @@
 	async function submit() {
 		error = null;
 		if (!canonicalId || !duplicateId) {
-			error = 'Ambos IDs son obligatorios.';
+			error = m.lib_merge_required_ids();
 			return;
 		}
 		if (String(canonicalId) === String(duplicateId)) {
-			error = 'Los IDs deben ser distintos.';
+			error = m.lib_merge_distinct_ids();
 			return;
 		}
 		saving = true;
@@ -59,7 +65,7 @@
 			await mergeSuggest({ entity, canonical_id: canonicalId, duplicate_id: duplicateId, notas });
 			success = true;
 		} catch (e) {
-			error = e.data?.error ?? 'Error al enviar la sugerencia.';
+			error = e.data?.error ?? m.lib_merge_error();
 		} finally {
 			saving = false;
 		}
@@ -76,9 +82,9 @@
 	type="button"
 	class="btn btn-sm btn-outline-secondary"
 	on:click={openModal}
-	title="Sugerir fusión de registros duplicados"
+	title={m.lib_merge_button_title()}
 >
-	<i class="bi bi-git me-1"></i>Sugerir merge
+	<i class="bi bi-git me-1"></i>{m.lib_merge_button()}
 </button>
 
 {#if open}
@@ -94,27 +100,27 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="suggest-merge-title">
-						<i class="bi bi-git me-2"></i>Sugerir fusión — {ENTITY_LABELS[entity] ?? entity}
+						<i class="bi bi-git me-2"></i>{m.lib_merge_modal_title({ entity: entityLabel(entity) })}
 					</h5>
 					<button
 						type="button"
 						class="btn-close"
-						aria-label="Cerrar"
-						title="Cerrar"
+						aria-label={m.lib_merge_close()}
+						title={m.lib_merge_close()}
 						on:click={closeModal}
 					></button>
 				</div>
 				<div class="modal-body">
 					{#if success}
 						<div class="alert alert-success" role="alert">
-							<i class="bi bi-check-circle-fill me-2"></i>Sugerencia enviada. El equipo de staff la
-							revisará.
+							<i class="bi bi-check-circle-fill me-2"></i>{m.lib_merge_success()}
 						</div>
-						<button class="btn btn-outline-secondary" on:click={closeModal}>Cerrar</button>
+						<button class="btn btn-outline-secondary" on:click={closeModal}
+							>{m.lib_merge_close()}</button
+						>
 					{:else}
 						<p class="text-muted small mb-3">
-							Indica cuál es el registro canónico (a conservar) y cuál es el duplicado (a fusionar y
-							eliminar). El equipo de staff revisará la sugerencia antes de ejecutar la fusión.
+							{m.lib_merge_intro()}
 						</p>
 
 						{#if error}
@@ -125,7 +131,8 @@
 
 						<div class="mb-3">
 							<label class="form-label fw-semibold" for="suggest-canonical">
-								ID canónico <span class="text-success">(a conservar)</span>
+								{m.lib_merge_canonical_label()}
+								<span class="text-success">{m.lib_merge_canonical_hint()}</span>
 								<span class="text-danger" aria-hidden="true">*</span>
 							</label>
 							<input
@@ -133,19 +140,20 @@
 								type="number"
 								class="form-control"
 								bind:value={canonicalId}
-								placeholder="ID del registro definitivo"
+								placeholder={m.lib_merge_canonical_placeholder()}
 								required
 							/>
 							{#if currentId}
 								<div class="form-text">
-									Registro actual: <strong>{currentLabel}</strong> (ID {currentId})
+									{m.lib_merge_current_record({ label: currentLabel, id: currentId })}
 								</div>
 							{/if}
 						</div>
 
 						<div class="mb-3">
 							<label class="form-label fw-semibold" for="suggest-duplicate">
-								ID duplicado <span class="text-danger">(a eliminar)</span>
+								{m.lib_merge_duplicate_label()}
+								<span class="text-danger">{m.lib_merge_duplicate_hint()}</span>
 								<span class="text-danger" aria-hidden="true">*</span>
 							</label>
 							<input
@@ -153,19 +161,21 @@
 								type="number"
 								class="form-control"
 								bind:value={duplicateId}
-								placeholder="ID del registro a fusionar"
+								placeholder={m.lib_merge_duplicate_placeholder()}
 								required
 							/>
 						</div>
 
 						<div class="mb-3">
-							<label class="form-label fw-semibold" for="suggest-notas">Notas (opcional)</label>
+							<label class="form-label fw-semibold" for="suggest-notas"
+								>{m.lib_merge_notes_label()}</label
+							>
 							<textarea
 								id="suggest-notas"
 								class="form-control"
 								rows="2"
 								bind:value={notas}
-								placeholder="Por qué crees que son el mismo registro…"
+								placeholder={m.lib_merge_notes_placeholder()}
 							></textarea>
 						</div>
 
@@ -174,9 +184,11 @@
 								{#if saving}
 									<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
 								{/if}
-								Enviar sugerencia
+								{m.lib_merge_submit()}
 							</button>
-							<button class="btn btn-outline-secondary" on:click={closeModal}>Cancelar</button>
+							<button class="btn btn-outline-secondary" on:click={closeModal}
+								>{m.lib_merge_cancel()}</button
+							>
 						</div>
 					{/if}
 				</div>
