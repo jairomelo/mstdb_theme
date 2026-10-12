@@ -1,6 +1,12 @@
 <script>
 	import { onMount } from 'svelte';
-	import { archivos as archivosData, estados, elaboracion } from '$conf/archivos';
+	import {
+		archivos as archivosData,
+		estados,
+		elaboracion,
+		localizeArchivo,
+		pickLocale
+	} from '$conf/archivos';
 	import { archivos as fetchArchivos } from '$lib/api';
 	import { buildSearchUrl } from '$lib/searchUrl';
 	import { getLocale } from '$lib/paraglide/runtime.js';
@@ -42,6 +48,10 @@
 
 	onMount(loadCounts);
 
+	// Resolve the active locale at init; the app renders client-side, so prose is
+	// produced directly in the active locale.
+	const activeLocale = getLocale();
+
 	/** Toggle state for collapsible sections per archive index */
 	let expanded = {};
 	function toggle(idx) {
@@ -51,7 +61,9 @@
 	/** Group archives by estado, preserving document order */
 	$: grouped = estados.map((estado) => ({
 		estado,
-		items: archivosData.map((a, i) => ({ ...a, _idx: i })).filter((a) => a.estado === estado)
+		items: archivosData
+			.map((a, i) => ({ ...localizeArchivo(a, activeLocale), _idx: i }))
+			.filter((a) => a.estado === estado)
 	}));
 
 	function explorar(archivoId) {
@@ -140,7 +152,7 @@
 									<i class="bi bi-pin-map me-1"></i>{archivo.direccion}
 								</p>
 								<p class="meta-line">
-									<i class="bi bi-person me-1"></i><strong>Participante:</strong>
+									<i class="bi bi-person me-1"></i><strong>{m.archivos_participante()}</strong>
 									{archivo.participante}
 								</p>
 							</div>
@@ -159,7 +171,8 @@
 									on:click={() => toggle(archivo._idx)}
 									aria-expanded={!!expanded[archivo._idx]}
 								>
-									{expanded[archivo._idx] ? m.archivos_hide_details() : m.archivo_view_details()} {m.each_zippy_niklas_inspire()}
+									{expanded[archivo._idx] ? m.archivos_hide_details() : m.archivo_view_details()}
+									{m.each_zippy_niklas_inspire()}
 									<i
 										class="bi"
 										class:bi-chevron-up={expanded[archivo._idx]}
@@ -188,7 +201,7 @@
 										{/if}
 
 										{#if archivo.enlaces.length}
-											<h4 class="ref-heading">Enlaces</h4>
+											<h4 class="ref-heading">{m.archivos_enlaces()}</h4>
 											<ul class="ref-list link-list">
 												{#each archivo.enlaces as link}
 													<li>
@@ -220,7 +233,7 @@
 			<div class="attribution text-center mt-5 mb-4">
 				<p>
 					<a href={elaboracion.url} target="_blank" rel="noopener noreferrer">
-						{elaboracion.text}
+						{pickLocale(elaboracion.text_es, elaboracion.text_en, activeLocale)}
 					</a>
 				</p>
 			</div>

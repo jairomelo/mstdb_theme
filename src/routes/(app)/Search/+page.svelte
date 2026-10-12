@@ -256,7 +256,7 @@
 							on:click={() => handleTabClick(et)}
 						>
 							<i class="bi {cfg.icon}"></i>
-							<span class="d-none d-md-inline">{cfg.label}</span>
+							<span class="d-none d-md-inline">{m[cfg.labelKey]()}</span>
 							{#if badge !== '' && badge !== 0}
 								<span
 									class="badge ms-1"
@@ -468,7 +468,7 @@
 							bind:value={desiredPage}
 							min="1"
 							max={totalPages}
-							placeholder="Ir a..."
+							placeholder={m.conf_search_goto_placeholder()}
 						/>
 						<button class="btn btn-outline-secondary" aria-label={m.gotopage()} on:click={goToPage}>
 							<i class="bi bi-arrow-right" aria-hidden="true"></i>

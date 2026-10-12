@@ -1,6 +1,18 @@
 <script>
-	import { contributors } from '$conf/contributors';
+	import { contributors, localizeContributor } from '$conf/contributors';
 	import { m } from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
+
+	// Resolve the active locale at instance init; the app renders client-side, so
+	// prose (including {@html}) is produced directly in the active locale.
+	const activeLocale = getLocale();
+
+	$: coordinators = contributors.coordinators.map((c) => localizeContributor(c, activeLocale));
+	$: collaborators = contributors.collaborators.map((c) => localizeContributor(c, activeLocale));
+	$: researchAssistants = contributors.researchAssistants.map((c) =>
+		localizeContributor(c, activeLocale)
+	);
+	$: developers = contributors.developers.map((c) => localizeContributor(c, activeLocale));
 </script>
 
 <svelte:head>
@@ -39,7 +51,7 @@
 					<i class="bi bi-people-fill me-2"></i>{m.coordinators()}
 				</h2>
 				<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-3">
-					{#each contributors.coordinators as coordinator}
+					{#each coordinators as coordinator}
 						<div class="col">
 							<div class="team-card">
 								<div class="card-content">
@@ -67,7 +79,7 @@
 				</p>
 
 				<div class="contributors-grid">
-					{#each contributors.collaborators as collaborator}
+					{#each collaborators as collaborator}
 						<div class="contributor-card" data-aos="fade-up">
 							<div class="card-body">
 								<div class="contributor-info">
@@ -87,13 +99,13 @@
 			</div>
 
 			<!-- Research Assistant Section -->
-			{#if contributors.researchAssistants.length > 0}
+			{#if researchAssistants.length > 0}
 				<div class="research-section mb-5" data-aos="fade-up">
 					<h2 class="section-title">
-						<i class="bi bi-person-badge me-2"></i>Ayudante de Investigación
+						<i class="bi bi-person-badge me-2"></i>{m.about_research_assistants()}
 					</h2>
 					<div class="assistant-cards mt-3">
-						{#each contributors.researchAssistants as assistant}
+						{#each researchAssistants as assistant}
 							<div class="assistant-card">
 								<p class="mb-0">
 									<strong>{assistant.name}</strong>
@@ -108,13 +120,13 @@
 			{/if}
 
 			<!-- Developers Section -->
-			{#if contributors.developers.length > 0}
+			{#if developers.length > 0}
 				<div class="developers-section mb-5" data-aos="fade-up">
 					<h2 class="section-title">
 						<i class="bi bi-code-slash me-2"></i>{m.few_neat_goose_ascend()}
 					</h2>
 					<div class="developer-cards mt-3">
-						{#each contributors.developers as developer}
+						{#each developers as developer}
 							<div class="developer-card">
 								<p class="mb-0">
 									<strong>{developer.name}</strong>
@@ -154,7 +166,8 @@
 					<h2 class="section-title">{m.acknowledgements()}</h2>
 					<p>
 						{m.tangy_merry_camel_rush()}
-						<a href="https://neogranadina.org/" target="_blank">{m.weird_nimble_hedgehog_grow()}</a>{m.low_patient_baboon_enrich()}
+						<a href="https://neogranadina.org/" target="_blank">{m.weird_nimble_hedgehog_grow()}</a
+						>{m.low_patient_baboon_enrich()}
 						<a href="https://www.history.ucsb.edu/faculty/juan-cobo/" target="_blank">
 							{m.bland_misty_lobster_spur()}
 						</a>.
