@@ -725,6 +725,18 @@
 		if (tooltipData) positionTooltipFromEvent(event);
 	}
 
+	function onArcFocus(event, route) {
+		setRouteTooltip(route);
+		const { p0, pc, p1 } = arcGeometry(route);
+		const [mx, my] = bezierPoint(0.5, p0, pc, p1);
+		const containerPoint = map.layerPointToContainerPoint(L.point(mx, my));
+		const frameRect = mapFrame.getBoundingClientRect();
+		const mapRect = mapContainer.getBoundingClientRect();
+		tooltipX = mapRect.left - frameRect.left + containerPoint.x + 12;
+		tooltipY = mapRect.top - frameRect.top + containerPoint.y + 12;
+		tooltipVisible = true;
+	}
+
 	function onMarkerFocus(event, place) {
 		setMarkerTooltip(place);
 		const [mx, my] = projectPoint(place.lat, place.lon);
@@ -839,7 +851,7 @@
 		<div class="card-body">
 			<div class="arcs-map-filters">
 				<div class="arcs-map-filter arcs-map-filter-limit">
-					<label class="form-label" for="route-limit">Rutas mostradas: {routeLimit}</label>
+					<label class="form-label" for="route-limit">{m.viz_arc_route_limit()} {routeLimit}</label>
 					<input
 						id="route-limit"
 						class="form-range"
