@@ -1,11 +1,12 @@
 <script>
 	import { fetchWithBaseUrl } from '$lib/api.js';
 	import { createEventDispatcher, onMount } from 'svelte';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let values = []; // [{ value, label }, ...]
 	export let endpoint = '';
 	export let searchParam = 'search';
-	export let placeholder = 'Buscar y añadir…';
+	export let placeholder = '';
 	export let id = '';
 	export let disabled = false;
 
@@ -104,7 +105,7 @@
 				<button
 					type="button"
 					class="btn-close btn-close-white btn-close-sm ms-1"
-					aria-label="Quitar {v.label}"
+					aria-label={m.lib_multiselect_remove({ label: v.label })}
 					on:click={() => remove(v)}
 				/>
 			</span>
@@ -114,7 +115,7 @@
 		{id}
 		type="text"
 		class="form-control mt-1"
-		{placeholder}
+		placeholder={placeholder || m.lib_multiselect_placeholder()}
 		{disabled}
 		bind:value={query}
 		on:input={onInput}
@@ -125,7 +126,7 @@
 	{#if (options.length > 0 || loading) && isFocused}
 		<ul class="searchable-select-dropdown list-group">
 			{#if loading}
-				<li class="list-group-item text-muted small">Buscando…</li>
+				<li class="list-group-item text-muted small">{m.lib_multiselect_searching()}</li>
 			{/if}
 			{#each options as opt}
 				<li
