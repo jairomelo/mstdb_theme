@@ -2,13 +2,16 @@
 	import { goto } from '$app/navigation';
 	import { unifiedStore, toggleSort } from '$lib/unified-store';
 	import { columnsConfig, entityIdField, entityTabConfig, renderCellValue } from '$conf/columns';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let entityType;
 	export let results;
 
 	$: allColumns = columnsConfig[entityType] || [];
 	$: visibleColumnKeys = $unifiedStore.tabs[entityType]?.visibleColumns || [];
-	$: visibleColumns = allColumns.filter((c) => visibleColumnKeys.includes(c.key));
+	$: visibleColumns = allColumns
+		.filter((c) => visibleColumnKeys.includes(c.key))
+		.map((c) => ({ ...c, label: m[c.labelKey]() }));
 	$: sortField = $unifiedStore.tabs[entityType]?.sortField || '';
 	$: sortDir = $unifiedStore.tabs[entityType]?.sortDir || 'asc';
 	$: idField = entityIdField[entityType];
@@ -73,7 +76,7 @@
 									<a
 										href="{getDetailUrl(row)}#relations-network"
 										class="text-decoration-none"
-										title="Ver red de relaciones"
+										title={m.conf_table_view_relations()}
 									>
 										<i class="bi bi-diagram-3 text-primary"></i>
 									</a>
@@ -85,7 +88,7 @@
 									<a
 										href="{getDetailUrl(row)}#places-map"
 										class="text-decoration-none"
-										title="Ver trayectoria"
+										title={m.conf_table_view_trajectory()}
 									>
 										<i class="bi bi-geo-alt text-success"></i>
 									</a>
