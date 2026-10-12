@@ -5,6 +5,7 @@
 		deleteLeccionAcceso,
 		lookupUsers
 	} from '$lib/api.js';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let leccionId;
 	export let accesos = [];
@@ -22,7 +23,7 @@
 	$: ownerCount = accesos.filter((a) => a.role === 'owner').length;
 
 	function roleLabel(role) {
-		return role === 'owner' ? 'Propietario/a' : 'Colaborador/a';
+		return role === 'owner' ? m.lib_colab_role_owner() : m.lib_colab_role_collaborator();
 	}
 
 	function onQueryInput() {
@@ -41,7 +42,7 @@
 			results = await lookupUsers(query.trim());
 			results = results.filter((u) => !accesos.some((a) => a.username === u.username));
 		} catch (e) {
-			lookupError = 'No se pudo buscar usuarios.';
+			lookupError = m.lib_colab_err_search();
 			results = [];
 		} finally {
 			searching = false;
@@ -56,7 +57,7 @@
 
 	async function addUser() {
 		if (!selected) {
-			lookupError = 'Selecciona un usuario de la búsqueda.';
+			lookupError = m.lib_colab_err_select();
 			return;
 		}
 		busy = true;
@@ -70,7 +71,7 @@
 			query = '';
 			selected = null;
 			newRole = 'collaborator';
-			message = { type: 'success', text: `Se añadió a ${created.username}.` };
+			message = { type: 'success', text: m.lib_colab_added({ username: created.username }) };
 		} catch (e) {
 			const detail = e.data?.username?.join?.(' ') || e.data?.detail || e.message;
 			message = { type: 'danger', text: detail };
@@ -91,7 +92,7 @@
 			accesos = accesos.map((a) =>
 				a.leccion_acceso_id === updated.leccion_acceso_id ? updated : a
 			);
-			message = { type: 'success', text: 'Rol actualizado.' };
+			message = { type: 'success', text: m.lib_colab_role_updated() };
 		} catch (e) {
 			accesos = accesos.map((a) =>
 				a.leccion_acceso_id === acceso.leccion_acceso_id ? { ...a, role: prev } : a
@@ -105,15 +106,15 @@
 		try {
 			await deleteLeccionAcceso(leccionId, acceso.leccion_acceso_id);
 			accesos = accesos.filter((a) => a.leccion_acceso_id !== acceso.leccion_acceso_id);
-			message = { type: 'success', text: `Se quitó el acceso a ${acceso.username}.` };
+			message = { type: 'success', text: m.lib_colab_removed({ username: acceso.username }) };
 		} catch (e) {
 			message = { type: 'danger', text: e.data?.detail || e.message };
 		}
 	}
 </script>
 
-<section class="card mb-4" aria-label="Personas con acceso a la lección">
-	<div class="card-header fw-semibold">Colaboración</div>
+<section class="card mb-4" aria-label={m.lib_colab_section_aria()}>
+	<div class="card-header fw-semibold">{m.lib_colab_title()}</div>
 	<div class="card-body">
 		{#if message}
 			<div class="alert alert-{message.type} py-2" role="status">{message.text}</div>
@@ -130,7 +131,7 @@
 							{/if}
 						</div>
 						<label class="visually-hidden" for="role-{acceso.leccion_acceso_id}">
-							Rol de {acceso.username}
+							{m.lib_colab_role_label_of({ username: acceso.username })}
 						</label>
 						<select
 							id="role-{acceso.leccion_acceso_id}"
@@ -139,15 +140,15 @@
 							on:change={(e) => changeRole(acceso, e.target.value)}
 							disabled={acceso.role === 'owner' && ownerCount <= 1}
 						>
-							<option value="owner">Propietario/a</option>
-							<option value="collaborator">Colaborador/a</option>
+							<option value="owner">{m.lib_colab_role_owner()}</option>
+							<option value="collaborator">{m.lib_colab_role_collaborator()}</option>
 						</select>
 						<button
 							type="button"
 							class="btn btn-sm btn-outline-danger"
 							on:click={() => removeAcceso(acceso)}
 							disabled={acceso.role === 'owner' && ownerCount <= 1}
-							aria-label="Quitar acceso a {acceso.username}"
+							aria-label={m.lib_colab_remove_access({ username: acceso.username })}
 						>
 							<i class="bi bi-x-lg" aria-hidden="true"></i>
 						</button>
@@ -155,31 +156,31 @@
 				{/each}
 			</ul>
 			{#if ownerCount <= 1}
-				<p class="form-text mb-3">La lección debe conservar al menos una persona propietaria.</p>
+				<p class="form-text mb-3">{m.lib_colab_keep_one()}</p>
 			{/if}
 		{:else}
-			<p class="text-muted">Sin accesos registrados.</p>
+			<p class="text-muted">{m.lib_colab_no_access()}</p>
 		{/if}
 
 		<form class="row g-2 align-items-end" on:submit|preventDefault={addUser}>
 			<div class="col-md-5 position-relative">
-				<label class="form-label" for="colab-username">Añadir usuario</label>
+				<label class="form-label" for="colab-username">{m.lib_colab_add_user()}</label>
 				<input
 					id="colab-username"
 					class="form-control"
-					placeholder="Nombre de usuario…"
+					placeholder={m.lib_colab_username_placeholder()}
 					bind:value={query}
 					on:input={onQueryInput}
 					autocomplete="off"
 					aria-describedby="colab-lookup-hint"
 				/>
 				<div id="colab-lookup-hint" class="visually-hidden">
-					Escribe al menos dos caracteres para buscar usuarios.
+					{m.lib_colab_lookup_hint()}
 				</div>
 				{#if results.length || searching}
 					<ul class="list-group position-absolute w-100 colab-lookup-results">
 						{#if searching}
-							<li class="list-group-item text-muted small">Buscando…</li>
+							<li class="list-group-item text-muted small">{m.lib_colab_searching()}</li>
 						{/if}
 						{#each results as u (u.username)}
 							<li>
@@ -202,7 +203,7 @@
 				{/if}
 				{#if selected}
 					<div class="form-text">
-						Seleccionado: <strong>{selected.username}</strong>
+						{m.lib_colab_selected()} <strong>{selected.username}</strong>
 						{#if selected.first_name || selected.last_name}
 							({`${selected.first_name} ${selected.last_name}`.trim()})
 						{/if}
@@ -210,17 +211,17 @@
 				{/if}
 			</div>
 			<div class="col-md-4">
-				<label class="form-label" for="colab-role">Rol</label>
+				<label class="form-label" for="colab-role">{m.lib_colab_role_label()}</label>
 				<select id="colab-role" class="form-select" bind:value={newRole}>
-					<option value="collaborator">Colaborador/a (edita contenido)</option>
-					<option value="owner">Propietario/a (control total)</option>
+					<option value="collaborator">{m.lib_colab_role_collab_opt()}</option>
+					<option value="owner">{m.lib_colab_role_owner_opt()}</option>
 				</select>
 			</div>
 			<div class="col-md-3">
 				<button type="submit" class="btn btn-outline-primary w-100" disabled={busy || !selected}>
 					{#if busy}<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"
 						></span>{/if}
-					Añadir
+					{m.lib_colab_add()}
 				</button>
 			</div>
 		</form>
