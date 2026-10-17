@@ -403,7 +403,20 @@
 	// ------------------------------------------------------------------
 
 	$: ready = Boolean(browser && map && svg && !loading);
-	$: if (ready) renderScene(mode, visibleRoutes, series, playhead, showArcs);
+
+	// Structural inputs only change on a filter/mode/toggle change — not on a
+	// timeline scrub. Their reactive-derived references (visibleRoutes, series)
+	// are stable across playhead changes, so a scrub does a cheap style-only
+	// update instead of a full layout/arc/marker rebuild.
+	let prevStructure = null;
+	$: if (ready) {
+		void playhead;
+		const token = [mode, showArcs, visibleRoutes, series, places];
+		const structural = !prevStructure || prevStructure.some((value, i) => value !== token[i]);
+		prevStructure = token;
+		if (structural) renderScene();
+		else renderStyles();
+	}
 
 	function renderScene() {
 		if (!map || !svg || !gRoot) return;
@@ -416,6 +429,18 @@
 		layoutSvg();
 		renderArcs();
 		renderMarkers();
+		rebuildParticles();
+	}
+
+	// Scrub-only path: update arc width/opacity, marker radius and particles
+	// without re-running the data joins or re-laying-out the SVG.
+	function renderStyles() {
+		if (!gArcs || !gArcsHit || !gMarkers) return;
+		gArcs.selectAll('path.map-arc').attr('stroke-width', arcWidth).attr('opacity', arcOpacity);
+		gArcsHit
+			.selectAll('path.map-arc-hit')
+			.attr('stroke-width', (route) => Math.max(12, arcWidth(route) + 8));
+		gMarkers.selectAll('circle.map-marker').attr('r', markerRadius);
 		rebuildParticles();
 	}
 
@@ -593,8 +618,7 @@
 	let particles = [];
 	let rafId = null;
 
-	$: if (ready) rebuildParticles(mode, series, playhead, visibleRoutes);
-
+	// Rebuilt from renderScene (structural changes) and renderStyles (scrub).
 	function rebuildParticles() {
 		if (mode !== 'timeline' || prefersReducedMotion) {
 			particles = [];
