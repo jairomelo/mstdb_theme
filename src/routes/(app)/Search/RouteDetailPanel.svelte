@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { routeDetail } from '$lib/api';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let fromId;
 	export let toId;

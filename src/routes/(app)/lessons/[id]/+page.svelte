@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { fetchLeccion } from '$lib/api.js';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let data;
 

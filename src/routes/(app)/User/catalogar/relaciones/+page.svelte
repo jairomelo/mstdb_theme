@@ -21,6 +21,7 @@
 	import ConfirmDelete from '$lib/components/hub/ConfirmDelete.svelte';
 	import FlexDateInput from '$lib/components/forms/FlexDateInput.svelte';
 	import { loginUrl } from '$lib/auth';
+	import { m } from '$lib/paraglide/messages.js';
 
 	// Guard against double-registration (HMR / multiple imports)
 	try {
