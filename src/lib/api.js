@@ -447,3 +447,6 @@ export const mergeSuggest = (payload) => postWithBaseUrl('merge/suggest/', paylo
 export const updateLugarById = (id, data) => patchWithBaseUrl(`lugares/${id}/`, data);
 export const updatePersonaEscById = (id, data) =>
 	patchWithBaseUrl(`personas-esclavizadas/${id}/`, data);
+
+// ── Data dictionary ───────────────────────────────────────────────────────────
+export const dataDictionary = () => fetchWithBaseUrl('data-dictionary/');

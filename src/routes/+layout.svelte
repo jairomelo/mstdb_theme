@@ -138,6 +138,24 @@
 							>
 						</li>
 
+						<li class="nav-item">
+							<a
+								class="nav-link"
+								href="/lessons/"
+								aria-current={$page.url.pathname.startsWith('/lessons') ? 'page' : undefined}
+								>{m.lessons_nav()}</a
+							>
+						</li>
+
+						<li class="nav-item">
+							<a
+								class="nav-link"
+								href="/Diccionario/"
+								aria-current={$page.url.pathname.startsWith('/Diccionario') ? 'page' : undefined}
+								>{m.dict_nav()}</a
+							>
+						</li>
+
 						<li class="nav-item dropdown">
 							<button
 								type="button"
