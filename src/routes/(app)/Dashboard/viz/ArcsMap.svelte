@@ -40,10 +40,12 @@
 
 	const isMobileViewport = browser && window.matchMedia('(max-width: 767.98px)').matches;
 	let routeLimit = isMobileViewport ? 100 : 250;
-	// Geometry cache: routeKey+zoom (+pan offset) → path pieces, so the rAF
-	// particle loop never calls latLngToLayerPoint per particle per frame.
+	// Geometry cache: routeKey + projection (zoom & pixel origin) → path pieces,
+	// so the rAF particle loop never calls latLngToLayerPoint per particle per
+	// frame. The key must include the pixel origin: a layer point is only valid
+	// for the (zoom, center) it was projected under, and wheel zoom recenters the
+	// map, so a zoom-only key would hand back geometry computed at an old center.
 	let geometryCache = new Map();
-	let geometryCacheZoom = null;
 	let origin = '';
 	let destination = '';
 	let startYear = '';
@@ -291,13 +293,21 @@
 			gParticles = gRoot.append('g');
 
 			await loadData();
-			map.on('zoomend moveend', () => {
-				invalidateGeometryCache();
+			// Zoom and view reset change the projection (zoom + pixel origin), so
+			// drop the geometry cache and re-lay-out. Panning only moves the map
+			// pane and keeps the pixel origin, so cached layer points stay valid —
+			// moveend just re-renders.
+			map.on('zoomend', () => {
+				geometryCache.clear();
 				renderScene();
 			});
+			map.on('viewreset', () => {
+				geometryCache.clear();
+				renderScene();
+			});
+			map.on('moveend', () => renderScene());
 			map.on('resize', () => {
 				map.invalidateSize();
-				invalidateGeometryCache();
 				renderScene();
 			});
 			// Leaflet only tracks window resizes; responsive/flex container changes
@@ -318,7 +328,7 @@
 			requestAnimationFrame(() => {
 				if (map) {
 					map.invalidateSize();
-					invalidateGeometryCache();
+					geometryCache.clear();
 					renderScene();
 				}
 			});
@@ -355,8 +365,15 @@
 		return [point.x, point.y];
 	}
 
+	// Layer points are relative to Leaflet's pixel origin, which is derived from
+	// the current center — so the origin is part of the projection identity.
+	function projectionKey() {
+		const o = map.getPixelOrigin();
+		return `${map.getZoom()}@${o.x},${o.y}`;
+	}
+
 	function arcGeometry(route) {
-		const cacheKey = `${routeKey(route)}@${geometryCacheZoom}`;
+		const cacheKey = `${routeKey(route)}@${projectionKey()}`;
 		const cached = geometryCache.get(cacheKey);
 		if (cached) return cached;
 		const [x1, y1] = projectPoint(route.from_lat, route.from_lon);
@@ -371,18 +388,12 @@
 			p1: [x2, y2]
 		};
 		geometryCache.set(cacheKey, geom);
+		// Bound the Map (at most ~2 viewports of arcs); drop the oldest entry.
 		if (geometryCache.size > 2000) {
 			const first = geometryCache.keys().next().value;
 			geometryCache.delete(first);
 		}
 		return geom;
-	}
-
-	function invalidateGeometryCache() {
-		geometryCacheZoom = map ? map.getZoom() : null;
-		// Keep the Map bounded (at most ~2 viewports of arcs); pan offsets are
-		// folded into layoutSvg's root transform so cached geometry stays valid.
-		if (geometryCache.size > 2000) geometryCache.clear();
 	}
 
 	function arcPathD(route) {
@@ -420,7 +431,6 @@
 
 	function renderScene() {
 		if (!map || !svg || !gRoot) return;
-		if (geometryCacheZoom == null) geometryCacheZoom = map.getZoom();
 		// Arc/particle layers can be hidden to show only place circles.
 		const hidden = showArcs ? null : 'none';
 		gArcs.attr('display', hidden);
@@ -694,8 +704,9 @@
 	function drawParticles(now) {
 		if (!gParticles || !map) return;
 		const duration = TRAVEL_MS / speed;
-		// arcGeometry() is cached per route+zoom, so this loop is pure Bézier
-		// math: no latLngToLayerPoint calls per particle per frame.
+		// arcGeometry() is cached per route + projection (zoom & pixel origin),
+		// the same key the arcs use, so particles never diverge from their arcs:
+		// this loop is pure Bézier math, no latLngToLayerPoint per frame.
 		gParticles.selectAll('circle.map-particle').each(function (p) {
 			const t = (now / duration + p.offset) % 1;
 			const { p0, pc, p1 } = arcGeometry(p.route);
