@@ -1,7 +1,6 @@
 <script>
 	import Card from './Card.svelte';
 	import { getFilterConfigByValue } from '$conf/filters.js';
-	import { personaLugarRel } from '$lib/api';
 	import { tooltip } from '$lib/bootstrap-actions.js';
 
 	export let item;
@@ -14,11 +13,14 @@
 		return Object.values(highlight).flat();
 	}
 
-	async function fetchPersonaLugarRels(relationIds) {
-		return Promise.all(relationIds.map((id) => personaLugarRel(id)));
-	}
+	// Related persons are inlined by the search API (no per-card XHR fan-out).
+	$: preview = item.source.personas_preview || { total: 0, personas: [] };
 
-	let personaLugarRelsPromise = fetchPersonaLugarRels(item.source.persona_lugar_rel || []);
+	function personaModel(persona) {
+		return persona.persona_model === 'personanoesclavizada'
+			? 'personanoesclavizada'
+			: 'personaesclavizada';
+	}
 </script>
 
 <Card {item}>
@@ -64,41 +66,30 @@
 		{/if}
 
 		<!-- Related Persons -->
-		{#if item.source.persona_lugar_rel && item.source.persona_lugar_rel.length > 0}
+		{#if preview.total > 0}
 			<div class="related-persons mt-3">
 				<p class="mb-1 fw-bold">
-					<i class="bi bi-people me-2"></i>Personas relacionadas ({item.source.persona_lugar_rel
-						.length}):
+					<i class="bi bi-people me-2"></i>Personas relacionadas ({preview.total}):
 				</p>
-				{#await personaLugarRelsPromise}
-					<p><small>Cargando personas...</small></p>
-				{:then personasInfo}
-					<ul class="list-unstyled mb-0">
-						{#each personasInfo.slice(0, 3) as personaRel}
-							{#each personaRel.personas as persona}
-								<li>
-									<a
-										href="/Detail/{persona.polymorphic_ctype == 29
-											? 'personaesclavizada'
-											: 'personanoesclavizada'}/{persona.persona_id}"
-										class="text-decoration-none"
-									>
-										{persona.nombre_normalizado}
-									</a>
-								</li>
-							{/each}
-						{/each}
-						{#if personasInfo.length > 3}
-							<li>
-								<a href="/Detail/lugar/{item.source.lugar_id}" class="text-decoration-none">
-									<small>y {personasInfo.length - 3} más...</small>
-								</a>
-							</li>
-						{/if}
-					</ul>
-				{:catch error}
-					<p><small>Error al cargar las personas: {error.message}</small></p>
-				{/await}
+				<ul class="list-unstyled mb-0">
+					{#each preview.personas as persona}
+						<li>
+							<a
+								href="/Detail/{personaModel(persona)}/{persona.persona_id}"
+								class="text-decoration-none"
+							>
+								{persona.nombre_normalizado}
+							</a>
+						</li>
+					{/each}
+					{#if preview.total > preview.personas.length}
+						<li>
+							<a href="/Detail/lugar/{item.source.lugar_id}" class="text-decoration-none">
+								<small>y {preview.total - preview.personas.length} más...</small>
+							</a>
+						</li>
+					{/if}
+				</ul>
 			</div>
 		{/if}
 	</div>
