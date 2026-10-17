@@ -18,8 +18,10 @@
 	let routes = [];
 	let places = [];
 	let showPlaces = true;
+	let showArcs = true;
 	let circleLayer = null;
 	let mapContainer;
+	let resizeObserver = null;
 
 	// Modal state
 	let selectedRoute = null;
@@ -65,6 +67,22 @@
 
 			await loadData();
 			map.on('zoomend moveend', updateArcs);
+			map.on('resize', () => {
+				map.invalidateSize();
+				updateArcs();
+			});
+			if (typeof ResizeObserver !== 'undefined') {
+				resizeObserver = new ResizeObserver(() => {
+					if (map) map.invalidateSize();
+				});
+				resizeObserver.observe(mapContainer);
+			}
+			requestAnimationFrame(() => {
+				if (map) {
+					map.invalidateSize();
+					updateArcs();
+				}
+			});
 		} catch (e) {
 			console.error(e);
 			error = e.message;
@@ -73,6 +91,10 @@
 	});
 
 	onDestroy(() => {
+		if (resizeObserver) {
+			resizeObserver.disconnect();
+			resizeObserver = null;
+		}
 		if (map) {
 			map.remove();
 			map = null;
@@ -127,6 +149,7 @@
 		g.attr('transform', `translate(${-topLeft.x},${-topLeft.y})`);
 
 		g.selectAll('path').remove();
+		if (!showArcs) return;
 
 		const maxCount = Math.max(...routes.map((r) => r.count), 1);
 
@@ -179,7 +202,7 @@
 				fillOpacity: 0.6
 			})
 				.bindPopup(
-					`<strong>${p.nombre}</strong><br>Personas: ${p.persona_count}<br>Entrantes: ${p.incoming} | Salientes: ${p.outgoing}`
+					`<strong>${p.nombre}</strong><br>${m.traj_map_popup_personas({ count: p.persona_count })}<br>${m.arcs_map_place_incoming()}: ${p.incoming} | ${m.arcs_map_place_outgoing()}: ${p.outgoing}`
 				)
 				.addTo(circleLayer);
 		}
@@ -188,6 +211,11 @@
 	function togglePlaces() {
 		showPlaces = !showPlaces;
 		updatePlaces();
+	}
+
+	function toggleArcs() {
+		showArcs = !showArcs;
+		updateArcs();
 	}
 
 	function closeModal() {
@@ -201,12 +229,24 @@
 			class="btn btn-sm"
 			class:btn-primary={showPlaces}
 			class:btn-outline-secondary={!showPlaces}
+			aria-pressed={showPlaces}
 			on:click={togglePlaces}
 		>
-			<i class="bi bi-geo-alt me-1"></i>Lugares
+			<i class="bi bi-geo-alt me-1"></i>{m.traj_map_places()}
+		</button>
+		<button
+			class="btn btn-sm"
+			class:btn-primary={showArcs}
+			class:btn-outline-secondary={!showArcs}
+			aria-pressed={showArcs}
+			on:click={toggleArcs}
+		>
+			<i class="bi bi-arrow-right-circle me-1"></i>{m.traj_map_arcs()}
 		</button>
 		<small class="text-muted">
-			{routes.length} rutas &middot; {places.length} lugares
+			{m.traj_map_routes({ count: routes.length })} &middot; {m.traj_map_places_count({
+				count: places.length
+			})}
 		</small>
 	</div>
 
@@ -217,7 +257,7 @@
 			<div class="spinner-border text-primary" role="status">
 				<span class="visually-hidden">{m.loading()}</span>
 			</div>
-			<p class="text-muted mt-2">Cargando trayectorias agregadas...</p>
+			<p class="text-muted mt-2">{m.traj_map_loading()}</p>
 		</div>
 	{:else if error}
 		<div class="alert alert-danger mt-2">
@@ -225,8 +265,7 @@
 		</div>
 	{:else if routes.length === 0}
 		<div class="alert alert-info mt-2">
-			<i class="bi bi-info-circle me-2"></i>No se encontraron trayectorias con los filtros
-			aplicados.
+			<i class="bi bi-info-circle me-2"></i>{m.traj_map_empty()}
 		</div>
 	{/if}
 </div>

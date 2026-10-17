@@ -2152,7 +2152,7 @@ li {
 .arcs-map .map-tooltip {
 	position: absolute;
 	z-index: 900;
-	pointer-events: none;
+	pointer-events: auto;
 	background: rgba(33, 37, 41, 0.94);
 	color: #fff;
 	padding: 0.5rem 0.75rem;

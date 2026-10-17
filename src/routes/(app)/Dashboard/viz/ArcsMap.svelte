@@ -28,6 +28,8 @@
 	let mapContainer;
 	let mapFrame;
 	let modalEl;
+	let resizeObserver = null;
+	let visibilityHandler = null;
 
 	let loading = true;
 	let error = null;
@@ -60,6 +62,7 @@
 	let speed = 1;
 	let playing = false;
 	let playhead = 0;
+	let showArcs = true;
 
 	let selectedRoute = null;
 	let selectedPlace = null;
@@ -91,7 +94,17 @@
 
 	$: maxCount = Math.max(1, ...visibleRoutes.map((route) => route.count));
 
-	$: buildBuckets(meta, granularity);
+	// Full dataset year range, used for the date inputs so a narrowed range can be
+	// widened again (meta is the *filtered* range and shrinks on every apply).
+	let dataRange = { min: null, max: null };
+
+	$: span = meta.min_year != null && meta.max_year != null ? meta.max_year - meta.min_year : null;
+	// A narrow range with the user's 5-/10-year step collapses to a single bucket
+	// and freezes playback; fall back to 1-year buckets for short spans while the
+	// select keeps the user's choice (so widening the range restores it).
+	$: effectiveGranularity = span == null ? granularity : span < granularity ? 1 : granularity;
+
+	$: buildBuckets(meta, effectiveGranularity);
 
 	function buildBuckets(met, gra) {
 		const list = [];
@@ -102,6 +115,11 @@
 				list.push({ key: year, label: gra === 1 ? String(year) : `${year}–${year + gra - 1}` });
 			}
 		}
+		// Never leave the timeline without a bucket: a single bucket over the result
+		// range keeps the map renderable and the scrubber usable.
+		if (!list.length && met.min_year != null) {
+			list.push({ key: met.min_year, label: String(met.min_year) });
+		}
 		buckets = list;
 		if (playhead >= buckets.length) playhead = 0;
 	}
@@ -109,7 +127,7 @@
 	let buckets = [];
 	$: bucketIndex = new Map(buckets.map((b, i) => [b.key, i]));
 
-	$: series = computeSeries(visibleRoutes, buckets, bucketIndex, granularity, places);
+	$: series = computeSeries(visibleRoutes, buckets, bucketIndex, effectiveGranularity, places);
 
 	function computeSeries(routesList, bucketsList, indexMap, g, placesList) {
 		const n = bucketsList.length;
@@ -196,7 +214,7 @@
 	);
 
 	$: currentBucketLabel = buckets[playhead]
-		? granularity === 1
+		? effectiveGranularity === 1
 			? `${m.agno()}: ${buckets[playhead].label}`
 			: `${m.period()}: ${buckets[playhead].label}`
 		: '—';
@@ -233,6 +251,12 @@
 				max_year: data.max_year ?? null,
 				undated_count: data.undated_count ?? 0
 			};
+			// Capture the unfiltered dataset range once so the date inputs can
+			// always widen back to the full range, even after a narrowed apply.
+			const isUnfiltered = !params.fecha_inicial__gte && !params.fecha_inicial__lte;
+			if (data.min_year != null && (isUnfiltered || dataRange.min == null)) {
+				dataRange = { min: data.min_year, max: data.max_year };
+			}
 			playhead = 0;
 			playing = false;
 		} catch (e) {
@@ -271,6 +295,33 @@
 				invalidateGeometryCache();
 				renderScene();
 			});
+			map.on('resize', () => {
+				map.invalidateSize();
+				invalidateGeometryCache();
+				renderScene();
+			});
+			// Leaflet only tracks window resizes; responsive/flex container changes
+			// (or a hidden tab) leave a stale pixel origin that offsets the D3
+			// overlay, which reads as routes drifting off their places.
+			if (typeof ResizeObserver !== 'undefined') {
+				resizeObserver = new ResizeObserver(() => {
+					if (map) map.invalidateSize();
+				});
+				resizeObserver.observe(mapContainer);
+			}
+			visibilityHandler = () => {
+				if (!document.hidden && map) map.invalidateSize();
+			};
+			document.addEventListener('visibilitychange', visibilityHandler);
+			// The map mounts inside a card that may still be laying out; re-measure
+			// once after the first paint so the overlay origin is correct.
+			requestAnimationFrame(() => {
+				if (map) {
+					map.invalidateSize();
+					invalidateGeometryCache();
+					renderScene();
+				}
+			});
 		} catch (e) {
 			console.error(e);
 			error = e.message;
@@ -281,6 +332,14 @@
 	onDestroy(() => {
 		stopPlaybackTimer();
 		stopParticleLoop();
+		if (resizeObserver) {
+			resizeObserver.disconnect();
+			resizeObserver = null;
+		}
+		if (visibilityHandler) {
+			document.removeEventListener('visibilitychange', visibilityHandler);
+			visibilityHandler = null;
+		}
 		if (map) {
 			map.remove();
 			map = null;
@@ -344,11 +403,16 @@
 	// ------------------------------------------------------------------
 
 	$: ready = Boolean(browser && map && svg && !loading);
-	$: if (ready) renderScene(mode, visibleRoutes, series, playhead);
+	$: if (ready) renderScene(mode, visibleRoutes, series, playhead, showArcs);
 
 	function renderScene() {
 		if (!map || !svg || !gRoot) return;
 		if (geometryCacheZoom == null) geometryCacheZoom = map.getZoom();
+		// Arc/particle layers can be hidden to show only place circles.
+		const hidden = showArcs ? null : 'none';
+		gArcs.attr('display', hidden);
+		gArcsHit.attr('display', hidden);
+		gParticles.attr('display', hidden);
 		layoutSvg();
 		renderArcs();
 		renderMarkers();
@@ -388,7 +452,7 @@
 			.attr('role', 'img')
 			.on('pointerenter', onArcPointerEnter)
 			.on('pointermove', onPointerMove)
-			.on('pointerleave', hideTooltip)
+			.on('pointerleave', scheduleHideTooltip)
 			.on('focus', onArcFocus)
 			.on('blur', hideTooltip)
 			.on('click', onArcActivate)
@@ -408,7 +472,7 @@
 			.attr('role', 'img')
 			.on('pointerenter', onArcPointerEnter)
 			.on('pointermove', onPointerMove)
-			.on('pointerleave', hideTooltip)
+			.on('pointerleave', scheduleHideTooltip)
 			.on('focus', onArcFocus)
 			.on('blur', hideTooltip)
 			.on('click', onArcActivate)
@@ -483,7 +547,7 @@
 			.attr('role', 'button')
 			.on('pointerenter', onMarkerPointerEnter)
 			.on('pointermove', onPointerMove)
-			.on('pointerleave', hideTooltip)
+			.on('pointerleave', scheduleHideTooltip)
 			.on('focus', onMarkerFocus)
 			.on('blur', hideTooltip)
 			.on('click', onMarkerActivate)
@@ -581,7 +645,7 @@
 			.merge(sel);
 	}
 
-	$: if (browser && playing && mode === 'timeline' && !prefersReducedMotion) {
+	$: if (browser && playing && mode === 'timeline' && !prefersReducedMotion && showArcs) {
 		startParticleLoop();
 	} else {
 		stopParticleLoop();
@@ -678,7 +742,7 @@
 	function setRouteTooltip(route) {
 		const lines = [];
 		if (mode === 'static') {
-			if (route.count === 1 ) {
+			if (route.count === 1) {
 				lines.push(`${route.count} ${m.person()}`);
 			} else {
 				lines.push(`${route.count} ${m.person_people()}`);
@@ -687,8 +751,15 @@
 			lines.push(`${m.cumulated()}: ${routeCumAt(route, playhead)} ${m.movement_s()}`);
 			lines.push(`${currentBucketLabel}: ${routePeriodAt(route, playhead)} ${m.movement_s()}`);
 		}
-		lines.push(route.min_year != null ? `${m.agnos()}: ${route.min_year}–${route.max_year}` : m.no_date());
-		tooltipData = { title: `${route.from_nombre} → ${route.to_nombre}`, lines };
+		lines.push(
+			route.min_year != null ? `${m.agnos()}: ${route.min_year}–${route.max_year}` : m.no_date()
+		);
+		tooltipData = {
+			kind: 'route',
+			ref: route,
+			title: `${route.from_nombre} → ${route.to_nombre}`,
+			lines
+		};
 	}
 
 	function setMarkerTooltip(place) {
@@ -698,9 +769,32 @@
 		const inCount = s ? s.in[idx] || 0 : 0;
 		const outCount = s ? s.out[idx] || 0 : 0;
 		tooltipData = {
+			kind: 'place',
+			ref: place,
 			title: place.nombre,
-			lines: [`${m.cumulated()}: ${total} ${m.movement_s()}`, `${m.arcs_map_place_incoming()}: ${inCount} · ${m.arcs_map_place_outgoing()}: ${outCount}`]
+			lines: [
+				`${m.cumulated()}: ${total} ${m.movement_s()}`,
+				`${m.arcs_map_place_incoming()}: ${inCount} · ${m.arcs_map_place_outgoing()}: ${outCount}`
+			]
 		};
+	}
+
+	// Delay hiding so the pointer can travel from the arc into the tooltip to
+	// click its action button (desktop); tapping an arc/marker already opens the
+	// modal on touch.
+	let hideTimer = null;
+	function scheduleHideTooltip() {
+		clearTimeout(hideTimer);
+		hideTimer = setTimeout(hideTooltip, 180);
+	}
+	function cancelHideTooltip() {
+		clearTimeout(hideTimer);
+	}
+	function activateFromTooltip() {
+		const data = tooltipData;
+		if (!data || !data.ref) return;
+		if (data.kind === 'place') openPlaceModal(data.ref, lastFocusedEl);
+		else openRouteModal(data.ref, lastFocusedEl);
 	}
 
 	function positionTooltipFromEvent(event) {
@@ -892,10 +986,10 @@
 							class="form-control"
 							type="number"
 							inputmode="numeric"
-							min={meta.min_year ?? undefined}
-							max={meta.max_year ?? undefined}
+							min={dataRange.min ?? undefined}
+							max={dataRange.max ?? undefined}
 							step="1"
-							placeholder={meta.min_year != null ? String(meta.min_year) : 'Año'}
+							placeholder={dataRange.min != null ? String(dataRange.min) : 'Año'}
 							aria-label="Año inicial"
 							bind:value={startYear}
 						/>
@@ -904,10 +998,10 @@
 							class="form-control"
 							type="number"
 							inputmode="numeric"
-							min={meta.min_year ?? undefined}
-							max={meta.max_year ?? undefined}
+							min={dataRange.min ?? undefined}
+							max={dataRange.max ?? undefined}
 							step="1"
-							placeholder={meta.max_year != null ? String(meta.max_year) : 'Año'}
+							placeholder={dataRange.max != null ? String(dataRange.max) : 'Año'}
 							aria-label="Año final"
 							bind:value={endYear}
 						/>
@@ -926,7 +1020,8 @@
 						on:click={enterTimeline}
 						disabled={loading || meta.min_year == null}
 					>
-						<i class="bi bi-play-circle me-1" aria-hidden="true"></i>{m.arable_close_florian_foster()}
+						<i class="bi bi-play-circle me-1" aria-hidden="true"
+						></i>{m.arable_close_florian_foster()}
 					</button>
 					{#if !loading && meta.min_year == null}
 						<span class="small text-muted">Sin movimientos con fecha disponibles.</span>
@@ -936,6 +1031,15 @@
 						<i class="bi bi-map me-1" aria-hidden="true"></i>{m.quiet_plane_manatee_support()}
 					</button>
 				{/if}
+				<button
+					class="btn btn-outline-secondary"
+					type="button"
+					on:click={() => (showArcs = !showArcs)}
+					aria-pressed={showArcs}
+				>
+					<i class="bi {showArcs ? 'bi-eye-slash' : 'bi-eye'} me-1" aria-hidden="true"
+					></i>{m.arcs_map_show_trajectories()}
+				</button>
 				{#if destination || origin}
 					{@const focusPlace = places.find(
 						(p) => String(p.lugar_id) === String(destination || origin)
@@ -1029,7 +1133,7 @@
 				{#if error}
 					<div class="map-error-overlay" role="alert">
 						<i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-						<p class="mb-0 ms-2">{m.loading_error({error: error})}</p>
+						<p class="mb-0 ms-2">{m.loading_error({ error: error })}</p>
 					</div>
 				{/if}
 				{#if mode === 'timeline' && !loading && !error && meta.min_year == null}
@@ -1041,11 +1145,21 @@
 					</div>
 				{/if}
 				{#if tooltipVisible && tooltipData}
-					<div class="map-tooltip" style:left="{tooltipX}px" style:top="{tooltipY}px">
+					<!-- svelte-ignore a11y-no-static-element-interactions -->
+					<div
+						class="map-tooltip"
+						style:left="{tooltipX}px"
+						style:top="{tooltipY}px"
+						on:pointerenter={cancelHideTooltip}
+						on:pointerleave={scheduleHideTooltip}
+					>
 						<strong>{tooltipData.title}</strong>
 						{#each tooltipData.lines as line}
 							<div>{line}</div>
 						{/each}
+						<button type="button" class="btn btn-sm btn-light mt-2" on:click={activateFromTooltip}>
+							<i class="bi bi-people me-1" aria-hidden="true"></i>{m.arcs_map_tooltip_view_people()}
+						</button>
 					</div>
 				{/if}
 			</div>
@@ -1053,14 +1167,14 @@
 			{#if mode === 'timeline' && meta.undated_count > 0}
 				<p class="small arcs-map-notice mt-2 mb-0">
 					<i class="bi bi-info-circle me-1" aria-hidden="true"></i>
-					{ m.no_shown_movements({undated_count : meta.undated_count})}
+					{m.no_shown_movements({ undated_count: meta.undated_count })}
 				</p>
 			{/if}
 
 			<p class="small text-muted mt-2 mb-1" role="status">
 				<!-- {Math.min(routeLimit, visibleRoutes.length)} de {routes.length} rutas agregadas · -->
-				{m.min_max_routes({ min: Math.min(routeLimit, visibleRoutes.length), max: routes.length})}
-				{m.places_length({places_length : places.length})}
+				{m.min_max_routes({ min: Math.min(routeLimit, visibleRoutes.length), max: routes.length })}
+				{m.places_length({ places_length: places.length })}
 				{#if meta.min_year != null}
 					· {meta.min_year}–{meta.max_year}
 				{/if}
@@ -1072,7 +1186,8 @@
 			<div class="arcs-map-legend small text-muted">
 				<span class="legend-item">
 					<span class="legend-arc" aria-hidden="true"></span>
-					{m.arcline_width()} {mode === 'timeline' ? m.cum_movs() : m.people()}
+					{m.arcline_width()}
+					{mode === 'timeline' ? m.cum_movs() : m.people()}
 				</span>
 				{#if mode === 'timeline'}
 					<span class="legend-item">
