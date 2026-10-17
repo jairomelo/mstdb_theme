@@ -67,6 +67,11 @@
 
 			await loadData();
 			map.on('zoomend moveend', updateArcs);
+			// Panning only translates the map pane; the overlay svg box (which is
+			// what clips the overlay) must follow it or the arcs get cut at an
+			// internal line mid-drag. Panning is projection-stable, so only the box
+			// and its transform need re-laying-out, not the paths.
+			map.on('move', layoutOverlay);
 			map.on('resize', () => {
 				map.invalidateSize();
 				updateArcs();
@@ -139,8 +144,8 @@
 	// rectangle; the map container still clips at its edge.
 	const OVERLAY_PAD = 200;
 
-	function updateArcs() {
-		if (!map || !g) return;
+	function layoutOverlay() {
+		if (!map || !svg || !g) return;
 		const bounds = map.getBounds();
 		const topLeft = map
 			.latLngToLayerPoint(bounds.getNorthWest())
@@ -155,6 +160,11 @@
 			.style('left', `${topLeft.x}px`)
 			.style('top', `${topLeft.y}px`);
 		g.attr('transform', `translate(${-topLeft.x},${-topLeft.y})`);
+	}
+
+	function updateArcs() {
+		if (!map || !g) return;
+		layoutOverlay();
 
 		g.selectAll('path').remove();
 		if (!showArcs) return;

@@ -308,6 +308,12 @@
 				renderScene();
 			});
 			map.on('moveend', () => renderScene());
+			// Panning only translates the map pane, so without this the svg box
+			// (which is what clips the overlay) drifts with the pane and can leave
+			// the viewport mid-drag — cutting the arcs at an internal line, or
+			// hiding the whole overlay on a long drag/inertia glide. Panning is
+			// projection-stable, so only the box needs re-laying-out, not the arcs.
+			map.on('move', layoutSvg);
 			map.on('resize', () => {
 				map.invalidateSize();
 				renderScene();
@@ -462,6 +468,7 @@
 	const OVERLAY_PAD = 200;
 
 	function layoutSvg() {
+		if (!map || !svg || !gRoot) return;
 		const bounds = map.getBounds();
 		const topLeft = map
 			.latLngToLayerPoint(bounds.getNorthWest())
