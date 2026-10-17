@@ -555,6 +555,7 @@
 	"viz_pbp_axis_people": "Número de Personas",
 	"viz_pbp_table_aria": "Resumen de personas por lugar",
 	"viz_pbp_point_aria": "{lugar}, {year}: {count} personas. Presione Enter para filtrar por este lugar y año.",
+	"viz_pbp_no_data": "No hay datos para el rango de años seleccionado.",
 	"max_year": "Año Máximo",
 	"netw_concentric": "Concéntrico",
 	"netw_grid": "Cuadrícula",

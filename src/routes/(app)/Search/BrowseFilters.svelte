@@ -90,6 +90,7 @@
 		clearFilters(entityType);
 		yearFrom = '';
 		yearTo = '';
+		yearDirty = false;
 	}
 
 	// Year range: local state so inputs don't trigger API on every keystroke
@@ -97,12 +98,19 @@
 	let yearTo = '';
 	let yearDirty = false;
 
-	$: if (yearRange.min !== undefined) {
-		if (!yearFrom && !currentFilters[filterDefs.find((f) => f.key?.endsWith('__gte'))?.key]) {
-			yearFrom = '';
-		}
-		if (!yearTo && !currentFilters[filterDefs.find((f) => f.key?.endsWith('__lte'))?.key]) {
-			yearTo = '';
+	function yearKeys() {
+		const gte = filterDefs.find((f) => f.type === 'year' && f.key?.endsWith('__gte'))?.key;
+		const lte = filterDefs.find((f) => f.type === 'year' && f.key?.endsWith('__lte'))?.key;
+		return { gte, lte };
+	}
+
+	// Seed the inputs from the applied filters (mount + external changes such as a
+	// drill-down from the chart), unless the user is mid-edit.
+	$: {
+		const { gte, lte } = yearKeys();
+		if (!yearDirty) {
+			if (gte) yearFrom = currentFilters[gte] ?? '';
+			if (lte) yearTo = currentFilters[lte] ?? '';
 		}
 	}
 

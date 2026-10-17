@@ -555,6 +555,7 @@
   "viz_pbp_axis_people": "Number of People",
   "viz_pbp_table_aria": "Summary of people by place",
   "viz_pbp_point_aria": "{lugar}, {year}: {count} people. Press Enter to filter by this place and year.",
+  "viz_pbp_no_data": "No data for the selected year range.",
   "max_year": "Maximum Year",
   "netw_concentric": "Concentric",
   "netw_grid": "Grid",

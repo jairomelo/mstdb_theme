@@ -99,27 +99,34 @@
 	};
 
 	const handleYearRangeChange = (event) => {
-		const { name, value } = event.target;
-		const newValue = parseInt(value);
+		const { name } = event.target;
+
+		// Before data loads the dataset bounds are unknown (Infinity); hold the raw
+		// value instead of rejecting the edit.
+		if (!Number.isFinite(minYear) || !Number.isFinite(maxYear)) {
+			return;
+		}
+
+		const parsed = parseInt(event.target.value, 10);
+		if (!Number.isFinite(parsed)) {
+			event.target.value = name === 'yearMin' ? yearRangeMin : yearRangeMax;
+			return;
+		}
+
+		// Clamp to the dataset bounds, then keep min <= max by widening the opposite
+		// end rather than silently rejecting (which made the range editable only once).
+		const clamped = Math.min(Math.max(parsed, minYear), maxYear);
 
 		if (name === 'yearMin') {
-			if (newValue <= yearRangeMax) {
-				yearRangeMin = newValue;
-			} else {
-				// Reset to previous valid value if invalid
-				event.target.value = yearRangeMin;
-				return;
-			}
+			yearRangeMin = clamped;
+			if (yearRangeMin > yearRangeMax) yearRangeMax = yearRangeMin;
+		} else if (name === 'yearMax') {
+			yearRangeMax = clamped;
+			if (yearRangeMax < yearRangeMin) yearRangeMin = yearRangeMax;
+		} else {
+			return;
 		}
-		if (name === 'yearMax') {
-			if (newValue >= yearRangeMin) {
-				yearRangeMax = newValue;
-			} else {
-				// Reset to previous valid value if invalid
-				event.target.value = yearRangeMax;
-				return;
-			}
-		}
+
 		updateFilteredData();
 	};
 
@@ -138,14 +145,24 @@
 	};
 
 	const renderVisualization = () => {
-		if (!browser || !plotContainer || filteredData.length === 0) return;
+		if (!browser || !plotContainer) return;
+
+		// Always clear previous content so a valid-but-empty range never leaves a
+		// stale chart on screen (looked like "no refresh").
+		d3.select(plotContainer).selectAll('svg').remove();
+		d3.select(plotContainer).selectAll('.viz-empty').remove();
+
+		if (filteredData.length === 0) {
+			d3.select(plotContainer)
+				.append('p')
+				.attr('class', 'viz-empty text-muted text-center py-5 mb-0')
+				.text(m.viz_pbp_no_data());
+			return;
+		}
 
 		const margin = { top: 40, right: 30, bottom: 60, left: 60 };
 		const width = plotContainer.clientWidth - margin.left - margin.right;
 		const height = plotContainer.clientHeight - margin.top - margin.bottom;
-
-		// Clear previous content
-		d3.select(plotContainer).selectAll('svg').remove();
 
 		const svg = d3
 			.select(plotContainer)

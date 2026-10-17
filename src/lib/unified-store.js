@@ -73,7 +73,9 @@ function filtersMatch(a, b) {
 	const ka = Object.keys(a);
 	const kb = Object.keys(b);
 	if (ka.length !== kb.length) return false;
-	return ka.every((k) => a[k] === b[k]);
+	// Compare stringified values: year inputs emit numbers while URL filters are
+	// strings, so a strict === comparison refetched on every apply.
+	return ka.every((k) => k in b && String(a[k] ?? '') === String(b[k] ?? ''));
 }
 
 function isViewValidForTab(view, entityType) {
@@ -293,13 +295,22 @@ export async function fetchResults(entityType) {
 		) {
 			fetchSearchNetwork(entityType);
 		}
+		// Filters are shared across the table/map/crosstab views; keep an active
+		// crosstab in sync when a filter changes instead of requiring its own Apply.
+		if (
+			refreshed.viewMode === 'crosstab' &&
+			refreshed.activeTab === entityType &&
+			refreshed.tabs[entityType].crosstabConfig?.result
+		) {
+			fetchCrosstab(entityType);
+		}
 	} catch (err) {
-		// Silently ignore aborted requests, but if this fetch was aborted by a
-		// teardown (no newer fetch replaced it) clear the loading flag so a
-		// remount isn't left with a stuck spinner.
+		// Silently ignore aborted requests. Only clear the loading flag for a real
+		// teardown: when a newer fetch superseded this one, abortPrevious has already
+		// installed a replacement controller, and that fetch owns the isLoading flag.
 		if (err.name === 'AbortError') {
 			const controller = abortControllers[`fetch:${entityType}`];
-			if (!controller || controller.signal !== signal) {
+			if (!controller) {
 				unifiedStore.update((s) => ({
 					...s,
 					tabs: {

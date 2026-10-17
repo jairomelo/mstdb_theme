@@ -25,7 +25,8 @@ const EXCLUDE_DIR = path.resolve(SRC_DIR, 'lib/paraglide');
 const EXTENSIONS = new Set(['.svelte', '.js', '.ts', '.mjs']);
 
 const MESSAGE_USAGE = /\bm\.[A-Za-z_$][\w$]*/;
-const MESSAGE_IMPORT = /import\s*\{[^}]*\bm\b[^}]*\}\s*from\s*['"][^'"]*paraglide\/messages(?:\.js)?['"]/;
+const MESSAGE_IMPORT =
+	/import\s*\{[^}]*\bm\b[^}]*\}\s*from\s*['"][^'"]*paraglide\/messages(?:\.js)?['"]/;
 
 async function walk(dir) {
 	const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -44,9 +45,7 @@ async function walk(dir) {
 
 // Strip comments only (keep strings/template literals so `${m.x()}` is detected).
 function stripComments(source) {
-	return source
-		.replace(/\/\*[\s\S]*?\*\//g, '')
-		.replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+	return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
 }
 
 async function main() {
@@ -70,9 +69,7 @@ async function main() {
 	for (const file of violations) {
 		console.error(`   - ${file}`);
 	}
-	console.error(
-		"\n   Add: import { m } from '$lib/paraglide/messages.js';\n"
-	);
+	console.error("\n   Add: import { m } from '$lib/paraglide/messages.js';\n");
 	process.exit(1);
 }
 
