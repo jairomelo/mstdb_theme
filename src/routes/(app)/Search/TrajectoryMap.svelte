@@ -45,7 +45,7 @@
 				}
 			).addTo(map);
 
-			svg = d3.select(map.getPanes().overlayPane).append('svg');
+			svg = d3.select(map.getPanes().overlayPane).append('svg').style('overflow', 'visible');
 
 			const defs = svg.append('defs');
 			defs
@@ -135,11 +135,19 @@
 		return [pt.x, pt.y];
 	}
 
+	// Pad the overlay so off-screen route endpoints are not cut at the viewport
+	// rectangle; the map container still clips at its edge.
+	const OVERLAY_PAD = 200;
+
 	function updateArcs() {
 		if (!map || !g) return;
 		const bounds = map.getBounds();
-		const topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
-		const bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
+		const topLeft = map
+			.latLngToLayerPoint(bounds.getNorthWest())
+			.subtract([OVERLAY_PAD, OVERLAY_PAD]);
+		const bottomRight = map
+			.latLngToLayerPoint(bounds.getSouthEast())
+			.add([OVERLAY_PAD, OVERLAY_PAD]);
 
 		svg
 			.attr('width', bottomRight.x - topLeft.x)

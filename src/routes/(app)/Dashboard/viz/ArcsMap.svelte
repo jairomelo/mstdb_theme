@@ -285,7 +285,9 @@
 				maxZoom: 8
 			}).addTo(map);
 
-			svg = d3.select(map.getPanes().overlayPane).append('svg');
+			// An SVG clips its own content by default; the container edge does the
+			// final clip, so the overlay must never clip itself (see layoutSvg).
+			svg = d3.select(map.getPanes().overlayPane).append('svg').style('overflow', 'visible');
 			gRoot = svg.append('g').attr('class', 'leaflet-zoom-hide');
 			gArcs = gRoot.append('g');
 			gArcsHit = gRoot.append('g');
@@ -454,10 +456,19 @@
 		rebuildParticles();
 	}
 
+	// Size the overlay beyond the viewport so arcs whose endpoints are off-screen
+	// are not cut at the viewport rectangle. Arc/particle math stays in un-padded
+	// layer space; only the svg box grows.
+	const OVERLAY_PAD = 200;
+
 	function layoutSvg() {
 		const bounds = map.getBounds();
-		const topLeft = map.latLngToLayerPoint(bounds.getNorthWest());
-		const bottomRight = map.latLngToLayerPoint(bounds.getSouthEast());
+		const topLeft = map
+			.latLngToLayerPoint(bounds.getNorthWest())
+			.subtract([OVERLAY_PAD, OVERLAY_PAD]);
+		const bottomRight = map
+			.latLngToLayerPoint(bounds.getSouthEast())
+			.add([OVERLAY_PAD, OVERLAY_PAD]);
 		svg
 			.attr('width', bottomRight.x - topLeft.x)
 			.attr('height', bottomRight.y - topLeft.y)
