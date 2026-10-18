@@ -450,3 +450,33 @@ export const updatePersonaEscById = (id, data) =>
 
 // ── Data dictionary ───────────────────────────────────────────────────────────
 export const dataDictionary = () => fetchWithBaseUrl('data-dictionary/');
+
+// ── Translation workbench (staff-only) ────────────────────────────────────────
+export const workbenchTranslations = (params = {}) => {
+	const qs = new URLSearchParams(params).toString();
+	return fetchWithBaseUrl(`workbench/translations/${qs ? '?' + qs : ''}`);
+};
+export const createWorkbenchTranslation = (data) =>
+	postWithBaseUrl('workbench/translations/', data);
+export const updateWorkbenchTranslation = (id, data) =>
+	patchWithBaseUrl(`workbench/translations/${id}/`, data);
+export const publishWorkbenchTranslation = (id) =>
+	postWithBaseUrl(`workbench/translations/${id}/publish/`);
+export const unpublishWorkbenchTranslation = (id) =>
+	postWithBaseUrl(`workbench/translations/${id}/unpublish/`);
+export const missingWorkbenchTranslations = (params) => {
+	const qs = new URLSearchParams(params).toString();
+	return fetchWithBaseUrl(`workbench/translations/missing/?${qs}`);
+};
+export const workbenchContentType = (model) =>
+	fetchWithBaseUrl(`workbench/translations/content-type/?model=${encodeURIComponent(model)}`);
+export const workbenchLeccionTranslations = (params = {}) => {
+	const qs = new URLSearchParams(params).toString();
+	return fetchWithBaseUrl(`workbench/leccion-translations/${qs ? '?' + qs : ''}`);
+};
+export const createWorkbenchLeccionTranslation = (data) =>
+	postWithBaseUrl('workbench/leccion-translations/', data);
+export const updateWorkbenchLeccionTranslation = (id, data) =>
+	patchWithBaseUrl(`workbench/leccion-translations/${id}/`, data);
+export const publishWorkbenchLeccionTranslation = (id) =>
+	postWithBaseUrl(`workbench/leccion-translations/${id}/publish/`);
