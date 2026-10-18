@@ -2260,3 +2260,9 @@ li {
 		background: #e9ecef;
 	}
 }
+
+.doc-linked-badge {
+	background-color: #1a4d2e;
+	color: #fff;
+	font-weight: 600;
+}

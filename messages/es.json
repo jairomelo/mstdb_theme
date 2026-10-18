@@ -588,9 +588,9 @@
 	"lessons_sort_desc": "Título (Z–A)",
 	"lessons_keyword": "Palabra clave",
 	"lessons_older": "Más antiguas",
-  "lessons_description": "Recursos educativos elaborados a partir de la investigación en Trayectorias Afro.",
-  "lessons_intro_p1": "Estas unidades didácticas están clasificadas por niveles educativos para educación básica, secundaria, preparatoria y educación superior en México y un AP course para EUA. Para cada una, se consultó el programa de la SEP y se ajustó la unidad al contenido sobre poblaciones afrodescendientes que se tiene que estudiar en cada nivel educativo.",
-  "lessons_intro_p2": "Estas unidades son herramientas de apoyo para los profesores para cubrir el contenido. Son lecciones cortas y muy específicas en su uso para que no tomen mucho tiempo lectivo y puedan llevarse a cabo en la mayoría de los contextos de aula. Sabiendo que el acceso a internet no es uniforme en todo el territorio mexicano, se han planteado las actividades para poder hacerlas con un sólo acceso a la página Trayectorias Afro desde un equipo para todo el grupo o para múltiples conexiones, formando equipos o de forma individual. Esperamos que sean de utilidad para los/as/es maestros/as/es de todos los niveles.",
+	"lessons_description": "Recursos educativos elaborados a partir de la investigación en Trayectorias Afro.",
+	"lessons_intro_p1": "Estas unidades didácticas están clasificadas por niveles educativos para educación básica, secundaria, preparatoria y educación superior en México y un AP course para EUA. Para cada una, se consultó el programa de la SEP y se ajustó la unidad al contenido sobre poblaciones afrodescendientes que se tiene que estudiar en cada nivel educativo.",
+	"lessons_intro_p2": "Estas unidades son herramientas de apoyo para los profesores para cubrir el contenido. Son lecciones cortas y muy específicas en su uso para que no tomen mucho tiempo lectivo y puedan llevarse a cabo en la mayoría de los contextos de aula. Sabiendo que el acceso a internet no es uniforme en todo el territorio mexicano, se han planteado las actividades para poder hacerlas con un sólo acceso a la página Trayectorias Afro desde un equipo para todo el grupo o para múltiples conexiones, formando equipos o de forma individual. Esperamos que sean de utilidad para los/as/es maestros/as/es de todos los niveles.",
 	"lessons_sort_asc": "Título (A–Z)",
 	"lessons_pagination": "Página \\{page\\} de \\{totalPages\\}",
 	"lessons_all_keywords": "Todas las palabras clave",
@@ -612,5 +612,8 @@
 	"dict_table_caption": "Variables del modelo {model}",
 	"dict_terms_count": "{count} términos",
 	"dict_error": "No se pudo cargar el diccionario de variables.",
-	"dict_empty": "No se encontraron resultados."
+	"dict_empty": "No se encontraron resultados.",
+	"conf_col_personas_esclavizadas": "Personas esclavizadas",
+	"conf_col_personas_no_esclavizadas": "Personas no esclavizadas",
+	"search_match_via_document": "Coincide por documento"
 }

@@ -1,10 +1,14 @@
 <script>
 	import Card from './Card.svelte';
 	import { getFilterConfigByValue } from '$conf/filters.js';
+	import { m } from '$lib/paraglide/messages.js';
 	export let item;
 
 	// Get the icon class for this type
 	const iconClass = getFilterConfigByValue(item.type)?.icon || 'bi-file-text';
+
+	$: peCount = item.source.personas_esclavizadas_count;
+	$: pneCount = item.source.personas_no_esclavizadas_count;
 </script>
 
 <Card {item}>
@@ -63,5 +67,11 @@
 		<p class="mb-1">
 			<small class="text-muted">Identificador: {item.source.documento_idno || 'N/A'}</small>
 		</p>
+		{#if peCount !== undefined || pneCount !== undefined}
+			<p class="mb-1 doc-linked-counts">
+				<span class="badge doc-linked-badge me-1">{m.conf_col_personas_esclavizadas()}: {peCount ?? 0}</span>
+				<span class="badge doc-linked-badge">{m.conf_col_personas_no_esclavizadas()}: {pneCount ?? 0}</span>
+			</p>
+		{/if}
 	</div>
 </Card>

@@ -5,6 +5,7 @@
 	import { getFilterConfigByValue } from '$conf/filters.js';
 	import { personaLugarRel, personaPersonasRel } from '$lib/api';
 	import { tooltip } from '$lib/bootstrap-actions.js';
+	import { m } from '$lib/paraglide/messages.js';
 
 	export let item;
 
@@ -35,6 +36,9 @@
 	<!-- Custom Title -->
 	<span slot="title">
 		{item.source.nombre_normalizado}
+		{#if item.match_reason === 'documento'}
+			<span class="badge doc-linked-badge ms-2">{m.search_match_via_document()}</span>
+		{/if}
 	</span>
 
 	<!-- Custom Header Info -->

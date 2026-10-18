@@ -112,6 +112,8 @@ export const columnsConfig = {
 			visible: false
 		},
 		{ key: 'evento_total', labelKey: 'conf_col_total', sortable: false, visible: false },
+		{ key: 'personas_esclavizadas_count', labelKey: 'conf_col_personas_esclavizadas', sortable: false, visible: true },
+		{ key: 'personas_no_esclavizadas_count', labelKey: 'conf_col_personas_no_esclavizadas', sortable: false, visible: true },
 		{ key: 'created_at', labelKey: 'conf_col_creado', sortable: true, visible: false }
 	],
 	lugar: [
