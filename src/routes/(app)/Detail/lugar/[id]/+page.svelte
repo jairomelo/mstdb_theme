@@ -131,8 +131,11 @@
 	}
 
 	function personaDetailPath(persona) {
+		if (persona.persona_type === 'esclavizada') return 'personaesclavizada';
+		if (persona.persona_type === 'noesclavizada') return 'personanoesclavizada';
 		const ct = persona.polymorphic_ctype;
-		const isEsclavizada = ct === 25 || (typeof ct === 'string' && ct.includes('esclavizada'));
+		const isEsclavizada =
+			typeof ct === 'string' && /esclavizada/i.test(ct) && !/no[\s.]?esclavizada/i.test(ct);
 		return isEsclavizada ? 'personaesclavizada' : 'personanoesclavizada';
 	}
 </script>
