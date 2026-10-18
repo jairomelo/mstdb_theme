@@ -83,8 +83,10 @@
 		<p class="lead hero-sub mb-0">
 			{m.lessons_description()}
 		</p>
-		<p class="lessons-intro mt-3 mb-0">{m.lessons_intro_p1()}</p>
-		<p class="lessons-intro mt-3 mb-0">{m.lessons_intro_p2()}</p>
+		<div class="lessons-intro-wrap">
+			<p class="lessons-intro lessons-intro-lead mt-0 mb-0">{m.lessons_intro_p1()}</p>
+			<p class="lessons-intro mt-3 mb-0">{m.lessons_intro_p2()}</p>
+		</div>
 	</div>
 
 	{#if canCreate}

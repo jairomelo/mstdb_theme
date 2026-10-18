@@ -297,6 +297,28 @@ $theme-colors: (
 	.hero-sub {
 		color: map-get($theme-colors, 'accent2');
 	}
+
+	.lessons-intro-wrap {
+		max-width: 56rem;
+		margin: 1.5rem auto 0;
+		padding: 1.25rem 1.5rem;
+		border-left: 4px solid map-get($theme-colors, 'accent1');
+		border-radius: 0 0.5rem 0.5rem 0;
+		background: rgba(map-get($theme-colors, 'accent1'), 0.07);
+		text-align: left;
+	}
+
+	.lessons-intro {
+		font-size: 1.02rem;
+		line-height: 1.7;
+		color: inherit;
+	}
+
+	.lessons-intro-lead::first-letter {
+		font-size: 1.6em;
+		font-weight: 700;
+		color: map-get($theme-colors, 'accent2');
+	}
 }
 
 .lessons-filters {
