@@ -14,6 +14,7 @@
 	const MARKER_FILL = '#2980b9';
 	const MARKER_STROKE = '#1a5276';
 	const PARTICLE_COLOR = '#d9480f';
+	const PARTICLE_FADE_MS = 220;
 	const TRAVEL_MS = 2600;
 	const BUCKET_MS = 1300;
 
@@ -647,8 +648,11 @@
 	let rafId = null;
 
 	// Rebuilt from renderScene (structural changes) and renderStyles (scrub).
+	// Dots are an animation artifact: they only exist while the timeline is
+	// playing, so pausing, ending, hiding arcs, or reduced motion clears them
+	// (syncParticleDom fades the DOM out).
 	function rebuildParticles() {
-		if (mode !== 'timeline' || prefersReducedMotion) {
+		if (mode !== 'timeline' || prefersReducedMotion || !playing) {
 			particles = [];
 			syncParticleDom();
 			return;
@@ -685,8 +689,15 @@
 	function syncParticleDom() {
 		if (!gParticles) return;
 		const sel = gParticles.selectAll('circle.map-particle').data(particles);
-		sel.exit().remove();
+		// Named transition so resuming during a fade cancels the pending remove.
 		sel
+			.exit()
+			.interrupt('particle-fade')
+			.transition('particle-fade')
+			.duration(PARTICLE_FADE_MS)
+			.style('opacity', 0)
+			.remove();
+		const enter = sel
 			.enter()
 			.append('circle')
 			.attr('class', 'map-particle')
@@ -694,13 +705,21 @@
 			.attr('fill', PARTICLE_COLOR)
 			.attr('stroke', '#fff')
 			.attr('stroke-width', 0.8)
-			.merge(sel);
+			.style('opacity', 0);
+		enter
+			.merge(sel)
+			.interrupt('particle-fade')
+			.transition('particle-fade')
+			.duration(PARTICLE_FADE_MS)
+			.style('opacity', 1);
 	}
 
 	$: if (browser && playing && mode === 'timeline' && !prefersReducedMotion && showArcs) {
+		rebuildParticles();
 		startParticleLoop();
 	} else {
 		stopParticleLoop();
+		rebuildParticles();
 	}
 
 	function startParticleLoop() {
