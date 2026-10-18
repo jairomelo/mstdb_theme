@@ -630,6 +630,33 @@ export function clearSearch() {
 	fetchResults(state.activeTab);
 }
 
+/**
+ * Reset active-tab filters and global query in one update.
+ * Single URL write + single fetch; fetchResults aborts in-flight requests.
+ */
+export function resetSearchAndFilters(entityType) {
+	unifiedStore.update((s) => ({
+		...s,
+		query: '',
+		exactSearch: false,
+		typeCounts: {},
+		tabs: {
+			...s.tabs,
+			[entityType]: {
+				...s.tabs[entityType],
+				filters: {},
+				currentPage: 1,
+				results: [],
+				totalResults: 0,
+				totalPages: 0
+			}
+		}
+	}));
+
+	updateUrl({ push: true });
+	fetchResults(entityType);
+}
+
 export function resetStore() {
 	// Cancel all in-flight requests before resetting
 	for (const key of Object.keys(abortControllers)) {

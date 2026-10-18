@@ -1,5 +1,5 @@
 <script>
-	import { setFilter, setFilters, clearFilters, unifiedStore } from '$lib/unified-store';
+	import { setFilter, setFilters, resetSearchAndFilters, unifiedStore } from '$lib/unified-store';
 	import { filtersDefinition } from '$conf/columns';
 	import SearchableSelect from './SearchableSelect.svelte';
 	import IdSearchableSelect from './IdSearchableSelect.svelte';
@@ -87,7 +87,7 @@
 	}
 
 	function handleClear() {
-		clearFilters(entityType);
+		resetSearchAndFilters(entityType);
 		yearFrom = '';
 		yearTo = '';
 		yearDirty = false;
@@ -120,18 +120,22 @@
 	}
 
 	$: activeCount = Object.values(currentFilters).filter((v) => v).length;
+	$: hasQuery = !!$unifiedStore.query;
+	$: resetDisabled = activeCount === 0 && !hasQuery;
 </script>
 
 <aside class="facet-sidebar">
 	<!-- Header -->
-	<div class="d-flex justify-content-between align-items-center mb-3">
+	<div class="d-flex justify-content-between align-items-center mb-2">
 		<h6 class="mb-0 fw-bold"><i class="bi bi-funnel me-1"></i> {m.filters_title()}</h6>
-		{#if activeCount > 0}
-			<button class="btn btn-sm btn-link text-decoration-none p-0" on:click={handleClear}>
-				{m.conf_browse_clear({ count: activeCount })}
-			</button>
-		{/if}
 	</div>
+	<button
+		class="btn btn-sm btn-outline-secondary w-100 mb-3"
+		disabled={resetDisabled}
+		on:click={handleClear}
+	>
+		<i class="bi bi-x-circle me-1"></i>{m.conf_browse_clear({ count: activeCount })}
+	</button>
 
 	<div class="filter-scroll">
 		<!-- Ungrouped filters (e.g. Nombre search, date range) -->
