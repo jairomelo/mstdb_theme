@@ -1,8 +1,9 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
-	export let options = []; // [{ label, count }]
-	export let value = ''; // currently selected value
+	export let options = []; // [{ label, label_en?, count }]
+	export let value = ''; // currently selected value (always the Spanish label)
 	export let placeholder = 'Buscar...';
 
 	const dispatch = createEventDispatcher();
@@ -11,11 +12,18 @@
 	let isOpen = false;
 	let inputEl;
 
+	$: showEn = getLocale().startsWith('en');
+	$: displayOf = (opt) => (showEn && opt.label_en ? opt.label_en : opt.label);
+
 	$: filtered = searchText
-		? options.filter((o) => o.label.toLowerCase().includes(searchText.toLowerCase()))
+		? options.filter((o) => displayOf(o).toLowerCase().includes(searchText.toLowerCase()))
 		: options;
 
-	$: displayText = value || '';
+	$: displayText = (() => {
+		const match = options.find((o) => o.label === value);
+		if (match) return displayOf(match);
+		return value || '';
+	})();
 
 	function handleFocus() {
 		isOpen = true;
@@ -87,7 +95,7 @@
 			{#each filtered as opt}
 				<li class:selected={value === opt.label}>
 					<button type="button" on:mousedown|preventDefault={() => select(opt)}>
-						<span class="searchable-select-label">{opt.label}</span>
+						<span class="searchable-select-label">{displayOf(opt)}</span>
 						<span class="searchable-select-count">{opt.count}</span>
 					</button>
 				</li>

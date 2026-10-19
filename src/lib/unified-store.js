@@ -5,6 +5,7 @@ import { defaultVisibleColumns } from '$conf/columns';
 import { DEFAULT_CROSSTAB_CONFIG } from '$conf/crosstab';
 import log from '$lib/logger';
 import { buildSearchUrl } from '$lib/searchUrl';
+import { getLocale } from '$lib/paraglide/runtime.js';
 import queryString from 'query-string';
 
 // ── Abort controllers for in-flight requests ─────────────────────────
@@ -238,7 +239,8 @@ export async function fetchResults(entityType) {
 		const params = {
 			type: entityType,
 			page: tab.currentPage,
-			page_size: tab.pageSize
+			page_size: tab.pageSize,
+			lang: getLocale().startsWith('en') ? 'en' : 'es'
 		};
 
 		// Search query (FTS mode)
