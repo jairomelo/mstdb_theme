@@ -9,6 +9,7 @@
 
 import { getLocale } from '$lib/paraglide/runtime.js';
 import { m } from '$lib/paraglide/messages.js';
+import { ageUnitLabel } from '$lib/ageUnit.js';
 
 // ── Column definitions ───────────────────────────────────────────────
 // key: matches serializer field name
@@ -112,8 +113,18 @@ export const columnsConfig = {
 			visible: false
 		},
 		{ key: 'evento_total', labelKey: 'conf_col_total', sortable: false, visible: false },
-		{ key: 'personas_esclavizadas_count', labelKey: 'conf_col_personas_esclavizadas', sortable: false, visible: true },
-		{ key: 'personas_no_esclavizadas_count', labelKey: 'conf_col_personas_no_esclavizadas', sortable: false, visible: true },
+		{
+			key: 'personas_esclavizadas_count',
+			labelKey: 'conf_col_personas_esclavizadas',
+			sortable: false,
+			visible: true
+		},
+		{
+			key: 'personas_no_esclavizadas_count',
+			labelKey: 'conf_col_personas_no_esclavizadas',
+			sortable: false,
+			visible: true
+		},
 		{ key: 'created_at', labelKey: 'conf_col_creado', sortable: true, visible: false }
 	],
 	lugar: [
@@ -545,10 +556,9 @@ export function renderCellValue(entityType, columnKey, row) {
 		return value.length > 0 ? value.join(', ') : '—';
 	}
 
-	// Edad with unit
+	// Edad with unit — API returns raw code (a/m/d/null); localize here
 	if (columnKey === 'edad' && value) {
-		const unit = row.unidad_temporal_edad || m.conf_unit_anios();
-		return `${value} ${unit}`;
+		return `${value} ${ageUnitLabel(row.unidad_temporal_edad)}`;
 	}
 
 	// Date fields — show year or full date for colonial-era data

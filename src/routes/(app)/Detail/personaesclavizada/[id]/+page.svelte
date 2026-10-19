@@ -4,6 +4,7 @@
 	import SuggestMerge from '$lib/components/hub/SuggestMerge.svelte';
 	import BackToResults from '$lib/components/BackToResults.svelte';
 	import { m } from '$lib/paraglide/messages.js';
+	import { ageUnitLabel } from '$lib/ageUnit.js';
 	import Tooltip from '$lib/components/Tooltip.svelte';
 	import { formatDate } from '$lib/utils';
 	import cytoscape from 'cytoscape';
@@ -636,7 +637,7 @@
 				<div class="detail">
 					<h3>Edad</h3>
 					<div class="detail-bottom">
-						<p>{peresc.edad} {peresc.unidad_temporal_edad || 'años'}</p>
+						<p>{peresc.edad} {ageUnitLabel(peresc.unidad_temporal_edad)}</p>
 					</div>
 				</div>
 			{/if}

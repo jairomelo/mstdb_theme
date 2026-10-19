@@ -310,6 +310,8 @@
 	"conf_op_avg_edad": "Average age",
 	"conf_op_pct": "% of total",
 	"conf_unit_anios": "years",
+	"conf_unit_dias": "days",
+	"conf_unit_meses": "months",
 	"conf_year_singular": "{count} year",
 	"conf_year_plural": "{count} years",
 	"conf_embed_youtube": "YouTube Video",
