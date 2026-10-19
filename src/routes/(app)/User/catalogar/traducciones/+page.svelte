@@ -1,12 +1,12 @@
 <script>
 	import { onMount } from 'svelte';
 	import {
-		workbenchTranslations,
 		createWorkbenchTranslation,
 		updateWorkbenchTranslation,
 		publishWorkbenchTranslation,
 		unpublishWorkbenchTranslation,
-		missingWorkbenchTranslations,
+		workbenchQueue,
+		bulkPublishWorkbenchTranslations,
 		workbenchContentType
 	} from '$lib/api.js';
 	import { user } from '$lib/stores/user';
@@ -67,20 +67,46 @@
 		}
 	];
 
-	let tab = 'missing';
+	const VIEW_LABELS = {
+		missing: 'Faltantes',
+		drafts: 'Borradores',
+		published: 'Publicadas',
+		all: 'Todas'
+	};
+	const PAGE_SIZE = 25;
+
+	let view = 'missing';
 	let model = MODELS[0].value;
 	let field = MODELS[0].fields[0];
-	let rows = [];
-	let missing = { missing_ids: [], count: 0 };
+	let items = [];
+	let total = 0;
+	let page = 1;
+	let hasNext = false;
+	let hasPrev = false;
 	let loading = false;
 	let error = null;
 	let notice = null;
 	let denied = false;
-	let editing = {};
-	let saving = {};
+	let drafts = {};
+	let saving = false;
+	let bulkPublishing = false;
+	let selected = new Set();
 
 	$: fields = (MODELS.find((entry) => entry.value === model) ?? MODELS[0]).fields;
 	$: if (!fields.includes(field)) field = fields[0];
+	$: selectedCount = selected.size;
+	$: dirtyCount = items.filter(
+		(item) =>
+			item.translation_id &&
+			drafts[item.object_id] !== undefined &&
+			drafts[item.object_id] !== item.value
+	).length;
+
+	function statusLabel(status) {
+		if (status === 'published') return 'Publicado';
+		if (status === 'draft') return 'Borrador';
+		return 'Sin traducir';
+	}
 
 	onMount(async () => {
 		try {
@@ -96,24 +122,26 @@
 		}
 	});
 
-	async function refresh() {
+	async function refresh(nextPage = 1) {
 		loading = true;
 		error = null;
 		notice = null;
+		selected = new Set();
+		drafts = {};
 		try {
-			if (tab === 'missing') {
-				missing = await missingWorkbenchTranslations({
-					model,
-					field_name: field,
-					language_code: 'en'
-				});
-			} else {
-				const params = { model, language_code: 'en', page_size: 50 };
-				if (tab === 'drafts') params.status = 'draft';
-				if (tab === 'published') params.status = 'published';
-				const data = await workbenchTranslations(params);
-				rows = data.results ?? data;
-			}
+			const data = await workbenchQueue({
+				model,
+				field_name: field,
+				language_code: 'en',
+				view,
+				page: nextPage,
+				page_size: PAGE_SIZE
+			});
+			items = data.results ?? [];
+			total = data.count ?? items.length;
+			page = nextPage;
+			hasNext = Boolean(data.next);
+			hasPrev = Boolean(data.previous);
 		} catch (e) {
 			error = e.message;
 		} finally {
@@ -121,75 +149,155 @@
 		}
 	}
 
-	function startEdit(row) {
-		editing[row.id] = row.value;
+	function switchView(next) {
+		view = next;
+		refresh(1);
 	}
 
-	function cancelEdit(row) {
-		delete editing[row.id];
-		editing = { ...editing };
+	function changeScope() {
+		refresh(1);
 	}
 
-	async function saveEdit(row) {
-		saving[row.id] = true;
-		try {
-			const updated = await updateWorkbenchTranslation(row.id, { value: editing[row.id] });
-			rows = rows.map((r) => (r.id === row.id ? updated : r));
-			cancelEdit(row);
-			notice = 'Borrador guardado.';
-		} catch (e) {
-			error = e.message;
-		} finally {
-			delete saving[row.id];
-			saving = { ...saving };
-		}
+	function currentText(item) {
+		return drafts[item.object_id] !== undefined ? drafts[item.object_id] : item.value;
 	}
 
-	async function togglePublish(row) {
-		saving[row.id] = true;
-		try {
-			const updated =
-				row.status === 'published'
-					? await unpublishWorkbenchTranslation(row.id)
-					: await publishWorkbenchTranslation(row.id);
-			rows = rows.map((r) => (r.id === row.id ? updated : r));
-			notice = updated.status === 'published' ? 'Traducción publicada.' : 'Devuelta a borrador.';
-		} catch (e) {
-			error = e.message;
-		} finally {
-			delete saving[row.id];
-			saving = { ...saving };
-		}
+	function toggleSelect(objectId, checked) {
+		if (checked) selected.add(objectId);
+		else selected.delete(objectId);
+		selected = new Set(selected);
 	}
 
-	async function createDraft(objectId, value) {
-		if (!objectId || !value?.trim()) {
-			error = 'Indica el ID del registro y el texto en inglés.';
+	function toggleSelectAll(checked) {
+		selected = checked ? new Set(items.map((item) => item.object_id)) : new Set();
+	}
+
+	async function saveRow(item) {
+		const text = (drafts[item.object_id] ?? '').trim();
+		if (!text) {
+			error = `Escribe la traducción en inglés para el registro ${item.object_id}.`;
 			return;
 		}
-		loading = true;
+		saving = true;
+		error = null;
 		try {
-			const { content_type } = await workbenchContentType(model);
-			const created = await createWorkbenchTranslation({
-				content_type,
-				object_id: Number(objectId),
-				field_name: field,
-				language_code: 'en',
-				value: value.trim()
-			});
-			notice = `Borrador creado (id ${created.id}).`;
-			newObjectId = '';
-			newValue = '';
-			await refresh();
+			if (item.translation_id) {
+				await updateWorkbenchTranslation(item.translation_id, { value: text });
+				item.value = text;
+				item.status = 'draft';
+			} else {
+				const { content_type } = await workbenchContentType(model);
+				const created = await createWorkbenchTranslation({
+					content_type,
+					object_id: item.object_id,
+					field_name: field,
+					language_code: 'en',
+					value: text
+				});
+				item.translation_id = created.id;
+				item.value = text;
+				item.status = 'draft';
+			}
+			delete drafts[item.object_id];
+			drafts = { ...drafts };
+			items = [...items];
+			notice = `Registro ${item.object_id} guardado como borrador.`;
 		} catch (e) {
 			error = e.data?.field_name?.join(' ') ?? e.data?.detail ?? e.message;
 		} finally {
-			loading = false;
+			saving = false;
 		}
 	}
 
-	let newObjectId = '';
-	let newValue = '';
+	async function saveAllDrafts() {
+		const dirty = items.filter(
+			(item) =>
+				drafts[item.object_id] !== undefined &&
+				drafts[item.object_id].trim() &&
+				drafts[item.object_id] !== item.value
+		);
+		if (dirty.length === 0) return;
+		saving = true;
+		error = null;
+		try {
+			const { content_type } = await workbenchContentType(model);
+			let saved = 0;
+			for (const item of dirty) {
+				const text = drafts[item.object_id].trim();
+				if (item.translation_id) {
+					await updateWorkbenchTranslation(item.translation_id, { value: text });
+				} else {
+					const created = await createWorkbenchTranslation({
+						content_type,
+						object_id: item.object_id,
+						field_name: field,
+						language_code: 'en',
+						value: text
+					});
+					item.translation_id = created.id;
+				}
+				item.value = text;
+				if (item.status === 'none') item.status = 'draft';
+				delete drafts[item.object_id];
+				saved += 1;
+			}
+			drafts = { ...drafts };
+			items = [...items];
+			notice = `${saved} borradores guardados.`;
+			if (view === 'missing') await refresh(page);
+		} catch (e) {
+			error = e.data?.field_name?.join(' ') ?? e.data?.detail ?? e.message;
+		} finally {
+			saving = false;
+		}
+	}
+
+	async function togglePublish(item) {
+		saving = true;
+		error = null;
+		try {
+			if (item.status === 'published') {
+				await unpublishWorkbenchTranslation(item.translation_id);
+				item.status = 'draft';
+				notice = `Registro ${item.object_id} devuelto a borrador.`;
+			} else {
+				if (!item.translation_id) {
+					await saveRow(item);
+					if (!item.translation_id) return;
+				}
+				await publishWorkbenchTranslation(item.translation_id);
+				item.status = 'published';
+				notice = `Registro ${item.object_id} publicado.`;
+			}
+			items = [...items];
+			if (view !== 'all') await refresh(page);
+		} catch (e) {
+			error = e.message;
+		} finally {
+			saving = false;
+		}
+	}
+
+	async function bulkPublish() {
+		const ids = items
+			.filter((item) => selected.has(item.object_id) && item.translation_id)
+			.map((item) => item.translation_id);
+		if (ids.length === 0) {
+			error = 'Selecciona al menos una fila con borrador para publicar.';
+			return;
+		}
+		bulkPublishing = true;
+		error = null;
+		try {
+			const { published } = await bulkPublishWorkbenchTranslations(ids);
+			notice = `${published} traducciones publicadas.`;
+			await refresh(page);
+		} catch (e) {
+			error = e.message;
+		} finally {
+			bulkPublishing = false;
+		}
+	}
 </script>
 
 <svelte:head><title>Mesa de traducción (EN)</title></svelte:head>
@@ -214,55 +322,34 @@
 		</div>
 	{:else}
 		<div class="row g-3 mb-3">
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<label class="form-label" for="wb-model">Modelo</label>
-				<select id="wb-model" class="form-select" bind:value={model} on:change={refresh}>
+				<select id="wb-model" class="form-select" bind:value={model} on:change={changeScope}>
 					{#each MODELS as entry}
 						<option value={entry.value}>{entry.label}</option>
 					{/each}
 				</select>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<label class="form-label" for="wb-field">Campo</label>
-				<select id="wb-field" class="form-select" bind:value={field} on:change={refresh}>
-					{#each fields as f}
-						<option value={f}>{f}</option>
+				<select id="wb-field" class="form-select" bind:value={field} on:change={changeScope}>
+					{#each fields as fname}
+						<option value={fname}>{fname}</option>
 					{/each}
 				</select>
 			</div>
-			<div class="col-md-4">
-				<span class="form-label" id="wb-tabs-label">Vista</span>
-				<div class="btn-group w-100" role="group" aria-labelledby="wb-tabs-label">
-					<button
-						type="button"
-						class="btn btn-outline-primary"
-						class:active={tab === 'missing'}
-						aria-pressed={tab === 'missing'}
-						on:click={() => {
-							tab = 'missing';
-							refresh();
-						}}>Faltantes</button
-					>
-					<button
-						type="button"
-						class="btn btn-outline-primary"
-						class:active={tab === 'drafts'}
-						aria-pressed={tab === 'drafts'}
-						on:click={() => {
-							tab = 'drafts';
-							refresh();
-						}}>Borradores</button
-					>
-					<button
-						type="button"
-						class="btn btn-outline-primary"
-						class:active={tab === 'published'}
-						aria-pressed={tab === 'published'}
-						on:click={() => {
-							tab = 'published';
-							refresh();
-						}}>Publicadas</button
-					>
+			<div class="col-md-6">
+				<span class="form-label" id="wb-view-label">Vista</span>
+				<div class="btn-group w-100" role="group" aria-labelledby="wb-view-label">
+					{#each Object.entries(VIEW_LABELS) as [key, label]}
+						<button
+							type="button"
+							class="btn btn-outline-primary"
+							class:active={view === key}
+							aria-pressed={view === key}
+							on:click={() => switchView(key)}>{label}</button
+						>
+					{/each}
 				</div>
 			</div>
 		</div>
@@ -280,120 +367,132 @@
 					<span class="visually-hidden">Cargando…</span>
 				</div>
 			</div>
-		{:else if tab === 'missing'}
-			<div class="card">
-				<div class="card-body">
-					<h2 class="h5">
-						Faltan {missing.count} traducciones <span class="text-muted">({model} · {field})</span>
-					</h2>
-					{#if missing.count === 0}
-						<p class="mb-0">Sin pendientes: todo tiene al menos un borrador o publicado.</p>
-					{:else}
-						<p class="text-muted">IDs de registro sin traducción al inglés (máx. 2000).</p>
-						<p>{missing.missing_ids.slice(0, 100).join(', ')}{missing.count > 100 ? '…' : ''}</p>
-						<div class="row g-2 align-items-end">
-							<div class="col-md-3">
-								<label class="form-label" for="wb-new-id">ID de registro</label>
-								<input
-									id="wb-new-id"
-									class="form-control"
-									type="number"
-									min="1"
-									bind:value={newObjectId}
-								/>
-							</div>
-							<div class="col-md-7">
-								<label class="form-label" for="wb-new-value">Texto en inglés</label>
-								<textarea id="wb-new-value" class="form-control" rows="2" bind:value={newValue}
-								></textarea>
-							</div>
-							<div class="col-md-2">
-								<button
-									type="button"
-									class="btn btn-primary w-100"
-									on:click={() => createDraft(newObjectId, newValue)}
-								>
-									Crear borrador
-								</button>
-							</div>
-						</div>
-					{/if}
-				</div>
-			</div>
 		{:else}
+			<div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+				<strong>{total} registros</strong>
+				<span class="text-muted">({model} · {field} · {VIEW_LABELS[view].toLowerCase()})</span>
+				<span class="ms-auto"></span>
+				<button
+					type="button"
+					class="btn btn-sm btn-outline-success"
+					disabled={dirtyCount === 0 || saving}
+					on:click={saveAllDrafts}
+				>
+					Guardar {dirtyCount > 0 ? `${dirtyCount} ` : ''}borradores
+				</button>
+				<button
+					type="button"
+					class="btn btn-sm btn-success"
+					disabled={selectedCount === 0 || bulkPublishing}
+					on:click={bulkPublish}
+				>
+					Publicar selección ({selectedCount})
+				</button>
+			</div>
+
 			<div class="table-responsive">
 				<table class="table table-striped align-middle">
 					<thead>
 						<tr>
-							<th scope="col">Registro</th>
-							<th scope="col">Texto (EN)</th>
+							<th scope="col">
+								<label class="visually-hidden" for="wb-select-all">Seleccionar página</label>
+								<input
+									id="wb-select-all"
+									type="checkbox"
+									class="form-check-input"
+									checked={items.length > 0 && selected.size === items.length}
+									on:change={(e) => toggleSelectAll(e.currentTarget.checked)}
+								/>
+							</th>
+							<th scope="col">ID registro</th>
+							<th scope="col">Texto en español</th>
+							<th scope="col">Texto en inglés</th>
 							<th scope="col">Estado</th>
 							<th scope="col"><span class="visually-hidden">Acciones</span></th>
 						</tr>
 					</thead>
 					<tbody>
-						{#each rows as row (row.id)}
+						{#each items as item (item.object_id)}
 							<tr>
-								<td>#{row.object_id} · {row.field_name}</td>
-								<td style="min-width: 16rem">
-									{#if editing[row.id] !== undefined}
-										<label class="visually-hidden" for="wb-edit-{row.id}"
-											>Editar traducción {row.id}</label
-										>
-										<textarea
-											id="wb-edit-{row.id}"
-											class="form-control"
-											rows="2"
-											bind:value={editing[row.id]}
-										></textarea>
-									{:else}
-										{row.value}
-									{/if}
+								<td>
+									<label class="visually-hidden" for="wb-select-{item.object_id}">
+										Seleccionar registro {item.object_id}
+									</label>
+									<input
+										id="wb-select-{item.object_id}"
+										type="checkbox"
+										class="form-check-input"
+										checked={selected.has(item.object_id)}
+										on:change={(e) => toggleSelect(item.object_id, e.currentTarget.checked)}
+									/>
+								</td>
+								<td>{item.object_id}</td>
+								<td style="min-width: 18rem; max-width: 26rem">{item.source || '—'}</td>
+								<td style="min-width: 18rem">
+									<label class="visually-hidden" for="wb-text-{item.object_id}">
+										Traducción en inglés del registro {item.object_id}
+									</label>
+									<textarea
+										id="wb-text-{item.object_id}"
+										class="form-control"
+										rows="2"
+										value={currentText(item)}
+										on:input={(e) => {
+											drafts[item.object_id] = e.currentTarget.value;
+										}}
+									></textarea>
 								</td>
 								<td>
 									<span
 										class="badge"
-										class:text-bg-warning={row.status === 'draft'}
-										class:text-bg-success={row.status === 'published'}
+										class:text-bg-secondary={item.status === 'none'}
+										class:text-bg-warning={item.status === 'draft'}
+										class:text-bg-success={item.status === 'published'}
 									>
-										{row.status === 'draft' ? 'Borrador' : 'Publicado'}
+										{statusLabel(item.status)}
 									</span>
 								</td>
 								<td class="text-nowrap">
-									{#if editing[row.id] !== undefined}
-										<button
-											type="button"
-											class="btn btn-sm btn-success me-1"
-											disabled={!!saving[row.id]}
-											on:click={() => saveEdit(row)}>Guardar</button
-										>
-										<button
-											type="button"
-											class="btn btn-sm btn-outline-secondary"
-											on:click={() => cancelEdit(row)}>Cancelar</button
-										>
-									{:else}
-										<button
-											type="button"
-											class="btn btn-sm btn-outline-primary me-1"
-											on:click={() => startEdit(row)}>Editar</button
-										>
-										<button
-											type="button"
-											class="btn btn-sm btn-outline-success"
-											disabled={!!saving[row.id]}
-											on:click={() => togglePublish(row)}
-										>
-											{row.status === 'published' ? 'Despublicar' : 'Publicar'}
-										</button>
-									{/if}
+									<button
+										type="button"
+										class="btn btn-sm btn-outline-primary me-1"
+										disabled={saving ||
+											drafts[item.object_id] === undefined ||
+											drafts[item.object_id] === item.value ||
+											!drafts[item.object_id]?.trim()}
+										on:click={() => saveRow(item)}>Guardar</button
+									>
+									<button
+										type="button"
+										class="btn btn-sm btn-outline-success"
+										disabled={saving || !item.translation_id}
+										on:click={() => togglePublish(item)}
+									>
+										{item.status === 'published' ? 'Despublicar' : 'Publicar'}
+									</button>
 								</td>
 							</tr>
 						{:else}
-							<tr><td colspan="4" class="text-muted">Sin filas en esta vista.</td></tr>
+							<tr><td colspan="6" class="text-muted">Sin filas en esta vista.</td></tr>
 						{/each}
 					</tbody>
 				</table>
+			</div>
+
+			<div class="d-flex align-items-center gap-2 mt-2">
+				<button
+					type="button"
+					class="btn btn-sm btn-outline-secondary"
+					disabled={!hasPrev || loading}
+					on:click={() => refresh(page - 1)}>← Anterior</button
+				>
+				<span class="text-muted" aria-live="polite">Página {page}</span>
+				<button
+					type="button"
+					class="btn btn-sm btn-outline-secondary"
+					disabled={!hasNext || loading}
+					on:click={() => refresh(page + 1)}>Siguiente →</button
+				>
 			</div>
 		{/if}
 	{/if}

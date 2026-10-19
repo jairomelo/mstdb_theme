@@ -468,6 +468,12 @@ export const missingWorkbenchTranslations = (params) => {
 	const qs = new URLSearchParams(params).toString();
 	return fetchWithBaseUrl(`workbench/translations/missing/?${qs}`);
 };
+export const workbenchQueue = (params) => {
+	const qs = new URLSearchParams(params).toString();
+	return fetchWithBaseUrl(`workbench/translations/queue/?${qs}`);
+};
+export const bulkPublishWorkbenchTranslations = (ids) =>
+	postWithBaseUrl('workbench/translations/bulk_publish/', { ids });
 export const workbenchContentType = (model) =>
 	fetchWithBaseUrl(`workbench/translations/content-type/?model=${encodeURIComponent(model)}`);
 export const workbenchLeccionTranslations = (params = {}) => {
