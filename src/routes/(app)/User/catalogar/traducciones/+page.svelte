@@ -122,7 +122,17 @@
 		}
 	});
 
-	async function refresh(nextPage = 1, keepNotice = null) {
+	let requestId = 0;
+
+	function fieldsFor(modelValue) {
+		return (MODELS.find((entry) => entry.value === modelValue) ?? MODELS[0]).fields;
+	}
+
+	async function refresh(nextPage = 1, keepNotice = null, scope = null) {
+		const my = ++requestId;
+		const activeModel = scope?.model ?? model;
+		const activeField = scope?.field ?? field;
+		const activeView = scope?.view ?? view;
 		loading = true;
 		error = null;
 		notice = keepNotice;
@@ -130,32 +140,37 @@
 		drafts = {};
 		try {
 			const data = await workbenchQueue({
-				model,
-				field_name: field,
+				model: activeModel,
+				field_name: activeField,
 				language_code: 'en',
-				view,
+				view: activeView,
 				page: nextPage,
 				page_size: PAGE_SIZE
 			});
+			if (my !== requestId) return;
 			items = data.results ?? [];
 			total = data.count ?? items.length;
 			page = nextPage;
 			hasNext = Boolean(data.next);
 			hasPrev = Boolean(data.previous);
+			error = null;
 		} catch (e) {
-			error = e.message;
+			if (my !== requestId) return;
+			error = e.data?.detail ?? e.message;
 		} finally {
-			loading = false;
+			if (my === requestId) loading = false;
 		}
 	}
 
 	function switchView(next) {
 		view = next;
-		refresh(1);
+		refresh(1, null, { model, field, view: next });
 	}
 
 	function changeScope() {
-		refresh(1);
+		const allowed = fieldsFor(model);
+		if (!allowed.includes(field)) field = allowed[0];
+		refresh(1, null, { model, field, view });
 	}
 
 	function currentText(item) {
