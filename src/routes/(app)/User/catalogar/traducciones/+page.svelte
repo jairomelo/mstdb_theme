@@ -122,10 +122,10 @@
 		}
 	});
 
-	async function refresh(nextPage = 1) {
+	async function refresh(nextPage = 1, keepNotice = null) {
 		loading = true;
 		error = null;
-		notice = null;
+		notice = keepNotice;
 		selected = new Set();
 		drafts = {};
 		try {
@@ -243,8 +243,8 @@
 			}
 			drafts = { ...drafts };
 			items = [...items];
-			notice = `${saved} borradores guardados.`;
-			if (view === 'missing') await refresh(page);
+			if (view === 'missing') await refresh(page, `${saved} borradores guardados.`);
+			else notice = `${saved} borradores guardados.`;
 		} catch (e) {
 			error = e.data?.field_name?.join(' ') ?? e.data?.detail ?? e.message;
 		} finally {
@@ -256,10 +256,11 @@
 		saving = true;
 		error = null;
 		try {
+			let message;
 			if (item.status === 'published') {
 				await unpublishWorkbenchTranslation(item.translation_id);
 				item.status = 'draft';
-				notice = `Registro ${item.object_id} devuelto a borrador.`;
+				message = `Registro ${item.object_id} devuelto a borrador.`;
 			} else {
 				if (!item.translation_id) {
 					await saveRow(item);
@@ -267,10 +268,11 @@
 				}
 				await publishWorkbenchTranslation(item.translation_id);
 				item.status = 'published';
-				notice = `Registro ${item.object_id} publicado.`;
+				message = `Registro ${item.object_id} publicado.`;
 			}
 			items = [...items];
-			if (view !== 'all') await refresh(page);
+			if (view !== 'all') await refresh(page, message);
+			else notice = message;
 		} catch (e) {
 			error = e.message;
 		} finally {
@@ -290,8 +292,7 @@
 		error = null;
 		try {
 			const { published } = await bulkPublishWorkbenchTranslations(ids);
-			notice = `${published} traducciones publicadas.`;
-			await refresh(page);
+			await refresh(page, `${published} traducciones publicadas.`);
 		} catch (e) {
 			error = e.message;
 		} finally {
@@ -355,10 +356,26 @@
 		</div>
 
 		{#if error}
-			<div class="alert alert-danger" role="alert">{error}</div>
+			<div class="alert alert-danger alert-dismissible fade show" role="alert">
+				{error}
+				<button
+					type="button"
+					class="btn-close"
+					aria-label="Cerrar error"
+					on:click={() => (error = null)}
+				></button>
+			</div>
 		{/if}
 		{#if notice}
-			<div class="alert alert-success" role="status">{notice}</div>
+			<div class="alert alert-success alert-dismissible fade show" role="status">
+				{notice}
+				<button
+					type="button"
+					class="btn-close"
+					aria-label="Cerrar aviso"
+					on:click={() => (notice = null)}
+				></button>
+			</div>
 		{/if}
 
 		{#if loading}
