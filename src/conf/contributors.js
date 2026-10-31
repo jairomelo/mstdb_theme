@@ -134,6 +134,14 @@ export const contributors = {
 				'Es profesora asistente en el Departamento de Historia y Estudios Críticos de Raza y Étnia de la Universidad de California, Merced. Recibió su licenciatura en la Universidad de California en Santa Bárbara y su maestría y doctorado en Historia en la Universidad de California en Los Ángeles. Su trabajo académico, incluyendo su próximo libro, <i>Beyond Captivity and Freedom: African Descended Women and Men in Colonial Oaxaca</i>, se enfoca en las experiencias de las poblaciones libres y esclavizadas en Antequera, la capital provincial de Oaxaca. Sus proyectos académicos se han publicado en las revistas <i>The Americas</i> y la <i>Hispanic American Historical Review</i>, además de en varios volúmenes editados. Como codirectora principal del proyecto, <i>Trayectorias afrodescendientes</i>, ha asesorado y colaborado con los siguientes estudiantes de la Universidad de California en Merced para llenar la base de datos, utilizando registros notariales de Oaxaca: Virginia Mateo, Daniel López, Kimberly Barillas y Dayana Llamas Méndez.',
 			bio_en:
 				"She is an assistant professor in the Department of History and Critical Race and Ethnic Studies at the University of California, Merced. She received her bachelor's degree from the University of California, Santa Barbara, and her master's and doctorate in History from the University of California, Los Angeles. Her academic work, including her forthcoming book, <i>Beyond Captivity and Freedom: African Descended Women and Men in Colonial Oaxaca</i>, focuses on the experiences of free and enslaved populations in Antequera, the provincial capital of Oaxaca. Her academic projects have been published in the journals <i>The Americas</i> and the <i>Hispanic American Historical Review</i>, as well as in several edited volumes. As a lead co-director of the project, <i>Trayectorias afrodescendientes</i>, she has advised and collaborated with the following students from the University of California, Merced to populate the database, using notarial records from Oaxaca: Virginia Mateo, Daniel López, Kimberly Barillas, and Dayana Llamas Méndez."
+		},
+		{
+			name: 'Lizbeth Martínez Martínez',
+			institution: '',
+			bio_es:
+				'',
+			bio_en:
+				''
 		}
 	],
 	researchAssistants: [
