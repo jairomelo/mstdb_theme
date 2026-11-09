@@ -137,11 +137,11 @@ export const contributors = {
 		},
 		{
 			name: 'Lizbeth Martínez Martínez',
-			institution: '',
+			institution: 'El Colegio de México',
 			bio_es:
-				'',
+				'Profesora de asignatura en la Facultad de Economía de la UNAM. Es licenciada en Economía y especialista en Historia Económica por la misma institución. Es egresada de la Maestría en Historia de la Facultad de Filosofía y Letras de la UNAM y actualmente es doctorante en Historia por El Colegio de México. Sus líneas de investigación se inscriben en la historia económica de la América colonial, con especial interés en el comercio colonial y los comerciantes esclavistas, así como en la participación de las mujeres en la construcción de redes de crédito en la Ciudad de México y el Río de la Plata durante los siglos XVIII y XIX.',
 			bio_en:
-				''
+				'Lecturer at the Faculty of Economics of the UNAM. She holds a bachelor’s degree in Economics and a specialization in Economic History from the same institution. She completed a master’s degree in History at the UNAM’s Faculty of Philosophy and Letters and is currently a doctoral candidate in History at El Colegio de México. Her research focuses on the economic history of colonial America, with a particular interest in colonial trade and slave-trading merchants, as well as the role of women in the development of credit networks in Mexico City and the Río de la Plata region during the 18th and 19th centuries.'
 		}
 	],
 	researchAssistants: [
