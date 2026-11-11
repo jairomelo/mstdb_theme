@@ -617,5 +617,6 @@
 	"dict_empty": "No results found.",
 	"conf_col_personas_esclavizadas": "Enslaved people",
 	"conf_col_personas_no_esclavizadas": "Non-enslaved people",
-	"search_match_via_document": "Matched via document"
+	"search_match_via_document": "Matched via document",
+	"support_email_intro": "Questions, suggestions, or information you would like to share? Write to us and someone from the team will get back to you soon."
 }

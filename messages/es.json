@@ -617,5 +617,6 @@
 	"dict_empty": "No se encontraron resultados.",
 	"conf_col_personas_esclavizadas": "Personas esclavizadas",
 	"conf_col_personas_no_esclavizadas": "Personas no esclavizadas",
-	"search_match_via_document": "Coincide por documento"
+	"search_match_via_document": "Coincide por documento",
+	"support_email_intro": "¿Tienes preguntas, sugerencias o información que quieras compartir? Escríbenos y alguien del equipo se pondrá en contacto contigo pronto."
 }

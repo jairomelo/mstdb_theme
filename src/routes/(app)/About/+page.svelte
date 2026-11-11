@@ -1,5 +1,6 @@
 <script>
 	import { contributors, localizeContributor } from '$conf/contributors';
+	import SupportEmail from '$lib/components/SupportEmail.svelte';
 	import { m } from '$lib/paraglide/messages.js';
 	import { getLocale } from '$lib/paraglide/runtime.js';
 
@@ -143,6 +144,15 @@
 
 			<!-- Footer Sections -->
 			<div class="footer-sections" data-aos="fade-up">
+				<!-- Contact -->
+				<div class="contact-section mb-4">
+					<h2 class="section-title">{m.footer_contact()}</h2>
+					<p>
+						{m.support_email_intro()}
+						<SupportEmail />
+					</p>
+				</div>
+
 				<!-- Funding -->
 				<div class="funding-section mb-4">
 					<h2 class="section-title">{m.financing()}</h2>

@@ -11,8 +11,9 @@
 
 	import { user } from '$lib/stores/user';
 	import { logout } from '$lib/api';
-	import { publicConfig, loadPublicConfig } from '$lib/publicConfig';
+	import { loadPublicConfig } from '$lib/publicConfig';
 	import { loginUrl } from '$lib/auth';
+	import SupportEmail from '$lib/components/SupportEmail.svelte';
 	import { getLocale, setLocale } from '$lib/paraglide/runtime.js';
 
 	const currentLocale = getLocale();
@@ -296,11 +297,10 @@
 					<ul class="list-unstyled">
 						<li><a href="/About">{m.civil_awake_llama_treat()}</a></li>
 						<li><a href="/Accessibility">{m.royal_civil_hare_pride()}</a></li>
-						{#if $publicConfig.contact_email}
-							<li>
-								<a href="mailto:{$publicConfig.contact_email}">{m.footer_contact()}</a>
-							</li>
-						{/if}
+						<li>
+							<span class="d-block">{m.footer_contact()}</span>
+							<SupportEmail />
+						</li>
 						{#if !$user}
 							<li><a href={loginUrl('/')}>{m.keen_polite_bobcat_snip()}</a></li>
 						{:else}
