@@ -4,6 +4,7 @@
 	import SearchableSelect from './SearchableSelect.svelte';
 	import IdSearchableSelect from './IdSearchableSelect.svelte';
 	import { m } from '$lib/paraglide/messages.js';
+	import { tooltip } from '$lib/bootstrap-actions.js';
 
 	export let entityType;
 
@@ -15,12 +16,19 @@
 		return {
 			...f,
 			label: resolveLabel(f.labelKey),
+			help: f.helpKey ? resolveLabel(f.helpKey) : '',
 			rangeLabel: f.rangeLabelKey ? resolveLabel(f.rangeLabelKey) : '',
 			placeholder: f.placeholderKey ? resolveLabel(f.placeholderKey) : '',
 			options: f.options
 				? f.options.map((o) => ({ ...o, label: resolveLabel(o.labelKey) }))
 				: f.options
 		};
+	}
+
+	// Only initialize a tooltip when there is copy, otherwise the action warns.
+	function helpTooltip(node, options) {
+		if (!options?.title) return;
+		return tooltip(node, options);
 	}
 
 	// Resolve message keys to text so reactive locale changes re-render labels.
@@ -146,7 +154,14 @@
 
 			{#if filter.type === 'text'}
 				<div class="mb-3">
+					<label
+						for={filter.key}
+						class="form-label small mb-1 label-help"
+						tabindex="0"
+						use:helpTooltip={{ title: filter.help, placement: 'right' }}>{filter.label}</label
+					>
 					<input
+						id={filter.key}
 						type="text"
 						class="form-control form-control-sm"
 						placeholder={filter.placeholder || ''}
@@ -157,7 +172,12 @@
 			{:else if isYearGte && nextFilter?.type === 'year'}
 				<!-- Year range pair, always visible -->
 				<div class="mb-3">
-					<label class="form-label small mb-1">{m.conf_browse_date_range()}</label>
+					<label
+						class="form-label small mb-1 label-help"
+						tabindex="0"
+						use:helpTooltip={{ title: filter.help, placement: 'right' }}
+						>{m.conf_browse_date_range()}</label
+					>
 					<div class="d-flex align-items-center gap-2">
 						<input
 							type="number"
@@ -227,7 +247,12 @@
 							{#if isRangePair}
 								<!-- Number range pair (e.g. edad min/max) -->
 								<div class="mb-2">
-									<label class="form-label small mb-1">{filter.rangeLabel}</label>
+									<label
+										class="form-label small mb-1 label-help"
+										tabindex="0"
+										use:helpTooltip={{ title: filter.help, placement: 'right' }}
+										>{filter.rangeLabel}</label
+									>
 									<div class="d-flex gap-2">
 										<input
 											type="number"
@@ -249,7 +274,12 @@
 								<!-- skip: already rendered as range pair -->
 							{:else if filter.type === 'text'}
 								<div class="mb-2">
-									<label class="form-label small mb-1">{filter.label}</label>
+									<label
+										class="form-label small mb-1 label-help"
+										tabindex="0"
+										use:helpTooltip={{ title: filter.help, placement: 'right' }}
+										>{filter.label}</label
+									>
 									<input
 										type="text"
 										class="form-control form-control-sm"
@@ -260,7 +290,12 @@
 								</div>
 							{:else if filter.type === 'searchable-select'}
 								<div class="mb-2">
-									<label class="form-label small mb-1">{filter.label}</label>
+									<label
+										class="form-label small mb-1 label-help"
+										tabindex="0"
+										use:helpTooltip={{ title: filter.help, placement: 'right' }}
+										>{filter.label}</label
+									>
 									<SearchableSelect
 										options={facets[filter.facetKey] || []}
 										value={currentFilters[filter.key] || ''}
@@ -270,7 +305,12 @@
 								</div>
 							{:else if filter.type === 'id-searchable-select'}
 								<div class="mb-2">
-									<label class="form-label small mb-1">{filter.label}</label>
+									<label
+										class="form-label small mb-1 label-help"
+										tabindex="0"
+										use:helpTooltip={{ title: filter.help, placement: 'right' }}
+										>{filter.label}</label
+									>
 									<IdSearchableSelect
 										options={facets[filter.facetKey] || []}
 										value={currentFilters[filter.key] || ''}
@@ -281,7 +321,12 @@
 								</div>
 							{:else if filter.type === 'select'}
 								<div class="mb-2">
-									<label class="form-label small mb-1">{filter.label}</label>
+									<label
+										class="form-label small mb-1 label-help"
+										tabindex="0"
+										use:helpTooltip={{ title: filter.help, placement: 'right' }}
+										>{filter.label}</label
+									>
 									{#each filter.options as opt}
 										<label class="facet-option">
 											<input
@@ -296,7 +341,12 @@
 								</div>
 							{:else if filter.type === 'number'}
 								<div class="mb-2">
-									<label class="form-label small mb-1">{filter.label}</label>
+									<label
+										class="form-label small mb-1 label-help"
+										tabindex="0"
+										use:helpTooltip={{ title: filter.help, placement: 'right' }}
+										>{filter.label}</label
+									>
 									<input
 										type="number"
 										class="form-control form-control-sm"

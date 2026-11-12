@@ -1401,6 +1401,30 @@ li {
 .browse-view th.sorted {
 	color: #d6c7b8;
 }
+
+/* Field labels/headers that carry a help tooltip */
+.label-help {
+	text-decoration: underline dotted;
+	text-underline-offset: 0.2em;
+	cursor: help;
+}
+.label-help:hover,
+.label-help:focus-visible {
+	text-decoration-style: solid;
+}
+.label-help:focus-visible {
+	outline: 2px solid var(--bs-primary, #8b4513);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+.browse-view thead.sticky-top th.label-help {
+	color: #f8f5f2;
+	text-decoration-color: currentColor;
+}
+.browse-view thead.sticky-top th.label-help:hover,
+.browse-view thead.sticky-top th.label-help:focus-visible {
+	color: #fff;
+}
 .browse-view .browse-row {
 	cursor: pointer;
 }

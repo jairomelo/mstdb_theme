@@ -3,6 +3,7 @@
 	import { unifiedStore, toggleSort } from '$lib/unified-store';
 	import { columnsConfig, entityIdField, entityTabConfig, renderCellValue } from '$conf/columns';
 	import { m } from '$lib/paraglide/messages.js';
+	import { tooltip } from '$lib/bootstrap-actions.js';
 
 	export let entityType;
 	export let results;
@@ -11,15 +12,29 @@
 	$: visibleColumnKeys = $unifiedStore.tabs[entityType]?.visibleColumns || [];
 	$: visibleColumns = allColumns
 		.filter((c) => visibleColumnKeys.includes(c.key))
-		.map((c) => ({ ...c, label: m[c.labelKey]() }));
+		.map((c) => ({ ...c, label: m[c.labelKey](), help: c.helpKey ? m[c.helpKey]() : '' }));
 	$: sortField = $unifiedStore.tabs[entityType]?.sortField || '';
 	$: sortDir = $unifiedStore.tabs[entityType]?.sortDir || 'asc';
 	$: idField = entityIdField[entityType];
 	$: detailPath = entityTabConfig[entityType]?.detailPath || '';
 
+	// Only initialize a tooltip when there is copy, otherwise the action warns.
+	function helpTooltip(node, options) {
+		if (!options?.title) return;
+		return tooltip(node, options);
+	}
+
 	function handleSort(col) {
 		if (col.sortable) {
 			toggleSort(entityType, col.key);
+		}
+	}
+
+	function handleHeaderKeydown(e, col) {
+		if (!col.sortable) return;
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			handleSort(col);
 		}
 	}
 
@@ -43,7 +58,16 @@
 					<th
 						class:sortable={col.sortable}
 						class:sorted={sortField === col.key}
+						class:label-help={!!col.help}
+						tabindex="0"
 						on:click={() => handleSort(col)}
+						on:keydown={(e) => handleHeaderKeydown(e, col)}
+						use:helpTooltip={{ title: col.help, placement: 'bottom' }}
+						aria-sort={sortField === col.key
+							? sortDir === 'asc'
+								? 'ascending'
+								: 'descending'
+							: undefined}
 						style="white-space: nowrap; cursor: {col.sortable ? 'pointer' : 'default'};"
 					>
 						{col.label}
