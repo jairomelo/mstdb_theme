@@ -49,26 +49,44 @@ export function tooltip(node, options = {}) {
 	if (!browser) return;
 
 	let tooltipInstance;
+	let destroyed = false;
+	let initToken = 0;
 
-	/* Safely dispose of the tooltip instance */
-	function safeDisposeTooltip() {
-		if (tooltipInstance) {
+	function hideTooltip() {
+		if (!tooltipInstance) return;
+
+		try {
+			tooltipInstance.hide();
+		} catch (error) {
+			console.warn('Tooltip hide error (safely handled):', error.message);
+		}
+	}
+
+	// Bootstrap appends the tooltip element to <body>, so it outlives the trigger
+	// node. Always dispose (even if the node is already detached) or the tooltip
+	// stays behind, visible, after client-side navigation.
+	function disposeTooltip() {
+		const instance = tooltipInstance;
+		tooltipInstance = null;
+		if (!instance) return;
+
+		try {
+			instance.dispose();
+		} catch (error) {
+			console.warn('Tooltip disposal error (safely handled):', error.message);
 			try {
-				if (node && node.isConnected && document.contains(node)) {
-					tooltipInstance.dispose();
-				} else {
-					tooltipInstance = null;
-				}
-			} catch (error) {
-				console.warn('Tooltip disposal error (safely handled):', error.message);
-				tooltipInstance = null;
+				instance.tip?.remove();
+			} catch {
+				/* ignore */
 			}
 		}
 	}
 
 	function initializeTooltip() {
+		const token = ++initToken;
+
 		import('bootstrap').then((bootstrap) => {
-			if (!node || !node.isConnected) {
+			if (destroyed || token !== initToken || !node?.isConnected) {
 				return;
 			}
 
@@ -81,33 +99,27 @@ export function tooltip(node, options = {}) {
 					title: title,
 					trigger: options.trigger || 'hover focus'
 				});
-
-				// Hide tooltip on click
-				node.addEventListener('click', () => {
-					if (tooltipInstance) {
-						try {
-							tooltipInstance.hide();
-						} catch (error) {
-							console.warn('Tooltip hide error (safely handled):', error.message);
-						}
-					}
-				});
-			} else {
-				console.warn('Tooltip initialization skipped: No valid title found for', node);
 			}
 		});
 	}
 
+	node.addEventListener('click', hideTooltip);
 	initializeTooltip();
 
 	return {
 		update(newOptions) {
+			if (destroyed) return;
+
 			options = newOptions;
-			safeDisposeTooltip();
+			initToken++;
+			disposeTooltip();
 			initializeTooltip();
 		},
 		destroy() {
-			safeDisposeTooltip();
+			destroyed = true;
+			initToken++;
+			node.removeEventListener('click', hideTooltip);
+			disposeTooltip();
 		}
 	};
 }
