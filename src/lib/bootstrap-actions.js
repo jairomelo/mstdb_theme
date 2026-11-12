@@ -8,14 +8,6 @@ export function dropdown(node) {
 	async function initializeDropdown() {
 		const bootstrap = await import('bootstrap');
 		dropdownInstance = new bootstrap.Dropdown(node);
-
-		// Add manual event listeners
-		node.addEventListener('click', (e) => {
-			e.preventDefault();
-			if (dropdownInstance) {
-				dropdownInstance.toggle();
-			}
-		});
 	}
 
 	initializeDropdown();

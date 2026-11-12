@@ -846,7 +846,7 @@ li {
 /* Search view styles */
 
 .search-btn i {
-	color: black;
+	color: inherit;
 }
 
 .search-chip-filters {
