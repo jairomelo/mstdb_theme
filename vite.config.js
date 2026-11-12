@@ -1,6 +1,9 @@
+import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vitest/config';
 import { readFileSync } from 'fs';
+import path from 'path';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
@@ -10,7 +13,23 @@ export default defineConfig({
 		__APP_VERSION__: JSON.stringify(pkg.version)
 	},
 	plugins: [
-		sveltekit(),
+		sveltekit({
+			adapter: adapter({
+				pages: 'build',
+				assets: 'build',
+				fallback: 'index.html',
+				precompress: false,
+				strict: true
+			}),
+			alias: {
+				$conf: path.resolve('src/conf'),
+				$lib: path.resolve('src/lib')
+			},
+			paths: {
+				base: process.env.NODE_ENV === 'production' ? '' : ''
+			},
+			preprocess: vitePreprocess()
+		}),
 		paraglideVitePlugin({
 			project: './project.inlang',
 			outdir: './src/lib/paraglide',
