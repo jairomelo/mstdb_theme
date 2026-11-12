@@ -3,6 +3,9 @@
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import * as d3 from 'd3';
+	// Vite 8 (Rolldown) drops d3's re-export of this side-effect module because d3 declares
+	// "sideEffects": false; import it directly so selection.prototype.transition/interrupt exist.
+	import 'd3-transition';
 	import { aggregatedTrajectories } from '$lib/api';
 	import { m } from '$lib/paraglide/messages.js';
 	import RouteDetailPanel from '../../Search/RouteDetailPanel.svelte';
@@ -279,6 +282,7 @@
 		try {
 			const leaflet = await import('leaflet');
 			L = leaflet.default;
+			if (!mapContainer) return;
 
 			map = L.map(mapContainer).setView([17.5, -96], 6);
 			L.tileLayer(`${config.apiBaseUrl}tiles/light_nolabels/{z}/{x}/{y}.png`, {
@@ -296,6 +300,7 @@
 			gParticles = gRoot.append('g');
 
 			await loadData();
+			if (!map) return;
 			// Zoom and view reset change the projection (zoom + pixel origin), so
 			// drop the geometry cache and re-lay-out. Panning only moves the map
 			// pane and keeps the pixel origin, so cached layer points stay valid —
