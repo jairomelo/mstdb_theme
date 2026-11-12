@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { page, navigating } from '$app/stores';
+	import { page, navigating } from '$app/state';
 	import '@fontsource/aleo';
 	import '@fontsource/eb-garamond';
 	import { dropdown, collapse } from '$lib/bootstrap-actions.js';
@@ -47,9 +47,9 @@
 	let welcomeTimeout;
 
 	// Landing vs app chrome: resolve from the in-flight navigation target so the
-	// branch flips at navigation start. Keying on $page.url alone flips after
+	// branch flips at navigation start. Keying on page.url alone flips after
 	// the new page has mounted, which destroyed and remounted it mid-fetch.
-	$: isLanding = ($navigating?.to?.url.pathname ?? $page.url.pathname) === '/';
+	const isLanding = $derived((navigating.to?.url.pathname ?? page.url.pathname) === '/');
 
 	function dismissWelcome() {
 		welcome = null;
@@ -93,7 +93,7 @@
 			type="button"
 			class="btn-close"
 			aria-label={m.cute_slimy_orangutan_gleam()}
-			on:click={dismissWelcome}
+			onclick={dismissWelcome}
 		></button>
 	</div>
 {/if}
@@ -125,7 +125,7 @@
 							<a
 								class="nav-link"
 								href="/Search/"
-								aria-current={$page.url.pathname.startsWith('/Search') ? 'page' : undefined}
+								aria-current={page.url.pathname.startsWith('/Search') ? 'page' : undefined}
 								>{m.candid_late_sparrow_hug()} <i class="bi bi-search" aria-hidden="true"></i></a
 							>
 						</li>
@@ -134,7 +134,7 @@
 							<a
 								class="nav-link"
 								href="/Dashboard/"
-								aria-current={$page.url.pathname.startsWith('/Dashboard') ? 'page' : undefined}
+								aria-current={page.url.pathname.startsWith('/Dashboard') ? 'page' : undefined}
 								>{m.candid_such_lamb_hug()}</a
 							>
 						</li>
@@ -143,7 +143,7 @@
 							<a
 								class="nav-link"
 								href="/lessons/"
-								aria-current={$page.url.pathname.startsWith('/lessons') ? 'page' : undefined}
+								aria-current={page.url.pathname.startsWith('/lessons') ? 'page' : undefined}
 								>{m.lessons_nav()}</a
 							>
 						</li>
@@ -152,7 +152,7 @@
 							<a
 								class="nav-link"
 								href="/Diccionario/"
-								aria-current={$page.url.pathname.startsWith('/Diccionario') ? 'page' : undefined}
+								aria-current={page.url.pathname.startsWith('/Diccionario') ? 'page' : undefined}
 								>{m.dict_nav()}</a
 							>
 						</li>
@@ -172,7 +172,7 @@
 									<a
 										class="dropdown-item"
 										href="/Archivos/"
-										aria-current={$page.url.pathname.startsWith('/Archivos') ? 'page' : undefined}
+										aria-current={page.url.pathname.startsWith('/Archivos') ? 'page' : undefined}
 										>{m.archivos()}</a
 									>
 								</li>
@@ -180,7 +180,7 @@
 									<a
 										class="dropdown-item"
 										href="/About/"
-										aria-current={$page.url.pathname.startsWith('/About') ? 'page' : undefined}
+										aria-current={page.url.pathname.startsWith('/About') ? 'page' : undefined}
 										>{m.low_flaky_myna_love()}</a
 									>
 								</li>
@@ -207,7 +207,7 @@
 							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 								{#if !$user}
 									<li>
-										<a class="dropdown-item" href={loginUrl($page.url.pathname + $page.url.search)}
+										<a class="dropdown-item" href={loginUrl(page.url.pathname + page.url.search)}
 											>{m.start_session()}</a
 										>
 									</li>
@@ -220,7 +220,14 @@
 									</li>
 									<li><hr class="dropdown-divider" /></li>
 									<li>
-										<a class="dropdown-item" href="#" on:click|preventDefault={handleLogout}>
+										<a
+											class="dropdown-item"
+											href="#"
+											onclick={(event) => {
+												event.preventDefault();
+												handleLogout();
+											}}
+										>
 											{m.end_session()}
 										</a>
 									</li>
@@ -234,7 +241,7 @@
 							<button
 								type="button"
 								class="btn btn-link nav-link px-2 d-flex align-items-center gap-1"
-								on:click={toggleLanguage}
+								onclick={toggleLanguage}
 								aria-label={currentLocale === 'es' ? 'Switch to English' : 'Cambiar a Español'}
 							>
 								<i class="bi bi-translate" aria-hidden="true"></i>

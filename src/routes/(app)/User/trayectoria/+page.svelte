@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy, tick } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import * as d3 from 'd3';
 	import {
@@ -105,7 +105,7 @@
 		}
 
 		// Pre-load persona from URL param
-		const preloadId = $page.url.searchParams.get('persona_id');
+		const preloadId = page.url.searchParams.get('persona_id');
 		if (preloadId) {
 			try {
 				const pe = await peresclavizadas(preloadId);

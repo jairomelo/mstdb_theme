@@ -1,7 +1,7 @@
 <script>
 	import { onMount, onDestroy, tick } from 'svelte';
 	import { browser } from '$app/environment';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import {
 		whoami,
 		searchPersonasEsclavizadas,
@@ -151,7 +151,7 @@
 		}
 		await tick();
 		initCy();
-		const preloadId = $page.url.searchParams.get('persona_id');
+		const preloadId = page.url.searchParams.get('persona_id');
 		if (preloadId) {
 			try {
 				await addPersonaToCanvas(preloadId, null);

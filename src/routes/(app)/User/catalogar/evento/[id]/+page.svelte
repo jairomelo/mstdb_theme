@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import { goto, afterNavigate } from '$app/navigation';
 	import {
 		fetchWithBaseUrl,
 		postWithBaseUrl,
@@ -17,7 +17,10 @@
 	import ConfirmDelete from '$lib/components/hub/ConfirmDelete.svelte';
 	import EntitySection from '$lib/components/hub/EntitySection.svelte';
 
-	$: docId = $page.params.id;
+	let docId = page.params.id;
+	afterNavigate(({ to }) => {
+		if (to?.params.id) docId = to.params.id;
+	});
 
 	let pageLoading = true;
 	let pageError = null;
